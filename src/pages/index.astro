@@ -1,0 +1,41 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { getCollection } from "astro:content";
+
+const caseStudies = (await getCollection("caseStudies", ({ data }) => !data.draft)).sort(
+  (a, b) => a.data.order - b.data.order
+);
+---
+
+<Layout title="Home">
+  <section class="mx-auto max-w-5xl px-6 py-24">
+    <h1 class="max-w-2xl text-4xl font-medium tracking-tight sm:text-5xl">
+      Positioning statement placeholder — locked during content phase.
+    </h1>
+  </section>
+
+  <section class="mx-auto max-w-5xl px-6 pb-24">
+    <ul class="grid gap-6 sm:grid-cols-2">
+      {
+        caseStudies.map((entry) => (
+          <li>
+            <a
+              href={`/work/${entry.id}`}
+              class="block rounded-lg border border-border p-6 transition-colors hover:border-foreground/30"
+            >
+              <h2 class="text-lg font-medium">{entry.data.title}</h2>
+              <p class="mt-2 text-sm text-muted-foreground">{entry.data.summary}</p>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+    {
+      caseStudies.length === 0 && (
+        <p class="text-sm text-muted-foreground">
+          No published case studies yet — entries with <code>draft: true</code> are hidden here.
+        </p>
+      )
+    }
+  </section>
+</Layout>
