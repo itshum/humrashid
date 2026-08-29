@@ -1,43 +1,24 @@
-# Astro Starter Kit: Minimal
+# humrashid.com
 
-```sh
-npm create astro@latest -- --template minimal
-```
+Portfolio site. Astro v7 + Tailwind v4 + shadcn/ui. See `portfolio-rebuild-brief.md` (not in this repo) for full scope, timeline, and content plan.
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## Commands
 
-## 🚀 Project Structure
+| Command                   | Action                                       |
+| :------------------------ | :-------------------------------------------- |
+| `npm install`              | Installs dependencies                        |
+| `npm run dev`               | Starts local dev server at `localhost:4321`  |
+| `npm run build`             | Build production site to `./dist/`           |
+| `npm run preview`           | Preview build locally                        |
 
-Inside of your Astro project, you'll see the following folders and files:
+## Structure
 
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
-```
+- `src/content/case-studies/` — case study markdown, schema in `src/content.config.ts`
+- `src/pages/work/[slug].astro` — case study template (shared by all case studies)
+- `src/pages/design-system.astro` — live token playground (colors, radius, spacing, fonts) for tuning the design system before it's finalized. **Delete or gate this route before launch** — it currently ships as a normal public page.
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+## Deploy
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+GitHub Actions (`.github/workflows/deploy.yml`) builds and deploys to GitHub Pages on every push to `main`.
 
-Any static assets, like images, can be placed in the `public/` directory.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+**Known state as of Aug 2026:** this repo is private, and GitHub Pages requires a public repo on the free plan. The `deploy` job will fail on every push until the repo is switched to public and Pages is enabled in Settings → Pages — this is expected and deliberate (site stays private pre-launch), not a bug. Planned to flip right before the Sept 14, 2026 launch/DNS cutover. The `build` job passing is the useful signal until then.
