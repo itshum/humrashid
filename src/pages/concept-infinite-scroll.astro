@@ -1,0 +1,347 @@
+---
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Concept — Infinite Scroll</title>
+    <style is:global>
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        background: #0a0a0a;
+        font-family: ui-sans-serif, system-ui, sans-serif;
+        overflow: hidden;
+      }
+
+      .frame-label {
+        position: fixed;
+        top: 16px;
+        left: 40px;
+        color: #6b6b6b;
+        font-size: 0.8rem;
+        z-index: 5;
+      }
+
+      .stage {
+        position: absolute;
+        inset: 24px;
+        background: #fff;
+        border-radius: 6px;
+        overflow: hidden;
+      }
+
+      .scroller {
+        height: 100%;
+        overflow-y: hidden;
+        will-change: scroll-position;
+      }
+
+      .panel {
+        display: flex;
+        align-items: center;
+        gap: 4rem;
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 6rem 3rem;
+      }
+
+      .panel.align-left {
+        justify-content: flex-start;
+      }
+
+      .panel.align-right {
+        justify-content: flex-end;
+        flex-direction: row-reverse;
+      }
+
+      .panel .media {
+        flex-shrink: 0;
+        background: #d9d9d9;
+        border-radius: 4px;
+      }
+
+      .panel .media.tall {
+        width: 320px;
+        height: 400px;
+      }
+
+      .panel .media.wide {
+        width: 460px;
+        height: 300px;
+      }
+
+      .panel .media.phone {
+        width: 260px;
+        height: 420px;
+        border-radius: 24px;
+      }
+
+      .panel .copy {
+        max-width: 300px;
+      }
+
+      .panel .copy h2 {
+        font-size: 2rem;
+        font-weight: 500;
+        margin: 0 0 1rem;
+        color: #171717;
+      }
+
+      .panel .copy p {
+        color: #6b6b6b;
+        line-height: 1.5;
+        margin: 0 0 1.25rem;
+        font-size: 0.95rem;
+      }
+
+      .pill {
+        display: inline-block;
+        padding: 0.6rem 1.4rem;
+        background: #d9d9d9;
+        color: #333;
+        border-radius: 999px;
+        font-size: 0.85rem;
+        text-decoration: none;
+        cursor: pointer;
+        border: none;
+      }
+
+      .intro .copy p {
+        font-size: 1.4rem;
+        color: #171717;
+        font-weight: 400;
+        max-width: 360px;
+      }
+
+      /* Floating nav */
+      .float-nav {
+        position: absolute;
+        left: 50%;
+        bottom: 32px;
+        transform: translate(-50%, 24px);
+        display: flex;
+        align-items: center;
+        gap: 1.75rem;
+        padding: 0.7rem 1.4rem;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        z-index: 10;
+        white-space: nowrap;
+      }
+
+      .float-nav.visible {
+        opacity: 1;
+        transform: translate(-50%, 0);
+        pointer-events: auto;
+      }
+
+      .float-nav .back {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: rgba(0, 0, 0, 0.08);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        color: #333;
+      }
+
+      .float-nav .name {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: #171717;
+      }
+
+      .float-nav .links {
+        display: flex;
+        gap: 1.25rem;
+        font-size: 0.85rem;
+        color: #555;
+      }
+
+      .float-nav .links span:first-child {
+        color: #171717;
+        font-weight: 600;
+      }
+
+      .progress-note {
+        position: absolute;
+        top: 16px;
+        right: 40px;
+        font-size: 0.75rem;
+        color: #b0b0b0;
+        z-index: 5;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="frame-label">Concept — Infinite Scroll</div>
+    <div class="progress-note" id="progress-note">scroll to reveal nav…</div>
+
+    <div class="stage">
+      <div class="scroller" id="scroller">
+        <div class="panel intro align-left">
+          <div class="media tall"></div>
+          <div class="copy">
+            <p>Humayun Rashid is a designer and founder based in New York City.</p>
+            <a class="pill" href="/about">About</a>
+          </div>
+        </div>
+        <div id="feed"></div>
+      </div>
+      <nav class="float-nav" id="float-nav">
+        <span class="back">←</span>
+        <span class="name">Humayun Rashid</span>
+        <span class="links">
+          <span>Work</span>
+          <span>About</span>
+          <span>Ideas</span>
+        </span>
+      </nav>
+    </div>
+
+    <script>
+      const caseStudiesMarkup = `
+        <div class="panel align-left">
+          <div class="media wide"></div>
+          <div class="copy">
+            <h2>Pack Digital</h2>
+            <p>Product strategy and UI design for headless infrastructure startup.</p>
+            <a class="pill" href="/work/pack">Read Case Study</a>
+          </div>
+        </div>
+        <div class="panel align-right">
+          <div class="media wide"></div>
+          <div class="copy">
+            <h2>Inveterate</h2>
+            <p>Product strategy and UI design for membership &amp; loyalty startup.</p>
+            <a class="pill" href="/work/inveterate">Read Case Study</a>
+          </div>
+        </div>
+        <div class="panel align-left">
+          <div class="media phone"></div>
+          <div class="copy">
+            <h2>PPVP</h2>
+            <p>Product strategy and mobile app design for SaaS investment fund.</p>
+            <a class="pill" href="/work/ppvp">Read Case Study</a>
+          </div>
+        </div>
+        <div class="panel align-right">
+          <div class="media tall"></div>
+          <div class="copy">
+            <h2>Stocked</h2>
+            <p>eCommerce design &amp; product strategy for consumer food startup.</p>
+            <a class="pill" href="/work/stocked">Read Case Study</a>
+          </div>
+        </div>
+      `;
+
+      const scroller = document.getElementById("scroller");
+      const feed = document.getElementById("feed");
+      const nav = document.getElementById("float-nav");
+      const progressNote = document.getElementById("progress-note");
+
+      // Bio panel is static HTML above #feed — it never repeats, so scrollTop 0
+      // is a hard ceiling. #feed grows downward as the user approaches the end,
+      // so scrolling down never runs out (real infinite scroll, no jump-reset).
+      function appendBatch() {
+        feed.insertAdjacentHTML("beforeend", caseStudiesMarkup);
+      }
+      appendBatch();
+      appendBatch();
+      appendBatch();
+
+      // --- Damped, eased scroll ---------------------------------------------
+      // Native wheel scrolling is fully intercepted. Each wheel tick moves the
+      // *target* by only a fraction of the raw delta (WHEEL_DAMPING), and the
+      // *current* position eases toward that target every frame (EASE). The
+      // combination is what makes it feel "heavier" / harder to fling than a
+      // normal page — closer to a weighted dial than a native scrollbar.
+      const WHEEL_DAMPING = 0.45;
+      const EASE = 0.09;
+      const APPEND_THRESHOLD = 1500;
+      const REVEAL_THRESHOLD = 700;
+
+      let targetY = 0;
+      let currentY = 0;
+      let navRevealed = false;
+
+      function maxScroll() {
+        return Math.max(0, scroller.scrollHeight - scroller.clientHeight);
+      }
+
+      function clamp(value, min, max) {
+        return Math.min(max, Math.max(min, value));
+      }
+
+      scroller.addEventListener(
+        "wheel",
+        (e) => {
+          e.preventDefault();
+          targetY = clamp(targetY + e.deltaY * WHEEL_DAMPING, 0, maxScroll());
+        },
+        { passive: false }
+      );
+
+      let touchStartY = null;
+      scroller.addEventListener(
+        "touchstart",
+        (e) => {
+          touchStartY = e.touches[0].clientY;
+        },
+        { passive: true }
+      );
+      scroller.addEventListener(
+        "touchmove",
+        (e) => {
+          if (touchStartY === null) return;
+          const y = e.touches[0].clientY;
+          const delta = touchStartY - y;
+          touchStartY = y;
+          targetY = clamp(targetY + delta, 0, maxScroll());
+          e.preventDefault();
+        },
+        { passive: false }
+      );
+
+      function tick() {
+        currentY += (targetY - currentY) * EASE;
+        if (Math.abs(targetY - currentY) < 0.05) currentY = targetY;
+        scroller.scrollTop = currentY;
+
+        if (targetY > maxScroll() - APPEND_THRESHOLD) {
+          appendBatch();
+        }
+
+        if (!navRevealed && currentY > REVEAL_THRESHOLD) {
+          navRevealed = true;
+          nav.classList.add("visible");
+          progressNote.style.opacity = "0";
+        }
+        if (progressNote && !navRevealed) {
+          const pct = Math.min(100, Math.round((currentY / REVEAL_THRESHOLD) * 100));
+          progressNote.textContent = `scroll to reveal nav… ${pct}%`;
+        }
+
+        requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    </script>
+  </body>
+</html>
