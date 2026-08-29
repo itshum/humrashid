@@ -1,0 +1,655 @@
+---
+import "../styles/global.css";
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Design System · Hum Rashid</title>
+    <link rel="preconnect" href="https://api.fontshare.com" />
+    <link
+      rel="stylesheet"
+      href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,500,400&f[]=general-sans@600,500,400&display=swap"
+    />
+    <style>
+      :root {
+        --font-cabinet: "Cabinet Grotesk", "General Sans", sans-serif;
+        --font-general: "General Sans", "Geist Variable", sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+      }
+
+      .ds-shell {
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        min-height: 100vh;
+      }
+
+      .ds-panel {
+        border-right: 1px solid var(--border);
+        padding: 1.5rem;
+        overflow-y: auto;
+        height: 100vh;
+        position: sticky;
+        top: 0;
+        background: var(--background);
+      }
+
+      .ds-panel h1 {
+        font-family: var(--font-cabinet);
+        font-size: 1.1rem;
+        margin: 0 0 0.25rem;
+      }
+
+      .ds-panel .ds-sub {
+        color: var(--muted-foreground);
+        font-size: 0.8rem;
+        margin: 0 0 1.5rem;
+      }
+
+      .ds-group {
+        margin-bottom: 1.5rem;
+      }
+
+      .ds-group h2 {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--muted-foreground);
+        margin: 0 0 0.75rem;
+        font-weight: 600;
+      }
+
+      .ds-field {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        margin-bottom: 0.6rem;
+        font-size: 0.8rem;
+      }
+
+      .ds-field label {
+        color: var(--foreground);
+        flex-shrink: 0;
+      }
+
+      .ds-field input[type="color"] {
+        width: 36px;
+        height: 26px;
+        padding: 0;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        background: none;
+        cursor: pointer;
+      }
+
+      .ds-field input[type="range"] {
+        width: 130px;
+      }
+
+      .ds-field select {
+        font-size: 0.8rem;
+        padding: 0.2rem 0.4rem;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        background: var(--background);
+        color: var(--foreground);
+      }
+
+      .ds-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+      }
+
+      .ds-actions button {
+        flex: 1;
+        font-size: 0.75rem;
+        padding: 0.5rem;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        background: var(--secondary);
+        color: var(--secondary-foreground);
+        cursor: pointer;
+      }
+
+      .ds-actions button.primary {
+        background: var(--primary);
+        color: var(--primary-foreground);
+        border-color: transparent;
+      }
+
+      #ds-export {
+        width: 100%;
+        margin-top: 0.75rem;
+        font-family: ui-monospace, monospace;
+        font-size: 0.7rem;
+        min-height: 220px;
+        padding: 0.6rem;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        background: var(--muted);
+        color: var(--foreground);
+        display: none;
+        white-space: pre;
+      }
+
+      .ds-preview {
+        padding: 3rem 4rem;
+        overflow-y: auto;
+        height: 100vh;
+      }
+
+      .ds-preview-block + .ds-preview-block {
+        margin-top: calc(var(--spacing, 0.25rem) * 16);
+        padding-top: calc(var(--spacing, 0.25rem) * 16);
+        border-top: 1px solid var(--border);
+      }
+
+      .ds-nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: calc(var(--spacing, 0.25rem) * 4) calc(var(--spacing, 0.25rem) * 6);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: var(--background);
+      }
+
+      .ds-nav .brand {
+        font-family: var(--font-heading, var(--font-cabinet));
+        font-weight: 700;
+      }
+
+      .ds-nav .links {
+        display: flex;
+        gap: calc(var(--spacing, 0.25rem) * 6);
+        font-size: 0.85rem;
+        color: var(--muted-foreground);
+      }
+
+      .ds-hero h1 {
+        font-family: var(--font-heading, var(--font-cabinet));
+        font-weight: 800;
+        font-size: calc(2.75rem * var(--type-scale, 1));
+        line-height: 1.05;
+        letter-spacing: -0.02em;
+        margin: 0 0 calc(var(--spacing, 0.25rem) * 5);
+        max-width: 32ch;
+      }
+
+      .ds-hero p {
+        font-family: var(--font-sans, var(--font-general));
+        color: var(--muted-foreground);
+        font-size: calc(1.05rem * var(--type-scale, 1));
+        max-width: 50ch;
+        line-height: 1.6;
+        margin: 0;
+      }
+
+      .ds-buttons {
+        display: flex;
+        gap: calc(var(--spacing, 0.25rem) * 3);
+        align-items: center;
+      }
+
+      .btn {
+        font-family: var(--font-sans, var(--font-general));
+        font-size: 0.85rem;
+        font-weight: 500;
+        padding: calc(var(--spacing, 0.25rem) * 3) calc(var(--spacing, 0.25rem) * 5);
+        border-radius: var(--radius);
+        border: 1px solid transparent;
+        cursor: pointer;
+      }
+
+      .btn-primary {
+        background: var(--primary);
+        color: var(--primary-foreground);
+      }
+
+      .btn-secondary {
+        background: var(--secondary);
+        color: var(--secondary-foreground);
+        border-color: var(--border);
+      }
+
+      .btn-ghost {
+        background: transparent;
+        color: var(--foreground);
+        border-color: var(--border);
+      }
+
+      .ds-cards {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: calc(var(--spacing, 0.25rem) * 6);
+      }
+
+      .ds-card {
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: calc(var(--spacing, 0.25rem) * 6);
+        background: var(--background);
+      }
+
+      .ds-card .tag {
+        font-family: var(--font-sans, var(--font-general));
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--muted-foreground);
+        margin-bottom: calc(var(--spacing, 0.25rem) * 2);
+      }
+
+      .ds-card h3 {
+        font-family: var(--font-heading, var(--font-cabinet));
+        font-weight: 700;
+        font-size: calc(1.3rem * var(--type-scale, 1));
+        margin: 0 0 calc(var(--spacing, 0.25rem) * 2);
+      }
+
+      .ds-card p {
+        font-family: var(--font-sans, var(--font-general));
+        color: var(--muted-foreground);
+        font-size: 0.85rem;
+        margin: 0;
+        line-height: 1.5;
+      }
+
+      .ds-type-sample {
+        font-family: var(--font-sans, var(--font-general));
+      }
+
+      .ds-type-sample .h1 {
+        font-family: var(--font-heading, var(--font-cabinet));
+        font-weight: 800;
+        font-size: calc(2.25rem * var(--type-scale, 1));
+        margin: 0 0 0.5rem;
+      }
+
+      .ds-type-sample .h2 {
+        font-family: var(--font-heading, var(--font-cabinet));
+        font-weight: 700;
+        font-size: calc(1.5rem * var(--type-scale, 1));
+        margin: 0 0 0.5rem;
+      }
+
+      .ds-type-sample .body {
+        font-size: calc(1rem * var(--type-scale, 1));
+        line-height: 1.6;
+        color: var(--foreground);
+        margin: 0 0 0.5rem;
+        max-width: 60ch;
+      }
+
+      .ds-type-sample .small {
+        font-size: calc(0.8rem * var(--type-scale, 1));
+        color: var(--muted-foreground);
+        margin: 0;
+      }
+
+      .ds-swatches {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+        gap: calc(var(--spacing, 0.25rem) * 4);
+      }
+
+      .ds-swatch {
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+        font-size: 0.7rem;
+      }
+
+      .ds-swatch .fill {
+        height: 56px;
+      }
+
+      .ds-swatch .label {
+        padding: 0.4rem 0.5rem;
+        background: var(--background);
+        color: var(--foreground);
+        font-family: ui-monospace, monospace;
+      }
+
+      .ds-section-label {
+        font-family: var(--font-sans, var(--font-general));
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--muted-foreground);
+        margin: 0 0 calc(var(--spacing, 0.25rem) * 4);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="ds-shell">
+      <aside class="ds-panel">
+        <h1>Design System</h1>
+        <p class="ds-sub">
+          Tweak tokens live. Nothing here touches your real site until you paste the export
+          into <code>global.css</code>.
+        </p>
+
+        <div class="ds-group">
+          <h2>Fonts</h2>
+          <div class="ds-field">
+            <label for="f-heading">Display</label>
+            <select id="f-heading">
+              <option value="'Cabinet Grotesk', 'General Sans', sans-serif" selected
+                >Cabinet Grotesk</option
+              >
+              <option value="'General Sans', sans-serif">General Sans</option>
+              <option value="'Geist Variable', sans-serif">Geist</option>
+              <option value="ui-serif, Georgia, serif">Serif (system)</option>
+            </select>
+          </div>
+          <div class="ds-field">
+            <label for="f-body">Body</label>
+            <select id="f-body">
+              <option value="'General Sans', sans-serif" selected>General Sans</option>
+              <option value="'Geist Variable', sans-serif">Geist</option>
+              <option value="ui-sans-serif, system-ui, sans-serif">System UI</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="ds-group">
+          <h2>Type &amp; spacing</h2>
+          <div class="ds-field">
+            <label for="type-scale">Type scale</label>
+            <input type="range" id="type-scale" min="0.85" max="1.3" step="0.01" value="1" />
+          </div>
+          <div class="ds-field">
+            <label for="spacing">Spacing unit</label>
+            <input type="range" id="spacing" min="0.2" max="0.35" step="0.005" value="0.25" />
+          </div>
+          <div class="ds-field">
+            <label for="radius">Corner radius</label>
+            <input type="range" id="radius" min="0" max="1.5" step="0.025" value="0.625" />
+          </div>
+        </div>
+
+        <div class="ds-group">
+          <h2>Core colors</h2>
+          <div class="ds-field">
+            <label for="c-background">Background</label>
+            <input type="color" id="c-background" value="#ffffff" />
+          </div>
+          <div class="ds-field">
+            <label for="c-foreground">Foreground</label>
+            <input type="color" id="c-foreground" value="#171717" />
+          </div>
+          <div class="ds-field">
+            <label for="c-border">Border</label>
+            <input type="color" id="c-border" value="#e5e5e5" />
+          </div>
+        </div>
+
+        <div class="ds-group">
+          <h2>Primary</h2>
+          <div class="ds-field">
+            <label for="c-primary">Fill</label>
+            <input type="color" id="c-primary" value="#171717" />
+          </div>
+          <div class="ds-field">
+            <label for="c-primary-fg">Foreground</label>
+            <input type="color" id="c-primary-fg" value="#fafafa" />
+          </div>
+        </div>
+
+        <div class="ds-group">
+          <h2>Secondary</h2>
+          <div class="ds-field">
+            <label for="c-secondary">Fill</label>
+            <input type="color" id="c-secondary" value="#f5f5f5" />
+          </div>
+          <div class="ds-field">
+            <label for="c-secondary-fg">Foreground</label>
+            <input type="color" id="c-secondary-fg" value="#171717" />
+          </div>
+        </div>
+
+        <div class="ds-group">
+          <h2>Muted / accent</h2>
+          <div class="ds-field">
+            <label for="c-muted">Muted fill</label>
+            <input type="color" id="c-muted" value="#f5f5f5" />
+          </div>
+          <div class="ds-field">
+            <label for="c-muted-fg">Muted text</label>
+            <input type="color" id="c-muted-fg" value="#737373" />
+          </div>
+          <div class="ds-field">
+            <label for="c-accent">Accent</label>
+            <input type="color" id="c-accent" value="#f5f5f5" />
+          </div>
+        </div>
+
+        <div class="ds-actions">
+          <button id="reset">Reset</button>
+          <button id="export" class="primary">Export CSS</button>
+        </div>
+        <textarea id="ds-export" readonly></textarea>
+      </aside>
+
+      <main class="ds-preview">
+        <div class="ds-preview-block">
+          <p class="ds-section-label">Nav</p>
+          <nav class="ds-nav">
+            <span class="brand">Hum Rashid</span>
+            <span class="links"><span>Work</span><span>About</span></span>
+          </nav>
+        </div>
+
+        <div class="ds-preview-block ds-hero">
+          <p class="ds-section-label">Hero</p>
+          <h1>A headline about design's role, set in your display font.</h1>
+          <p>
+            Supporting copy in the body font — this is where the positioning statement will
+            live. Long enough to judge line length and rhythm at a glance.
+          </p>
+        </div>
+
+        <div class="ds-preview-block">
+          <p class="ds-section-label">Buttons</p>
+          <div class="ds-buttons">
+            <button class="btn btn-primary">Primary action</button>
+            <button class="btn btn-secondary">Secondary</button>
+            <button class="btn btn-ghost">Ghost</button>
+          </div>
+        </div>
+
+        <div class="ds-preview-block">
+          <p class="ds-section-label">Case study cards</p>
+          <div class="ds-cards">
+            <div class="ds-card">
+              <p class="tag">Sublime Security</p>
+              <h3>Quarantine digests</h3>
+              <p>A daily view of held threats for security teams to triage fast.</p>
+            </div>
+            <div class="ds-card">
+              <p class="tag">Sublime Security</p>
+              <h3>Phishing simulations</h3>
+              <p>Build, run, and measure campaigns that train users against real attacks.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="ds-preview-block">
+          <p class="ds-section-label">Type scale</p>
+          <div class="ds-type-sample">
+            <p class="h1">Heading one</p>
+            <p class="h2">Heading two</p>
+            <p class="body">
+              Body text at base size. The quick brown fox jumps over the lazy dog — used to
+              eyeball weight and spacing across the whole alphabet.
+            </p>
+            <p class="small">Small / caption text, muted foreground.</p>
+          </div>
+        </div>
+
+        <div class="ds-preview-block">
+          <p class="ds-section-label">Swatches</p>
+          <div class="ds-swatches" id="ds-swatches"></div>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      const root = document.documentElement;
+
+      const colorVarMap = {
+        "c-background": "--background",
+        "c-foreground": "--foreground",
+        "c-border": "--border",
+        "c-primary": "--primary",
+        "c-primary-fg": "--primary-foreground",
+        "c-secondary": "--secondary",
+        "c-secondary-fg": "--secondary-foreground",
+        "c-muted": "--muted",
+        "c-muted-fg": "--muted-foreground",
+        "c-accent": "--accent",
+      };
+
+      const STORAGE_KEY = "ds-tokens-v1";
+
+      const DEFAULTS = {
+        "c-background": "#ffffff",
+        "c-foreground": "#171717",
+        "c-border": "#e5e5e5",
+        "c-primary": "#171717",
+        "c-primary-fg": "#fafafa",
+        "c-secondary": "#f5f5f5",
+        "c-secondary-fg": "#171717",
+        "c-muted": "#f5f5f5",
+        "c-muted-fg": "#737373",
+        "c-accent": "#f5f5f5",
+        radius: "0.625",
+        spacing: "0.25",
+        "type-scale": "1",
+        "f-heading": "'Cabinet Grotesk', 'General Sans', sans-serif",
+        "f-body": "'General Sans', sans-serif",
+      };
+
+      function applyDefaults() {
+        for (const [id, value] of Object.entries(DEFAULTS)) {
+          const el = document.getElementById(id);
+          if (el) el.value = value;
+        }
+      }
+
+      function applyAll(state) {
+        for (const [id, cssVar] of Object.entries(colorVarMap)) {
+          if (state[id]) root.style.setProperty(cssVar, state[id]);
+        }
+        if (state["radius"]) root.style.setProperty("--radius", `${state["radius"]}rem`);
+        if (state["spacing"]) root.style.setProperty("--spacing", `${state["spacing"]}rem`);
+        if (state["type-scale"]) root.style.setProperty("--type-scale", state["type-scale"]);
+        if (state["f-heading"]) root.style.setProperty("--font-heading", state["f-heading"]);
+        if (state["f-body"]) root.style.setProperty("--font-sans", state["f-body"]);
+      }
+
+      function readState() {
+        const state = {};
+        for (const id of Object.keys(colorVarMap)) {
+          state[id] = document.getElementById(id).value;
+        }
+        state["radius"] = document.getElementById("radius").value;
+        state["spacing"] = document.getElementById("spacing").value;
+        state["type-scale"] = document.getElementById("type-scale").value;
+        state["f-heading"] = document.getElementById("f-heading").value;
+        state["f-body"] = document.getElementById("f-body").value;
+        return state;
+      }
+
+      function persist() {
+        const state = readState();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        applyAll(state);
+        renderSwatches(state);
+      }
+
+      function renderSwatches(state) {
+        const container = document.getElementById("ds-swatches");
+        container.innerHTML = "";
+        for (const [id, cssVar] of Object.entries(colorVarMap)) {
+          const el = document.createElement("div");
+          el.className = "ds-swatch";
+          el.innerHTML = `<div class="fill" style="background:${state[id]}"></div><div class="label">${cssVar}</div>`;
+          container.appendChild(el);
+        }
+      }
+
+      function wireInputs() {
+        const ids = [...Object.keys(colorVarMap), "radius", "spacing", "type-scale", "f-heading", "f-body"];
+        for (const id of ids) {
+          document.getElementById(id).addEventListener("input", persist);
+        }
+      }
+
+      function loadState() {
+        applyDefaults();
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (!saved) return persist();
+        try {
+          const state = JSON.parse(saved);
+          for (const [id, value] of Object.entries(state)) {
+            const el = document.getElementById(id);
+            if (el) el.value = value;
+          }
+          applyAll(state);
+          renderSwatches(state);
+        } catch {
+          persist();
+        }
+      }
+
+      document.getElementById("reset").addEventListener("click", () => {
+        localStorage.removeItem(STORAGE_KEY);
+        location.reload();
+      });
+
+      document.getElementById("export").addEventListener("click", () => {
+        const state = readState();
+        const box = document.getElementById("ds-export");
+        box.style.display = "block";
+        box.value = `:root {
+  --background: ${state["c-background"]};
+  --foreground: ${state["c-foreground"]};
+  --border: ${state["c-border"]};
+  --input: ${state["c-border"]};
+  --ring: ${state["c-foreground"]};
+  --primary: ${state["c-primary"]};
+  --primary-foreground: ${state["c-primary-fg"]};
+  --secondary: ${state["c-secondary"]};
+  --secondary-foreground: ${state["c-secondary-fg"]};
+  --muted: ${state["c-muted"]};
+  --muted-foreground: ${state["c-muted-fg"]};
+  --accent: ${state["c-accent"]};
+  --accent-foreground: ${state["c-secondary-fg"]};
+  --card: ${state["c-background"]};
+  --card-foreground: ${state["c-foreground"]};
+  --radius: ${state["radius"]}rem;
+  --spacing: ${state["spacing"]}rem;
+  --font-sans: ${state["f-body"]};
+  --font-heading: ${state["f-heading"]};
+}`;
+        box.select();
+      });
+
+      wireInputs();
+      loadState();
+    </script>
+  </body>
+</html>

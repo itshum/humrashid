@@ -3,7 +3,7 @@
   "configurations": [
     {
       "name": "astro-dev",
-      "runtimeExecutable": "/Users/hum/Desktop/Hum Site/.claude/dev-server.sh",
+      "runtimeExecutable": "/Users/hum/Developer/hum-site/.claude/dev-server.sh",
       "runtimeArgs": [],
       "port": 4321
     }
