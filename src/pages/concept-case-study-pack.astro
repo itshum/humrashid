@@ -12,7 +12,10 @@ import { GridOverlay } from "../components/layout/GridOverlay";
 const p = (name: string) => `/case-studies/pack/${name}`;
 
 // Reused span patterns.
-const prose = "col-span-4 md:col-span-6 lg:col-span-8";
+// Centered: prose spans fewer columns than the grid provides, so it's offset
+// to sit in the middle rather than flush left. "wide" already spans every
+// column at each tier, so it's centered trivially and needs no offset.
+const prose = "col-span-4 md:col-span-6 md:col-start-2 lg:col-span-8 lg:col-start-3";
 const wide = "col-span-4 md:col-span-8 lg:col-span-12";
 ---
 

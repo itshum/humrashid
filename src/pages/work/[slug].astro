@@ -1,5 +1,6 @@
 ---
 import Layout from "../../layouts/Layout.astro";
+import Grid from "../../components/layout/Grid.astro";
 import { getCollection, render } from "astro:content";
 
 export async function getStaticPaths() {
@@ -13,72 +14,76 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 const { data } = entry;
 const { Content } = await render(entry);
+
+// Centered prose column — same pattern validated in /concept-case-study-pack.
+// Site-wide standard now: col-span-4 (mobile) -> 6 (tablet) -> 8 (desktop+xl),
+// offset to sit in the middle of the 8/12-column grid rather than flush left.
+const prose = "col-span-4 md:col-span-6 md:col-start-2 lg:col-span-8 lg:col-start-3";
 ---
 
 <Layout title={data.title} description={data.summary}>
-  <article class="mx-auto max-w-2xl px-6 py-24">
-    <header>
-      <h1 class="text-3xl font-medium tracking-tight">{data.title}</h1>
-      <p class="mt-2 text-muted-foreground">{data.summary}</p>
+  <article class="py-24">
+    <Grid>
+      <header class={prose}>
+        <h1 class="text-3xl font-medium tracking-tight">{data.title}</h1>
+        <p class="mt-2 text-muted-foreground">{data.summary}</p>
 
-      <dl class="mt-8 grid grid-cols-2 gap-4 text-sm sm:grid-cols-3">
-        <div>
-          <dt class="text-muted-foreground">Company</dt>
-          <dd>{data.company}</dd>
-        </div>
-        <div>
-          <dt class="text-muted-foreground">Role</dt>
-          <dd>{data.role}</dd>
-        </div>
-        <div>
-          <dt class="text-muted-foreground">Timeframe</dt>
-          <dd>{data.timeframe}</dd>
-        </div>
-        {
-          data.teamSize && (
-            <div>
-              <dt class="text-muted-foreground">Team</dt>
-              <dd>{data.teamSize}</dd>
-            </div>
-          )
-        }
-      </dl>
-    </header>
+        <dl class="mt-8 grid grid-cols-2 gap-4 text-sm sm:grid-cols-3">
+          <div>
+            <dt class="text-muted-foreground">Company</dt>
+            <dd>{data.company}</dd>
+          </div>
+          <div>
+            <dt class="text-muted-foreground">Role</dt>
+            <dd>{data.role}</dd>
+          </div>
+          <div>
+            <dt class="text-muted-foreground">Timeframe</dt>
+            <dd>{data.timeframe}</dd>
+          </div>
+          {
+            data.teamSize && (
+              <div>
+                <dt class="text-muted-foreground">Team</dt>
+                <dd>{data.teamSize}</dd>
+              </div>
+            )
+          }
+        </dl>
+      </header>
+    </Grid>
 
-    <section class="mt-12 space-y-2">
-      <h2 class="text-sm font-medium uppercase tracking-wide text-muted-foreground">
-        The problem
-      </h2>
-      <p>{data.problem}</p>
-    </section>
+    <Grid class="mt-12">
+      <section class:list={[prose, "space-y-2"]}>
+        <h2 class="text-sm font-medium uppercase tracking-wide text-muted-foreground">
+          Challenge
+        </h2>
+        <p>{data.problem}</p>
+      </section>
+    </Grid>
 
-    <section class="mt-8 space-y-2">
-      <h2 class="text-sm font-medium uppercase tracking-wide text-muted-foreground">
-        Approach
-      </h2>
-      <p>{data.approach}</p>
-    </section>
+    <Grid class="mt-8">
+      <section class:list={[prose, "space-y-2"]}>
+        <h2 class="text-sm font-medium uppercase tracking-wide text-muted-foreground">
+          Approach
+        </h2>
+        <p>{data.approach}</p>
+      </section>
+    </Grid>
 
-    <section class="prose prose-neutral mt-8 max-w-none">
-      <Content />
-    </section>
+    <Grid class="mt-8">
+      <section class:list={[prose, "prose prose-neutral"]}>
+        <Content />
+      </section>
+    </Grid>
 
-    <section class="mt-8 space-y-2">
-      <h2 class="text-sm font-medium uppercase tracking-wide text-muted-foreground">
-        Outcome
-      </h2>
-      <p>{data.outcome}</p>
-    </section>
-
-    {
-      data.whatIdDoDifferently && (
-        <section class="mt-8 space-y-2">
-          <h2 class="text-sm font-medium uppercase tracking-wide text-muted-foreground">
-            What I'd do differently
-          </h2>
-          <p>{data.whatIdDoDifferently}</p>
-        </section>
-      )
-    }
+    <Grid class="mt-8">
+      <section class:list={[prose, "space-y-2"]}>
+        <h2 class="text-sm font-medium uppercase tracking-wide text-muted-foreground">
+          Outcome
+        </h2>
+        <p>{data.outcome}</p>
+      </section>
+    </Grid>
   </article>
 </Layout>
