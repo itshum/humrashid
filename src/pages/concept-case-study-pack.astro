@@ -6,8 +6,14 @@ import MediaCentered from "../components/case-study/MediaCentered.astro";
 import MediaSideBySide from "../components/case-study/MediaSideBySide.astro";
 import MediaMasonry from "../components/case-study/MediaMasonry.astro";
 import MediaSplit from "../components/case-study/MediaSplit.astro";
+import Grid from "../components/layout/Grid.astro";
+import { GridOverlay } from "../components/layout/GridOverlay";
 
 const p = (name: string) => `/case-studies/pack/${name}`;
+
+// Reused span patterns.
+const prose = "col-span-4 md:col-span-6 lg:col-span-8";
+const wide = "col-span-4 md:col-span-8 lg:col-span-12";
 ---
 
 <!doctype html>
@@ -20,21 +26,6 @@ const p = (name: string) => `/case-studies/pack/${name}`;
       body {
         font-family: ui-sans-serif, system-ui, sans-serif;
         color: #171717;
-      }
-
-      /* Ad-hoc two-track container system for this wireframe — not a real grid yet.
-         .col = single-column reading width (Challenge/Approach prose).
-         .wide = two-up Solution blocks, wider so each half stays legible. */
-      .col {
-        max-width: 760px;
-        margin: 0 auto;
-        padding: 0 3rem;
-      }
-
-      .wide {
-        max-width: 1240px;
-        margin: 0 auto;
-        padding: 0 3rem;
       }
 
       .top-bar {
@@ -173,221 +164,269 @@ const p = (name: string) => `/case-studies/pack/${name}`;
     </style>
   </head>
   <body>
+    <GridOverlay client:load />
+
     <div class="top-bar">
-      Concept — Case Study Layout (Pack) · now using real media components (purple tags mark
-      which component each block demos) · real Pack imagery, not placeholders
+      Concept — Case Study Layout (Pack) · real 12-col responsive grid (4 mobile / 8 tablet / 12
+      desktop+xl) · press "g" or the button to toggle column guides
     </div>
 
     <!-- HERO — MediaHero component -->
-    <span class="component-tag" style="margin: 1rem 2rem 0;">Component: MediaHero</span>
+    <span class="component-tag" style="margin: 1rem 2rem 0; display: inline-block;"
+      >Component: MediaHero</span
+    >
     <MediaHero src={p("01-hero-a.webp")} alt="Pack platform hero interface" />
 
-    <div class="col hero" style="padding-top: 3rem;">
-      <p class="eyebrow">Case Study</p>
-      <h1>Pack</h1>
-      <p class="summary">
-        Turning an agency's custom commerce builds into a real product, without losing what
-        made those builds good.
-      </p>
-      <div class="meta">
-        <div><span>Company</span>Pack</div>
-        <div><span>Role</span>Lead Designer &amp; Design Director, Nessa Labs</div>
-        <div><span>Timeframe</span><span class="confirm">confirm dates</span></div>
-        <div><span>Team</span>4 at Nessa</div>
+    <Grid class="hero" style="padding-top: 3rem;">
+      <div class={prose}>
+        <p class="eyebrow">Case Study</p>
+        <h1>Pack</h1>
+        <p class="summary">
+          Turning an agency's custom commerce builds into a real product, without losing what
+          made those builds good.
+        </p>
+        <div class="meta">
+          <div><span>Company</span>Pack</div>
+          <div><span>Role</span>Lead Designer &amp; Design Director, Nessa Labs</div>
+          <div><span>Timeframe</span><span class="confirm">confirm dates</span></div>
+          <div><span>Team</span>4 at Nessa</div>
+        </div>
       </div>
-    </div>
+    </Grid>
 
     <!-- CHALLENGE — MediaCentered component -->
     <section>
-      <div class="col">
-        <p class="section-label">Challenge</p>
-        <h2>From bespoke builds to a real product</h2>
-        <p>
-          Pack started as an agency, building fully custom headless commerce sites for brands
-          like Cuts and Vuori. That work was good precisely because it was custom: a small
-          team hand-building one storefront at a time, solving each brand's problems directly.
-        </p>
-        <p>
-          After closing their seed round, Pack needed to become a product. The same team, the
-          same expertise, but now serving hundreds of merchants instead of a handful of
-          clients.
-        </p>
-        <p>
-          I led design on this transition, working directly with Pack's product and
-          engineering team, including CEO Cory Cummings, to figure out what "productized"
-          actually meant here.
-        </p>
-      </div>
-      <div class="col sub-media">
-        <span class="component-tag">Component: MediaCentered (~90% width)</span>
-        <MediaCentered
-          src={p("03-s01-transition-desktop.webp")}
-          alt="Agency to SaaS transition visual"
-        />
-      </div>
+      <Grid>
+        <div class={prose}>
+          <p class="section-label">Challenge</p>
+          <h2>From bespoke builds to a real product</h2>
+          <p>
+            Pack started as an agency, building fully custom headless commerce sites for brands
+            like Cuts and Vuori. That work was good precisely because it was custom: a small
+            team hand-building one storefront at a time, solving each brand's problems
+            directly.
+          </p>
+          <p>
+            After closing their seed round, Pack needed to become a product. The same team, the
+            same expertise, but now serving hundreds of merchants instead of a handful of
+            clients.
+          </p>
+          <p>
+            I led design on this transition, working directly with Pack's product and
+            engineering team, including CEO Cory Cummings, to figure out what "productized"
+            actually meant here.
+          </p>
+        </div>
+      </Grid>
+      <Grid class="sub-media">
+        <div class={prose}>
+          <span class="component-tag">Component: MediaCentered (~90% width)</span>
+          <MediaCentered
+            src={p("03-s01-transition-desktop.webp")}
+            alt="Agency to SaaS transition visual"
+          />
+        </div>
+      </Grid>
     </section>
 
     <!-- APPROACH — text only, no media needed here -->
     <section>
-      <div class="col">
-        <p class="section-label">Approach</p>
-        <h2>Interviews before screens</h2>
-        <p>
-          We started with interviews, not screens. My team and I talked to merchants who'd
-          tried other headless platforms to find out where they actually got stuck, not where
-          we assumed they would.
-        </p>
-        <p>
-          That research shaped a hard call early on: build less, but build it right. Rather
-          than chase feature parity with every competitor, we prioritized the handful of
-          workflows that would make or break someone's first week on the platform.
-        </p>
-      </div>
+      <Grid>
+        <div class={prose}>
+          <p class="section-label">Approach</p>
+          <h2>Interviews before screens</h2>
+          <p>
+            We started with interviews, not screens. My team and I talked to merchants who'd
+            tried other headless platforms to find out where they actually got stuck, not
+            where we assumed they would.
+          </p>
+          <p>
+            That research shaped a hard call early on: build less, but build it right. Rather
+            than chase feature parity with every competitor, we prioritized the handful of
+            workflows that would make or break someone's first week on the platform.
+          </p>
+        </div>
+      </Grid>
     </section>
 
     <!-- SOLUTION -->
     <section>
-      <div class="wide">
-        <p class="section-label">Solution</p>
-        <h2 style="margin-bottom: 3rem;">Four problems worth solving well</h2>
+      <Grid>
+        <div class={wide}>
+          <p class="section-label">Solution</p>
+          <h2 style="margin-bottom: 3rem;">Four problems worth solving well</h2>
 
-        <!-- 01 Customizer — MediaSplit + MediaSlider -->
-        <div class="solution-item">
-          <span class="component-tag">Component: MediaSplit</span>
-          <MediaSplit src={p("12-s02-customizer-sidebar-desktop.webp")} alt="Site customizer sidebar">
-            <p class="tag">01 — The site customizer</p>
-            <h3>Real editing, not an abstraction of it</h3>
-            <p>
-              Most WYSIWYG site builders make you choose between flexibility and simplicity,
-              usually failing at both. We rebuilt the customizer around a sidebar that slides
-              out over a live preview of the actual storefront.
-            </p>
-          </MediaSplit>
-          <div class="sub-media">
-            <span class="component-tag">Component: MediaSlider (drag + arrows)</span>
-            <MediaSlider
-              client:load
-              images={[
-                { src: p("13-s02-realtime-editing-desktop.webp"), alt: "Real-time page editing" },
-                { src: p("14-s02-banner-slideshow-desktop.webp"), alt: "Banner slideshow component" },
-                { src: p("15-s02-product-carousel-desktop.webp"), alt: "Product carousel component" },
-                { src: p("16-s02-video-module-desktop.webp"), alt: "Video module component" },
-                { src: p("17-s02-rich-text-desktop.webp"), alt: "Rich text editing component" },
-              ]}
-            />
+          <!-- 01 Customizer — MediaSplit + MediaSlider -->
+          <div class="solution-item">
+            <span class="component-tag">Component: MediaSplit</span>
+            <MediaSplit
+              src={p("12-s02-customizer-sidebar-desktop.webp")}
+              alt="Site customizer sidebar"
+            >
+              <p class="tag">01 — The site customizer</p>
+              <h3>Real editing, not an abstraction of it</h3>
+              <p>
+                Most WYSIWYG site builders make you choose between flexibility and simplicity,
+                usually failing at both. We rebuilt the customizer around a sidebar that slides
+                out over a live preview of the actual storefront.
+              </p>
+            </MediaSplit>
+            <div class="sub-media">
+              <span class="component-tag">Component: MediaSlider (drag + arrows)</span>
+              <MediaSlider
+                client:load
+                images={[
+                  {
+                    src: p("13-s02-realtime-editing-desktop.webp"),
+                    alt: "Real-time page editing",
+                  },
+                  {
+                    src: p("14-s02-banner-slideshow-desktop.webp"),
+                    alt: "Banner slideshow component",
+                  },
+                  {
+                    src: p("15-s02-product-carousel-desktop.webp"),
+                    alt: "Product carousel component",
+                  },
+                  { src: p("16-s02-video-module-desktop.webp"), alt: "Video module component" },
+                  { src: p("17-s02-rich-text-desktop.webp"), alt: "Rich text editing component" },
+                ]}
+              />
+            </div>
+          </div>
+
+          <!-- 02 Dashboard — MediaSplit reversed -->
+          <div class="solution-item">
+            <span class="component-tag">Component: MediaSplit (reverse)</span>
+            <MediaSplit
+              src={p("04-s01-dashboard-customization-desktop.webp")}
+              alt="Dashboard customization"
+              reverse
+            >
+              <p class="tag">02 — The dashboard</p>
+              <h3>One place to understand the store</h3>
+              <p>
+                Store owners needed one place to understand how their storefront was actually
+                performing: revenue, traffic, conversion, site speed.
+              </p>
+            </MediaSplit>
+          </div>
+
+          <!-- 03 Merchandising — MediaSplit + MediaSideBySide -->
+          <div class="solution-item">
+            <span class="component-tag">Component: MediaSplit</span>
+            <MediaSplit
+              src={p("06-s01-merchandising-desktop.webp")}
+              alt="Product merchandising interface"
+            >
+              <p class="tag">03 — Merchandising</p>
+              <h3>Bundles in a few clicks, not a spreadsheet</h3>
+              <p>
+                We redesigned this so merchants could build product bundles and collections
+                through intelligent, attribute-based grouping instead of manual, one-by-one
+                setup.
+              </p>
+            </MediaSplit>
+            <div class="sub-media">
+              <span class="component-tag">Component: MediaSideBySide</span>
+              <MediaSideBySide
+                left={{ src: p("07-s01-bundling-desktop.webp"), alt: "Product bundling feature" }}
+                right={{
+                  src: p("08-s01-collection-building-desktop.webp"),
+                  alt: "Collection building",
+                }}
+              />
+            </div>
+          </div>
+
+          <!-- 04 Developer experience — MediaSplit + MediaSlider -->
+          <div class="solution-item">
+            <span class="component-tag">Component: MediaSplit (reverse)</span>
+            <MediaSplit
+              src={p("09-s01-dev-onboarding-desktop.webp")}
+              alt="Developer onboarding"
+              reverse
+            >
+              <p class="tag">04 — Developer experience</p>
+              <h3>Opinion-free setup, built for developers</h3>
+              <p>
+                Modern headless builds mean wrangling a pile of apps. We stripped the setup
+                down so developers could plug into Git with their own API keys and start
+                building without an opinionated workflow forced on them.
+              </p>
+            </MediaSplit>
+            <div class="sub-media">
+              <span class="component-tag">Component: MediaSlider (drag + arrows)</span>
+              <MediaSlider
+                client:load
+                images={[
+                  { src: p("10-s01-git-integration-desktop.webp"), alt: "Git integration interface" },
+                  { src: p("11-s01-deploy-logs-desktop.webp"), alt: "Deploy status logs" },
+                ]}
+              />
+            </div>
           </div>
         </div>
-
-        <!-- 02 Dashboard — MediaSplit reversed -->
-        <div class="solution-item">
-          <span class="component-tag">Component: MediaSplit (reverse)</span>
-          <MediaSplit
-            src={p("04-s01-dashboard-customization-desktop.webp")}
-            alt="Dashboard customization"
-            reverse
-          >
-            <p class="tag">02 — The dashboard</p>
-            <h3>One place to understand the store</h3>
-            <p>
-              Store owners needed one place to understand how their storefront was actually
-              performing: revenue, traffic, conversion, site speed.
-            </p>
-          </MediaSplit>
-        </div>
-
-        <!-- 03 Merchandising — MediaSplit + MediaSideBySide -->
-        <div class="solution-item">
-          <span class="component-tag">Component: MediaSplit</span>
-          <MediaSplit src={p("06-s01-merchandising-desktop.webp")} alt="Product merchandising interface">
-            <p class="tag">03 — Merchandising</p>
-            <h3>Bundles in a few clicks, not a spreadsheet</h3>
-            <p>
-              We redesigned this so merchants could build product bundles and collections
-              through intelligent, attribute-based grouping instead of manual, one-by-one
-              setup.
-            </p>
-          </MediaSplit>
-          <div class="sub-media">
-            <span class="component-tag">Component: MediaSideBySide</span>
-            <MediaSideBySide
-              left={{ src: p("07-s01-bundling-desktop.webp"), alt: "Product bundling feature" }}
-              right={{ src: p("08-s01-collection-building-desktop.webp"), alt: "Collection building" }}
-            />
-          </div>
-        </div>
-
-        <!-- 04 Developer experience — MediaSplit + MediaSlider -->
-        <div class="solution-item">
-          <span class="component-tag">Component: MediaSplit (reverse)</span>
-          <MediaSplit src={p("09-s01-dev-onboarding-desktop.webp")} alt="Developer onboarding" reverse>
-            <p class="tag">04 — Developer experience</p>
-            <h3>Opinion-free setup, built for developers</h3>
-            <p>
-              Modern headless builds mean wrangling a pile of apps. We stripped the setup down
-              so developers could plug into Git with their own API keys and start building
-              without an opinionated workflow forced on them.
-            </p>
-          </MediaSplit>
-          <div class="sub-media">
-            <span class="component-tag">Component: MediaSlider (drag + arrows)</span>
-            <MediaSlider
-              client:load
-              images={[
-                { src: p("10-s01-git-integration-desktop.webp"), alt: "Git integration interface" },
-                { src: p("11-s01-deploy-logs-desktop.webp"), alt: "Deploy status logs" },
-              ]}
-            />
-          </div>
-        </div>
-      </div>
+      </Grid>
     </section>
 
     <!-- SECONDARY — MediaMasonry -->
     <section>
-      <div class="wide">
-        <p class="section-label">Also shipped</p>
-        <h2 style="font-size: 1.4rem;">Design system &amp; mobile access</h2>
-        <p class="col" style="padding: 0; max-width: 680px;">
-          We also shipped a global design system so Pack's team could keep building
-          consistently after handoff, and made sure core merchant workflows worked properly on
-          mobile.
-        </p>
-        <div class="sub-media">
-          <span class="component-tag">Component: MediaMasonry (4-image asymmetric grid)</span>
-          <MediaMasonry
-            images={[
-              { src: p("20-s04-iconography-desktop.webp"), alt: "Design system iconography" },
-              { src: p("21-s04-color-palette-desktop.png"), alt: "Design system color palette" },
-              { src: p("22-s04-ui-components-desktop.webp"), alt: "UI components library" },
-              { src: p("23-s04-usage-examples-desktop.webp"), alt: "Design system usage examples" },
-            ]}
-          />
+      <Grid>
+        <div class={wide}>
+          <p class="section-label">Also shipped</p>
+          <h2 style="font-size: 1.4rem;">Design system &amp; mobile access</h2>
+          <p style="max-width: 65ch;">
+            We also shipped a global design system so Pack's team could keep building
+            consistently after handoff, and made sure core merchant workflows worked properly
+            on mobile.
+          </p>
+          <div class="sub-media">
+            <span class="component-tag">Component: MediaMasonry (4-image asymmetric grid)</span>
+            <MediaMasonry
+              images={[
+                { src: p("20-s04-iconography-desktop.webp"), alt: "Design system iconography" },
+                { src: p("21-s04-color-palette-desktop.png"), alt: "Design system color palette" },
+                { src: p("22-s04-ui-components-desktop.webp"), alt: "UI components library" },
+                {
+                  src: p("23-s04-usage-examples-desktop.webp"),
+                  alt: "Design system usage examples",
+                },
+              ]}
+            />
+          </div>
         </div>
-      </div>
+      </Grid>
     </section>
 
     <!-- QUOTE -->
     <section>
-      <div class="col">
-        <p class="section-label">Quote (placement to test — wording pending)</p>
-        <blockquote
-          style="border-left: 2px solid #ddd; padding-left: 1.25rem; font-size: 1.1rem; color: #444; font-style: italic;"
-        >
-          "The new Pack platform gives brands and agencies powerful front-end tools to
-          communicate with customers more easily..."
-          <span class="confirm">reattribution pending</span>
-          <br />— Cory Cummings, CEO at Pack
-        </blockquote>
-      </div>
+      <Grid>
+        <div class={prose}>
+          <p class="section-label">Quote (placement to test — wording pending)</p>
+          <blockquote
+            style="border-left: 2px solid #ddd; padding-left: 1.25rem; font-size: 1.1rem; color: #444; font-style: italic;"
+          >
+            "The new Pack platform gives brands and agencies powerful front-end tools to
+            communicate with customers more easily..."
+            <span class="confirm">reattribution pending</span>
+            <br />— Cory Cummings, CEO at Pack
+          </blockquote>
+        </div>
+      </Grid>
     </section>
 
     <!-- OUTCOME -->
     <section style="background: #fafafa;">
-      <div class="col">
-        <p class="section-label">Outcome</p>
-        <h2 style="font-size: 1.4rem;">Qualitative — how merchants received the redesign</h2>
-        <p style="color: #888; font-style: italic;">Copy pending, direction confirmed 2026-08-30.</p>
-      </div>
+      <Grid>
+        <div class={prose}>
+          <p class="section-label">Outcome</p>
+          <h2 style="font-size: 1.4rem;">Qualitative — how merchants received the redesign</h2>
+          <p style="color: #888; font-style: italic;">
+            Copy pending, direction confirmed 2026-08-30.
+          </p>
+        </div>
+      </Grid>
     </section>
 
     <div class="footer-nav">

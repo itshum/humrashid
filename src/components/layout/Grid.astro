@@ -1,0 +1,17 @@
+---
+// Site-wide responsive grid: 4 columns (mobile) -> 8 (tablet, md) -> 12 (desktop, lg) -> 12 wider (xl).
+// Children size themselves with col-span-* / md:col-span-* / lg:col-span-* / xl:col-span-*.
+// Breakpoints match Tailwind's defaults (md=768px, lg=1024px, xl=1280px) - not bespoke.
+interface Props {
+  class?: string;
+  [key: string]: unknown;
+}
+const { class: className = "", ...rest } = Astro.props;
+---
+
+<div
+  class={`mx-auto grid w-full max-w-[1440px] grid-cols-4 gap-4 px-5 md:grid-cols-8 md:gap-6 md:px-10 lg:grid-cols-12 lg:px-16 xl:gap-8 xl:px-20 ${className}`}
+  {...rest}
+>
+  <slot />
+</div>
