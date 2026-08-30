@@ -6,7 +6,11 @@ Status: raw material only, not ready to use. Compiled 2026-08-30 for editing.
 
 **Assets:** all 48 Pack-specific images downloaded and labeled in `assets/case-studies/pack/` (2026-08-30). High-res (2x, e.g. 3600x1850 hero, 1760x1200 dashboard shots) — sharp enough to eyedropper exact colors and rebuild layouts faithfully. **Confirmed: all dashboard/UI screenshots use Lorem Ipsum placeholder copy** — these are templated/demo states from Nessa's design work, not shipped-with-real-data screens. Fine for layout/interaction rebuild reference; don't treat any visible copy in the screenshots as real product content.
 
-Agreed direction for the new case study narrative: center it on **"my design process and what was shipped"** — not a feature inventory. Funding figures ($6M/$3M discrepancy) are being cut entirely. The Cory Cummings quote will be reworked to reference "Hum's team" if kept — not every case study needs a quote, decide per case study.
+Agreed direction for the new case study narrative: center it on **"my design process and what was shipped"** — not a feature inventory. Funding figures ($6M/$3M discrepancy) are being cut entirely. The Cory Cummings quote is being **kept as-is for now** — reattribution wording to be edited later, not resolved yet.
+
+**Primary focus (strongest design thinking, per Hum 2026-08-30):** the site builder/customizer (WYSIWYG, global components), the dashboard, and merchandising — these needed real rethinking and should anchor the narrative.
+**Secondary, lighter coverage:** design system, mobile access — important but not the throughline.
+**Interactive-rebuild candidate:** the dashboard — good fit for showing how the tool actually works (Cursor-style live interaction). Not being built now; revisit when we get to that case study's build phase.
 
 ---
 
@@ -127,9 +131,14 @@ Full URLs available on request — not listed here to keep this file scannable; 
 
 ---
 
-## Open questions for Hum
+## Decisions (resolved 2026-08-30)
 
-1. Which of the 6 feature sub-sections (dashboard, merchandising, dev tools, customizer, mobile, design system) actually show *your* strongest design decisions? The new case study should probably cover 2-3 of these in depth rather than all 6 at agency-brochure breadth.
-2. Keep, cut, or re-attribute the Cory Cummings quote? It's addressed to "Nessa's design work" not to you personally.
-3. The $6M vs $3M funding figure discrepancy on the source page — which is correct, or should funding figures be dropped entirely since they're not really *your* metric to claim credit for?
-4. Do you want real screen recordings/interactive rebuilds for this one (per the Cursor-style interaction pattern discussed), given Pack was floated as a candidate for that treatment?
+1. **Strongest work / narrative focus:** customizer (WYSIWYG, global components), dashboard, merchandising. Design system and mobile are secondary — mention, don't dwell.
+2. **Quote:** keep as-is for now, reattribution wording to be edited later (not "Nessa's design work" long-term, but not rewritten yet).
+3. **Funding figures:** cut entirely, not being used.
+4. **Interactive rebuild:** yes, dashboard is the right candidate for a Cursor-style live-interaction treatment. Not being built yet — revisit when this case study reaches its build phase.
+
+## Still open
+
+- Exact final structure/section breakdown for the new copy (Challenge → Approach → Solution shape, scoped to customizer/dashboard/merchandising) — not yet drafted.
+- Final wording for the reattributed quote.
