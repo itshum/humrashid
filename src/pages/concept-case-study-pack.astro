@@ -1,0 +1,422 @@
+---
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Concept — Case Study Layout (Pack)</title>
+    <style is:global>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: ui-sans-serif, system-ui, sans-serif;
+        color: #171717;
+        background: #fff;
+        line-height: 1.6;
+      }
+
+      .top-bar {
+        position: sticky;
+        top: 0;
+        background: #fff;
+        border-bottom: 1px solid #eee;
+        padding: 1rem 2rem;
+        font-size: 0.8rem;
+        color: #888;
+        z-index: 10;
+      }
+
+      .col {
+        max-width: 680px;
+        margin: 0 auto;
+        padding: 0 2rem;
+      }
+
+      .wide {
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 0 2rem;
+      }
+
+      .placeholder {
+        background: #e4e4e4;
+        border: 1px dashed #bbb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #888;
+        font-size: 0.7rem;
+        font-family: ui-monospace, monospace;
+        text-align: center;
+        padding: 1rem;
+        border-radius: 2px;
+      }
+
+      /* Hero */
+      .hero {
+        padding: 5rem 0 3rem;
+      }
+
+      .hero .eyebrow {
+        font-size: 0.8rem;
+        color: #888;
+        margin: 0 0 0.75rem;
+      }
+
+      .hero h1 {
+        font-size: 3rem;
+        font-weight: 500;
+        margin: 0 0 1rem;
+        letter-spacing: -0.02em;
+      }
+
+      .hero .summary {
+        font-size: 1.25rem;
+        color: #444;
+        max-width: 46ch;
+        margin: 0 0 2rem;
+      }
+
+      .meta {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 1rem;
+        font-size: 0.85rem;
+        padding: 1.5rem 0;
+        border-top: 1px solid #eee;
+      }
+
+      .meta div span {
+        display: block;
+        color: #888;
+        font-size: 0.75rem;
+        margin-bottom: 0.25rem;
+      }
+
+      .hero-media {
+        height: 460px;
+        margin-top: 2rem;
+      }
+
+      /* Section rhythm */
+      section {
+        padding: 4.5rem 0;
+      }
+
+      section + section {
+        border-top: 1px solid #eee;
+      }
+
+      .section-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #888;
+        margin: 0 0 1.25rem;
+      }
+
+      section h2 {
+        font-size: 1.9rem;
+        font-weight: 500;
+        margin: 0 0 1.5rem;
+        letter-spacing: -0.01em;
+      }
+
+      section p {
+        margin: 0 0 1.25rem;
+        color: #333;
+      }
+
+      section p:last-child {
+        margin-bottom: 0;
+      }
+
+      /* Solution sub-blocks: alternating media/text */
+      .solution-block {
+        display: flex;
+        gap: 3rem;
+        align-items: center;
+        margin-bottom: 4rem;
+      }
+
+      .solution-block:last-child {
+        margin-bottom: 0;
+      }
+
+      .solution-block.reverse {
+        flex-direction: row-reverse;
+      }
+
+      .solution-block .media {
+        flex: 1.1;
+        height: 320px;
+      }
+
+      .solution-block .text {
+        flex: 1;
+      }
+
+      .solution-block h3 {
+        font-size: 1.3rem;
+        font-weight: 500;
+        margin: 0 0 0.75rem;
+      }
+
+      .solution-block .tag {
+        display: inline-block;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #888;
+        margin-bottom: 0.5rem;
+      }
+
+      /* Secondary / lighter section */
+      .secondary-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1.5rem;
+        margin-top: 2rem;
+      }
+
+      .secondary-grid .placeholder {
+        height: 180px;
+      }
+
+      /* Outcome */
+      .outcome {
+        background: #fafafa;
+      }
+
+      /* Footer nav */
+      .footer-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 3rem 2rem;
+        border-top: 1px solid #eee;
+        font-size: 0.9rem;
+      }
+
+      .quote-slot {
+        border-left: 2px solid #ddd;
+        padding-left: 1.25rem;
+        font-size: 1.1rem;
+        color: #444;
+        font-style: italic;
+        margin: 2rem 0;
+      }
+
+      .confirm {
+        color: #b45309;
+        background: #fff7ed;
+        border: 1px solid #fed7aa;
+        padding: 0.15rem 0.4rem;
+        border-radius: 3px;
+        font-size: 0.85em;
+        font-style: normal;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="top-bar">Concept — Case Study Layout (Pack) · wireframe, content positioning only</div>
+
+    <!-- HERO -->
+    <div class="col hero">
+      <p class="eyebrow">Case Study</p>
+      <h1>Pack</h1>
+      <p class="summary">
+        Turning an agency's custom commerce builds into a real product, without losing what
+        made those builds good.
+      </p>
+      <div class="meta">
+        <div><span>Company</span>Pack</div>
+        <div><span>Role</span>Lead Designer &amp; Design Director, Nessa Labs</div>
+        <div><span>Timeframe</span><span class="confirm">confirm dates</span></div>
+        <div><span>Team</span><span class="confirm">confirm team size</span></div>
+      </div>
+    </div>
+    <div class="wide hero-media placeholder">01-hero-a.webp / 01-hero-b.webp — full-bleed hero shot</div>
+
+    <!-- CHALLENGE -->
+    <section>
+      <div class="col">
+        <p class="section-label">Challenge</p>
+        <h2>From bespoke builds to a real product</h2>
+        <p>
+          Pack started as an agency, building fully custom headless commerce sites for brands
+          like Cuts and Vuori. That work was good precisely because it was custom: a small
+          team hand-building one storefront at a time, solving each brand's problems directly.
+        </p>
+        <p>
+          After closing their seed round, Pack needed to become a product. The same team, the
+          same expertise, but now serving hundreds of merchants instead of a handful of
+          clients. That's a different design problem than it sounds like. The tools that make
+          one-off custom work great don't automatically make sense as something a stranger can
+          pick up and use without you standing over their shoulder.
+        </p>
+        <p>
+          I led design on this transition, working directly with Pack's product and
+          engineering team, including CEO Cory Cummings, to figure out what "productized"
+          actually meant here. Two things mattered most: the site customizer had to give
+          marketers real creative control without turning into another clunky page builder,
+          and the dashboard and merchandising tools had to make sense to store owners who'd
+          never touched a headless stack before.
+        </p>
+      </div>
+      <div class="col" style="margin-top: 2rem;">
+        <div class="placeholder" style="height: 280px;">
+          03-s01-transition-desktop.webp — agency-to-product framing visual
+        </div>
+      </div>
+    </section>
+
+    <!-- APPROACH -->
+    <section>
+      <div class="col">
+        <p class="section-label">Approach</p>
+        <h2>Interviews before screens</h2>
+        <p>
+          We started with interviews, not screens. My team and I talked to merchants who'd
+          tried other headless platforms to find out where they actually got stuck, not where
+          we assumed they would. A few patterns showed up fast: onboarding took too long,
+          merchandising tools were an afterthought bolted onto commerce infrastructure, and
+          every customizer we looked at asked marketers to think like developers.
+        </p>
+        <p>
+          That research shaped a hard call early on: build less, but build it right. Rather
+          than chase feature parity with every competitor, we prioritized the handful of
+          workflows that would make or break someone's first week on the platform. Everything
+          else could come later.
+        </p>
+        <p>
+          From there it was the usual rhythm of a small, fast-moving design team: sketches
+          into clickable prototypes, testing rough ideas with Pack's team before committing
+          engineering time, then refining.
+          <span class="confirm">confirm: any process detail worth naming here?</span>
+        </p>
+      </div>
+    </section>
+
+    <!-- SOLUTION -->
+    <section>
+      <div class="wide">
+        <p class="section-label">Solution</p>
+        <h2 style="margin-bottom: 3rem;">Three problems worth solving well</h2>
+
+        <div class="solution-block">
+          <div class="media placeholder">
+            12-s02-customizer-sidebar-desktop.webp<br />13-s02-realtime-editing-desktop.webp
+          </div>
+          <div class="text">
+            <p class="tag">01 — The site customizer</p>
+            <h3>Real editing, not an abstraction of it</h3>
+            <p>
+              Most WYSIWYG site builders make you choose between flexibility and simplicity,
+              usually failing at both. We rebuilt the customizer around a sidebar that slides
+              out over a live preview of the actual storefront, so a marketer edits the real
+              page, not an abstraction of it.
+            </p>
+            <p>
+              The goal was letting a marketer launch a new landing page or run an A/B test
+              without pulling in a developer. That's the actual measure of whether a
+              customizer works.
+            </p>
+          </div>
+        </div>
+
+        <div class="solution-block reverse">
+          <div class="media placeholder">
+            04-s01-dashboard-customization-desktop.webp<br />05-s01-dashboard-analytics-desktop.webp
+          </div>
+          <div class="text">
+            <p class="tag">02 — The dashboard</p>
+            <h3>One place to understand the store</h3>
+            <p>
+              Store owners needed one place to understand how their storefront was actually
+              performing: revenue, traffic, conversion, site speed. Rather than a wall of
+              charts, we organized the dashboard around what a merchant would want to check on
+              a given day, with a sidebar that carries across multiple storefronts.
+            </p>
+          </div>
+        </div>
+
+        <div class="solution-block">
+          <div class="media placeholder">
+            06-s01-bundling-desktop.webp<br />07-s01-collection-building-desktop.webp
+          </div>
+          <div class="text">
+            <p class="tag">03 — Merchandising</p>
+            <h3>Bundles in a few clicks, not a spreadsheet</h3>
+            <p>
+              Headless builds have a reputation for clunky merchandising, mostly because
+              commerce infrastructure and merchandising tools get designed separately and
+              bolted together. We redesigned this so merchants could build product bundles and
+              collections through intelligent, attribute-based grouping instead of manual,
+              one-by-one setup.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECONDARY / LIGHTER COVERAGE -->
+    <section>
+      <div class="col">
+        <p class="section-label">Also shipped</p>
+        <h2 style="font-size: 1.4rem;">Design system &amp; mobile access</h2>
+        <p>
+          We also shipped a global design system (custom iconography, a full component
+          library) so Pack's design and engineering teams could keep building consistently
+          after we handed off, and made sure the core merchant workflows worked properly on
+          mobile, since a lot of that work happens on the go, not at a desk.
+        </p>
+        <div class="secondary-grid">
+          <div class="placeholder">20-s04-iconography-desktop.webp</div>
+          <div class="placeholder">18-s03-mobile-nav-desktop.webp</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- QUOTE SLOT -->
+    <section>
+      <div class="col">
+        <p class="section-label">Quote (placement to test — wording pending)</p>
+        <blockquote class="quote-slot">
+          "The new Pack platform gives brands and agencies powerful front-end tools to
+          communicate with customers more easily..."
+          <span class="confirm">reattribution pending</span>
+          <br />— Cory Cummings, CEO at Pack
+        </blockquote>
+      </div>
+    </section>
+
+    <!-- OUTCOME -->
+    <section class="outcome">
+      <div class="col">
+        <p class="section-label">Outcome</p>
+        <h2 style="font-size: 1.4rem;">
+          <span class="confirm">confirm: qualitative outcome, or skip this section entirely</span>
+        </h2>
+      </div>
+    </section>
+
+    <!-- WHAT I'D DO DIFFERENTLY (optional) -->
+    <section>
+      <div class="col">
+        <p class="section-label">What I'd do differently (optional)</p>
+        <p><span class="confirm">confirm: include or cut</span></p>
+      </div>
+    </section>
+
+    <div class="footer-nav">
+      <span>← Back to Work</span>
+      <span>Next case study →</span>
+    </div>
+  </body>
+</html>
