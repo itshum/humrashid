@@ -1,0 +1,15 @@
+---
+interface Props {
+  src: string;
+  alt: string;
+  reverse?: boolean;
+}
+const { src, alt, reverse = false } = Astro.props;
+---
+
+<div class:list={["flex items-center gap-12", reverse && "flex-row-reverse"]}>
+  <img src={src} alt={alt} class="aspect-[4/3] flex-[1.1] rounded-md object-cover" />
+  <div class="flex-1">
+    <slot />
+  </div>
+</div>

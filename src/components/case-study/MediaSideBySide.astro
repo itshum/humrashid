@@ -1,0 +1,12 @@
+---
+interface Props {
+  left: { src: string; alt: string };
+  right: { src: string; alt: string };
+}
+const { left, right } = Astro.props;
+---
+
+<div class="grid grid-cols-2 gap-4">
+  <img src={left.src} alt={left.alt} class="aspect-[4/3] w-full rounded-md object-cover" />
+  <img src={right.src} alt={right.alt} class="aspect-[4/3] w-full rounded-md object-cover" />
+</div>

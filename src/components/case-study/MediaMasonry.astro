@@ -1,0 +1,35 @@
+---
+// 4-image asymmetric grid: one tall image on the left, three stacked/paired on the right.
+interface Props {
+  images: [
+    { src: string; alt: string },
+    { src: string; alt: string },
+    { src: string; alt: string },
+    { src: string; alt: string },
+  ];
+}
+const { images } = Astro.props;
+---
+
+<div class="grid grid-cols-3 grid-rows-2 gap-4" style="height: 560px;">
+  <img
+    src={images[0].src}
+    alt={images[0].alt}
+    class="col-span-1 row-span-2 h-full w-full rounded-md object-cover"
+  />
+  <img
+    src={images[1].src}
+    alt={images[1].alt}
+    class="col-span-1 row-span-1 h-full w-full rounded-md object-cover"
+  />
+  <img
+    src={images[2].src}
+    alt={images[2].alt}
+    class="col-span-1 row-span-1 h-full w-full rounded-md object-cover"
+  />
+  <img
+    src={images[3].src}
+    alt={images[3].alt}
+    class="col-span-2 row-span-1 h-full w-full rounded-md object-cover"
+  />
+</div>

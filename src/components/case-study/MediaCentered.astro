@@ -1,0 +1,11 @@
+---
+interface Props {
+  src: string;
+  alt: string;
+}
+const { src, alt } = Astro.props;
+---
+
+<div class="mx-auto w-[90%]">
+  <img src={src} alt={alt} class="w-full rounded-md object-cover" />
+</div>
