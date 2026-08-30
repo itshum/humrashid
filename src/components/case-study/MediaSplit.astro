@@ -5,11 +5,14 @@ interface Props {
   reverse?: boolean;
 }
 const { src, alt, reverse = false } = Astro.props;
+const gridCols = reverse ? "grid-cols-[1fr_1.1fr]" : "grid-cols-[1.1fr_1fr]";
 ---
 
-<div class:list={["flex items-center gap-12", reverse && "flex-row-reverse"]}>
-  <img src={src} alt={alt} class="aspect-[4/3] flex-[1.1] rounded-md object-cover" />
-  <div class="flex-1">
+<div class:list={["grid items-center gap-12", gridCols]}>
+  <div class:list={["min-w-0", reverse && "order-2"]}>
+    <img src={src} alt={alt} class="aspect-[4/3] w-full rounded-md object-cover" />
+  </div>
+  <div class:list={["min-w-0", reverse && "order-1"]}>
     <slot />
   </div>
 </div>

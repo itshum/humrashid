@@ -22,16 +22,19 @@ const p = (name: string) => `/case-studies/pack/${name}`;
         color: #171717;
       }
 
+      /* Ad-hoc two-track container system for this wireframe — not a real grid yet.
+         .col = single-column reading width (Challenge/Approach prose).
+         .wide = two-up Solution blocks, wider so each half stays legible. */
       .col {
-        max-width: 680px;
+        max-width: 760px;
         margin: 0 auto;
-        padding: 0 2rem;
+        padding: 0 3rem;
       }
 
       .wide {
-        max-width: 980px;
+        max-width: 1240px;
         margin: 0 auto;
-        padding: 0 2rem;
+        padding: 0 3rem;
       }
 
       .top-bar {
