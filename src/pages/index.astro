@@ -8,6 +8,23 @@ import Topbar from "../components/Topbar.astro";
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <script is:inline>
+      // Set before first paint so there's no light-mode flash before
+      // Topbar's script confirms/re-checks the same NYC-time rule.
+      (function () {
+        var parts = new Intl.DateTimeFormat("en-US", {
+          timeZone: "America/New_York",
+          hour: "numeric",
+          hour12: false,
+        }).formatToParts(new Date());
+        var hour = Number(
+          (parts.filter(function (p) {
+            return p.type === "hour";
+          })[0] || {}).value || 12
+        );
+        document.documentElement.dataset.theme = hour >= 19 || hour < 6 ? "dark" : "light";
+      })();
+    </script>
     <title>Humayun Rashid · Product Designer</title>
     <meta name="description" content="Humayun Rashid — product designer and founder based in New York City." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -17,6 +34,39 @@ import Topbar from "../components/Topbar.astro";
       href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&display=swap"
     />
     <style is:global>
+      /* Time-based dark mode (see the inline head script + Topbar's
+         script, both keyed off NYC local time) - an off dark grey,
+         never pure black, mirroring the light palette's warmth. */
+      :root {
+        --bg: #f8f8f6;
+        --text: #262626;
+        --text-secondary: #2b2b2b;
+        --label: #8a8a8a;
+        --hover-bg: #eae9e5;
+        --title: #262626;
+        --year: #9a9994;
+        --icon: #c9c7c0;
+        --icon-hover: #6b6b6b;
+        --border: #e2e0da;
+        --selection-bg: #1f3d2e;
+        --selection-text: #f8f8f6;
+      }
+
+      :root[data-theme="dark"] {
+        --bg: #1b1b19;
+        --text: #eeede8;
+        --text-secondary: #d6d5d0;
+        --label: #93928c;
+        --hover-bg: #2b2b28;
+        --title: #eeede8;
+        --year: #77766f;
+        --icon: #55544e;
+        --icon-hover: #b5b4ad;
+        --border: #333230;
+        --selection-bg: #4fae82;
+        --selection-text: #1b1b19;
+      }
+
       * {
         box-sizing: border-box;
       }
@@ -24,9 +74,10 @@ import Topbar from "../components/Topbar.astro";
       html,
       body {
         margin: 0;
-        background: #f8f8f6;
-        color: #262626;
+        background: var(--bg);
+        color: var(--text);
         font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+        transition: background 0.3s ease, color 0.3s ease;
       }
 
       a {
@@ -34,8 +85,8 @@ import Topbar from "../components/Topbar.astro";
       }
 
       ::selection {
-        background: #1f3d2e;
-        color: #f8f8f6;
+        background: var(--selection-bg);
+        color: var(--selection-text);
       }
 
       .col {
@@ -51,7 +102,7 @@ import Topbar from "../components/Topbar.astro";
       .intro p {
         font-size: 1.15rem;
         line-height: 1.75;
-        color: #2b2b2b;
+        color: var(--text-secondary);
         margin: 0 0 1.25rem;
       }
 
@@ -72,7 +123,7 @@ import Topbar from "../components/Topbar.astro";
         font-weight: 500;
         text-transform: uppercase;
         letter-spacing: 0.06em;
-        color: #8a8a8a;
+        color: var(--label);
         margin: 0 0 0.875rem;
       }
 
@@ -92,13 +143,13 @@ import Topbar from "../components/Topbar.astro";
       }
 
       .work-row:hover {
-        background: #eae9e5;
+        background: var(--hover-bg);
       }
 
       .work-row .title {
         font-size: 1.05rem;
         font-weight: 500;
-        color: #262626;
+        color: var(--title);
         display: block;
         margin-bottom: 0.3rem;
       }
@@ -112,7 +163,7 @@ import Topbar from "../components/Topbar.astro";
 
       .work-row .desc {
         font-size: 0.92rem;
-        color: #8a8a8a;
+        color: var(--label);
       }
 
       .work-row .meta {
@@ -124,14 +175,14 @@ import Topbar from "../components/Topbar.astro";
 
       .work-row .year {
         font-size: 0.85rem;
-        color: #9a9994;
+        color: var(--year);
         font-variant-numeric: tabular-nums;
         white-space: nowrap;
       }
 
       .work-row .icon {
         font-size: 0.85rem;
-        color: #c9c7c0;
+        color: var(--icon);
         opacity: 0;
         transition: opacity 0.15s ease, transform 0.15s ease;
         display: inline-block;
@@ -139,7 +190,7 @@ import Topbar from "../components/Topbar.astro";
 
       .work-row:hover .icon {
         opacity: 1;
-        color: #6b6b6b;
+        color: var(--icon-hover);
       }
 
       .work-row:hover .icon.external {
@@ -153,12 +204,12 @@ import Topbar from "../components/Topbar.astro";
       footer {
         margin-top: 2.35rem;
         padding: 1.75rem 0 6rem;
-        border-top: 1px solid #e2e0da;
+        border-top: 1px solid var(--border);
         display: flex;
         align-items: center;
         justify-content: space-between;
         font-size: 0.85rem;
-        color: #8a8a8a;
+        color: var(--label);
         flex-wrap: wrap;
         gap: 1rem;
       }
@@ -170,7 +221,7 @@ import Topbar from "../components/Topbar.astro";
       }
 
       footer .who .name {
-        color: #262626;
+        color: var(--title);
         font-weight: 500;
       }
 
@@ -201,7 +252,7 @@ import Topbar from "../components/Topbar.astro";
       }
 
       footer a:hover {
-        color: #262626;
+        color: var(--title);
       }
     </style>
   </head>
