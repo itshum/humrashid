@@ -201,6 +201,13 @@ const paragraphs = (text: string) =>
         margin-bottom: 0;
       }
 
+      .section-image {
+        display: block;
+        width: 100%;
+        border-radius: 4px;
+        margin-top: 2rem;
+      }
+
       .solution-item {
         margin-bottom: 4rem;
       }
@@ -332,6 +339,15 @@ const paragraphs = (text: string) =>
         <p class="label">Challenge</p>
         {data.challengeHeading && <h2>{data.challengeHeading}</h2>}
         {paragraphs(data.problem).map((p) => <p>{p}</p>)}
+        {
+          data.challengeImage && (
+            <img
+              class="section-image"
+              src={data.challengeImage}
+              alt={data.challengeImageAlt ?? `${data.title} interface`}
+            />
+          )
+        }
       </section>
 
       <div class="divider"></div>

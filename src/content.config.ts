@@ -14,6 +14,8 @@ const caseStudies = defineCollection({
     coverImageAlt: z.string().optional(),
     challengeHeading: z.string().optional(),
     problem: z.string(),
+    challengeImage: z.string().optional(),
+    challengeImageAlt: z.string().optional(),
     approachHeading: z.string().optional(),
     approach: z.string(),
     solutionLabel: z.string().optional(),
