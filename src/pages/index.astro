@@ -1,41 +1,351 @@
 ---
-import Layout from "../layouts/Layout.astro";
-import { getCollection } from "astro:content";
-
-const caseStudies = (await getCollection("caseStudies", ({ data }) => !data.draft)).sort(
-  (a, b) => a.data.order - b.data.order
-);
+import Topbar from "../components/Topbar.astro";
 ---
 
-<Layout title="Home">
-  <section class="mx-auto max-w-5xl px-6 py-24">
-    <h1 class="max-w-2xl text-4xl font-medium tracking-tight sm:text-5xl">
-      Positioning statement placeholder — locked during content phase.
-    </h1>
-  </section>
-
-  <section class="mx-auto max-w-5xl px-6 pb-24">
-    <ul class="grid gap-6 sm:grid-cols-2">
-      {
-        caseStudies.map((entry) => (
-          <li>
-            <a
-              href={`/work/${entry.id}`}
-              class="block rounded-lg border border-border p-6 transition-colors hover:border-foreground/30"
-            >
-              <h2 class="text-lg font-medium">{entry.data.title}</h2>
-              <p class="mt-2 text-sm text-muted-foreground">{entry.data.summary}</p>
-            </a>
-          </li>
-        ))
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>Humayun Rashid · Product Designer</title>
+    <meta name="description" content="Humayun Rashid — product designer and founder based in New York City." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&display=swap"
+    />
+    <style is:global>
+      * {
+        box-sizing: border-box;
       }
-    </ul>
-    {
-      caseStudies.length === 0 && (
-        <p class="text-sm text-muted-foreground">
-          No published case studies yet — entries with <code>draft: true</code> are hidden here.
+
+      html,
+      body {
+        margin: 0;
+        background: #f8f8f6;
+        color: #262626;
+        font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      ::selection {
+        background: #1f3d2e;
+        color: #f8f8f6;
+      }
+
+      .col {
+        max-width: 700px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+      }
+
+      .intro {
+        margin-top: 3.5rem;
+      }
+
+      .intro p {
+        font-size: 1.15rem;
+        line-height: 1.75;
+        color: #2b2b2b;
+        margin: 0 0 1.25rem;
+      }
+
+      .intro p:last-child {
+        margin-bottom: 0;
+      }
+
+      .intro a {
+        text-decoration: underline;
+        text-decoration-color: #b0afaa;
+        text-underline-offset: 3px;
+      }
+
+      .intro a:hover {
+        text-decoration-color: #262626;
+      }
+
+      section {
+        padding: 4.55rem 0 3.5rem;
+      }
+
+      .section-heading {
+        font-size: 0.8rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #8a8a8a;
+        margin: 0 0 0.875rem;
+      }
+
+      .work-list {
+        margin: 0 -0.9rem;
+      }
+
+      /* Hover highlight bleeds past the text measure on both sides, which is
+         why each row gets its own horizontal padding instead of inheriting
+         .col's - the highlight needs to extend beyond where the text sits. */
+      .work-row {
+        display: block;
+        padding: 1.1rem 0.9rem;
+        border-radius: 6px;
+        text-decoration: none;
+        transition: background 0.15s ease;
+      }
+
+      .work-row:hover {
+        background: #eae9e5;
+      }
+
+      .work-row .title {
+        font-size: 1.05rem;
+        font-weight: 500;
+        color: #262626;
+        display: block;
+        margin-bottom: 0.3rem;
+      }
+
+      .work-row .row-bottom {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 1.5rem;
+      }
+
+      .work-row .desc {
+        font-size: 0.92rem;
+        color: #8a8a8a;
+      }
+
+      .work-row .meta {
+        display: flex;
+        align-items: baseline;
+        gap: 0.6rem;
+        flex-shrink: 0;
+      }
+
+      .work-row .year {
+        font-size: 0.85rem;
+        color: #9a9994;
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+      }
+
+      .work-row .icon {
+        font-size: 0.85rem;
+        color: #c9c7c0;
+        opacity: 0;
+        transition: opacity 0.15s ease, transform 0.15s ease;
+        display: inline-block;
+      }
+
+      .work-row:hover .icon {
+        opacity: 1;
+        color: #6b6b6b;
+      }
+
+      .work-row:hover .icon.external {
+        transform: translate(2px, -2px);
+      }
+
+      .work-row:hover .icon.internal {
+        transform: translateX(2px);
+      }
+
+      footer {
+        margin-top: 2.35rem;
+        padding: 1.75rem 0 6rem;
+        border-top: 1px solid #e2e0da;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 0.85rem;
+        color: #8a8a8a;
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+
+      footer .who {
+        display: flex;
+        align-items: baseline;
+        gap: 0.75rem;
+      }
+
+      footer .who .name {
+        color: #262626;
+        font-weight: 500;
+      }
+
+      footer .tz {
+        display: flex;
+        align-items: baseline;
+        gap: 0.4rem;
+      }
+
+      .blink {
+        animation: blink 1s steps(1) infinite;
+      }
+
+      @keyframes blink {
+        50%,
+        100% {
+          opacity: 0;
+        }
+      }
+
+      footer .links {
+        display: flex;
+        gap: 0.9rem;
+      }
+
+      footer a {
+        text-decoration: none;
+      }
+
+      footer a:hover {
+        color: #262626;
+      }
+    </style>
+  </head>
+  <body>
+    <Topbar />
+
+    <div class="col">
+      <div class="intro">
+        <p>
+          I'm <a href="/about">Humayun Rashid</a>, a product designer and founder based in New
+          York City with over a decade of experience shipping products people actually want to
+          use. Most recently, I led design at <a href="/work/sublime-security"
+            >Sublime Security</a
+          >, the fastest growing email security startup in the US, shipping critical tools for
+          security professionals like quarantine digest and phishing simulations. Before that,
+          I founded and ran Nessa Labs, a bespoke design studio where I advised and designed
+          products for dozens of early stage SaaS founders navigating their first real growth
+          push.
         </p>
-      )
-    }
-  </section>
-</Layout>
+        <p>
+          I care about the parts of a product that never make it into the final screen: the
+          onboarding flow nobody notices, the empty state that quietly loses the user, the
+          setting that should've been the default all along. Getting those right starts with
+          actually talking to users, understanding where they get stuck and why before assuming
+          you know the fix. That's where the real work happens, and where most teams quietly
+          give up.
+        </p>
+        <p>
+          Good design isn't about adding more, it's about subtracting until what's left feels
+          like magic.
+        </p>
+      </div>
+
+      <section>
+        <p class="section-heading">Select Work</p>
+
+        <div class="work-list">
+          <a class="work-row" href="#" target="_blank" rel="noopener">
+            <span class="title">Sublime Security</span>
+            <span class="row-bottom">
+              <span class="desc">Led product design for security teams to stop malicious threats.</span>
+              <span class="meta">
+                <span class="year">2026</span>
+                <span class="icon external">↗</span>
+              </span>
+            </span>
+          </a>
+
+          <a class="work-row" href="#" target="_blank" rel="noopener">
+            <span class="title">Nessa Labs</span>
+            <span class="row-bottom">
+              <span class="desc">Founder &amp; Design Director of product design studio for early stage startups.</span>
+              <span class="meta">
+                <span class="year">2021 – 2026</span>
+                <span class="icon external">↗</span>
+              </span>
+            </span>
+          </a>
+
+          <a class="work-row" href="/work/pack">
+            <span class="title">Pack Platform</span>
+            <span class="row-bottom">
+              <span class="desc">Product redesign for headless commerce platform.</span>
+              <span class="meta">
+                <span class="year">2023</span>
+                <span class="icon internal">→</span>
+              </span>
+            </span>
+          </a>
+
+          <a class="work-row" href="/work/ppvp">
+            <span class="title">PPVP</span>
+            <span class="row-bottom">
+              <span class="desc">Mobile app design for investment platform for early stage funding.</span>
+              <span class="meta">
+                <span class="year">2023</span>
+                <span class="icon internal">→</span>
+              </span>
+            </span>
+          </a>
+
+          <a class="work-row" href="/work/inveterate">
+            <span class="title">Inveterate</span>
+            <span class="row-bottom">
+              <span class="desc">Product strategy and design for loyalty and membership platform.</span>
+              <span class="meta">
+                <span class="year">2022</span>
+                <span class="icon internal">→</span>
+              </span>
+            </span>
+          </a>
+
+          <a class="work-row" href="#" target="_blank" rel="noopener">
+            <span class="title">Shopping Gives</span>
+            <span class="row-bottom">
+              <span class="desc">Product strategy and design for donation enablement platform.</span>
+              <span class="meta">
+                <span class="year">2022</span>
+                <span class="icon external">↗</span>
+              </span>
+            </span>
+          </a>
+        </div>
+      </section>
+
+      <footer>
+        <span class="who">
+          <span class="name">Humayun Rashid</span>
+          <span class="tz">
+            <span>NYC</span>
+            <span id="nyc-time">—:— —</span>
+          </span>
+        </span>
+        <span class="links">
+          <a href="https://www.linkedin.com/in/humayunrashid/" target="_blank" rel="noopener">LinkedIn</a>
+          <a href="https://github.com/itshum" target="_blank" rel="noopener">Github</a>
+          <a href="https://x.com/humrashid" target="_blank" rel="noopener">Twitter</a>
+          <a href="/humayun-rashid-resume.pdf" target="_blank" rel="noopener">CV</a>
+        </span>
+      </footer>
+    </div>
+
+    <script>
+      const el = document.getElementById("nyc-time");
+      function updateClock() {
+        const parts = new Intl.DateTimeFormat("en-US", {
+          timeZone: "America/New_York",
+          hour: "numeric",
+          minute: "2-digit",
+          hour12: true,
+        }).formatToParts(new Date());
+        const hour = parts.find((p) => p.type === "hour")?.value ?? "-";
+        const minute = parts.find((p) => p.type === "minute")?.value ?? "--";
+        const period = parts.find((p) => p.type === "dayPeriod")?.value ?? "";
+        el.innerHTML = `${hour}<span class="blink">:</span>${minute} ${period}`;
+      }
+      updateClock();
+      setInterval(updateClock, 1000);
+    </script>
+  </body>
+</html>
