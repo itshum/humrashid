@@ -62,6 +62,13 @@ solutionItems:
     imageAlt: "Developer onboarding"
     body: |
       Modern headless builds mean wrangling a pile of apps. We stripped the setup down so developers could plug into Git with their own API keys and start building without an opinionated workflow forced on them, with real visibility into deploys and status instead of a black box.
+sideBySide:
+  left:
+    src: "/case-studies/pack/18-s03-mobile-nav-mobile.webp"
+    alt: "Mobile navigation"
+  right:
+    src: "/case-studies/pack/19-s03-onthego-mobile.webp"
+    alt: "Managing a storefront on the go"
 quote:
   text: "Nessa's design work simplified the headless build process into a cutting edge software product designed for brand operators and developers."
   attribution: "Cory Cummings, CEO at Pack"

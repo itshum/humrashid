@@ -39,6 +39,12 @@ const caseStudies = defineCollection({
         })
       )
       .optional(),
+    sideBySide: z
+      .object({
+        left: z.object({ src: z.string(), alt: z.string() }),
+        right: z.object({ src: z.string(), alt: z.string() }),
+      })
+      .optional(),
     quote: z
       .object({
         text: z.string(),
