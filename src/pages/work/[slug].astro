@@ -91,14 +91,25 @@ const paragraphs = (text: string) =>
         justify-content: center;
         gap: 2.5rem;
         margin-top: 2.5rem;
-        font-size: 0.8rem;
-        color: #b0b0b0;
         flex-wrap: wrap;
       }
 
-      .meta-row strong {
-        color: #6b6b6b;
+      .meta-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.35rem;
+      }
+
+      .meta-item .meta-label {
+        font-size: 0.75rem;
+        color: #b0b0b0;
+      }
+
+      .meta-item .meta-value {
+        font-size: 0.95rem;
         font-weight: 500;
+        color: #262626;
       }
 
       /* Full width, padded to the same gutter as the topbar's logo and
@@ -227,9 +238,26 @@ const paragraphs = (text: string) =>
         <h1>{data.title}</h1>
         <p class="summary">{data.summary}</p>
         <div class="meta-row">
-          <span><strong>Company</strong> · {data.company}</span>
-          <span><strong>Role</strong> · {data.role}</span>
-          {data.teamSize && <span><strong>Team</strong> · {data.teamSize}</span>}
+          <div class="meta-item">
+            <span class="meta-label">Company</span>
+            <span class="meta-value">{data.company}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Role</span>
+            <span class="meta-value">{data.role}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Year</span>
+            <span class="meta-value">{data.timeframe}</span>
+          </div>
+          {
+            data.teamSize && (
+              <div class="meta-item">
+                <span class="meta-label">Team</span>
+                <span class="meta-value">{data.teamSize}</span>
+              </div>
+            )
+          }
         </div>
       </div>
     </div>
