@@ -11,9 +11,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&display=swap"
     />
-    <style>
+    <style is:global>
       * {
         box-sizing: border-box;
       }
@@ -23,7 +23,7 @@
         margin: 0;
         background: #f4f4f2;
         color: #1a1a1a;
-        font-family: "Schibsted Grotesk", ui-sans-serif, system-ui, sans-serif;
+        font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
       }
 
       a {
@@ -100,7 +100,7 @@
       }
 
       section {
-        padding: 3.5rem 0;
+        padding: 4.55rem 0 3.5rem;
       }
 
       .section-heading {
@@ -208,6 +208,23 @@
       footer .who .name {
         color: #1a1a1a;
         font-weight: 500;
+      }
+
+      footer .tz {
+        display: flex;
+        align-items: baseline;
+        gap: 0.4rem;
+      }
+
+      .blink {
+        animation: blink 1s steps(1) infinite;
+      }
+
+      @keyframes blink {
+        50%,
+        100% {
+          opacity: 0;
+        }
       }
 
       footer .links {
@@ -333,7 +350,10 @@
       <footer>
         <span class="who">
           <span class="name">Humayun Rashid</span>
-          <span id="nyc-time">NYC —:— —</span>
+          <span class="tz">
+            <span>NYC</span>
+            <span id="nyc-time">—:— —</span>
+          </span>
         </span>
         <span class="links">
           <a href="https://www.linkedin.com/in/humayunrashid/" target="_blank" rel="noopener">LinkedIn</a>
@@ -368,13 +388,16 @@
 
       const el = document.getElementById("nyc-time");
       function updateClock() {
-        const time = new Intl.DateTimeFormat("en-US", {
+        const parts = new Intl.DateTimeFormat("en-US", {
           timeZone: "America/New_York",
           hour: "numeric",
           minute: "2-digit",
           hour12: true,
-        }).format(new Date());
-        el.textContent = `NYC ${time}`;
+        }).formatToParts(new Date());
+        const hour = parts.find((p) => p.type === "hour")?.value ?? "-";
+        const minute = parts.find((p) => p.type === "minute")?.value ?? "--";
+        const period = parts.find((p) => p.type === "dayPeriod")?.value ?? "";
+        el.innerHTML = `${hour}<span class="blink">:</span>${minute} ${period}`;
       }
       updateClock();
       setInterval(updateClock, 1000);
