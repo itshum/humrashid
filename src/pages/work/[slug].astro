@@ -236,13 +236,23 @@ const paragraphs = (text: string) =>
         margin-top: 2rem;
       }
 
+      /* Wider than .col on purpose - the quote needs more measure than
+         the 700px prose column gives it, so it breaks out to its own
+         centered wrapper instead of inheriting .col's width. */
+      .quote-section {
+        max-width: 950px;
+        margin: 0 auto;
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+      }
+
       .quote {
         text-align: center;
         font-size: 1.3rem;
         font-weight: 500;
         line-height: 1.55;
         color: #262626;
-        max-width: 60ch;
+        max-width: 68ch;
         margin: 0 auto;
       }
 
@@ -394,21 +404,21 @@ const paragraphs = (text: string) =>
 
     {data.sideBySide && <SideBySide left={data.sideBySide.left} right={data.sideBySide.right} />}
 
-    <div class="col">
-      {
-        data.quote && (
-          <>
+    {
+      data.quote && (
+        <>
+          <div class="col">
             <div class="divider" />
-            <section id="quote">
-              <blockquote class="quote">
-                "{data.quote.text}"
-                <span class="attribution">{data.quote.attribution}</span>
-              </blockquote>
-            </section>
-          </>
-        )
-      }
-    </div>
+          </div>
+          <section id="quote" class="quote-section">
+            <blockquote class="quote">
+              "{data.quote.text}"
+              <span class="attribution">{data.quote.attribution}</span>
+            </blockquote>
+          </section>
+        </>
+      )
+    }
 
     {
       data.detailSplit && (
