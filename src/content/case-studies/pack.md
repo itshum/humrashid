@@ -80,7 +80,7 @@ sideBySide:
     src: "/case-studies/pack/19-s03-onthego-mobile.webp"
     alt: "Managing a storefront on the go"
 quote:
-  text: "The new Pack platform gives brands and agencies powerful front-end tools to communicate with customers more easily. We're incredibly proud of Nessa's design work. Collaborating with their team allowed us to simplify the headless build process into a cutting edge software product designed for brand operators and developers."
+  text: "The new Pack platform gives brands and agencies powerful front‑end tools to communicate with customers more easily. We're incredibly proud of Nessa's design work. Collaborating with their team allowed us to simplify the headless build process into a cutting edge software product designed for brand operators and developers."
   attribution: "Cory Cummings, CEO at Pack"
 detailSplit:
   main:
