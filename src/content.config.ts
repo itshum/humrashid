@@ -10,11 +10,34 @@ const caseStudies = defineCollection({
     role: z.string(),
     timeframe: z.string(),
     teamSize: z.string().optional(),
+    coverImage: z.string().optional(),
+    coverImageAlt: z.string().optional(),
+    challengeHeading: z.string().optional(),
     problem: z.string(),
+    approachHeading: z.string().optional(),
     approach: z.string(),
+    solutionLabel: z.string().optional(),
+    solutionHeading: z.string().optional(),
+    solutionItems: z
+      .array(
+        z.object({
+          tag: z.string(),
+          heading: z.string(),
+          body: z.string(),
+          image: z.string().optional(),
+          imageAlt: z.string().optional(),
+        })
+      )
+      .optional(),
+    quote: z
+      .object({
+        text: z.string(),
+        attribution: z.string(),
+      })
+      .optional(),
+    outcomeHeading: z.string().optional(),
     outcome: z.string(),
     whatIdDoDifferently: z.string().optional(),
-    coverImage: z.string().optional(),
     order: z.number(),
     draft: z.boolean().default(true),
   }),

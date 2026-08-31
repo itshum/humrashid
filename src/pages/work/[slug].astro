@@ -1,89 +1,313 @@
 ---
-import Layout from "../../layouts/Layout.astro";
-import Grid from "../../components/layout/Grid.astro";
-import { getCollection, render } from "astro:content";
+import Topbar from "../../components/Topbar.astro";
+import { getCollection } from "astro:content";
 
 export async function getStaticPaths() {
-  const caseStudies = await getCollection("caseStudies");
-  return caseStudies.map((entry) => ({
+  const caseStudies = (await getCollection("caseStudies", ({ data }) => !data.draft)).sort(
+    (a, b) => a.data.order - b.data.order
+  );
+  return caseStudies.map((entry, i) => ({
     params: { slug: entry.id },
-    props: { entry },
+    props: { entry, next: caseStudies[(i + 1) % caseStudies.length] },
   }));
 }
 
-const { entry } = Astro.props;
+const { entry, next } = Astro.props;
 const { data } = entry;
-const { Content } = await render(entry);
 
-// Centered prose column — same pattern validated in /concept-case-study-pack.
-// Site-wide standard now: col-span-4 (mobile) -> 6 (tablet) -> 8 (desktop+xl),
-// offset to sit in the middle of the 8/12-column grid rather than flush left.
-const prose = "col-span-4 md:col-span-6 md:col-start-2 lg:col-span-8 lg:col-start-3";
+const paragraphs = (text: string) =>
+  text
+    .split(/\n\s*\n/)
+    .map((p) => p.trim())
+    .filter(Boolean);
 ---
 
-<Layout title={data.title} description={data.summary}>
-  <article class="py-24">
-    <Grid>
-      <header class={prose}>
-        <h1 class="text-3xl font-medium tracking-tight">{data.title}</h1>
-        <p class="mt-2 text-muted-foreground">{data.summary}</p>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{data.title} · Humayun Rashid</title>
+    <meta name="description" content={data.summary} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&display=swap"
+    />
+    <style is:global>
+      * {
+        box-sizing: border-box;
+      }
 
-        <dl class="mt-8 grid grid-cols-2 gap-4 text-sm sm:grid-cols-3">
-          <div>
-            <dt class="text-muted-foreground">Company</dt>
-            <dd>{data.company}</dd>
-          </div>
-          <div>
-            <dt class="text-muted-foreground">Role</dt>
-            <dd>{data.role}</dd>
-          </div>
-          <div>
-            <dt class="text-muted-foreground">Timeframe</dt>
-            <dd>{data.timeframe}</dd>
-          </div>
-          {
-            data.teamSize && (
-              <div>
-                <dt class="text-muted-foreground">Team</dt>
-                <dd>{data.teamSize}</dd>
-              </div>
-            )
-          }
-        </dl>
-      </header>
-    </Grid>
+      html,
+      body {
+        margin: 0;
+        background: #f8f8f6;
+        color: #262626;
+        font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+      }
 
-    <Grid class="mt-12">
-      <section class:list={[prose, "space-y-2"]}>
-        <h2 class="text-sm font-medium uppercase tracking-wide text-muted-foreground">
-          Challenge
-        </h2>
-        <p>{data.problem}</p>
+      a {
+        color: inherit;
+      }
+
+      .col {
+        max-width: 700px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+      }
+
+      .wide-col {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+      }
+
+      /* Hero — centered, generous, no boxed meta grid */
+      .hero {
+        text-align: center;
+        padding: 6rem 0 5rem;
+      }
+
+      .hero .eyebrow {
+        font-size: 0.8rem;
+        color: #8a8a8a;
+        margin: 0 0 1.25rem;
+      }
+
+      .hero h1 {
+        font-size: 2.5rem;
+        font-weight: 600;
+        letter-spacing: -0.015em;
+        margin: 0 0 1.25rem;
+      }
+
+      .hero .summary {
+        font-size: 1.15rem;
+        color: #5c5c5c;
+        line-height: 1.6;
+        max-width: 42ch;
+        margin: 0 auto;
+      }
+
+      .meta-row {
+        display: flex;
+        justify-content: center;
+        gap: 2.5rem;
+        margin-top: 2.5rem;
+        font-size: 0.8rem;
+        color: #b0b0b0;
+        flex-wrap: wrap;
+      }
+
+      .meta-row strong {
+        color: #6b6b6b;
+        font-weight: 500;
+      }
+
+      .hero-media {
+        margin-top: 4rem;
+      }
+
+      .hero-media img {
+        display: block;
+        width: 100%;
+        border-radius: 4px;
+      }
+
+      /* Prose sections - generous whitespace, no boxed dividers */
+      section {
+        padding: 4.5rem 0;
+      }
+
+      section .label {
+        font-size: 0.8rem;
+        color: #b0b0b0;
+        text-align: center;
+        margin: 0 0 1.25rem;
+      }
+
+      section h2 {
+        font-size: 1.6rem;
+        font-weight: 600;
+        text-align: center;
+        letter-spacing: -0.01em;
+        margin: 0 0 2.5rem;
+      }
+
+      section p {
+        font-size: 1.05rem;
+        line-height: 1.75;
+        color: #2b2b2b;
+        margin: 0 0 1.25rem;
+      }
+
+      section p:last-child {
+        margin-bottom: 0;
+      }
+
+      .solution-item {
+        margin-bottom: 4rem;
+      }
+
+      .solution-item:last-child {
+        margin-bottom: 0;
+      }
+
+      .solution-item .tag {
+        display: block;
+        text-align: center;
+        font-size: 0.8rem;
+        color: #b0b0b0;
+        margin-bottom: 0.5rem;
+      }
+
+      .solution-item h3 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        text-align: center;
+        margin: 0 0 1.25rem;
+      }
+
+      .solution-item img {
+        display: block;
+        width: 100%;
+        border-radius: 4px;
+        margin-top: 2rem;
+      }
+
+      .quote {
+        text-align: center;
+        font-size: 1.3rem;
+        font-weight: 500;
+        line-height: 1.55;
+        color: #262626;
+        max-width: 44ch;
+        margin: 0 auto;
+      }
+
+      .quote .attribution {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 400;
+        color: #8a8a8a;
+        margin-top: 1.5rem;
+      }
+
+      footer {
+        text-align: center;
+        padding: 3rem 0 6rem;
+        font-size: 0.85rem;
+        color: #8a8a8a;
+      }
+
+      footer a {
+        text-decoration: underline;
+        text-decoration-color: #c9c7c0;
+        text-underline-offset: 3px;
+      }
+
+      footer a:hover {
+        color: #262626;
+      }
+
+      .divider {
+        height: 1px;
+        background: #efeee9;
+        max-width: 80px;
+        margin: 0 auto;
+      }
+    </style>
+  </head>
+  <body>
+    <Topbar showBack />
+
+    <div class="col">
+      <div class="hero">
+        <p class="eyebrow">Case Study</p>
+        <h1>{data.title}</h1>
+        <p class="summary">{data.summary}</p>
+        <div class="meta-row">
+          <span><strong>Company</strong> · {data.company}</span>
+          <span><strong>Role</strong> · {data.role}</span>
+          {data.teamSize && <span><strong>Team</strong> · {data.teamSize}</span>}
+        </div>
+      </div>
+    </div>
+
+    {
+      data.coverImage && (
+        <div class="wide-col hero-media">
+          <img src={data.coverImage} alt={data.coverImageAlt ?? `${data.title} interface`} />
+        </div>
+      )
+    }
+
+    <div class="col">
+      <section>
+        <p class="label">Challenge</p>
+        {data.challengeHeading && <h2>{data.challengeHeading}</h2>}
+        {paragraphs(data.problem).map((p) => <p>{p}</p>)}
       </section>
-    </Grid>
 
-    <Grid class="mt-8">
-      <section class:list={[prose, "space-y-2"]}>
-        <h2 class="text-sm font-medium uppercase tracking-wide text-muted-foreground">
-          Approach
-        </h2>
-        <p>{data.approach}</p>
-      </section>
-    </Grid>
+      <div class="divider"></div>
 
-    <Grid class="mt-8">
-      <section class:list={[prose, "prose prose-neutral"]}>
-        <Content />
+      <section>
+        <p class="label">Approach</p>
+        {data.approachHeading && <h2>{data.approachHeading}</h2>}
+        {paragraphs(data.approach).map((p) => <p>{p}</p>)}
       </section>
-    </Grid>
 
-    <Grid class="mt-8">
-      <section class:list={[prose, "space-y-2"]}>
-        <h2 class="text-sm font-medium uppercase tracking-wide text-muted-foreground">
-          Outcome
-        </h2>
-        <p>{data.outcome}</p>
+      {
+        data.solutionItems && data.solutionItems.length > 0 && (
+          <>
+            <div class="divider" />
+            <section>
+              <p class="label">{data.solutionLabel ?? "Solution"}</p>
+              {data.solutionHeading && <h2>{data.solutionHeading}</h2>}
+
+              {data.solutionItems.map((item) => (
+                <div class="solution-item">
+                  <span class="tag">{item.tag}</span>
+                  <h3>{item.heading}</h3>
+                  {paragraphs(item.body).map((p) => (
+                    <p>{p}</p>
+                  ))}
+                  {item.image && <img src={item.image} alt={item.imageAlt ?? item.heading} />}
+                </div>
+              ))}
+            </section>
+          </>
+        )
+      }
+
+      {
+        data.quote && (
+          <>
+            <div class="divider" />
+            <section>
+              <blockquote class="quote">
+                "{data.quote.text}"
+                <span class="attribution">— {data.quote.attribution}</span>
+              </blockquote>
+            </section>
+          </>
+        )
+      }
+
+      <div class="divider"></div>
+
+      <section>
+        <p class="label">Outcome</p>
+        {data.outcomeHeading && <h2>{data.outcomeHeading}</h2>}
+        {paragraphs(data.outcome).map((p) => <p>{p}</p>)}
       </section>
-    </Grid>
-  </article>
-</Layout>
+    </div>
+
+    <footer>
+      Next case study — <a href={`/work/${next.id}`}>{next.data.title} →</a>
+    </footer>
+  </body>
+</html>
