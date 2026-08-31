@@ -23,21 +23,21 @@ const uid = `carousel-${Math.random().toString(36).slice(2, 9)}`;
         ))
       }
     </div>
+  </div>
 
-    <div class="carousel-nav">
-      <button type="button" class="carousel-btn carousel-prev" aria-label="Previous image">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M19 12H5" />
-          <path d="M11 18l-6-6 6-6" />
-        </svg>
-      </button>
-      <button type="button" class="carousel-btn carousel-next" aria-label="Next image">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M5 12h14" />
-          <path d="M13 18l6-6-6-6" />
-        </svg>
-      </button>
-    </div>
+  <div class="carousel-nav">
+    <button type="button" class="carousel-btn carousel-prev" aria-label="Previous image">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 12H5" />
+        <path d="M11 18l-6-6 6-6" />
+      </svg>
+    </button>
+    <button type="button" class="carousel-btn carousel-next" aria-label="Next image">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 12h14" />
+        <path d="M13 18l6-6-6-6" />
+      </svg>
+    </button>
   </div>
 </div>
 
@@ -80,11 +80,9 @@ const uid = `carousel-${Math.random().toString(36).slice(2, 9)}`;
   }
 
   .carousel-nav {
-    position: absolute;
-    left: 0;
-    bottom: 16px;
     display: flex;
     gap: 10px;
+    margin-top: 1rem;
   }
 
   .carousel-btn {
@@ -94,26 +92,16 @@ const uid = `carousel-${Math.random().toString(36).slice(2, 9)}`;
     width: 44px;
     height: 44px;
     border-radius: 100px;
-    border: 1px solid rgba(255, 255, 255, 0.35);
-    background: rgba(20, 20, 20, 0.35);
-    color: #fff;
+    border: 1px solid #e2e0da;
+    background: transparent;
+    color: #262626;
     cursor: pointer;
-    transition: background 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+    transition: background 0.15s ease, border-color 0.15s ease;
   }
 
   .carousel-btn:hover {
-    background: rgba(20, 20, 20, 0.6);
-    border-color: rgba(255, 255, 255, 0.6);
-  }
-
-  .carousel-btn:disabled {
-    opacity: 0.35;
-    cursor: default;
-  }
-
-  .carousel-btn:disabled:hover {
-    background: rgba(20, 20, 20, 0.35);
-    border-color: rgba(255, 255, 255, 0.35);
+    background: #eae9e5;
+    border-color: #d8d6d0;
   }
 
   .carousel-btn svg {
@@ -159,7 +147,6 @@ const uid = `carousel-${Math.random().toString(36).slice(2, 9)}`;
 
       window.addEventListener("resize", () => this.setTransform(false));
 
-      this.updateButtons();
       this.setTransform(false);
     }
 
@@ -170,14 +157,9 @@ const uid = `carousel-${Math.random().toString(36).slice(2, 9)}`;
     }
 
     go(nextIndex: number) {
-      this.index = Math.max(0, Math.min(this.slides.length - 1, nextIndex));
+      const count = this.slides.length;
+      this.index = ((nextIndex % count) + count) % count;
       this.setTransform(true);
-      this.updateButtons();
-    }
-
-    updateButtons() {
-      this.prevBtn.disabled = this.index === 0;
-      this.nextBtn.disabled = this.index === this.slides.length - 1;
     }
 
     setTransform(animate: boolean) {
