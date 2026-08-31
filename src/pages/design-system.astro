@@ -11,7 +11,7 @@ import "../styles/global.css";
     <link rel="preconnect" href="https://api.fontshare.com" />
     <link
       rel="stylesheet"
-      href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,500,400&f[]=general-sans@600,500,400&display=swap"
+      href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,500,400&f[]=general-sans@600,500,400&f[]=switzer@400,500,600,700&display=swap"
     />
     <style>
       :root {
@@ -322,6 +322,74 @@ import "../styles/global.css";
         font-family: ui-monospace, monospace;
       }
 
+      .ds-font-compare {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: calc(var(--spacing, 0.25rem) * 8);
+      }
+
+      .ds-font-compare .col h4 {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--muted-foreground);
+        margin: 0 0 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .ds-font-compare .weight-row {
+        margin-bottom: 1.25rem;
+      }
+
+      .ds-font-compare .weight-label {
+        font-size: 0.65rem;
+        color: var(--muted-foreground);
+        margin: 0 0 0.15rem;
+        font-family: ui-monospace, monospace;
+      }
+
+      .ds-font-compare .sample {
+        font-size: 1.0625rem;
+        line-height: 1.65;
+        color: var(--foreground);
+        margin: 0;
+      }
+
+      .ds-mobile-check {
+        margin-top: calc(var(--spacing, 0.25rem) * 8);
+        padding-top: calc(var(--spacing, 0.25rem) * 8);
+        border-top: 1px dashed var(--border);
+      }
+
+      .ds-mobile-check .phones {
+        display: flex;
+        gap: calc(var(--spacing, 0.25rem) * 8);
+        flex-wrap: wrap;
+      }
+
+      .ds-mobile-check .phone {
+        width: 320px;
+        border: 1px solid var(--border);
+        border-radius: calc(var(--radius) * 1.5);
+        padding: 1.25rem 1.1rem;
+      }
+
+      .ds-mobile-check .phone h4 {
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--muted-foreground);
+        margin: 0 0 0.75rem;
+      }
+
+      .ds-mobile-check .phone p {
+        font-size: 0.9375rem;
+        line-height: 1.6;
+        color: var(--foreground);
+        margin: 0;
+      }
+
       .ds-section-label {
         font-family: var(--font-sans, var(--font-general));
         font-size: 0.7rem;
@@ -358,6 +426,7 @@ import "../styles/global.css";
             <label for="f-body">Body</label>
             <select id="f-body">
               <option value="'General Sans', sans-serif" selected>General Sans</option>
+              <option value="'Switzer', sans-serif">Switzer</option>
               <option value="'Geist Variable', sans-serif">Geist</option>
               <option value="ui-sans-serif, system-ui, sans-serif">System UI</option>
             </select>
@@ -496,6 +565,91 @@ import "../styles/global.css";
               eyeball weight and spacing across the whole alphabet.
             </p>
             <p class="small">Small / caption text, muted foreground.</p>
+          </div>
+        </div>
+
+        <div class="ds-preview-block">
+          <p class="ds-section-label">
+            Body font comparison — General Sans vs Switzer (for blog legibility, not just
+            headlines)
+          </p>
+          <div class="ds-font-compare">
+            <div class="col" style="font-family: 'General Sans', sans-serif;">
+              <h4>General Sans</h4>
+              <div class="weight-row">
+                <p class="weight-label">400 — regular</p>
+                <p class="sample" style="font-weight: 400;">
+                  Design isn't a phase you finish before engineering starts. It's the thing
+                  that keeps a product honest as it grows, week over week, decision by
+                  decision.
+                </p>
+              </div>
+              <div class="weight-row">
+                <p class="weight-label">500 — medium</p>
+                <p class="sample" style="font-weight: 500;">
+                  Design isn't a phase you finish before engineering starts. It's the thing
+                  that keeps a product honest as it grows, week over week, decision by
+                  decision.
+                </p>
+              </div>
+              <div class="weight-row">
+                <p class="weight-label">600 — semibold</p>
+                <p class="sample" style="font-weight: 600;">
+                  Design isn't a phase you finish before engineering starts. It's the thing
+                  that keeps a product honest as it grows, week over week, decision by
+                  decision.
+                </p>
+              </div>
+            </div>
+            <div class="col" style="font-family: 'Switzer', sans-serif;">
+              <h4>Switzer</h4>
+              <div class="weight-row">
+                <p class="weight-label">400 — regular</p>
+                <p class="sample" style="font-weight: 400;">
+                  Design isn't a phase you finish before engineering starts. It's the thing
+                  that keeps a product honest as it grows, week over week, decision by
+                  decision.
+                </p>
+              </div>
+              <div class="weight-row">
+                <p class="weight-label">500 — medium</p>
+                <p class="sample" style="font-weight: 500;">
+                  Design isn't a phase you finish before engineering starts. It's the thing
+                  that keeps a product honest as it grows, week over week, decision by
+                  decision.
+                </p>
+              </div>
+              <div class="weight-row">
+                <p class="weight-label">600 — semibold</p>
+                <p class="sample" style="font-weight: 600;">
+                  Design isn't a phase you finish before engineering starts. It's the thing
+                  that keeps a product honest as it grows, week over week, decision by
+                  decision.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="ds-mobile-check">
+            <p class="ds-section-label">Mobile-width check (320px column, 15px body text)</p>
+            <div class="phones">
+              <div class="phone" style="font-family: 'General Sans', sans-serif;">
+                <h4>General Sans</h4>
+                <p>
+                  Design isn't a phase you finish before engineering starts. It's the thing
+                  that keeps a product honest as it grows, week over week, decision by
+                  decision. Long enough to judge real wrapping, not a single line.
+                </p>
+              </div>
+              <div class="phone" style="font-family: 'Switzer', sans-serif;">
+                <h4>Switzer</h4>
+                <p>
+                  Design isn't a phase you finish before engineering starts. It's the thing
+                  that keeps a product honest as it grows, week over week, decision by
+                  decision. Long enough to judge real wrapping, not a single line.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 
