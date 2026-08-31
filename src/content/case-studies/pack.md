@@ -48,6 +48,7 @@ solutionItems:
     heading: "One place to understand the store"
     image: "/case-studies/pack/04-s01-dashboard-customization-desktop.webp"
     imageAlt: "Dashboard customization"
+    imageEffect: "line-reveal"
     body: |
       Store owners needed one place to understand how their storefront was actually performing: revenue, traffic, conversion, site speed. Rather than a wall of charts, we organized the dashboard around what a merchant would want to check on a given day, with a sidebar that carries across multiple storefronts, so managing more than one store never feels like starting over.
   - tag: "03 — Merchandising"
