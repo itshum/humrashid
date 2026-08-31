@@ -55,9 +55,9 @@
 
       .logo-mark {
         display: inline-grid;
-        grid-template-columns: repeat(9, 4px);
-        grid-template-rows: repeat(11, 4px);
-        gap: 1px;
+        grid-template-columns: repeat(4, 7px);
+        grid-template-rows: repeat(4, 7px);
+        gap: 3px;
       }
 
       .logo-mark .px {
@@ -342,19 +342,12 @@
       // verified by scaling it up during development). "#" = letterform,
       // always the same dark green. "." = filler, always the same subtle
       // grey - fixed colors now, not randomized, per Hum's spec.
-      const LOGO_MASK = [
-        "#...#####",
-        "#...#...#",
-        "#...#...#",
-        "#...#...#",
-        "#...#####",
-        "#####.#..",
-        "#...#.#..",
-        "#...#..#.",
-        "#...#..#.",
-        "#...#...#",
-        "#...#...#",
-      ];
+      // Back to a strict 4x4 - stays inside that constraint even though it
+      // means H and R can only be gestured at, not spelled out cleanly.
+      // Left column = H's stroke, row1 = H's crossbar reaching across,
+      // right two columns sketch R's stem + bowl corner + diagonal foot.
+      // Obscure is the point here, not legibility.
+      const LOGO_MASK = ["#..#", "###.", "#..#", "#.##"];
 
       const LETTER_COLOR = "#1f3d2e";
       const FILLER_COLOR = "#dcdcd8";
