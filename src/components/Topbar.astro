@@ -26,7 +26,6 @@ const { showBack = false } = Astro.props;
   .topbar {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     padding: 2.5rem 2rem 0;
     position: sticky;
     top: 0;
@@ -38,6 +37,7 @@ const { showBack = false } = Astro.props;
     grid-template-columns: repeat(4, 6px);
     grid-template-rows: repeat(4, 6px);
     gap: 2.5px;
+    margin-left: auto;
   }
 
   .logo-mark .px {
