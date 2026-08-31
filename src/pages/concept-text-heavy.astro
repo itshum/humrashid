@@ -1,0 +1,236 @@
+---
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Concept — Text Heavy</title>
+    <link rel="preconnect" href="https://api.fontshare.com" />
+    <link
+      rel="stylesheet"
+      href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600&display=swap"
+    />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        background: #fdfdfc;
+        color: #1a1a1a;
+        font-family: "General Sans", ui-sans-serif, system-ui, sans-serif;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      .frame-label {
+        position: fixed;
+        top: 16px;
+        left: 24px;
+        color: #b5b3ae;
+        font-size: 0.7rem;
+        z-index: 5;
+      }
+
+      .col {
+        max-width: 640px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+      }
+
+      header {
+        padding: 5rem 0 4rem;
+      }
+
+      header .name {
+        font-size: 0.95rem;
+        font-weight: 600;
+      }
+
+      header nav {
+        margin-top: 0.5rem;
+        font-size: 0.9rem;
+        color: #6b6b6b;
+      }
+
+      header nav a {
+        text-decoration: none;
+      }
+
+      header nav a:hover {
+        color: #1a1a1a;
+      }
+
+      .intro p {
+        font-size: 1.15rem;
+        line-height: 1.75;
+        color: #2b2b2b;
+        margin: 0 0 1.25rem;
+      }
+
+      .intro p:last-child {
+        margin-bottom: 0;
+      }
+
+      .intro a {
+        text-decoration: underline;
+        text-decoration-color: #c9c7c0;
+        text-underline-offset: 3px;
+      }
+
+      .intro a:hover {
+        text-decoration-color: #1a1a1a;
+      }
+
+      section {
+        padding: 3.5rem 0;
+        border-top: 1px solid #e6e4de;
+      }
+
+      .section-heading {
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #8a8a8a;
+        margin: 0 0 1.75rem;
+      }
+
+      .work-row {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 1.5rem;
+        padding: 1.1rem 0;
+        border-top: 1px solid #eeece7;
+        text-decoration: none;
+      }
+
+      .work-row:first-of-type {
+        border-top: none;
+      }
+
+      .work-row .left {
+        display: flex;
+        align-items: baseline;
+        gap: 0.6rem;
+        flex-wrap: wrap;
+      }
+
+      .work-row .title {
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: #1a1a1a;
+      }
+
+      .work-row .desc {
+        font-size: 0.92rem;
+        color: #8a8a8a;
+      }
+
+      .work-row .tag {
+        font-size: 0.8rem;
+        color: #b0b0b0;
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+
+      .work-row:hover .title {
+        text-decoration: underline;
+        text-decoration-color: #c9c7c0;
+        text-underline-offset: 3px;
+      }
+
+      footer {
+        padding: 3.5rem 0 6rem;
+        border-top: 1px solid #e6e4de;
+        font-size: 0.85rem;
+        color: #8a8a8a;
+      }
+
+      footer a {
+        text-decoration: underline;
+        text-decoration-color: #c9c7c0;
+        text-underline-offset: 3px;
+      }
+
+      footer a:hover {
+        color: #1a1a1a;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="frame-label">Concept — Text Heavy</div>
+
+    <div class="col">
+      <header>
+        <div class="name">Hum Rashid</div>
+        <nav>
+          <a href="/about">About</a>
+        </nav>
+      </header>
+
+      <div class="intro">
+        <p>
+          I'm a designer and founder based in New York City. Most recently I led design at <a
+            href="#">Nessa Labs</a>, working with early-stage teams on product strategy and
+          interface design — most recently as Design Director on the redesign of <a href="#"
+            >Sublime Security</a
+          >'s threat platform.
+        </p>
+        <p>
+          I care about the parts of a product that don't show up in a screenshot — the
+          onboarding flow nobody notices, the empty state that makes someone feel dumb, the
+          setting that should've been a default. That's usually where the real work is.
+        </p>
+      </div>
+
+      <section>
+        <p class="section-heading">Selected Work</p>
+
+        <a class="work-row" href="/work/pack">
+          <span class="left">
+            <span class="title">Pack Digital</span>
+            <span class="desc">— headless commerce, productized</span>
+          </span>
+          <span class="tag">Product</span>
+        </a>
+
+        <a class="work-row" href="/work/inveterate">
+          <span class="left">
+            <span class="title">Inveterate</span>
+            <span class="desc">— membership over points</span>
+          </span>
+          <span class="tag">Product</span>
+        </a>
+
+        <a class="work-row" href="/work/ppvp">
+          <span class="left">
+            <span class="title">PPVP</span>
+            <span class="desc">— exclusive deal flow, mobile-first</span>
+          </span>
+          <span class="tag">Mobile</span>
+        </a>
+
+        <a class="work-row" href="/work/sublime-security">
+          <span class="left">
+            <span class="title">Sublime Security</span>
+            <span class="desc">— quarantine digests, phishing simulations</span>
+          </span>
+          <span class="tag">Security</span>
+        </a>
+      </section>
+
+      <footer>
+        Say hello at <a href="#">hello@humrashid.com</a> or find me on
+        <a href="#">LinkedIn</a>.
+      </footer>
+    </div>
+  </body>
+</html>
