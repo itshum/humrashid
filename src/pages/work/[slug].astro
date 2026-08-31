@@ -59,12 +59,6 @@ const paragraphs = (text: string) =>
         padding: 0 1.5rem;
       }
 
-      .wide-col {
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 0 1.5rem;
-      }
-
       /* Hero — centered, generous, no boxed meta grid */
       .hero {
         text-align: center;
@@ -107,8 +101,11 @@ const paragraphs = (text: string) =>
         font-weight: 500;
       }
 
+      /* Full width, padded to the same gutter as the topbar's logo and
+         back link, so the image edges line up with them. */
       .hero-media {
         margin-top: 4rem;
+        padding: 0 2rem;
       }
 
       .hero-media img {
@@ -239,7 +236,7 @@ const paragraphs = (text: string) =>
 
     {
       data.coverImage && (
-        <div class="wide-col hero-media">
+        <div class="hero-media">
           <img src={data.coverImage} alt={data.coverImageAlt ?? `${data.title} interface`} />
         </div>
       )
