@@ -131,67 +131,21 @@ import "../styles/global.css";
         grid-column: span 4;
       }
 
-      .hero-eyebrow {
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: #8a8a8a;
-        margin-bottom: 1.5rem;
-      }
-
-      .hero-copy h1 {
-        font-size: 1.5rem;
+      .hero-copy p {
+        font-size: 1.4rem;
         font-weight: 500;
-        line-height: 1.45;
+        line-height: 1.4;
         color: #1a1a1a;
-        margin: 0 0 2rem;
+        margin: 0;
+        max-width: 20ch;
       }
 
       .hero-media {
-        grid-column: span 8;
-        height: 78vh;
+        grid-column: 6 / span 7;
+        width: 100%;
+        aspect-ratio: 16 / 9;
         border-radius: 3px;
-        background: #1a1a1a;
-        position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-      }
-
-      .hero-media::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(155deg, #262626, #171717);
-      }
-
-      .hero-media .reel-label {
-        position: relative;
-        z-index: 1;
-        display: flex;
-        align-items: center;
-        gap: 0.6rem;
-        color: rgba(255, 255, 255, 0.5);
-        font-size: 0.8rem;
-        letter-spacing: 0.02em;
-      }
-
-      .hero-media .reel-dot {
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.6);
-      }
-
-      .scroll-cue {
-        position: absolute;
-        bottom: 3rem;
-        left: 5rem;
-        font-size: 0.72rem;
-        color: #b5b3ae;
-        letter-spacing: 0.04em;
-        text-transform: uppercase;
+        background: #b0b0b0;
       }
 
       /* Floating nav — Palantir-style bordered bar, sharp corners, subtle */
@@ -292,15 +246,10 @@ import "../styles/global.css";
       <div class="scroller" id="scroller">
         <div class="hero-track">
           <div class="hero-copy">
-            <div class="hero-eyebrow">Hum Rashid — Design Director</div>
-            <h1>Positioning statement placeholder — locked during content phase.</h1>
-            <a class="pill" href="/about">About</a>
+            <p>Humayun Rashid is a designer and founder based in New York City.</p>
           </div>
-          <div class="hero-media">
-            <div class="reel-label"><span class="reel-dot"></span>Flagship reel — video loop placeholder</div>
-          </div>
+          <div class="hero-media"></div>
         </div>
-        <div class="scroll-cue">Scroll to explore ↓</div>
         <div id="feed"></div>
       </div>
       <nav class="float-nav" id="float-nav">
