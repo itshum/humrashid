@@ -335,42 +335,26 @@
     </div>
 
     <script>
-      // H + R monogram, 9x11 pixels. H's right stroke and R's left stem
-      // share column 4, merging both letters into one mark instead of two
-      // side by side - a 4x4 grid genuinely can't fit both letterforms
-      // legibly, this is the smallest resolution that reads clearly (
-      // verified by scaling it up during development). "#" = letterform,
-      // always the same dark green. "." = filler, always the same subtle
-      // grey - fixed colors now, not randomized, per Hum's spec.
-      // Back to a strict 4x4 - stays inside that constraint even though it
-      // means H and R can only be gestured at, not spelled out cleanly.
-      // Left column = H's stroke, row1 = H's crossbar reaching across,
-      // right two columns sketch R's stem + bowl corner + diagonal foot.
-      // Obscure is the point here, not legibility.
-      const LOGO_MASK = ["#..#", "###.", "#..#", "#.##"];
-
+      // 4x4 grid, freshly randomized on every load - no fixed pattern, no
+      // session gating. Each cell independently rolls dark (letterform
+      // color) vs light (filler color) at LETTER_CHANCE, then reveals with
+      // a staggered pixel-by-pixel animation every single time.
       const LETTER_COLOR = "#1f3d2e";
       const FILLER_COLOR = "#dcdcd8";
-      const TOTAL_DURATION_MS = 1600;
+      const LETTER_CHANCE = 0.45;
+      const CELL_COUNT = 16;
+      const TOTAL_DURATION_MS = 1200;
 
-      const cells = LOGO_MASK.join("").split("");
       const logoEl = document.getElementById("logo-mark");
-      const seen = sessionStorage.getItem("hr-logo-seen");
-      const perCellDelay = TOTAL_DURATION_MS / cells.length;
+      const perCellDelay = TOTAL_DURATION_MS / CELL_COUNT;
 
-      cells.forEach((ch, i) => {
+      for (let i = 0; i < CELL_COUNT; i++) {
         const px = document.createElement("span");
         px.className = "px";
-        px.style.background = ch === "#" ? LETTER_COLOR : FILLER_COLOR;
+        px.style.background = Math.random() < LETTER_CHANCE ? LETTER_COLOR : FILLER_COLOR;
         logoEl.appendChild(px);
-        if (seen) {
-          // Already played this session - show it immediately, no replay.
-          px.classList.add("in");
-        } else {
-          setTimeout(() => px.classList.add("in"), i * perCellDelay);
-        }
-      });
-      sessionStorage.setItem("hr-logo-seen", "1");
+        setTimeout(() => px.classList.add("in"), i * perCellDelay);
+      }
 
       const el = document.getElementById("nyc-time");
       function updateClock() {
