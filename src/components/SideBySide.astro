@@ -22,14 +22,16 @@ const { left, right } = Astro.props;
 </div>
 
 <style is:global>
-  /* Full width, padded to the topbar's gutter - same footprint as
-     .hero-media/.carousel so every media block on the page reads as
-     the same size regardless of layout. */
+  /* Narrower than the full-bleed cover image on purpose - these tend
+     to be tall phone screenshots, so a narrower column keeps their
+     height in check rather than stretching them across the full
+     gutter width. */
   .side-by-side {
-    margin-top: 4rem;
-    padding: 0 2rem;
+    max-width: 700px;
+    margin: 4rem auto 0;
+    padding: 0 1.5rem;
     display: flex;
-    gap: 20px;
+    gap: 40px;
   }
 
   .side-by-side-item {
@@ -46,6 +48,7 @@ const { left, right } = Astro.props;
   @media (max-width: 640px) {
     .side-by-side {
       flex-direction: column;
+      gap: 24px;
     }
   }
 </style>
