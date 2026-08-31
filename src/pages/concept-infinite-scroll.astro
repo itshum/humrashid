@@ -59,31 +59,30 @@ import "../styles/global.css";
         margin-bottom: 1.25rem;
       }
 
+      /* Media fills its grid cell edge-to-edge (width: 100%) with the shape's
+         proportions held by aspect-ratio, instead of a fixed pixel box that
+         left dead space inside a wider cell before the text column began. */
       .media {
-        flex-shrink: 0;
+        width: 100%;
         background: #e4e2dd;
         border-radius: 3px;
       }
 
       .media.tall {
-        width: 320px;
-        height: 400px;
+        aspect-ratio: 320 / 400;
       }
 
       .media.wide {
-        width: 460px;
-        height: 300px;
+        aspect-ratio: 460 / 300;
       }
 
       .media.phone {
-        width: 260px;
-        height: 420px;
+        aspect-ratio: 260 / 420;
         border-radius: 8px;
       }
 
       .media.square {
-        width: 360px;
-        height: 360px;
+        aspect-ratio: 1 / 1;
       }
 
       .copy {
@@ -347,22 +346,41 @@ import "../styles/global.css";
         navIconBtn.setAttribute("aria-label", "Back");
       }
 
+      // Tailwind safelist: each shape below builds its lg:col-span-N /
+      // lg:col-start-N classes from these numbers at runtime, so the
+      // literal class names need to appear somewhere in this file for
+      // Tailwind's scanner to generate the CSS. This comment is that list -
+      // don't remove it even though nothing "calls" it directly.
+      // lg:col-span-4 lg:col-span-5 lg:col-span-6 lg:col-span-7 lg:col-span-8
+      // lg:col-start-1 lg:col-start-5 lg:col-start-6 lg:col-start-7 lg:col-start-8 lg:col-start-9
+
+      // Each shape's cell width is sized to roughly match its own
+      // proportions (a phone-shaped image doesn't need a 6-column-wide
+      // cell) so the media box fills its cell edge-to-edge with no dead
+      // space before the text column starts - that dead space, not the
+      // grid gap, was the actual bug in the previous pass.
+      const SHAPE_SPAN = { wide: 6, tall: 5, phone: 4, square: 5 };
+
       function panelHTML({ align, mediaClass, title, desc, href }) {
         const reverse = align === "right";
-        // Media (6 cols) and copy (6 cols) are always contiguous at the lg
-        // tier - copy previously started at col-start-8 while media only
-        // filled cols 1-6, leaving column 7 empty as an unintended gap.
+        const mediaSpan = SHAPE_SPAN[mediaClass] ?? 6;
+        const copySpan = 12 - mediaSpan;
         const mediaCols = reverse
-          ? "col-span-4 md:col-span-4 md:col-start-5 lg:col-span-6 lg:col-start-7"
-          : "col-span-4 md:col-span-4 lg:col-span-6";
+          ? `col-span-4 md:col-span-4 md:col-start-5 lg:col-span-${mediaSpan} lg:col-start-${copySpan + 1}`
+          : `col-span-4 md:col-span-4 lg:col-span-${mediaSpan}`;
         const copyCols = reverse
-          ? "col-span-4 md:col-span-4 md:col-start-1 lg:col-span-6 lg:col-start-1"
-          : "col-span-4 md:col-span-4 lg:col-span-6 lg:col-start-7";
+          ? `col-span-4 md:col-span-4 md:col-start-1 lg:col-span-${copySpan} lg:col-start-1`
+          : `col-span-4 md:col-span-4 lg:col-span-${copySpan} lg:col-start-${mediaSpan + 1}`;
         // Copy renders first in source order when reversed so mobile stacking
         // still reads image-then-text on top; grid placement handles md/lg.
         const mediaBlock = `<div class="${mediaCols}"><div class="anchor"></div><div class="media ${mediaClass}"></div></div>`;
+        // When reversed, the copy cell sits to media's left and can be much
+        // wider than the text itself (copySpan grows as media shrinks) - the
+        // text needs to hug media's edge (flex-end), not sit at the cell's
+        // own left edge, or it strands itself in the middle of empty space.
+        const copyJustify = reverse ? "flex-end" : "flex-start";
         const copyBlock = `
-          <div class="${copyCols}">
+          <div class="${copyCols}" style="display: flex; justify-content: ${copyJustify};">
             <div class="copy">
               <h2>${title}</h2>
               <p>${desc}</p>
