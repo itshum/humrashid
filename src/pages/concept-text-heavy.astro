@@ -39,20 +39,25 @@
       }
 
       .col {
-        max-width: 680px;
+        max-width: 700px;
         margin: 0 auto;
         padding: 0 1.5rem;
       }
 
-      header {
-        padding: 5rem 0 4rem;
+      /* Full-width bar, independent of .col's centering, so the mark sits
+         flush against the real page edge the way Interface Craft's does -
+         .col below stays centered on its own narrower measure. */
+      .topbar {
+        display: flex;
+        align-items: center;
+        padding: 2.5rem 2rem 0;
       }
 
       .logo-mark {
         display: inline-grid;
-        grid-template-columns: repeat(9, 5px);
-        grid-template-rows: repeat(11, 5px);
-        gap: 1px;
+        grid-template-columns: repeat(4, 7px);
+        grid-template-rows: repeat(4, 7px);
+        gap: 3px;
       }
 
       .logo-mark .px {
@@ -66,6 +71,10 @@
       .logo-mark .px.in {
         opacity: 1;
         transform: scale(1);
+      }
+
+      .intro {
+        margin-top: 3.5rem;
       }
 
       .intro p {
@@ -95,12 +104,11 @@
 
       .section-heading {
         font-size: 0.8rem;
-        font-weight: 600;
+        font-weight: 500;
         text-transform: uppercase;
         letter-spacing: 0.06em;
         color: #8a8a8a;
         margin: 0 0 1.75rem;
-        padding: 0 0.9rem;
       }
 
       .work-list {
@@ -124,7 +132,7 @@
 
       .work-row .title {
         font-size: 1.05rem;
-        font-weight: 600;
+        font-weight: 500;
         color: #1a1a1a;
         display: block;
         margin-bottom: 0.3rem;
@@ -218,11 +226,11 @@
   <body>
     <div class="frame-label">Concept — Text Heavy</div>
 
-    <div class="col">
-      <header>
-        <span class="logo-mark" id="logo-mark" aria-hidden="true"></span>
-      </header>
+    <div class="topbar">
+      <span class="logo-mark" id="logo-mark" aria-hidden="true"></span>
+    </div>
 
+    <div class="col">
       <div class="intro">
         <p>
           I'm <a href="/about">Humayun Rashid</a>, a product designer and founder based in New
@@ -327,25 +335,11 @@
     </div>
 
     <script>
-      // H + R monogram as a 9x11 pixel grid. H's right stroke and R's left
-      // stem share column 4, which is what makes it read as one combined
-      // mark instead of two letters side by side. "#" = part of the
-      // letterform (always a dark color, for legibility), "." = filler
-      // (randomized lighter/muted color) - the shape is fixed, only the
-      // color assignment changes on each load.
-      const LOGO_MASK = [
-        "#...#####",
-        "#...#...#",
-        "#...#...#",
-        "#...#...#",
-        "#...#####",
-        "#####.#..",
-        "#...#.#..",
-        "#...#..#.",
-        "#...#..#.",
-        "#...#...#",
-        "#...#...#",
-      ];
+      // Deliberately abstract 4x4 mark - doesn't spell H/R explicitly per
+      // Hum's call that obscure reads better at this size. "#" = darker
+      // palette, "." = lighter palette; only the color assignment changes
+      // on each load, the pattern itself stays fixed.
+      const LOGO_MASK = ["#.#.", ".#.#", "#..#", ".##."];
 
       const DARK_PALETTE = ["#16302f", "#1c3d3c", "#203d2e"];
       const LIGHT_PALETTE = ["#d7d7d2", "#c7cabb", "#8f9380", "#6f7360"];
