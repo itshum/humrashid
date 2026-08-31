@@ -36,7 +36,6 @@ const caseStudies = defineCollection({
           body: z.string(),
           image: z.string().optional(),
           imageAlt: z.string().optional(),
-          imageEffect: z.enum(["line-reveal"]).optional(),
         })
       )
       .optional(),

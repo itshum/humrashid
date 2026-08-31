@@ -76,15 +76,23 @@ const { showBack = false } = Astro.props;
 
 <script>
   // The 4x4 grey grid is the default state - it's just there, fully
-  // formed, the instant the page loads. A random subset of cells then
+  // formed, the instant the page loads. A fixed subset of cells (the
+  // closest a 4x4 grid gets to an abstract "H" + lowercase "r") then
   // animate to the dark green letterform color, staggered pixel by
-  // pixel, freshly randomized every visit. Cells also reroll as the
-  // cursor moves around the topbar.
+  // pixel, the same pattern on every visit. Cells still reroll
+  // randomly as the cursor moves around the topbar.
   const LETTER_COLOR = "#1f3d2e";
   const FILLER_COLOR = "#dcdcd8";
   const LETTER_CHANCE = 0.45;
   const CELL_COUNT = 16;
   const TOTAL_DURATION_MS = 1200;
+  // Row-major, 4 cols x 4 rows.
+  const DEFAULT_PATTERN = [
+    1, 0, 1, 1,
+    1, 0, 1, 0,
+    1, 1, 1, 0,
+    1, 0, 1, 0,
+  ];
 
   const logoEl = document.getElementById("logo-mark");
 
@@ -98,7 +106,7 @@ const { showBack = false } = Astro.props;
       cells.push(px);
     }
 
-    const letterCells = cells.filter(() => Math.random() < LETTER_CHANCE);
+    const letterCells = cells.filter((_, i) => DEFAULT_PATTERN[i] === 1);
     const perCellDelay = letterCells.length ? TOTAL_DURATION_MS / letterCells.length : 0;
     letterCells.forEach((px, i) => {
       setTimeout(() => {
