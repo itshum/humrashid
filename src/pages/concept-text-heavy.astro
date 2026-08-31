@@ -55,17 +55,17 @@
 
       .logo-mark {
         display: inline-grid;
-        grid-template-columns: repeat(4, 7px);
-        grid-template-rows: repeat(4, 7px);
-        gap: 3px;
+        grid-template-columns: repeat(9, 4px);
+        grid-template-rows: repeat(11, 4px);
+        gap: 1px;
       }
 
       .logo-mark .px {
-        width: 5px;
-        height: 5px;
+        width: 4px;
+        height: 4px;
         opacity: 0;
-        transform: scale(0.4);
-        transition: opacity 0.4s ease, transform 0.4s ease;
+        transform: scale(0.3);
+        transition: opacity 0.25s ease, transform 0.25s ease;
       }
 
       .logo-mark .px.in {
@@ -108,7 +108,7 @@
         text-transform: uppercase;
         letter-spacing: 0.06em;
         color: #8a8a8a;
-        margin: 0 0 1.75rem;
+        margin: 0 0 0.875rem;
       }
 
       .work-list {
@@ -335,32 +335,49 @@
     </div>
 
     <script>
-      // Deliberately abstract 4x4 mark - doesn't spell H/R explicitly per
-      // Hum's call that obscure reads better at this size. "#" = darker
-      // palette, "." = lighter palette; only the color assignment changes
-      // on each load, the pattern itself stays fixed.
-      const LOGO_MASK = ["#.#.", ".#.#", "#..#", ".##."];
+      // H + R monogram, 9x11 pixels. H's right stroke and R's left stem
+      // share column 4, merging both letters into one mark instead of two
+      // side by side - a 4x4 grid genuinely can't fit both letterforms
+      // legibly, this is the smallest resolution that reads clearly (
+      // verified by scaling it up during development). "#" = letterform,
+      // always the same dark green. "." = filler, always the same subtle
+      // grey - fixed colors now, not randomized, per Hum's spec.
+      const LOGO_MASK = [
+        "#...#####",
+        "#...#...#",
+        "#...#...#",
+        "#...#...#",
+        "#...#####",
+        "#####.#..",
+        "#...#.#..",
+        "#...#..#.",
+        "#...#..#.",
+        "#...#...#",
+        "#...#...#",
+      ];
 
-      const DARK_PALETTE = ["#16302f", "#1c3d3c", "#203d2e"];
-      const LIGHT_PALETTE = ["#d7d7d2", "#c7cabb", "#8f9380", "#6f7360"];
+      const LETTER_COLOR = "#1f3d2e";
+      const FILLER_COLOR = "#dcdcd8";
+      const TOTAL_DURATION_MS = 1600;
 
-      function pick(arr) {
-        return arr[Math.floor(Math.random() * arr.length)];
-      }
-
+      const cells = LOGO_MASK.join("").split("");
       const logoEl = document.getElementById("logo-mark");
-      let i = 0;
-      for (const row of LOGO_MASK) {
-        for (const ch of row) {
-          const px = document.createElement("span");
-          px.className = "px";
-          px.style.background = ch === "#" ? pick(DARK_PALETTE) : pick(LIGHT_PALETTE);
-          logoEl.appendChild(px);
-          const delay = i * 6;
-          setTimeout(() => px.classList.add("in"), delay);
-          i++;
+      const seen = sessionStorage.getItem("hr-logo-seen");
+      const perCellDelay = TOTAL_DURATION_MS / cells.length;
+
+      cells.forEach((ch, i) => {
+        const px = document.createElement("span");
+        px.className = "px";
+        px.style.background = ch === "#" ? LETTER_COLOR : FILLER_COLOR;
+        logoEl.appendChild(px);
+        if (seen) {
+          // Already played this session - show it immediately, no replay.
+          px.classList.add("in");
+        } else {
+          setTimeout(() => px.classList.add("in"), i * perCellDelay);
         }
-      }
+      });
+      sessionStorage.setItem("hr-logo-seen", "1");
 
       const el = document.getElementById("nyc-time");
       function updateClock() {
