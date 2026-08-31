@@ -17,7 +17,7 @@ import "../styles/global.css";
       body {
         height: 100%;
         margin: 0;
-        background: #0a0a0a;
+        background: #fafaf9;
         font-family: ui-sans-serif, system-ui, sans-serif;
         overflow: hidden;
       }
@@ -25,17 +25,16 @@ import "../styles/global.css";
       .frame-label {
         position: fixed;
         top: 16px;
-        left: 40px;
-        color: #6b6b6b;
-        font-size: 0.8rem;
+        left: 24px;
+        color: #b5b3ae;
+        font-size: 0.7rem;
         z-index: 5;
       }
 
       .stage {
         position: absolute;
-        inset: 24px;
-        background: #fff;
-        border-radius: 6px;
+        inset: 0;
+        background: #fafaf9;
         overflow: hidden;
       }
 
@@ -48,12 +47,22 @@ import "../styles/global.css";
       .panel-track {
         padding-top: 6rem;
         padding-bottom: 6rem;
+        position: relative;
+      }
+
+      /* subtle anchor line — a faint tick marking each floating container
+         against the grid, not a heavy divider */
+      .anchor {
+        width: 1px;
+        height: 32px;
+        background: rgba(26, 26, 26, 0.12);
+        margin-bottom: 1.25rem;
       }
 
       .media {
         flex-shrink: 0;
-        background: #d9d9d9;
-        border-radius: 4px;
+        background: #e4e2dd;
+        border-radius: 3px;
       }
 
       .media.tall {
@@ -69,7 +78,12 @@ import "../styles/global.css";
       .media.phone {
         width: 260px;
         height: 420px;
-        border-radius: 24px;
+        border-radius: 8px;
+      }
+
+      .media.square {
+        width: 360px;
+        height: 360px;
       }
 
       .copy {
@@ -80,11 +94,11 @@ import "../styles/global.css";
         font-size: 2rem;
         font-weight: 500;
         margin: 0 0 1rem;
-        color: #171717;
+        color: #1a1a1a;
       }
 
       .copy p {
-        color: #6b6b6b;
+        color: #8a8a8a;
         line-height: 1.5;
         margin: 0 0 1.25rem;
         font-size: 0.95rem;
@@ -93,38 +107,108 @@ import "../styles/global.css";
       .pill {
         display: inline-block;
         padding: 0.6rem 1.4rem;
-        background: #d9d9d9;
-        color: #333;
-        border-radius: 999px;
+        background: transparent;
+        color: #1a1a1a;
+        border: 1px solid rgba(26, 26, 26, 0.14);
+        border-radius: 2px;
         font-size: 0.85rem;
         text-decoration: none;
         cursor: pointer;
-        border: none;
       }
 
-      .intro .copy p {
-        font-size: 1.4rem;
-        color: #171717;
-        font-weight: 400;
-        max-width: 360px;
+      /* Hero — full viewport on first load, 1/3 text : 2/3 flagship reel */
+      .hero-track {
+        height: 100vh;
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 1.5rem;
+        align-items: center;
+        padding: 0 5rem;
+        max-width: 1600px;
+        margin: 0 auto;
       }
 
-      /* Floating nav */
+      .hero-copy {
+        grid-column: span 4;
+      }
+
+      .hero-eyebrow {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: #8a8a8a;
+        margin-bottom: 1.5rem;
+      }
+
+      .hero-copy h1 {
+        font-size: 1.5rem;
+        font-weight: 500;
+        line-height: 1.45;
+        color: #1a1a1a;
+        margin: 0 0 2rem;
+      }
+
+      .hero-media {
+        grid-column: span 8;
+        height: 78vh;
+        border-radius: 3px;
+        background: #1a1a1a;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
+
+      .hero-media::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(155deg, #262626, #171717);
+      }
+
+      .hero-media .reel-label {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.8rem;
+        letter-spacing: 0.02em;
+      }
+
+      .hero-media .reel-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.6);
+      }
+
+      .scroll-cue {
+        position: absolute;
+        bottom: 3rem;
+        left: 5rem;
+        font-size: 0.72rem;
+        color: #b5b3ae;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      /* Floating nav — Palantir-style bordered bar, sharp corners, subtle */
       .float-nav {
         position: absolute;
         left: 50%;
         bottom: 32px;
         transform: translate(-50%, 24px);
         display: flex;
-        align-items: center;
-        gap: 1.75rem;
-        padding: 0.7rem 1.4rem;
-        border-radius: 999px;
-        background: rgba(255, 255, 255, 0.6);
-        backdrop-filter: blur(20px) saturate(180%);
-        -webkit-backdrop-filter: blur(20px) saturate(180%);
-        border: 1px solid rgba(255, 255, 255, 0.5);
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        align-items: stretch;
+        border: 1px solid rgba(26, 26, 26, 0.12);
+        border-radius: 2px;
+        background: rgba(250, 250, 249, 0.82);
+        backdrop-filter: blur(16px) saturate(160%);
+        -webkit-backdrop-filter: blur(16px) saturate(160%);
+        box-shadow: 0 12px 32px rgba(26, 26, 26, 0.06);
         opacity: 0;
         pointer-events: none;
         transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
@@ -138,42 +222,44 @@ import "../styles/global.css";
         pointer-events: auto;
       }
 
-      .float-nav .back {
-        width: 30px;
-        height: 30px;
-        border-radius: 50%;
-        background: rgba(0, 0, 0, 0.08);
+      .float-nav .name {
         display: flex;
         align-items: center;
-        justify-content: center;
+        font-weight: 600;
         font-size: 0.85rem;
-        color: #333;
+        color: #1a1a1a;
+        padding: 0.8rem 1.3rem;
       }
 
-      .float-nav .name {
-        font-weight: 600;
-        font-size: 0.9rem;
-        color: #171717;
+      .float-nav .divider {
+        width: 1px;
+        background: rgba(26, 26, 26, 0.1);
       }
 
       .float-nav .links {
         display: flex;
-        gap: 1.25rem;
-        font-size: 0.85rem;
-        color: #555;
+        align-items: center;
       }
 
-      .float-nav .links span:first-child {
-        color: #171717;
-        font-weight: 600;
+      .float-nav .links a {
+        display: flex;
+        align-items: center;
+        padding: 0.8rem 1.1rem;
+        font-size: 0.82rem;
+        color: #6b6b6b;
+        text-decoration: none;
+      }
+
+      .float-nav .links a:hover {
+        color: #1a1a1a;
       }
 
       .progress-note {
         position: absolute;
         top: 16px;
-        right: 40px;
-        font-size: 0.75rem;
-        color: #b0b0b0;
+        right: 24px;
+        font-size: 0.7rem;
+        color: #b5b3ae;
         z-index: 5;
       }
     </style>
@@ -184,28 +270,25 @@ import "../styles/global.css";
 
     <div class="stage">
       <div class="scroller" id="scroller">
-        <div
-          class="panel-track mx-auto grid w-full max-w-[1440px] grid-cols-4 gap-4 px-5 md:grid-cols-8 md:gap-6 md:px-10 lg:grid-cols-12 lg:px-16 xl:gap-8 xl:px-20"
-        >
-          <div class="col-span-4 md:col-span-4 lg:col-span-6">
-            <div class="media tall"></div>
+        <div class="hero-track">
+          <div class="hero-copy">
+            <div class="hero-eyebrow">Hum Rashid — Design Director</div>
+            <h1>Positioning statement placeholder — locked during content phase.</h1>
+            <a class="pill" href="/about">About</a>
           </div>
-          <div class="intro col-span-4 md:col-span-4 lg:col-span-5 lg:col-start-8">
-            <div class="copy">
-              <p>Humayun Rashid is a designer and founder based in New York City.</p>
-              <a class="pill" href="/about">About</a>
-            </div>
+          <div class="hero-media">
+            <div class="reel-label"><span class="reel-dot"></span>Flagship reel — video loop placeholder</div>
           </div>
         </div>
+        <div class="scroll-cue">Scroll to explore ↓</div>
         <div id="feed"></div>
       </div>
       <nav class="float-nav" id="float-nav">
-        <span class="back">←</span>
-        <span class="name">Humayun Rashid</span>
+        <span class="name">Hum Rashid</span>
+        <span class="divider"></span>
         <span class="links">
-          <span>Work</span>
-          <span>About</span>
-          <span>Ideas</span>
+          <a href="/about">About</a>
+          <a href="/process">Process</a>
         </span>
       </nav>
     </div>
@@ -229,7 +312,7 @@ import "../styles/global.css";
           : "col-span-4 md:col-span-4 lg:col-span-5 lg:col-start-8";
         // Copy renders first in source order when reversed so mobile stacking
         // still reads image-then-text on top; grid placement handles md/lg.
-        const mediaBlock = `<div class="${mediaCols}"><div class="media ${mediaClass}"></div></div>`;
+        const mediaBlock = `<div class="${mediaCols}"><div class="anchor"></div><div class="media ${mediaClass}"></div></div>`;
         const copyBlock = `
           <div class="${copyCols}">
             <div class="copy">
@@ -251,7 +334,7 @@ import "../styles/global.css";
         }),
         panelHTML({
           align: "right",
-          mediaClass: "wide",
+          mediaClass: "square",
           title: "Inveterate",
           desc: "Product strategy and UI design for membership &amp; loyalty startup.",
           href: "/work/inveterate",
@@ -277,7 +360,7 @@ import "../styles/global.css";
       const nav = document.getElementById("float-nav");
       const progressNote = document.getElementById("progress-note");
 
-      // Bio panel is static HTML above #feed — it never repeats, so scrollTop 0
+      // Hero is static HTML above #feed — it never repeats, so scrollTop 0
       // is a hard ceiling. #feed grows downward as the user approaches the end,
       // so scrolling down never runs out (real infinite scroll, no jump-reset).
       function appendBatch() {
@@ -296,7 +379,9 @@ import "../styles/global.css";
       const WHEEL_DAMPING = 0.45;
       const EASE = 0.09;
       const APPEND_THRESHOLD = 1500;
-      const REVEAL_THRESHOLD = 700;
+      // Reveal the nav once the user has scrolled roughly past the full-height
+      // hero, not a fixed pixel guess — the hero itself is 100vh.
+      const REVEAL_THRESHOLD = () => window.innerHeight * 0.9;
 
       let targetY = 0;
       let currentY = 0;
@@ -349,13 +434,14 @@ import "../styles/global.css";
           appendBatch();
         }
 
-        if (!navRevealed && currentY > REVEAL_THRESHOLD) {
+        const threshold = REVEAL_THRESHOLD();
+        if (!navRevealed && currentY > threshold) {
           navRevealed = true;
           nav.classList.add("visible");
           progressNote.style.opacity = "0";
         }
         if (progressNote && !navRevealed) {
-          const pct = Math.min(100, Math.round((currentY / REVEAL_THRESHOLD) * 100));
+          const pct = Math.min(100, Math.round((currentY / threshold) * 100));
           progressNote.textContent = `scroll to reveal nav… ${pct}%`;
         }
 

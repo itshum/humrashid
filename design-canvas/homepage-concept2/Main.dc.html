@@ -1,0 +1,79 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: 'Archivo', system-ui, sans-serif; }
+    a { color: inherit; text-decoration: none; }
+  </style>
+</helmet>
+
+<div style="width: 1440px; min-height: 1720px; background: #ffffff; color: #111111; position: relative;">
+
+  <!-- grid guides: real site spec, solid hairlines for a boxy feel -->
+  <div style="position: absolute; inset: 0; display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; padding: 0 64px; pointer-events: none; z-index: 0;">
+    <sc-for list="{{cols}}" as="c" hint-placeholder-count="12">
+      <div style="border-left: 1px solid #11111110; border-right: 1px solid #11111110; height: 100%;"></div>
+    </sc-for>
+  </div>
+
+  <!-- angular nav -->
+  <div style="position: relative; z-index: 2; display: flex; align-items: center; justify-content: space-between; padding: 28px 64px; border-bottom: 1px solid #111111; ">
+    <div style="font-weight: 800; font-size: 16px; letter-spacing: -0.01em; text-transform: uppercase;">Hum Rashid</div>
+    <div style="display: flex; align-items: stretch; height: 36px;">
+      <a href="#" style="display: flex; align-items: center; padding: 0 20px; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; border: 1px solid #111111; border-right: none;">Work</a>
+      <a href="#" style="display: flex; align-items: center; padding: 0 20px; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; border: 1px solid #111111; border-right: none;">About</a>
+      <div style="display: flex; align-items: center; padding: 0 20px; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; background: #111111; color: #ffffff;">Contact</div>
+    </div>
+  </div>
+
+  <!-- oversized headline block -->
+  <div style="position: relative; z-index: 1; padding: 90px 64px 70px; border-bottom: 1px solid #111111;">
+    <div style="font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #11111199; margin-bottom: 24px;">Design Director / 001</div>
+    <div style="font-size: 88px; font-weight: 800; line-height: 0.95; letter-spacing: -0.03em; text-transform: uppercase; max-width: 15ch;">
+      Positioning statement placeholder
+    </div>
+  </div>
+
+  <!-- row-index case study list -->
+  <div style="position: relative; z-index: 1;">
+    <sc-for list="{{cases}}" as="cs" hint-placeholder-count="4">
+      <div style="display: flex; align-items: center; padding: 40px 64px; border-bottom: 1px solid #111111; gap: 48px;">
+        <div style="width: 60px; font-size: 13px; font-weight: 700; color: #11111180; flex-shrink: 0;">{{cs.index}}</div>
+        <div style="flex: 1;">
+          <div style="font-size: 40px; font-weight: 700; letter-spacing: -0.015em; margin-bottom: 6px;">{{cs.title}}</div>
+          <div style="font-size: 14px; color: #11111199; max-width: 60ch;">{{cs.summary}}</div>
+        </div>
+        <div style="flex-shrink: 0; padding: 6px 14px; border: 1px solid #111111; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;">{{cs.tag}}</div>
+      </div>
+    </sc-for>
+  </div>
+
+</div>
+</x-dc>
+<script data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      cols: Array.from({length: 12}),
+      cases: [
+        { index: '01', title: 'Pack Digital', summary: 'Product strategy and UI design for headless infrastructure startup.', tag: 'Product' },
+        { index: '02', title: 'Inveterate', summary: 'Product strategy and UI design for membership & loyalty startup.', tag: 'Product' },
+        { index: '03', title: 'PPVP', summary: 'Product strategy and mobile app design for SaaS investment fund.', tag: 'Mobile' },
+        { index: '04', title: 'Sublime Security', summary: 'Quarantine digests and dynamic phishing simulation campaigns for security teams.', tag: 'Security' },
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>
