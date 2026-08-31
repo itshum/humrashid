@@ -7,7 +7,6 @@ const { showBack = false } = Astro.props;
 ---
 
 <div class="topbar">
-  <a class="logo-mark" id="logo-mark" href="/" aria-label="Home"></a>
   {
     showBack && (
       <a class="back-link" href="/">
@@ -16,12 +15,14 @@ const { showBack = false } = Astro.props;
       </a>
     )
   }
+  <a class="logo-mark" id="logo-mark" href="/" aria-label="Home"></a>
 </div>
 
 <style is:global>
-  /* Full-width bar, independent of any centered column below it, so the
-     logo mark sits flush against the real page edge on every page - and
-     the back link, when present, mirrors it flush on the right. */
+  /* Full-width bar, independent of any centered column below it. The
+     logo mark sits flush right against the real page edge on every
+     page; the back link, when present, sits flush left instead, so
+     "back" reads in its natural left-pointing position. */
   .topbar {
     display: flex;
     align-items: center;
