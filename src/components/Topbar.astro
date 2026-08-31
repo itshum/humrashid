@@ -31,14 +31,14 @@ const { showBack = false } = Astro.props;
 
   .logo-mark {
     display: inline-grid;
-    grid-template-columns: repeat(4, 7px);
-    grid-template-rows: repeat(4, 7px);
-    gap: 3px;
+    grid-template-columns: repeat(4, 8.5px);
+    grid-template-rows: repeat(4, 8.5px);
+    gap: 4px;
   }
 
   .logo-mark .px {
-    width: 5px;
-    height: 5px;
+    width: 5.5px;
+    height: 5.5px;
     opacity: 0;
     transform: scale(0.3);
     transition: opacity 0.25s ease, transform 0.25s ease, background 0.2s ease;
@@ -80,10 +80,9 @@ const { showBack = false } = Astro.props;
 
 <script>
   // 4x4 grid, freshly randomized on every load - no fixed pattern, no
-  // session gating. Each cell independently rolls dark (letterform
-  // color) vs light (filler color) at LETTER_CHANCE, then reveals with
-  // a staggered pixel-by-pixel animation every single time. Cells also
-  // reroll as the cursor moves around the topbar.
+  // session gating. Grey filler cells are just there, already in place;
+  // only the dark green letterform cells animate in, staggered pixel by
+  // pixel. Cells also reroll as the cursor moves around the topbar.
   const LETTER_COLOR = "#1f3d2e";
   const FILLER_COLOR = "#dcdcd8";
   const LETTER_CHANCE = 0.45;
@@ -97,9 +96,11 @@ const { showBack = false } = Astro.props;
     for (let i = 0; i < CELL_COUNT; i++) {
       const px = document.createElement("span");
       px.className = "px";
-      px.style.background = Math.random() < LETTER_CHANCE ? LETTER_COLOR : FILLER_COLOR;
+      const isLetter = Math.random() < LETTER_CHANCE;
+      px.style.background = isLetter ? LETTER_COLOR : FILLER_COLOR;
+      if (!isLetter) px.classList.add("in");
       logoEl.appendChild(px);
-      setTimeout(() => px.classList.add("in"), i * perCellDelay);
+      if (isLetter) setTimeout(() => px.classList.add("in"), i * perCellDelay);
     }
 
     const topbarEl = document.querySelector(".topbar");
