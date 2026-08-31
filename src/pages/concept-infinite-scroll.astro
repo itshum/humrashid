@@ -300,16 +300,19 @@ import "../styles/global.css";
       // MediaSplit pattern used in the case study template (~1.1fr:1fr split,
       // explicit col-start on both sides so reversal never relies on flex
       // basis, which is what caused the earlier MediaSplit collapse bug).
-      const GRID = "mx-auto grid w-full max-w-[1440px] grid-cols-4 gap-4 px-5 md:grid-cols-8 md:gap-6 md:px-10 lg:grid-cols-12 lg:px-16 xl:gap-8 xl:px-20";
+      const GRID = "mx-auto grid w-full max-w-[1440px] items-center grid-cols-4 gap-4 px-5 md:grid-cols-8 md:gap-6 md:px-10 lg:grid-cols-12 lg:px-16 xl:gap-8 xl:px-20";
 
       function panelHTML({ align, mediaClass, title, desc, href }) {
         const reverse = align === "right";
+        // Media (6 cols) and copy (6 cols) are always contiguous at the lg
+        // tier - copy previously started at col-start-8 while media only
+        // filled cols 1-6, leaving column 7 empty as an unintended gap.
         const mediaCols = reverse
           ? "col-span-4 md:col-span-4 md:col-start-5 lg:col-span-6 lg:col-start-7"
           : "col-span-4 md:col-span-4 lg:col-span-6";
         const copyCols = reverse
-          ? "col-span-4 md:col-span-4 md:col-start-1 lg:col-span-5 lg:col-start-1"
-          : "col-span-4 md:col-span-4 lg:col-span-5 lg:col-start-8";
+          ? "col-span-4 md:col-span-4 md:col-start-1 lg:col-span-6 lg:col-start-1"
+          : "col-span-4 md:col-span-4 lg:col-span-6 lg:col-start-7";
         // Copy renders first in source order when reversed so mobile stacking
         // still reads image-then-text on top; grid placement handles md/lg.
         const mediaBlock = `<div class="${mediaCols}"><div class="anchor"></div><div class="media ${mediaClass}"></div></div>`;
