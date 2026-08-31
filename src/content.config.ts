@@ -26,6 +26,12 @@ const caseStudies = defineCollection({
         })
       )
       .optional(),
+    wideImage: z
+      .object({
+        src: z.string(),
+        alt: z.string(),
+      })
+      .optional(),
     solutionLabel: z.string().optional(),
     solutionHeading: z.string().optional(),
     solutionItems: z
@@ -39,10 +45,17 @@ const caseStudies = defineCollection({
         })
       )
       .optional(),
+    triptych: z.array(z.object({ src: z.string(), alt: z.string() })).length(3).optional(),
     sideBySide: z
       .object({
         left: z.object({ src: z.string(), alt: z.string() }),
         right: z.object({ src: z.string(), alt: z.string() }),
+      })
+      .optional(),
+    detailSplit: z
+      .object({
+        main: z.object({ src: z.string(), alt: z.string() }),
+        detail: z.object({ src: z.string(), alt: z.string() }),
       })
       .optional(),
     quote: z

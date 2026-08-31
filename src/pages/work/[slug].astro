@@ -2,6 +2,9 @@
 import Topbar from "../../components/Topbar.astro";
 import Carousel from "../../components/Carousel.astro";
 import SideBySide from "../../components/SideBySide.astro";
+import WideImage from "../../components/WideImage.astro";
+import Triptych from "../../components/Triptych.astro";
+import DetailSplit from "../../components/DetailSplit.astro";
 import { getCollection } from "astro:content";
 
 export async function getStaticPaths() {
@@ -360,6 +363,8 @@ const paragraphs = (text: string) =>
 
     {data.approachGallery && data.approachGallery.length > 0 && <Carousel slides={data.approachGallery} />}
 
+    {data.wideImage && <WideImage src={data.wideImage.src} alt={data.wideImage.alt} />}
+
     <div class="col">
       {
         data.solutionItems && data.solutionItems.length > 0 && (
@@ -385,6 +390,8 @@ const paragraphs = (text: string) =>
       }
     </div>
 
+    {data.triptych && <Triptych images={data.triptych} />}
+
     {data.sideBySide && <SideBySide left={data.sideBySide.left} right={data.sideBySide.right} />}
 
     <div class="col">
@@ -401,7 +408,15 @@ const paragraphs = (text: string) =>
           </>
         )
       }
+    </div>
 
+    {
+      data.detailSplit && (
+        <DetailSplit main={data.detailSplit.main} detail={data.detailSplit.detail} />
+      )
+    }
+
+    <div class="col">
       <div class="divider"></div>
 
       <section id="outcome">

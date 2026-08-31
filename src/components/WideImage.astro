@@ -1,0 +1,30 @@
+---
+interface Props {
+  src: string;
+  alt: string;
+}
+
+const { src, alt } = Astro.props;
+---
+
+<div class="wide-image">
+  <img src={src} alt={alt} />
+</div>
+
+<style is:global>
+  /* Wider than the narrow .col text measure, narrower than the
+     full-bleed cover/carousel width - a middle size for a single
+     supporting image that deserves more room than the in-column
+     solution-item shots but doesn't need to bleed to the gutter. */
+  .wide-image {
+    max-width: 920px;
+    margin: 4rem auto 0;
+    padding: 0 1.5rem;
+  }
+
+  .wide-image img {
+    display: block;
+    width: 100%;
+    border-radius: 4px;
+  }
+</style>

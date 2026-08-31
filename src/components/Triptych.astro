@@ -1,0 +1,51 @@
+---
+interface Slide {
+  src: string;
+  alt: string;
+}
+
+interface Props {
+  images: Slide[];
+}
+
+const { images } = Astro.props;
+---
+
+<div class="triptych">
+  {
+    images.map((image) => (
+      <div class="triptych-item">
+        <img src={image.src} alt={image.alt} />
+      </div>
+    ))
+  }
+</div>
+
+<style is:global>
+  /* Full width, same gutter as .hero-media/.carousel - three smaller
+     images need the extra horizontal room the full-bleed width gives,
+     unlike the narrower single/pair components. */
+  .triptych {
+    margin-top: 4rem;
+    padding: 0 2rem;
+    display: flex;
+    gap: 20px;
+  }
+
+  .triptych-item {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .triptych-item img {
+    display: block;
+    width: 100%;
+    border-radius: 4px;
+  }
+
+  @media (max-width: 640px) {
+    .triptych {
+      flex-direction: column;
+    }
+  }
+</style>

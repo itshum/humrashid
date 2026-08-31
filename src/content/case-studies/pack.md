@@ -34,6 +34,9 @@ approachGallery:
     alt: "Video module component"
   - src: "/case-studies/pack/17-s02-rich-text-desktop.webp"
     alt: "Rich text editing component"
+wideImage:
+  src: "/case-studies/pack/07-s01-bundling-desktop.webp"
+  alt: "Product bundling interface"
 solutionHeading: "Four problems worth solving well"
 solutionItems:
   - tag: "01 — The site customizer"
@@ -62,6 +65,13 @@ solutionItems:
     imageAlt: "Developer onboarding"
     body: |
       Modern headless builds mean wrangling a pile of apps. We stripped the setup down so developers could plug into Git with their own API keys and start building without an opinionated workflow forced on them, with real visibility into deploys and status instead of a black box.
+triptych:
+  - src: "/case-studies/pack/20-s04-iconography-desktop.webp"
+    alt: "Custom iconography library"
+  - src: "/case-studies/pack/22-s04-ui-components-desktop.webp"
+    alt: "Global UI component library"
+  - src: "/case-studies/pack/24-s04-framework-overview-desktop.webp"
+    alt: "Design system framework overview"
 sideBySide:
   left:
     src: "/case-studies/pack/18-s03-mobile-nav-mobile.webp"
@@ -72,6 +82,13 @@ sideBySide:
 quote:
   text: "Nessa's design work simplified the headless build process into a cutting edge software product designed for brand operators and developers."
   attribution: "Cory Cummings, CEO at Pack"
+detailSplit:
+  main:
+    src: "/case-studies/pack/05-s01-dashboard-analytics-desktop.webp"
+    alt: "Dashboard analytics view"
+  detail:
+    src: "/case-studies/pack/21-s04-color-palette-desktop.png"
+    alt: "Design system color palette"
 outcomeHeading: "Qualitative — copy pending"
 outcome: |
   Direction confirmed: how merchants and Pack's team received the redesign, not funding or growth metrics.

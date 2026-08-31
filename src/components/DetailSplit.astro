@@ -1,0 +1,58 @@
+---
+interface Slide {
+  src: string;
+  alt: string;
+}
+
+interface Props {
+  main: Slide;
+  detail: Slide;
+}
+
+const { main, detail } = Astro.props;
+---
+
+<div class="detail-split">
+  <div class="detail-split-main">
+    <img src={main.src} alt={main.alt} />
+  </div>
+  <div class="detail-split-detail">
+    <img src={detail.src} alt={detail.alt} />
+  </div>
+</div>
+
+<style is:global>
+  /* Same narrow measure as .side-by-side, but uneven (roughly 2:1) -
+     a primary shot paired with a smaller supporting detail/crop,
+     rather than two equally-weighted images. */
+  .detail-split {
+    max-width: 700px;
+    margin: 4rem auto 0;
+    padding: 0 1.5rem;
+    display: flex;
+    gap: 20px;
+    align-items: flex-end;
+  }
+
+  .detail-split-main {
+    flex: 2 1 0;
+    min-width: 0;
+  }
+
+  .detail-split-detail {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .detail-split img {
+    display: block;
+    width: 100%;
+    border-radius: 4px;
+  }
+
+  @media (max-width: 640px) {
+    .detail-split {
+      flex-direction: column;
+    }
+  }
+</style>
