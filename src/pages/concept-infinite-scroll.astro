@@ -1,4 +1,5 @@
 ---
+import "../styles/global.css";
 ---
 
 <!doctype html>
@@ -44,58 +45,45 @@
         will-change: scroll-position;
       }
 
-      .panel {
-        display: flex;
-        align-items: center;
-        gap: 4rem;
-        max-width: 1000px;
-        margin: 0 auto;
-        padding: 6rem 3rem;
+      .panel-track {
+        padding-top: 6rem;
+        padding-bottom: 6rem;
       }
 
-      .panel.align-left {
-        justify-content: flex-start;
-      }
-
-      .panel.align-right {
-        justify-content: flex-end;
-        flex-direction: row-reverse;
-      }
-
-      .panel .media {
+      .media {
         flex-shrink: 0;
         background: #d9d9d9;
         border-radius: 4px;
       }
 
-      .panel .media.tall {
+      .media.tall {
         width: 320px;
         height: 400px;
       }
 
-      .panel .media.wide {
+      .media.wide {
         width: 460px;
         height: 300px;
       }
 
-      .panel .media.phone {
+      .media.phone {
         width: 260px;
         height: 420px;
         border-radius: 24px;
       }
 
-      .panel .copy {
+      .copy {
         max-width: 300px;
       }
 
-      .panel .copy h2 {
+      .copy h2 {
         font-size: 2rem;
         font-weight: 500;
         margin: 0 0 1rem;
         color: #171717;
       }
 
-      .panel .copy p {
+      .copy p {
         color: #6b6b6b;
         line-height: 1.5;
         margin: 0 0 1.25rem;
@@ -196,11 +184,17 @@
 
     <div class="stage">
       <div class="scroller" id="scroller">
-        <div class="panel intro align-left">
-          <div class="media tall"></div>
-          <div class="copy">
-            <p>Humayun Rashid is a designer and founder based in New York City.</p>
-            <a class="pill" href="/about">About</a>
+        <div
+          class="panel-track mx-auto grid w-full max-w-[1440px] grid-cols-4 gap-4 px-5 md:grid-cols-8 md:gap-6 md:px-10 lg:grid-cols-12 lg:px-16 xl:gap-8 xl:px-20"
+        >
+          <div class="col-span-4 md:col-span-4 lg:col-span-6">
+            <div class="media tall"></div>
+          </div>
+          <div class="intro col-span-4 md:col-span-4 lg:col-span-5 lg:col-start-8">
+            <div class="copy">
+              <p>Humayun Rashid is a designer and founder based in New York City.</p>
+              <a class="pill" href="/about">About</a>
+            </div>
           </div>
         </div>
         <div id="feed"></div>
@@ -217,40 +211,66 @@
     </div>
 
     <script>
-      const caseStudiesMarkup = `
-        <div class="panel align-left">
-          <div class="media wide"></div>
-          <div class="copy">
-            <h2>Pack Digital</h2>
-            <p>Product strategy and UI design for headless infrastructure startup.</p>
-            <a class="pill" href="/work/pack">Read Case Study</a>
-          </div>
-        </div>
-        <div class="panel align-right">
-          <div class="media wide"></div>
-          <div class="copy">
-            <h2>Inveterate</h2>
-            <p>Product strategy and UI design for membership &amp; loyalty startup.</p>
-            <a class="pill" href="/work/inveterate">Read Case Study</a>
-          </div>
-        </div>
-        <div class="panel align-left">
-          <div class="media phone"></div>
-          <div class="copy">
-            <h2>PPVP</h2>
-            <p>Product strategy and mobile app design for SaaS investment fund.</p>
-            <a class="pill" href="/work/ppvp">Read Case Study</a>
-          </div>
-        </div>
-        <div class="panel align-right">
-          <div class="media tall"></div>
-          <div class="copy">
-            <h2>Stocked</h2>
-            <p>eCommerce design &amp; product strategy for consumer food startup.</p>
-            <a class="pill" href="/work/stocked">Read Case Study</a>
-          </div>
-        </div>
-      `;
+      // Same responsive grid as Grid.astro (4/8/12 cols), applied per-panel so
+      // case studies stay pinned to grid lines at every breakpoint instead of
+      // floating at an arbitrary max-width. Media/copy column spans mirror the
+      // MediaSplit pattern used in the case study template (~1.1fr:1fr split,
+      // explicit col-start on both sides so reversal never relies on flex
+      // basis, which is what caused the earlier MediaSplit collapse bug).
+      const GRID = "mx-auto grid w-full max-w-[1440px] grid-cols-4 gap-4 px-5 md:grid-cols-8 md:gap-6 md:px-10 lg:grid-cols-12 lg:px-16 xl:gap-8 xl:px-20";
+
+      function panelHTML({ align, mediaClass, title, desc, href }) {
+        const reverse = align === "right";
+        const mediaCols = reverse
+          ? "col-span-4 md:col-span-4 md:col-start-5 lg:col-span-6 lg:col-start-7"
+          : "col-span-4 md:col-span-4 lg:col-span-6";
+        const copyCols = reverse
+          ? "col-span-4 md:col-span-4 md:col-start-1 lg:col-span-5 lg:col-start-1"
+          : "col-span-4 md:col-span-4 lg:col-span-5 lg:col-start-8";
+        // Copy renders first in source order when reversed so mobile stacking
+        // still reads image-then-text on top; grid placement handles md/lg.
+        const mediaBlock = `<div class="${mediaCols}"><div class="media ${mediaClass}"></div></div>`;
+        const copyBlock = `
+          <div class="${copyCols}">
+            <div class="copy">
+              <h2>${title}</h2>
+              <p>${desc}</p>
+              <a class="pill" href="${href}">Read Case Study</a>
+            </div>
+          </div>`;
+        return `<div class="panel-track ${GRID}">${mediaBlock}${copyBlock}</div>`;
+      }
+
+      const caseStudiesMarkup = [
+        panelHTML({
+          align: "left",
+          mediaClass: "wide",
+          title: "Pack Digital",
+          desc: "Product strategy and UI design for headless infrastructure startup.",
+          href: "/work/pack",
+        }),
+        panelHTML({
+          align: "right",
+          mediaClass: "wide",
+          title: "Inveterate",
+          desc: "Product strategy and UI design for membership &amp; loyalty startup.",
+          href: "/work/inveterate",
+        }),
+        panelHTML({
+          align: "left",
+          mediaClass: "phone",
+          title: "PPVP",
+          desc: "Product strategy and mobile app design for SaaS investment fund.",
+          href: "/work/ppvp",
+        }),
+        panelHTML({
+          align: "right",
+          mediaClass: "tall",
+          title: "Stocked",
+          desc: "eCommerce design &amp; product strategy for consumer food startup.",
+          href: "/work/stocked",
+        }),
+      ].join("\n");
 
       const scroller = document.getElementById("scroller");
       const feed = document.getElementById("feed");
