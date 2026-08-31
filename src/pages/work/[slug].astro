@@ -41,6 +41,10 @@ const paragraphs = (text: string) =>
         box-sizing: border-box;
       }
 
+      html {
+        scroll-behavior: smooth;
+      }
+
       html,
       body {
         margin: 0;
@@ -129,6 +133,46 @@ const paragraphs = (text: string) =>
       /* Prose sections - generous whitespace, no boxed dividers */
       section {
         padding: 4.5rem 0;
+        scroll-margin-top: 100px;
+      }
+
+      /* Notion-style outline: a stack of short lines mirroring the
+         topbar's back link, fixed just below it. Each line jumps to a
+         section; the current section's line goes dark and a touch
+         wider. Hidden on narrower viewports where it'd collide with
+         the centered column. */
+      .toc {
+        position: fixed;
+        top: 96px;
+        right: 2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 10px;
+        z-index: 15;
+      }
+
+      .toc-line {
+        width: 20px;
+        height: 2px;
+        background: #d8d6d0;
+        border-radius: 1px;
+        transition: background 0.2s ease, width 0.2s ease;
+      }
+
+      .toc-line:hover {
+        background: #b0b0b0;
+      }
+
+      .toc-line.active {
+        background: #1f3d2e;
+        width: 28px;
+      }
+
+      @media (max-width: 1000px) {
+        .toc {
+          display: none;
+        }
       }
 
       section .label {
@@ -271,8 +315,20 @@ const paragraphs = (text: string) =>
       )
     }
 
+    <nav class="toc" aria-label="Case study sections">
+      <a href="#challenge" class="toc-line" data-toc="challenge" aria-label="Challenge"></a>
+      <a href="#approach" class="toc-line" data-toc="approach" aria-label="Approach"></a>
+      {
+        data.solutionItems && data.solutionItems.length > 0 && (
+          <a href="#solution" class="toc-line" data-toc="solution" aria-label="Solution" />
+        )
+      }
+      {data.quote && <a href="#quote" class="toc-line" data-toc="quote" aria-label="Quote" />}
+      <a href="#outcome" class="toc-line" data-toc="outcome" aria-label="Outcome"></a>
+    </nav>
+
     <div class="col">
-      <section>
+      <section id="challenge">
         <p class="label">Challenge</p>
         {data.challengeHeading && <h2>{data.challengeHeading}</h2>}
         {paragraphs(data.problem).map((p) => <p>{p}</p>)}
@@ -280,7 +336,7 @@ const paragraphs = (text: string) =>
 
       <div class="divider"></div>
 
-      <section>
+      <section id="approach">
         <p class="label">Approach</p>
         {data.approachHeading && <h2>{data.approachHeading}</h2>}
         {paragraphs(data.approach).map((p) => <p>{p}</p>)}
@@ -290,7 +346,7 @@ const paragraphs = (text: string) =>
         data.solutionItems && data.solutionItems.length > 0 && (
           <>
             <div class="divider" />
-            <section>
+            <section id="solution">
               <p class="label">{data.solutionLabel ?? "Solution"}</p>
               {data.solutionHeading && <h2>{data.solutionHeading}</h2>}
 
@@ -313,7 +369,7 @@ const paragraphs = (text: string) =>
         data.quote && (
           <>
             <div class="divider" />
-            <section>
+            <section id="quote">
               <blockquote class="quote">
                 "{data.quote.text}"
                 <span class="attribution">— {data.quote.attribution}</span>
@@ -325,7 +381,7 @@ const paragraphs = (text: string) =>
 
       <div class="divider"></div>
 
-      <section>
+      <section id="outcome">
         <p class="label">Outcome</p>
         {data.outcomeHeading && <h2>{data.outcomeHeading}</h2>}
         {paragraphs(data.outcome).map((p) => <p>{p}</p>)}
@@ -335,5 +391,31 @@ const paragraphs = (text: string) =>
     <footer>
       Next case study — <a href={`/work/${next.id}`}>{next.data.title} →</a>
     </footer>
+
+    <script>
+      const tocLinks = document.querySelectorAll<HTMLAnchorElement>(".toc-line");
+      const sections = [...tocLinks]
+        .map((link) => document.getElementById(link.dataset.toc ?? ""))
+        .filter((el): el is HTMLElement => el !== null);
+
+      if (tocLinks.length > 0) {
+        tocLinks[0].classList.add("active");
+      }
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            const link = document.querySelector(`.toc-line[data-toc="${entry.target.id}"]`);
+            if (!link) return;
+            tocLinks.forEach((l) => l.classList.remove("active"));
+            link.classList.add("active");
+          });
+        },
+        { rootMargin: "-40% 0px -50% 0px", threshold: 0 }
+      );
+
+      sections.forEach((section) => observer.observe(section));
+    </script>
   </body>
 </html>
