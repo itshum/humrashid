@@ -1,5 +1,6 @@
 ---
 import Topbar from "../../components/Topbar.astro";
+import Carousel from "../../components/Carousel.astro";
 import { getCollection } from "astro:content";
 
 export async function getStaticPaths() {
@@ -354,7 +355,11 @@ const paragraphs = (text: string) =>
         {data.approachHeading && <h2>{data.approachHeading}</h2>}
         {paragraphs(data.approach).map((p) => <p>{p}</p>)}
       </section>
+    </div>
 
+    {data.approachGallery && data.approachGallery.length > 0 && <Carousel slides={data.approachGallery} />}
+
+    <div class="col">
       {
         data.solutionItems && data.solutionItems.length > 0 && (
           <>

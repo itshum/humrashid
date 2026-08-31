@@ -23,6 +23,17 @@ approach: |
   That research shaped a hard call early on: build less, but build it right. Rather than chase feature parity with every competitor, we prioritized the handful of workflows that would make or break someone's first week on the platform. Everything else could come later.
 
   From there it was the usual rhythm of a small, fast-moving design team: sketches into clickable prototypes, testing rough ideas with Pack's team before committing engineering time, then refining.
+approachGallery:
+  - src: "/case-studies/pack/13-s02-realtime-editing-desktop.webp"
+    alt: "Real-time editing in the site customizer"
+  - src: "/case-studies/pack/14-s02-banner-slideshow-desktop.webp"
+    alt: "Banner slideshow component"
+  - src: "/case-studies/pack/15-s02-product-carousel-desktop.webp"
+    alt: "Product carousel component"
+  - src: "/case-studies/pack/16-s02-video-module-desktop.webp"
+    alt: "Video module component"
+  - src: "/case-studies/pack/17-s02-rich-text-desktop.webp"
+    alt: "Rich text editing component"
 solutionHeading: "Four problems worth solving well"
 solutionItems:
   - tag: "01 — The site customizer"
