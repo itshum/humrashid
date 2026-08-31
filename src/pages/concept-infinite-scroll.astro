@@ -203,7 +203,7 @@ import "../styles/global.css";
         transform: translate(-50%, 24px);
         display: flex;
         align-items: stretch;
-        border: 1px solid rgba(26, 26, 26, 0.12);
+        border: 2px solid rgba(26, 26, 26, 0.85);
         border-radius: 2px;
         background: rgba(250, 250, 249, 0.82);
         backdrop-filter: blur(16px) saturate(160%);
@@ -254,6 +254,27 @@ import "../styles/global.css";
         color: #1a1a1a;
       }
 
+      .float-nav .icon-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        border-left: 2px solid rgba(26, 26, 26, 0.85);
+        color: #1a1a1a;
+        cursor: pointer;
+        transition: background 0.15s ease, color 0.15s ease;
+      }
+
+      .float-nav .icon-btn:hover {
+        background: #1a1a1a;
+        color: #fafaf9;
+      }
+
+      .float-nav .icon-btn svg {
+        width: 16px;
+        height: 16px;
+      }
+
       .progress-note {
         position: absolute;
         top: 16px;
@@ -290,6 +311,17 @@ import "../styles/global.css";
           <a href="/about">About</a>
           <a href="/process">Process</a>
         </span>
+        <a href="#" class="icon-btn" id="nav-icon-btn" aria-label="Menu">
+          <svg id="nav-icon-hamburger" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M4 7h16" />
+            <path d="M4 12h16" />
+            <path d="M4 17h16" />
+          </svg>
+          <svg id="nav-icon-back" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+            <path d="M19 12H5" />
+            <path d="M11 18l-6-6 6-6" />
+          </svg>
+        </a>
       </nav>
     </div>
 
@@ -301,6 +333,19 @@ import "../styles/global.css";
       // explicit col-start on both sides so reversal never relies on flex
       // basis, which is what caused the earlier MediaSplit collapse bug).
       const GRID = "mx-auto grid w-full max-w-[1440px] items-center grid-cols-4 gap-4 px-5 md:grid-cols-8 md:gap-6 md:px-10 lg:grid-cols-12 lg:px-16 xl:gap-8 xl:px-20";
+
+      // Nav icon: hamburger on the homepage, back-arrow everywhere else.
+      // This prototype route stands in for "/" - once wired into the real
+      // Nav.astro, swap that check for the real homepage path.
+      const isHome = window.location.pathname === "/" || window.location.pathname === "/concept-infinite-scroll";
+      const hamburgerIcon = document.getElementById("nav-icon-hamburger");
+      const backIcon = document.getElementById("nav-icon-back");
+      const navIconBtn = document.getElementById("nav-icon-btn");
+      if (!isHome) {
+        hamburgerIcon.style.display = "none";
+        backIcon.style.display = "block";
+        navIconBtn.setAttribute("aria-label", "Back");
+      }
 
       function panelHTML({ align, mediaClass, title, desc, href }) {
         const reverse = align === "right";
