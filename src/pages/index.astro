@@ -65,6 +65,7 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
         --border: #e2e0da;
         --selection-bg: #1f3d2e;
         --selection-text: #f8f8f6;
+        --photo-shadow: 0 16px 40px rgba(0, 0, 0, 0.16), 0 2px 8px rgba(0, 0, 0, 0.08);
       }
 
       :root[data-theme="dark"] {
@@ -80,6 +81,11 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
         --border: #333230;
         --selection-bg: #4fae82;
         --selection-text: #1b1b19;
+        /* A black shadow reads as almost nothing against this near-black
+           background, so dark mode leans on a soft light-edge glow
+           instead of a darker shadow to give the card the same sense
+           of lift. */
+        --photo-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.06);
       }
 
       * {
@@ -170,7 +176,7 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
         transition: opacity 0.3s ease, transform 0.3s ease;
         pointer-events: none;
         z-index: 30;
-        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
+        box-shadow: var(--photo-shadow);
         background: var(--hover-bg);
       }
 
