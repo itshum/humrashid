@@ -19,21 +19,6 @@ const { showBack = false } = Astro.props;
 </div>
 
 <style is:global>
-  /* Site-wide dark mode, switched automatically by NYC local time
-     (see the script below) rather than by a manual toggle or the
-     visitor's OS preference. Off dark grey, not pure black. */
-  :root {
-    --tb-text: #8a8a8a;
-    --tb-text-hover: #262626;
-    --tb-hover-bg: #eae9e5;
-  }
-
-  :root[data-theme="dark"] {
-    --tb-text: #94938d;
-    --tb-text-hover: #eeede8;
-    --tb-hover-bg: #2b2b28;
-  }
-
   /* Full-width bar, independent of any centered column below it. The
      logo mark sits flush right against the real page edge on every
      page; the back link, when present, sits flush left instead, so
@@ -62,7 +47,10 @@ const { showBack = false } = Astro.props;
   }
 
   /* Ghost button - transparent until hover, then fills in with the same
-     highlight used by the homepage's work-row hover state. */
+     highlight used by the homepage's work-row hover state. Fixed
+     colors, not theme-variable-driven: the back link only ever
+     appears on case study pages, which don't have dark styling, so
+     it should never pick up the homepage's night-mode palette. */
   .topbar .back-link {
     display: inline-flex;
     align-items: center;
@@ -70,14 +58,14 @@ const { showBack = false } = Astro.props;
     padding: 0.5rem 0.75rem;
     border-radius: 4px;
     font-size: 0.85rem;
-    color: var(--tb-text, #8a8a8a);
+    color: #8a8a8a;
     text-decoration: none;
     transition: background 0.15s ease, color 0.15s ease;
   }
 
   .topbar .back-link:hover {
-    background: var(--tb-hover-bg, #eae9e5);
-    color: var(--tb-text-hover, #262626);
+    background: #eae9e5;
+    color: #262626;
   }
 
   .topbar .back-link .arrow {
