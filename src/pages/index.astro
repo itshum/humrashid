@@ -195,10 +195,11 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
         grid-template-rows: repeat(10, 1fr);
       }
 
-      /* Delay is set randomly per hover by the script below, not baked
-         in at build time - no scale/zoom on the tiles themselves
-         (that was causing the seams that read as "not smooth"), just
-         a plain blur clearing, staggered. */
+      /* Each tile only ever shows its own slice of the real photo
+         (via background-position) - never the full image at once.
+         Delay is set randomly per hover by the script below, not
+         baked in at build time, so the reveal order is different
+         every time. */
       .pixel-tile {
         background-image: url("/headshot.jpg");
         background-repeat: no-repeat;
