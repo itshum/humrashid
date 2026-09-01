@@ -42,6 +42,9 @@ const caseStudies = defineCollection({
           body: z.string(),
           image: z.string().optional(),
           imageAlt: z.string().optional(),
+          // Default (unset) = full-bleed, matching the cover image.
+          // "small" = centered within the text column instead.
+          imageSize: z.enum(["default", "small"]).optional(),
         })
       )
       .optional(),

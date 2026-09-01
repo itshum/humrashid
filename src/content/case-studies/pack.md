@@ -37,12 +37,13 @@ approachGallery:
 wideImage:
   src: "/case-studies/pack/07-s01-bundling-desktop.webp"
   alt: "Product bundling interface"
-solutionHeading: "Four problems worth solving well"
+solutionHeading: "Designing four critical workflows for merchants"
 solutionItems:
   - tag: "01 — The site customizer"
-    heading: "Real editing, not an abstraction of it"
+    heading: "Merchant friendly editing, not an abstraction of it"
     image: "/case-studies/pack/12-s02-customizer-sidebar-desktop.webp"
     imageAlt: "Site customizer sidebar"
+    imageSize: "small"
     body: |
       Most WYSIWYG site builders make you choose between flexibility and simplicity, usually failing at both. We rebuilt the customizer around a sidebar that slides out over a live preview of the actual storefront, so a marketer edits the real page, not an abstraction of it. Every component (banners, product carousels, video modules, rich text) was built to the same global system, so swapping one out never breaks the page around it.
 

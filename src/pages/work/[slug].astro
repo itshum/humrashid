@@ -229,7 +229,10 @@ const paragraphs = (text: string) =>
         margin: 0 0 1.25rem;
       }
 
-      .solution-item img {
+      /* The "small" opt-in image size - centered within the text
+         column. Default (unset) images instead render full-bleed via
+         .hero-media, matching the cover image. */
+      .solution-image-small {
         display: block;
         width: 100%;
         border-radius: 4px;
@@ -375,30 +378,45 @@ const paragraphs = (text: string) =>
 
     {data.wideImage && <WideImage src={data.wideImage.src} alt={data.wideImage.alt} />}
 
-    <div class="col">
-      {
-        data.solutionItems && data.solutionItems.length > 0 && (
-          <>
+    {
+      data.solutionItems && data.solutionItems.length > 0 && (
+        <>
+          <div class="col">
             <div class="divider" />
-            <section id="solution">
+          </div>
+          <section id="solution">
+            <div class="col">
               <p class="label">{data.solutionLabel ?? "Solution"}</p>
               {data.solutionHeading && <h2>{data.solutionHeading}</h2>}
+            </div>
 
-              {data.solutionItems.map((item) => (
-                <div class="solution-item">
+            {data.solutionItems.map((item) => (
+              <div class="solution-item">
+                <div class="col">
                   <span class="tag">{item.tag}</span>
                   <h3>{item.heading}</h3>
                   {paragraphs(item.body).map((p) => (
                     <p>{p}</p>
                   ))}
-                  {item.image && <img src={item.image} alt={item.imageAlt ?? item.heading} />}
+                  {item.image && item.imageSize === "small" && (
+                    <img
+                      class="solution-image-small"
+                      src={item.image}
+                      alt={item.imageAlt ?? item.heading}
+                    />
+                  )}
                 </div>
-              ))}
-            </section>
-          </>
-        )
-      }
-    </div>
+                {item.image && item.imageSize !== "small" && (
+                  <div class="hero-media">
+                    <img src={item.image} alt={item.imageAlt ?? item.heading} />
+                  </div>
+                )}
+              </div>
+            ))}
+          </section>
+        </>
+      )
+    }
 
     {data.triptych && <Triptych images={data.triptych} />}
 
