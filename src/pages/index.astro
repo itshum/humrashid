@@ -7,12 +7,13 @@ const PHOTO_HEIGHT = 306;
 const tileWidth = PHOTO_WIDTH / PHOTO_GRID;
 const tileHeight = PHOTO_HEIGHT / PHOTO_GRID;
 
+// Stagger delay is randomized per hover at runtime (see the script
+// below), not baked in here - only the slice position is fixed.
 const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
   const col = i % PHOTO_GRID;
   const row = Math.floor(i / PHOTO_GRID);
-  const delay = (row + col) * 0.025 + ((i * 7) % 11) * 0.01;
   return {
-    style: `background-position: ${(-col * tileWidth).toFixed(2)}px ${(-row * tileHeight).toFixed(2)}px; transition-delay: ${delay.toFixed(3)}s;`,
+    style: `background-position: ${(-col * tileWidth).toFixed(2)}px ${(-row * tileHeight).toFixed(2)}px;`,
   };
 });
 ---
@@ -170,6 +171,7 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
         left: 0;
         width: 263px;
         height: 306px;
+        border-radius: 2px;
         overflow: hidden;
         opacity: 0;
         transform: translateY(-6px) scale(0.97);
@@ -193,18 +195,20 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
         grid-template-rows: repeat(10, 1fr);
       }
 
+      /* Delay is set randomly per hover by the script below, not baked
+         in at build time - no scale/zoom on the tiles themselves
+         (that was causing the seams that read as "not smooth"), just
+         a plain blur clearing, staggered. */
       .pixel-tile {
         background-image: url("/headshot.jpg");
         background-repeat: no-repeat;
         background-size: 263px 306px;
         filter: blur(9px);
-        transform: scale(1.15);
-        transition: filter 0.6s ease, transform 0.6s ease;
+        transition: filter 1s ease;
       }
 
       .name-trigger:hover .pixel-tile {
         filter: blur(0);
-        transform: scale(1);
       }
 
       section {
@@ -484,6 +488,19 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
       }
       updateClock();
       setInterval(updateClock, 1000);
+
+      // Re-randomize which tiles clear first on every hover, so the
+      // reveal never sweeps the same top-left-to-bottom-right way
+      // twice in a row.
+      const MAX_DELAY_S = 0.9;
+      const nameTrigger = document.querySelector(".name-trigger");
+      const pixelTiles = document.querySelectorAll(".pixel-tile");
+
+      nameTrigger?.addEventListener("mouseenter", () => {
+        pixelTiles.forEach((tile) => {
+          tile.style.transitionDelay = `${(Math.random() * MAX_DELAY_S).toFixed(3)}s`;
+        });
+      });
     </script>
   </body>
 </html>
