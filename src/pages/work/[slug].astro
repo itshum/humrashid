@@ -353,6 +353,17 @@ const paragraphs = (text: string) =>
       </section>
     </div>
 
+    {
+      data.challengeImage && (
+        <div class="hero-media">
+          <img
+            src={data.challengeImage}
+            alt={data.challengeImageAlt ?? `${data.title} interface`}
+          />
+        </div>
+      )
+    }
+
     <div class="col">
       <div class="divider"></div>
 
@@ -400,11 +411,11 @@ const paragraphs = (text: string) =>
                     </div>
                   )}
                 </div>
-                {i === 0 && data.challengeImage && (
+                {i === 0 && data.dashboardImage && (
                   <div class="hero-media">
                     <img
-                      src={data.challengeImage}
-                      alt={data.challengeImageAlt ?? `${data.title} interface`}
+                      src={data.dashboardImage}
+                      alt={data.dashboardImageAlt ?? `${data.title} interface`}
                     />
                   </div>
                 )}

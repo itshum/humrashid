@@ -16,6 +16,10 @@ const caseStudies = defineCollection({
     problem: z.string(),
     challengeImage: z.string().optional(),
     challengeImageAlt: z.string().optional(),
+    // Standalone image rendered after solution item 01 specifically -
+    // not tied to the Challenge section despite similar naming above.
+    dashboardImage: z.string().optional(),
+    dashboardImageAlt: z.string().optional(),
     approachHeading: z.string().optional(),
     approach: z.string(),
     approachGallery: z

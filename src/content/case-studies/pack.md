@@ -14,8 +14,10 @@ problem: |
   After closing their seed round, Pack needed to become a product. The same team, the same expertise, but now serving hundreds of merchants instead of a handful of clients. That's a different design problem than it sounds like. The tools that make one-off custom work great don't automatically make sense as something a stranger can pick up and use without you standing over their shoulder.
 
   I led design on this transition, working directly with Pack's product and engineering team, including CEO Cory Cummings, to figure out what "productized" actually meant here.
-challengeImage: "/case-studies/pack/25-s01-home-dashboard-desktop.png"
-challengeImageAlt: "Pack platform home dashboard"
+challengeImage: "/case-studies/pack/06-s01-merchandising-desktop.webp"
+challengeImageAlt: "Merchandising interface"
+dashboardImage: "/case-studies/pack/25-s01-home-dashboard-desktop.png"
+dashboardImageAlt: "Pack platform home dashboard"
 approachHeading: "Interviews before screens"
 approach: |
   We started with interviews, not screens. My team and I talked to merchants who'd tried other headless platforms to find out where they actually got stuck, not where we assumed they would. A few patterns showed up fast: onboarding took too long, merchandising tools were an afterthought bolted onto commerce infrastructure, and every customizer we looked at asked marketers to think like developers.
