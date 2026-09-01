@@ -196,20 +196,22 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
       }
 
       /* Each tile only ever shows its own slice of the real photo
-         (via background-position) - never the full image at once.
-         Delay is set randomly per hover by the script below, not
-         baked in at build time, so the reveal order is different
-         every time. */
+         (via background-position) - never the full image at once, and
+         nothing is visible until its own tile appears. Tiles pop in
+         one at a time (opacity only, no blur/movement/rotation) in a
+         random order set by the script below, so the picture builds
+         up piece by piece instead of one blurred image sharpening as
+         a whole. */
       .pixel-tile {
         background-image: url("/headshot.jpg");
         background-repeat: no-repeat;
         background-size: 263px 306px;
-        filter: blur(9px);
-        transition: filter 1s ease;
+        opacity: 0;
+        transition: opacity 0.4s ease;
       }
 
       .name-trigger:hover .pixel-tile {
-        filter: blur(0);
+        opacity: 1;
       }
 
       section {
@@ -493,7 +495,7 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
       // Re-randomize which tiles clear first on every hover, so the
       // reveal never sweeps the same top-left-to-bottom-right way
       // twice in a row.
-      const MAX_DELAY_S = 0.9;
+      const MAX_DELAY_S = 1.1;
       const nameTrigger = document.querySelector(".name-trigger");
       const pixelTiles = document.querySelectorAll(".pixel-tile");
 
