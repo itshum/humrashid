@@ -57,10 +57,26 @@ const caseStudies = defineCollection({
           // Default (unset) = full-bleed, matching the cover image.
           // "small" = centered within the text column instead.
           imageSize: z.enum(["default", "small"]).optional(),
+          // Renders this item's image inside a drag-to-reveal slider
+          // against this wireframe image instead of a plain image.
+          // Reusable across case studies - just supply a wireframe
+          // asset in the same aspect ratio as `image`.
+          compareWireframe: z
+            .object({
+              src: z.string(),
+              alt: z.string().optional(),
+            })
+            .optional(),
         })
       )
       .optional(),
     triptych: z.array(z.object({ src: z.string(), alt: z.string() })).length(3).optional(),
+    // Full-bleed 2x2 grid rendered after solution item 02 (developer
+    // experience).
+    devGrid: z.array(z.object({ src: z.string(), alt: z.string() })).length(4).optional(),
+    designSystemLabel: z.string().optional(),
+    designSystemHeading: z.string().optional(),
+    designSystemBody: z.string().optional(),
     designSystemImage: z
       .object({
         src: z.string(),

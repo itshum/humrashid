@@ -1,0 +1,103 @@
+<svg viewBox="0 0 2760 1500" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+  <rect x="0" y="0" width="2760" height="1500" rx="28" fill="#16302c" />
+  <rect x="180" y="245" width="2400" height="1255" rx="16" fill="#ffffff" stroke="#dcdedb" stroke-width="2" />
+
+  <!-- sidebar -->
+  <line x1="601" y1="245" x2="601" y2="1500" stroke="#dcdedb" stroke-width="2" />
+  <rect x="244" y="302" width="59" height="61" rx="8" fill="#16302c" />
+  <rect x="244" y="397" width="357" height="57" rx="28" fill="none" stroke="#dcdedb" stroke-width="2" />
+  <rect x="244" y="473" width="357" height="52" rx="26" fill="none" stroke="#dcdedb" stroke-width="2" />
+  <circle cx="276" cy="499" r="8" fill="none" stroke="#c9cbc6" stroke-width="3" />
+
+  <circle cx="258" cy="587" r="13" fill="none" stroke="#c9cbc6" stroke-width="3" />
+  <rect x="290" y="577" width="165" height="18" rx="9" fill="#c9cbc6" />
+  <circle cx="258" cy="652" r="13" fill="none" stroke="#c9cbc6" stroke-width="3" />
+  <rect x="290" y="642" width="137" height="18" rx="9" fill="#c9cbc6" />
+  <circle cx="258" cy="717" r="13" fill="none" stroke="#c9cbc6" stroke-width="3" />
+  <rect x="290" y="707" width="147" height="18" rx="9" fill="#c9cbc6" />
+  <circle cx="258" cy="781" r="13" fill="none" stroke="#c9cbc6" stroke-width="3" />
+  <rect x="290" y="771" width="128" height="18" rx="9" fill="#c9cbc6" />
+  <circle cx="258" cy="846" r="13" fill="none" stroke="#c9cbc6" stroke-width="3" />
+  <rect x="290" y="836" width="137" height="18" rx="9" fill="#c9cbc6" />
+  <circle cx="258" cy="911" r="13" fill="none" stroke="#c9cbc6" stroke-width="3" />
+  <rect x="290" y="901" width="119" height="18" rx="9" fill="#c9cbc6" />
+  <circle cx="258" cy="975" r="13" fill="none" stroke="#c9cbc6" stroke-width="3" />
+  <rect x="290" y="965" width="110" height="18" rx="9" fill="#c9cbc6" />
+
+  <circle cx="258" cy="1424" r="13" fill="none" stroke="#c9cbc6" stroke-width="3" />
+  <rect x="290" y="1414" width="137" height="18" rx="9" fill="#c9cbc6" />
+
+  <!-- main heading + tabs -->
+  <rect x="647" y="302" width="238" height="51" rx="6" fill="#9a9d97" />
+  <rect x="647" y="397" width="174" height="57" rx="28" fill="none" stroke="#dcdedb" stroke-width="2" />
+  <rect x="840" y="397" width="192" height="57" rx="28" fill="none" stroke="#dcdedb" stroke-width="2" />
+  <rect x="1050" y="397" width="147" height="57" rx="28" fill="#16302c" />
+  <rect x="2315" y="397" width="238" height="57" rx="28" fill="none" stroke="#dcdedb" stroke-width="2" />
+
+  <!-- stat cards -->
+  <g>
+    <rect x="647" y="502" width="611" height="361" rx="12" fill="#ffffff" stroke="#dcdedb" stroke-width="2" />
+    <rect x="684" y="540" width="165" height="21" rx="4" fill="#c9cbc6" />
+    <rect x="684" y="588" width="202" height="57" rx="6" fill="#9a9d97" />
+    <rect x="1139" y="540" width="82" height="30" rx="15" fill="#7fa88f" opacity="0.35" />
+    <polyline points="684,753 720,725 756,739 792,706 828,720 864,687 900,701 936,678 972,692 1008,668 1044,682 1221,658"
+      fill="none" stroke="#7fa88f" stroke-width="4" />
+    <rect x="684" y="775" width="64" height="13" rx="7" fill="#c9cbc6" />
+    <rect x="1197" y="775" width="64" height="13" rx="7" fill="#c9cbc6" />
+  </g>
+
+  <g>
+    <rect x="1295" y="502" width="611" height="361" rx="12" fill="#ffffff" stroke="#dcdedb" stroke-width="2" />
+    <rect x="1332" y="540" width="165" height="21" rx="4" fill="#c9cbc6" />
+    <rect x="1332" y="588" width="165" height="57" rx="6" fill="#9a9d97" />
+    <rect x="1787" y="540" width="82" height="30" rx="15" fill="#c98a86" opacity="0.35" />
+    <polyline points="1332,715 1368,733 1404,697 1440,724 1476,688 1512,719 1548,678 1584,704 1620,668 1656,695 1692,660 1869,683"
+      fill="none" stroke="#c98a86" stroke-width="4" />
+    <rect x="1332" y="775" width="64" height="13" rx="7" fill="#c9cbc6" />
+    <rect x="1845" y="775" width="64" height="13" rx="7" fill="#c9cbc6" />
+  </g>
+
+  <g>
+    <rect x="1943" y="502" width="611" height="361" rx="12" fill="#ffffff" stroke="#dcdedb" stroke-width="2" />
+    <rect x="1980" y="540" width="165" height="21" rx="4" fill="#c9cbc6" />
+    <rect x="1980" y="588" width="165" height="57" rx="6" fill="#9a9d97" />
+    <rect x="2435" y="540" width="82" height="30" rx="15" fill="#7fa88f" opacity="0.35" />
+    <polyline points="1980,742 2016,724 2052,738 2088,706 2124,719 2160,687 2196,700 2232,678 2268,691 2304,668 2340,681 2517,658"
+      fill="none" stroke="#7fa88f" stroke-width="4" />
+    <rect x="1980" y="775" width="64" height="13" rx="7" fill="#c9cbc6" />
+    <rect x="2493" y="775" width="64" height="13" rx="7" fill="#c9cbc6" />
+  </g>
+
+  <!-- banner + conversion row -->
+  <rect x="647" y="901" width="1246" height="342" rx="12" fill="#ffffff" stroke="#dcdedb" stroke-width="2" />
+  <circle cx="720" cy="977" r="24" fill="#7fa88f" opacity="0.35" />
+  <rect x="766" y="953" width="385" height="25" rx="4" fill="#9a9d97" />
+  <rect x="684" y="1015" width="824" height="15" rx="8" fill="#c9cbc6" />
+  <rect x="684" y="1044" width="641" height="15" rx="8" fill="#c9cbc6" />
+  <rect x="684" y="1101" width="257" height="53" rx="8" fill="#16302c" />
+
+  <rect x="1930" y="901" width="623" height="342" rx="12" fill="#ffffff" stroke="#dcdedb" stroke-width="2" />
+  <rect x="1967" y="939" width="165" height="19" rx="4" fill="#c9cbc6" />
+  <rect x="1967" y="968" width="128" height="42" rx="6" fill="#9a9d97" />
+  <rect x="2434" y="949" width="82" height="29" rx="14" fill="#7fa88f" opacity="0.35" />
+  <line x1="1967" y1="1044" x2="2516" y2="1044" stroke="#dcdedb" stroke-width="2" />
+  <rect x="1967" y="1067" width="128" height="15" rx="8" fill="#c9cbc6" />
+  <rect x="2461" y="1067" width="55" height="15" rx="8" fill="#7fa88f" opacity="0.6" />
+  <rect x="1967" y="1091" width="147" height="11" rx="6" fill="#dcdedb" />
+  <rect x="1967" y="1125" width="128" height="15" rx="8" fill="#c9cbc6" />
+  <rect x="2461" y="1125" width="55" height="15" rx="8" fill="#c98a86" opacity="0.6" />
+  <rect x="1967" y="1148" width="147" height="11" rx="6" fill="#dcdedb" />
+  <rect x="1967" y="1182" width="128" height="15" rx="8" fill="#c9cbc6" />
+  <rect x="2461" y="1182" width="55" height="15" rx="8" fill="#c98a86" opacity="0.6" />
+  <rect x="1967" y="1205" width="147" height="11" rx="6" fill="#dcdedb" />
+
+  <!-- image + text card -->
+  <rect x="647" y="1263" width="1246" height="209" rx="12" fill="#ffffff" stroke="#dcdedb" stroke-width="2" />
+  <rect x="675" y="1292" width="257" height="152" rx="8" fill="#eceeea" />
+  <line x1="675" y1="1444" x2="931" y2="1292" stroke="#c9cbc6" stroke-width="3" />
+  <circle cx="894" cy="1330" r="15" fill="none" stroke="#c9cbc6" stroke-width="3" />
+  <rect x="968" y="1301" width="348" height="21" rx="4" fill="#9a9d97" />
+  <rect x="968" y="1339" width="476" height="13" rx="7" fill="#c9cbc6" />
+  <rect x="968" y="1362" width="348" height="13" rx="7" fill="#c9cbc6" />
+  <rect x="968" y="1406" width="147" height="15" rx="8" fill="#7fa88f" opacity="0.6" />
+</svg>

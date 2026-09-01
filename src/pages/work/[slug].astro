@@ -4,6 +4,8 @@ import Carousel from "../../components/Carousel.astro";
 import SideBySide from "../../components/SideBySide.astro";
 import WideImage from "../../components/WideImage.astro";
 import Triptych from "../../components/Triptych.astro";
+import Quad from "../../components/Quad.astro";
+import CompareReveal from "../../components/CompareReveal.astro";
 import DetailSplit from "../../components/DetailSplit.astro";
 import { getCollection } from "astro:content";
 
@@ -413,7 +415,15 @@ const paragraphs = (text: string) =>
                       />
                     )}
                   </div>
-                  {item.image && item.imageSize !== "small" && (
+                  {item.image && item.imageSize !== "small" && item.compareWireframe && (
+                    <CompareReveal
+                      leftSrc={item.compareWireframe.src}
+                      leftAlt={item.compareWireframe.alt ?? `${item.heading} wireframe`}
+                      rightSrc={item.image}
+                      rightAlt={item.imageAlt ?? item.heading}
+                    />
+                  )}
+                  {item.image && item.imageSize !== "small" && !item.compareWireframe && (
                     <div class="hero-media">
                       <img src={item.image} alt={item.imageAlt ?? item.heading} />
                     </div>
@@ -427,6 +437,7 @@ const paragraphs = (text: string) =>
                     />
                   </div>
                 )}
+                {i === 1 && data.devGrid && data.devGrid.length > 0 && <Quad images={data.devGrid} />}
                 {i === 2 && data.approachGallery && data.approachGallery.length > 0 && (
                   <Carousel slides={data.approachGallery} />
                 )}
@@ -440,14 +451,26 @@ const paragraphs = (text: string) =>
     {data.triptych && <Triptych images={data.triptych} />}
 
     {
+      data.designSystemHeading && (
+        <div class="col">
+          <div class="divider" />
+
+          <section id="design-system">
+            {data.designSystemLabel && <p class="label">{data.designSystemLabel}</p>}
+            <h2>{data.designSystemHeading}</h2>
+            {data.designSystemBody && paragraphs(data.designSystemBody).map((p) => <p>{p}</p>)}
+          </section>
+        </div>
+      )
+    }
+
+    {
       data.designSystemImage && (
         <div class="hero-media">
           <img src={data.designSystemImage.src} alt={data.designSystemImage.alt} />
         </div>
       )
     }
-
-    {data.sideBySide && <SideBySide left={data.sideBySide.left} right={data.sideBySide.right} />}
 
     {
       data.quote && (
@@ -464,6 +487,8 @@ const paragraphs = (text: string) =>
         </>
       )
     }
+
+    {data.sideBySide && <SideBySide left={data.sideBySide.left} right={data.sideBySide.right} />}
 
     {
       data.detailSplit && (

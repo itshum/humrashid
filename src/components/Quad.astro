@@ -1,0 +1,47 @@
+---
+interface Slide {
+  src: string;
+  alt: string;
+}
+
+interface Props {
+  images: Slide[];
+}
+
+const { images } = Astro.props;
+---
+
+<div class="quad">
+  {
+    images.map((image) => (
+      <div class="quad-item">
+        <img src={image.src} alt={image.alt} />
+      </div>
+    ))
+  }
+</div>
+
+<style is:global>
+  /* Full width, same gutter as .hero-media/.triptych - a 2x2 grid of
+     evenly spaced images. */
+  .quad {
+    margin-top: 4rem;
+    margin-bottom: 4rem;
+    padding: 0 2rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .quad-item img {
+    display: block;
+    width: 100%;
+    border-radius: 4px;
+  }
+
+  @media (max-width: 640px) {
+    .quad {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

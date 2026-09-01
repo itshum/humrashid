@@ -33,30 +33,34 @@ approachGallery:
     alt: "Product carousel component"
   - src: "/case-studies/pack/16-s02-video-module-desktop.webp"
     alt: "Video module component"
-  - src: "/case-studies/pack/17-s02-rich-text-desktop.webp"
-    alt: "Rich text editing component"
-wideImage:
-  src: "/case-studies/pack/07-s01-bundling-desktop.webp"
-  alt: "Product bundling interface"
-solutionHeading: "Designing four critical workflows for merchants"
+  - src: "/case-studies/pack/12-s02-customizer-sidebar-desktop.webp"
+    alt: "Site customizer sidebar"
+devGrid:
+  - src: "/case-studies/pack/08-s01-collection-building-desktop.webp"
+    alt: "Store owner profile settings"
+  - src: "/case-studies/pack/09-s01-dev-onboarding-desktop.webp"
+    alt: "Team members and role permissions"
+  - src: "/case-studies/pack/10-s01-git-integration-desktop.webp"
+    alt: "Git repository connection and API keys"
+  - src: "/case-studies/pack/11-s01-deploy-logs-desktop.webp"
+    alt: "Deploy history and status"
+solutionHeading: "Designing numerous critical workflows for merchants and developers"
 solutionItems:
   - tag: "01 — The dashboard"
     heading: "One place to understand the store"
-    image: "/case-studies/pack/04-s01-dashboard-customization-desktop.webp"
-    imageAlt: "Dashboard customization"
+    image: "/case-studies/pack/03-s01-transition-desktop.webp"
+    imageAlt: "Dashboard home with usage analytics"
+    compareWireframe:
+      src: "/case-studies/pack/dashboard-wireframe.svg"
+      alt: "Dashboard wireframe"
     body: |
       Store owners needed one place to understand how their storefront was actually performing: revenue, traffic, conversion, site speed. Rather than a wall of charts, we organized the dashboard around what a merchant would want to check on a given day, with a sidebar that carries across multiple storefronts, so managing more than one store never feels like starting over.
   - tag: "02 — Developer experience"
     heading: "Opinion-free setup, built for developers"
-    image: "/case-studies/pack/09-s01-dev-onboarding-desktop.webp"
-    imageAlt: "Developer onboarding"
     body: |
       Modern headless builds mean wrangling a pile of apps. We stripped the setup down so developers could plug into Git with their own API keys and start building without an opinionated workflow forced on them, with real visibility into deploys and status instead of a black box.
   - tag: "03 — The site customizer"
     heading: "Merchant friendly editing, not an abstraction of it"
-    image: "/case-studies/pack/12-s02-customizer-sidebar-desktop.webp"
-    imageAlt: "Site customizer sidebar"
-    imageSize: "small"
     body: |
       Most WYSIWYG site builders make you choose between flexibility and simplicity, usually failing at both. We rebuilt the customizer around a sidebar that slides out over a live preview of the actual storefront, so a marketer edits the real page, not an abstraction of it. Every component (banners, product carousels, video modules, rich text) was built to the same global system, so swapping one out never breaks the page around it.
 
@@ -67,26 +71,16 @@ solutionItems:
     imageAlt: "Merchandising interface"
     body: |
       Headless builds have a reputation for clunky merchandising, mostly because commerce infrastructure and merchandising tools get designed separately and bolted together. We redesigned this so merchants could build product bundles and collections through intelligent, attribute-based grouping instead of manual, one-by-one setup. It's a small change with a big effect: what used to take a spreadsheet and a developer now takes a few clicks.
+designSystemLabel: "05 — The design system"
+designSystemHeading: "One system, built to grow with the product"
+designSystemBody: |
+  As Pack grew more complex, the design system hadn't kept pace. We rebuilt it from the ground up: a custom iconography library, a refreshed color palette, bold lifestyle photography, and a new set of UI components, each considered for its own use case, flexibility, and reuse across the platform. The goal was one cohesive kit that could extend to every touchpoint as the product kept growing.
 designSystemImage:
   src: "/case-studies/pack/20-s04-iconography-desktop.webp"
   alt: "Design system: typography, components, shadows, and color tokens"
-sideBySide:
-  left:
-    src: "/case-studies/pack/18-s03-mobile-nav-mobile.webp"
-    alt: "Mobile navigation"
-  right:
-    src: "/case-studies/pack/19-s03-onthego-mobile.webp"
-    alt: "Managing a storefront on the go"
 quote:
   text: "The new Pack platform gives brands and agencies powerful front‑end tools to communicate with customers more easily. We're incredibly proud of Nessa's design work. Collaborating with their team allowed us to simplify the headless build process into a cutting edge software product designed for brand operators and developers."
   attribution: "Cory Cummings, CEO at Pack"
-detailSplit:
-  main:
-    src: "/case-studies/pack/05-s01-dashboard-analytics-desktop.webp"
-    alt: "Dashboard analytics view"
-  detail:
-    src: "/case-studies/pack/21-s04-color-palette-desktop.png"
-    alt: "Design system color palette"
 outcomeHeading: "Qualitative — copy pending"
 outcome: |
   Direction confirmed: how merchants and Pack's team received the redesign, not funding or growth metrics.

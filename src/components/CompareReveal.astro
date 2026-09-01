@@ -1,0 +1,220 @@
+---
+interface Props {
+  leftSrc: string;
+  leftAlt: string;
+  rightSrc: string;
+  rightAlt: string;
+  leftLabel?: string;
+  rightLabel?: string;
+  aspectRatio?: number;
+}
+
+const {
+  leftSrc,
+  leftAlt,
+  rightSrc,
+  rightAlt,
+  leftLabel = "Wireframe",
+  rightLabel = "Final design",
+  aspectRatio = 2760 / 1500,
+} = Astro.props;
+---
+
+<div class="compare-reveal" style={`aspect-ratio: ${aspectRatio};`}>
+  <div class="compare-reveal-left">
+    <img src={leftSrc} alt={leftAlt} />
+  </div>
+  <div class="compare-reveal-right">
+    <img src={rightSrc} alt={rightAlt} />
+  </div>
+  <div class="compare-reveal-handle">
+    <span class="compare-reveal-grip">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 12H5" />
+        <path d="M11 18l-6-6 6-6" />
+      </svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 12h14" />
+        <path d="M13 18l6-6-6-6" />
+      </svg>
+    </span>
+  </div>
+  <span class="compare-reveal-label compare-reveal-label-left">{leftLabel}</span>
+  <span class="compare-reveal-label compare-reveal-label-right">{rightLabel}</span>
+</div>
+
+<style is:global>
+  .compare-reveal {
+    position: relative;
+    margin: 4rem 2rem 0;
+    overflow: hidden;
+    border-radius: 4px;
+    cursor: ew-resize;
+    user-select: none;
+    background: #fff;
+    touch-action: pan-y;
+  }
+
+  .compare-reveal-left,
+  .compare-reveal-right {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .compare-reveal-left img,
+  .compare-reveal-right img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+  }
+
+  .compare-reveal-right {
+    clip-path: inset(0 0 0 50%);
+  }
+
+  .compare-reveal-handle {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 2px;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.15);
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+
+  .compare-reveal-grip {
+    flex: none;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: 1px solid #e2e0da;
+    background: #fff;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    color: #262626;
+    animation: compare-reveal-pulse 2.2s ease-out infinite;
+  }
+
+  .compare-reveal-grip svg {
+    width: 18px;
+    height: 18px;
+    flex: none;
+  }
+
+  @keyframes compare-reveal-pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba(38, 38, 38, 0.3), 0 2px 10px rgba(0, 0, 0, 0.25);
+    }
+    70% {
+      box-shadow: 0 0 0 16px rgba(38, 38, 38, 0), 0 2px 10px rgba(0, 0, 0, 0.25);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(38, 38, 38, 0), 0 2px 10px rgba(0, 0, 0, 0.25);
+    }
+  }
+
+  .compare-reveal-label {
+    position: absolute;
+    top: 16px;
+    padding: 5px 12px;
+    font-size: 12px;
+    letter-spacing: 0.02em;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.85);
+    color: #262626;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .compare-reveal-label.is-visible {
+    opacity: 1;
+  }
+
+  .compare-reveal-label-left {
+    left: 16px;
+  }
+
+  .compare-reveal-label-right {
+    right: 16px;
+  }
+
+  @media (max-width: 640px) {
+    .compare-reveal {
+      margin-left: 1.25rem;
+      margin-right: 1.25rem;
+    }
+  }
+</style>
+
+<script>
+  function initCompareReveal(el: HTMLElement) {
+    const handle = el.querySelector<HTMLElement>(".compare-reveal-handle");
+    const right = el.querySelector<HTMLElement>(".compare-reveal-right");
+    const leftLabel = el.querySelector<HTMLElement>(".compare-reveal-label-left");
+    const rightLabel = el.querySelector<HTMLElement>(".compare-reveal-label-right");
+    if (!handle || !right) return;
+
+    let dragging = false;
+    let lastPercent = 50;
+
+    const showLabel = (direction: "left" | "right") => {
+      leftLabel?.classList.toggle("is-visible", direction === "right");
+      rightLabel?.classList.toggle("is-visible", direction === "left");
+    };
+
+    const setPercent = (percent: number) => {
+      const clamped = Math.min(100, Math.max(0, percent));
+      if (clamped > lastPercent) showLabel("right");
+      else if (clamped < lastPercent) showLabel("left");
+      lastPercent = clamped;
+      right.style.clipPath = `inset(0 0 0 ${clamped}%)`;
+      handle.style.left = `${clamped}%`;
+    };
+
+    const percentFromClientX = (clientX: number) => {
+      const rect = el.getBoundingClientRect();
+      return ((clientX - rect.left) / rect.width) * 100;
+    };
+
+    const clientXFrom = (e: MouseEvent | TouchEvent) =>
+      "touches" in e ? e.touches[0]?.clientX : (e as MouseEvent).clientX;
+
+    const onDown = (e: MouseEvent | TouchEvent) => {
+      dragging = true;
+      const clientX = clientXFrom(e);
+      if (clientX !== undefined) setPercent(percentFromClientX(clientX));
+    };
+    const onMove = (e: MouseEvent | TouchEvent) => {
+      if (!dragging) return;
+      const clientX = clientXFrom(e);
+      if (clientX !== undefined) setPercent(percentFromClientX(clientX));
+    };
+    const onUp = () => {
+      dragging = false;
+    };
+
+    el.addEventListener("mousedown", onDown);
+    el.addEventListener("touchstart", onDown, { passive: true });
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("touchmove", onMove, { passive: true });
+    window.addEventListener("mouseup", onUp);
+    window.addEventListener("touchend", onUp);
+  }
+
+  document
+    .querySelectorAll<HTMLElement>(".compare-reveal")
+    .forEach(initCompareReveal);
+</script>
