@@ -22,6 +22,14 @@ const caseStudies = defineCollection({
     dashboardImageAlt: z.string().optional(),
     approachHeading: z.string().optional(),
     approach: z.string(),
+    // Full-bleed image right after the Approach section, before
+    // approachGallery/wideImage.
+    navSystemImage: z
+      .object({
+        src: z.string(),
+        alt: z.string(),
+      })
+      .optional(),
     approachGallery: z
       .array(
         z.object({

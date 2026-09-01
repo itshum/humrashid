@@ -374,6 +374,14 @@ const paragraphs = (text: string) =>
       </section>
     </div>
 
+    {
+      data.navSystemImage && (
+        <div class="hero-media">
+          <img src={data.navSystemImage.src} alt={data.navSystemImage.alt} />
+        </div>
+      )
+    }
+
     {data.wideImage && <WideImage src={data.wideImage.src} alt={data.wideImage.alt} />}
 
     {

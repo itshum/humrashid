@@ -16,8 +16,6 @@ problem: |
   I led design on this transition, working directly with Pack's product and engineering team, including CEO Cory Cummings, to figure out what "productized" actually meant here.
 challengeImage: "/case-studies/pack/06-s01-merchandising-desktop.webp"
 challengeImageAlt: "Merchandising interface"
-dashboardImage: "/case-studies/pack/25-s01-home-dashboard-desktop.png"
-dashboardImageAlt: "Pack platform home dashboard"
 approachHeading: "Interviews before screens"
 approach: |
   We started with interviews, not screens. My team and I talked to merchants who'd tried other headless platforms to find out where they actually got stuck, not where we assumed they would. A few patterns showed up fast: onboarding took too long, merchandising tools were an afterthought bolted onto commerce infrastructure, and every customizer we looked at asked marketers to think like developers.
@@ -25,6 +23,9 @@ approach: |
   That research shaped a hard call early on: build less, but build it right. Rather than chase feature parity with every competitor, we prioritized the handful of workflows that would make or break someone's first week on the platform. Everything else could come later.
 
   From there it was the usual rhythm of a small, fast-moving design team: sketches into clickable prototypes, testing rough ideas with Pack's team before committing engineering time, then refining.
+navSystemImage:
+  src: "/case-studies/pack/Pack-Navsystem.png"
+  alt: "Navigation system, light and dark variants with organization switcher"
 approachGallery:
   - src: "/case-studies/pack/13-s02-realtime-editing-desktop.webp"
     alt: "Real-time editing in the site customizer"
