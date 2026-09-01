@@ -1,5 +1,20 @@
 ---
 import Topbar from "../components/Topbar.astro";
+
+const PHOTO_GRID = 10;
+const PHOTO_WIDTH = 263;
+const PHOTO_HEIGHT = 306;
+const tileWidth = PHOTO_WIDTH / PHOTO_GRID;
+const tileHeight = PHOTO_HEIGHT / PHOTO_GRID;
+
+const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
+  const col = i % PHOTO_GRID;
+  const row = Math.floor(i / PHOTO_GRID);
+  const delay = (row + col) * 0.025 + ((i * 7) % 11) * 0.01;
+  return {
+    style: `background-position: ${(-col * tileWidth).toFixed(2)}px ${(-row * tileHeight).toFixed(2)}px; transition-delay: ${delay.toFixed(3)}s;`,
+  };
+});
 ---
 
 <!doctype html>
@@ -115,22 +130,40 @@ import Topbar from "../components/Topbar.astro";
       }
 
       /* Headshot reveal on hovering the name - a small photo card that
-         fades/lifts into view, its image starting blurred behind a
-         pixel-grid overlay (same 4x4 motif as the logo mark) that
-         clears over a couple seconds, like the pixels resolving into
-         a real photo instead of a plain blur-to-sharp crossfade. */
+         fades/lifts into view. The pixelation is the blur itself: the
+         photo is sliced into a 10x10 grid of tiles, each showing its
+         own piece of the image (via background-position), each
+         individually blurred and staggered so they sharpen into focus
+         out of order rather than as one flat crossfade. No color
+         overlay - the blur alone reads as "pixelated". */
       .name-trigger {
         position: relative;
         display: inline-block;
+      }
+
+      .name-trigger::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: -2px;
+        width: 100%;
+        height: 1px;
+        background: currentColor;
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.45s ease;
+      }
+
+      .name-trigger:hover::after {
+        transform: scaleX(1);
       }
 
       .name-photo {
         position: absolute;
         top: calc(100% + 14px);
         left: 0;
-        width: 210px;
-        height: 245px;
-        border-radius: 8px;
+        width: 263px;
+        height: 306px;
         overflow: hidden;
         opacity: 0;
         transform: translateY(-6px) scale(0.97);
@@ -146,64 +179,26 @@ import Topbar from "../components/Topbar.astro";
         transform: translateY(0) scale(1);
       }
 
-      .name-photo img {
-        display: block;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        filter: blur(16px) saturate(0.6);
-        transform: scale(1.1);
-        transition: filter 1.6s cubic-bezier(0.2, 0.7, 0.3, 1), transform 1.6s cubic-bezier(0.2, 0.7, 0.3, 1);
-      }
-
-      .name-trigger:hover .name-photo img {
-        filter: blur(0) saturate(1);
-        transform: scale(1);
-      }
-
-      .name-photo .pixel-overlay {
+      .pixel-grid {
         position: absolute;
         inset: 0;
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        grid-template-rows: repeat(4, 1fr);
+        grid-template-columns: repeat(10, 1fr);
+        grid-template-rows: repeat(10, 1fr);
       }
 
-      .name-photo .pixel-overlay span {
-        background: #1f3d2e;
-        opacity: 0.9;
-        transition: opacity 0.5s ease;
+      .pixel-tile {
+        background-image: url("/headshot.jpg");
+        background-repeat: no-repeat;
+        background-size: 263px 306px;
+        filter: blur(9px);
+        transform: scale(1.15);
+        transition: filter 0.6s ease, transform 0.6s ease;
       }
 
-      .name-photo .pixel-overlay span:nth-child(4n + 2) {
-        background: #f4f4f0;
-      }
-
-      .name-photo .pixel-overlay span:nth-child(3n) {
-        background: #f4f4f0;
-      }
-
-      /* Staggered per-cell fade so the grid dissolves unevenly rather
-         than as one flat wash. */
-      .name-photo .pixel-overlay span:nth-child(1) { transition-delay: 0.05s; }
-      .name-photo .pixel-overlay span:nth-child(2) { transition-delay: 0.15s; }
-      .name-photo .pixel-overlay span:nth-child(3) { transition-delay: 0.08s; }
-      .name-photo .pixel-overlay span:nth-child(4) { transition-delay: 0.22s; }
-      .name-photo .pixel-overlay span:nth-child(5) { transition-delay: 0.18s; }
-      .name-photo .pixel-overlay span:nth-child(6) { transition-delay: 0.3s; }
-      .name-photo .pixel-overlay span:nth-child(7) { transition-delay: 0.12s; }
-      .name-photo .pixel-overlay span:nth-child(8) { transition-delay: 0.35s; }
-      .name-photo .pixel-overlay span:nth-child(9) { transition-delay: 0.25s; }
-      .name-photo .pixel-overlay span:nth-child(10) { transition-delay: 0.1s; }
-      .name-photo .pixel-overlay span:nth-child(11) { transition-delay: 0.4s; }
-      .name-photo .pixel-overlay span:nth-child(12) { transition-delay: 0.2s; }
-      .name-photo .pixel-overlay span:nth-child(13) { transition-delay: 0.45s; }
-      .name-photo .pixel-overlay span:nth-child(14) { transition-delay: 0.28s; }
-      .name-photo .pixel-overlay span:nth-child(15) { transition-delay: 0.5s; }
-      .name-photo .pixel-overlay span:nth-child(16) { transition-delay: 0.38s; }
-
-      .name-trigger:hover .name-photo .pixel-overlay span {
-        opacity: 0;
+      .name-trigger:hover .pixel-tile {
+        filter: blur(0);
+        transform: scale(1);
       }
 
       section {
@@ -354,13 +349,9 @@ import Topbar from "../components/Topbar.astro";
     <div class="col">
       <div class="intro">
         <p>
-          I'm <span class="name-trigger">Humayun Rashid<span class="name-photo">
-              <img src="/headshot.jpg" alt="Humayun Rashid" />
-              <span class="pixel-overlay">
-                <span></span><span></span><span></span><span></span>
-                <span></span><span></span><span></span><span></span>
-                <span></span><span></span><span></span><span></span>
-                <span></span><span></span><span></span><span></span>
+          I'm <span class="name-trigger">Humayun Rashid<span class="name-photo" role="img" aria-label="Headshot of Humayun Rashid">
+              <span class="pixel-grid" aria-hidden="true">
+                {photoTiles.map((tile) => <span class="pixel-tile" style={tile.style} />)}
               </span>
             </span></span>, a product designer and founder based in New
           York City with a decade of experience shipping products people actually want to use.
