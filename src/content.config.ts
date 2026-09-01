@@ -49,6 +49,12 @@ const caseStudies = defineCollection({
       )
       .optional(),
     triptych: z.array(z.object({ src: z.string(), alt: z.string() })).length(3).optional(),
+    designSystemImage: z
+      .object({
+        src: z.string(),
+        alt: z.string(),
+      })
+      .optional(),
     sideBySide: z
       .object({
         left: z.object({ src: z.string(), alt: z.string() }),

@@ -353,17 +353,6 @@ const paragraphs = (text: string) =>
       </section>
     </div>
 
-    {
-      data.challengeImage && (
-        <div class="hero-media">
-          <img
-            src={data.challengeImage}
-            alt={data.challengeImageAlt ?? `${data.title} interface`}
-          />
-        </div>
-      )
-    }
-
     <div class="col">
       <div class="divider"></div>
 
@@ -373,8 +362,6 @@ const paragraphs = (text: string) =>
         {paragraphs(data.approach).map((p) => <p>{p}</p>)}
       </section>
     </div>
-
-    {data.approachGallery && data.approachGallery.length > 0 && <Carousel slides={data.approachGallery} />}
 
     {data.wideImage && <WideImage src={data.wideImage.src} alt={data.wideImage.alt} />}
 
@@ -390,28 +377,41 @@ const paragraphs = (text: string) =>
               {data.solutionHeading && <h2>{data.solutionHeading}</h2>}
             </div>
 
-            {data.solutionItems.map((item) => (
-              <div class="solution-item">
-                <div class="col">
-                  <span class="tag">{item.tag}</span>
-                  <h3>{item.heading}</h3>
-                  {paragraphs(item.body).map((p) => (
-                    <p>{p}</p>
-                  ))}
-                  {item.image && item.imageSize === "small" && (
-                    <img
-                      class="solution-image-small"
-                      src={item.image}
-                      alt={item.imageAlt ?? item.heading}
-                    />
+            {data.solutionItems.map((item, i) => (
+              <>
+                <div class="solution-item">
+                  <div class="col">
+                    <span class="tag">{item.tag}</span>
+                    <h3>{item.heading}</h3>
+                    {paragraphs(item.body).map((p) => (
+                      <p>{p}</p>
+                    ))}
+                    {item.image && item.imageSize === "small" && (
+                      <img
+                        class="solution-image-small"
+                        src={item.image}
+                        alt={item.imageAlt ?? item.heading}
+                      />
+                    )}
+                  </div>
+                  {item.image && item.imageSize !== "small" && (
+                    <div class="hero-media">
+                      <img src={item.image} alt={item.imageAlt ?? item.heading} />
+                    </div>
                   )}
                 </div>
-                {item.image && item.imageSize !== "small" && (
+                {i === 0 && data.challengeImage && (
                   <div class="hero-media">
-                    <img src={item.image} alt={item.imageAlt ?? item.heading} />
+                    <img
+                      src={data.challengeImage}
+                      alt={data.challengeImageAlt ?? `${data.title} interface`}
+                    />
                   </div>
                 )}
-              </div>
+                {i === 2 && data.approachGallery && data.approachGallery.length > 0 && (
+                  <Carousel slides={data.approachGallery} />
+                )}
+              </>
             ))}
           </section>
         </>
@@ -419,6 +419,14 @@ const paragraphs = (text: string) =>
     }
 
     {data.triptych && <Triptych images={data.triptych} />}
+
+    {
+      data.designSystemImage && (
+        <div class="hero-media">
+          <img src={data.designSystemImage.src} alt={data.designSystemImage.alt} />
+        </div>
+      )
+    }
 
     {data.sideBySide && <SideBySide left={data.sideBySide.left} right={data.sideBySide.right} />}
 

@@ -66,13 +66,9 @@ solutionItems:
     imageAlt: "Merchandising interface"
     body: |
       Headless builds have a reputation for clunky merchandising, mostly because commerce infrastructure and merchandising tools get designed separately and bolted together. We redesigned this so merchants could build product bundles and collections through intelligent, attribute-based grouping instead of manual, one-by-one setup. It's a small change with a big effect: what used to take a spreadsheet and a developer now takes a few clicks.
-triptych:
-  - src: "/case-studies/pack/20-s04-iconography-desktop.webp"
-    alt: "Custom iconography library"
-  - src: "/case-studies/pack/22-s04-ui-components-desktop.webp"
-    alt: "Global UI component library"
-  - src: "/case-studies/pack/24-s04-framework-overview-desktop.webp"
-    alt: "Design system framework overview"
+designSystemImage:
+  src: "/case-studies/pack/20-s04-iconography-desktop.webp"
+  alt: "Design system: typography, components, shadows, and color tokens"
 sideBySide:
   left:
     src: "/case-studies/pack/18-s03-mobile-nav-mobile.webp"
