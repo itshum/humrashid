@@ -39,7 +39,19 @@ wideImage:
   alt: "Product bundling interface"
 solutionHeading: "Designing four critical workflows for merchants"
 solutionItems:
-  - tag: "01 — The site customizer"
+  - tag: "01 — The dashboard"
+    heading: "One place to understand the store"
+    image: "/case-studies/pack/04-s01-dashboard-customization-desktop.webp"
+    imageAlt: "Dashboard customization"
+    body: |
+      Store owners needed one place to understand how their storefront was actually performing: revenue, traffic, conversion, site speed. Rather than a wall of charts, we organized the dashboard around what a merchant would want to check on a given day, with a sidebar that carries across multiple storefronts, so managing more than one store never feels like starting over.
+  - tag: "02 — Developer experience"
+    heading: "Opinion-free setup, built for developers"
+    image: "/case-studies/pack/09-s01-dev-onboarding-desktop.webp"
+    imageAlt: "Developer onboarding"
+    body: |
+      Modern headless builds mean wrangling a pile of apps. We stripped the setup down so developers could plug into Git with their own API keys and start building without an opinionated workflow forced on them, with real visibility into deploys and status instead of a black box.
+  - tag: "03 — The site customizer"
     heading: "Merchant friendly editing, not an abstraction of it"
     image: "/case-studies/pack/12-s02-customizer-sidebar-desktop.webp"
     imageAlt: "Site customizer sidebar"
@@ -48,24 +60,12 @@ solutionItems:
       Most WYSIWYG site builders make you choose between flexibility and simplicity, usually failing at both. We rebuilt the customizer around a sidebar that slides out over a live preview of the actual storefront, so a marketer edits the real page, not an abstraction of it. Every component (banners, product carousels, video modules, rich text) was built to the same global system, so swapping one out never breaks the page around it.
 
       The goal was letting a marketer launch a new landing page or run an A/B test without pulling in a developer. That's the actual measure of whether a customizer works.
-  - tag: "02 — The dashboard"
-    heading: "One place to understand the store"
-    image: "/case-studies/pack/04-s01-dashboard-customization-desktop.webp"
-    imageAlt: "Dashboard customization"
-    body: |
-      Store owners needed one place to understand how their storefront was actually performing: revenue, traffic, conversion, site speed. Rather than a wall of charts, we organized the dashboard around what a merchant would want to check on a given day, with a sidebar that carries across multiple storefronts, so managing more than one store never feels like starting over.
-  - tag: "03 — Merchandising"
+  - tag: "04 — Merchandising"
     heading: "Bundles in a few clicks, not a spreadsheet"
     image: "/case-studies/pack/06-s01-merchandising-desktop.webp"
     imageAlt: "Merchandising interface"
     body: |
       Headless builds have a reputation for clunky merchandising, mostly because commerce infrastructure and merchandising tools get designed separately and bolted together. We redesigned this so merchants could build product bundles and collections through intelligent, attribute-based grouping instead of manual, one-by-one setup. It's a small change with a big effect: what used to take a spreadsheet and a developer now takes a few clicks.
-  - tag: "04 — Developer experience"
-    heading: "Opinion-free setup, built for developers"
-    image: "/case-studies/pack/09-s01-dev-onboarding-desktop.webp"
-    imageAlt: "Developer onboarding"
-    body: |
-      Modern headless builds mean wrangling a pile of apps. We stripped the setup down so developers could plug into Git with their own API keys and start building without an opinionated workflow forced on them, with real visibility into deploys and status instead of a black box.
 triptych:
   - src: "/case-studies/pack/20-s04-iconography-desktop.webp"
     alt: "Custom iconography library"
