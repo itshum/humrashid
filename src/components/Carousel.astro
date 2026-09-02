@@ -12,7 +12,7 @@ const { slides } = Astro.props;
 const uid = `carousel-${Math.random().toString(36).slice(2, 9)}`;
 ---
 
-<div class="carousel" id={uid}>
+<div class="carousel" id={uid} data-reveal>
   <div class="carousel-viewport">
     <div class="carousel-track">
       {

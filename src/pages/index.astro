@@ -1,5 +1,6 @@
 ---
 import Topbar from "../components/Topbar.astro";
+import Footer from "../components/Footer.astro";
 
 const PHOTO_GRID = 10;
 const PHOTO_WIDTH = 263;
@@ -301,59 +302,6 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
         transform: translateX(2px);
       }
 
-      footer {
-        margin-top: 0;
-        padding: 1.75rem 0 3rem;
-        border-top: 1px solid var(--border);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        font-size: 0.85rem;
-        color: var(--label);
-        flex-wrap: wrap;
-        gap: 1rem;
-      }
-
-      footer .who {
-        display: flex;
-        align-items: baseline;
-        gap: 0.75rem;
-      }
-
-      footer .who .name {
-        color: var(--title);
-        font-weight: 500;
-      }
-
-      footer .tz {
-        display: flex;
-        align-items: baseline;
-        gap: 0.4rem;
-      }
-
-      .blink {
-        animation: blink 1s steps(1) infinite;
-      }
-
-      @keyframes blink {
-        50%,
-        100% {
-          opacity: 0;
-        }
-      }
-
-      footer .links {
-        display: flex;
-        gap: 0.9rem;
-      }
-
-      footer a {
-        text-decoration: none;
-      }
-
-      footer a:hover {
-        color: var(--title);
-      }
     </style>
   </head>
   <body>
@@ -457,40 +405,11 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
         </div>
       </section>
 
-      <footer>
-        <span class="who">
-          <span class="name">Humayun Rashid</span>
-          <span class="tz">
-            <span>NYC</span>
-            <span id="nyc-time">—:— —</span>
-          </span>
-        </span>
-        <span class="links">
-          <a href="https://www.linkedin.com/in/humayunrashid/" target="_blank" rel="noopener">LinkedIn</a>
-          <a href="https://github.com/itshum" target="_blank" rel="noopener">Github</a>
-          <a href="https://x.com/humrashid" target="_blank" rel="noopener">Twitter</a>
-          <a href="/humayun-rashid-resume.pdf" target="_blank" rel="noopener" type="application/pdf">CV</a>
-        </span>
-      </footer>
     </div>
 
-    <script>
-      const el = document.getElementById("nyc-time");
-      function updateClock() {
-        const parts = new Intl.DateTimeFormat("en-US", {
-          timeZone: "America/New_York",
-          hour: "numeric",
-          minute: "2-digit",
-          hour12: true,
-        }).formatToParts(new Date());
-        const hour = parts.find((p) => p.type === "hour")?.value ?? "-";
-        const minute = parts.find((p) => p.type === "minute")?.value ?? "--";
-        const period = parts.find((p) => p.type === "dayPeriod")?.value ?? "";
-        el.innerHTML = `${hour}<span class="blink">:</span>${minute} ${period}`;
-      }
-      updateClock();
-      setInterval(updateClock, 1000);
+    <Footer />
 
+    <script>
       // Re-randomize which tiles clear first on every hover, so the
       // reveal never sweeps the same top-left-to-bottom-right way
       // twice in a row.

@@ -13,13 +13,26 @@ export async function getStaticPaths() {
   const caseStudies = (await getCollection("caseStudies", ({ data }) => !data.draft)).sort(
     (a, b) => a.data.order - b.data.order
   );
-  return caseStudies.map((entry, i) => ({
+
+  // Up to the next 2 other case studies, cyclic, for the footer's "more
+  // work" pair - naturally scales as more case studies are published.
+  const nextOthers = (currentId: string, count: number) => {
+    const startIndex = caseStudies.findIndex((cs) => cs.id === currentId);
+    const result = [];
+    for (let step = 1; step <= caseStudies.length && result.length < count; step++) {
+      const candidate = caseStudies[(startIndex + step) % caseStudies.length];
+      if (candidate.id !== currentId) result.push(candidate);
+    }
+    return result;
+  };
+
+  return caseStudies.map((entry) => ({
     params: { slug: entry.id },
-    props: { entry, next: caseStudies[(i + 1) % caseStudies.length] },
+    props: { entry, nextCaseStudies: nextOthers(entry.id, 2) },
   }));
 }
 
-const { entry, next } = Astro.props;
+const { entry, nextCaseStudies } = Astro.props;
 const { data } = entry;
 
 const paragraphs = (text: string) =>
@@ -269,21 +282,68 @@ const paragraphs = (text: string) =>
         margin-top: 1.5rem;
       }
 
-      footer {
-        text-align: center;
-        padding: 3rem 0 6rem;
-        font-size: 0.85rem;
-        color: #8a8a8a;
+      /* Wider than the narrow .col text measure so the row reads close
+         to back-link/logo width, but capped so it doesn't stretch into
+         sparse, over-long cards on very wide viewports. */
+      #more-work {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 0 2rem 5rem;
       }
 
-      footer a {
-        text-decoration: underline;
-        text-decoration-color: #c9c7c0;
-        text-underline-offset: 3px;
+      .next-work {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 0.75rem;
       }
 
-      footer a:hover {
+      /* Same hover-highlight pattern as the homepage's work list -
+         padding lives on the row itself so the highlight bleeds past
+         the text measure on both sides. */
+      .next-work-row {
+        display: block;
+        padding: 1.1rem 1.1rem;
+        border-radius: 6px;
+        text-decoration: none;
+        transition: background 0.15s ease;
+      }
+
+      .next-work-row:hover {
+        background: #eae9e5;
+      }
+
+      .next-work-row .row-top {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 0.75rem;
+        margin-bottom: 0.3rem;
+      }
+
+      .next-work-row .title {
+        font-size: 1.05rem;
+        font-weight: 500;
         color: #262626;
+      }
+
+      .next-work-row .icon {
+        font-size: 0.85rem;
+        color: #c9c7c0;
+        opacity: 0;
+        flex-shrink: 0;
+        transition: opacity 0.15s ease, transform 0.15s ease;
+      }
+
+      .next-work-row:hover .icon {
+        opacity: 1;
+        color: #262626;
+        transform: translateX(2px);
+      }
+
+      .next-work-row .desc {
+        display: block;
+        font-size: 0.92rem;
+        color: #8a8a8a;
       }
 
       .divider {
@@ -291,6 +351,30 @@ const paragraphs = (text: string) =>
         background: #efeee9;
         max-width: 80px;
         margin: 0 auto;
+      }
+
+      /* Subtle fade-up on scroll, applied to every major copy/media
+         block via the data-reveal attribute (set in this file and in
+         each media component) - same feel as Nessa's own case study
+         site: content sits slightly below and transparent until it
+         scrolls into view, then settles into place. Fires once. */
+      [data-reveal] {
+        opacity: 0;
+        transform: translateY(28px);
+        transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      [data-reveal].is-revealed {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        [data-reveal] {
+          opacity: 1;
+          transform: none;
+          transition: none;
+        }
       }
     </style>
   </head>
@@ -329,7 +413,7 @@ const paragraphs = (text: string) =>
 
     {
       data.coverImage && (
-        <div class="hero-media">
+        <div class="hero-media" data-reveal>
           <img src={data.coverImage} alt={data.coverImageAlt ?? `${data.title} interface`} />
         </div>
       )
@@ -344,10 +428,9 @@ const paragraphs = (text: string) =>
         )
       }
       {data.quote && <a href="#quote" class="toc-line" data-toc="quote" aria-label="Quote" />}
-      <a href="#outcome" class="toc-line" data-toc="outcome" aria-label="Outcome"></a>
     </nav>
 
-    <div class="col">
+    <div class="col" data-reveal>
       <section id="challenge">
         <p class="label">Challenge</p>
         {data.challengeHeading && <h2>{data.challengeHeading}</h2>}
@@ -357,7 +440,7 @@ const paragraphs = (text: string) =>
 
     {
       data.challengeImage && (
-        <div class="hero-media">
+        <div class="hero-media" data-reveal>
           <img
             src={data.challengeImage}
             alt={data.challengeImageAlt ?? `${data.title} interface`}
@@ -369,7 +452,7 @@ const paragraphs = (text: string) =>
     <div class="col">
       <div class="divider"></div>
 
-      <section id="approach">
+      <section id="approach" data-reveal>
         <p class="label">Approach</p>
         {data.approachHeading && <h2>{data.approachHeading}</h2>}
         {paragraphs(data.approach).map((p) => <p>{p}</p>)}
@@ -378,7 +461,7 @@ const paragraphs = (text: string) =>
 
     {
       data.navSystemImage && (
-        <div class="hero-media">
+        <div class="hero-media" data-reveal>
           <img src={data.navSystemImage.src} alt={data.navSystemImage.alt} />
         </div>
       )
@@ -393,14 +476,14 @@ const paragraphs = (text: string) =>
             <div class="divider" />
           </div>
           <section id="solution">
-            <div class="col">
+            <div class="col" data-reveal>
               <p class="label">{data.solutionLabel ?? "Solution"}</p>
               {data.solutionHeading && <h2>{data.solutionHeading}</h2>}
             </div>
 
             {data.solutionItems.map((item, i) => (
               <>
-                <div class="solution-item">
+                <div class="solution-item" data-reveal>
                   <div class="col">
                     <span class="tag">{item.tag}</span>
                     <h3>{item.heading}</h3>
@@ -430,7 +513,7 @@ const paragraphs = (text: string) =>
                   )}
                 </div>
                 {i === 0 && data.dashboardImage && (
-                  <div class="hero-media">
+                  <div class="hero-media" data-reveal>
                     <img
                       src={data.dashboardImage}
                       alt={data.dashboardImageAlt ?? `${data.title} interface`}
@@ -455,7 +538,7 @@ const paragraphs = (text: string) =>
         <div class="col">
           <div class="divider" />
 
-          <section id="design-system">
+          <section id="design-system" data-reveal>
             {data.designSystemLabel && <p class="label">{data.designSystemLabel}</p>}
             <h2>{data.designSystemHeading}</h2>
             {data.designSystemBody && paragraphs(data.designSystemBody).map((p) => <p>{p}</p>)}
@@ -466,7 +549,7 @@ const paragraphs = (text: string) =>
 
     {
       data.designSystemImage && (
-        <div class="hero-media">
+        <div class="hero-media" data-reveal>
           <img src={data.designSystemImage.src} alt={data.designSystemImage.alt} />
         </div>
       )
@@ -478,7 +561,7 @@ const paragraphs = (text: string) =>
           <div class="col">
             <div class="divider" />
           </div>
-          <section id="quote" class="quote-section">
+          <section id="quote" class="quote-section" data-reveal>
             <blockquote class="quote">
               "{data.quote.text}"
               <span class="attribution">{data.quote.attribution}</span>
@@ -498,17 +581,26 @@ const paragraphs = (text: string) =>
 
     <div class="col">
       <div class="divider"></div>
-
-      <section id="outcome">
-        <p class="label">Outcome</p>
-        {data.outcomeHeading && <h2>{data.outcomeHeading}</h2>}
-        {paragraphs(data.outcome).map((p) => <p>{p}</p>)}
-      </section>
     </div>
 
-    <footer>
-      Next case study — <a href={`/work/${next.id}`}>{next.data.title} →</a>
-    </footer>
+    {
+      nextCaseStudies.length > 0 && (
+        <section id="more-work">
+          <p class="label">More work</p>
+          <div class="next-work">
+            {nextCaseStudies.map((cs) => (
+              <a class="next-work-row" href={`/work/${cs.id}`} data-reveal>
+                <span class="row-top">
+                  <span class="title">{cs.data.title}</span>
+                  <span class="icon">→</span>
+                </span>
+                <span class="desc">{cs.data.summary}</span>
+              </a>
+            ))}
+          </div>
+        </section>
+      )
+    }
 
     <script>
       const tocLinks = document.querySelectorAll<HTMLAnchorElement>(".toc-line");
@@ -534,6 +626,25 @@ const paragraphs = (text: string) =>
       );
 
       sections.forEach((section) => observer.observe(section));
+
+      const revealEls = document.querySelectorAll<HTMLElement>("[data-reveal]");
+      if (revealEls.length > 0) {
+        if ("IntersectionObserver" in window) {
+          const revealObserver = new IntersectionObserver(
+            (entries) => {
+              entries.forEach((entry) => {
+                if (!entry.isIntersecting) return;
+                entry.target.classList.add("is-revealed");
+                revealObserver.unobserve(entry.target);
+              });
+            },
+            { threshold: 0.15, rootMargin: "0px 0px -8% 0px" }
+          );
+          revealEls.forEach((el) => revealObserver.observe(el));
+        } else {
+          revealEls.forEach((el) => el.classList.add("is-revealed"));
+        }
+      }
     </script>
   </body>
 </html>

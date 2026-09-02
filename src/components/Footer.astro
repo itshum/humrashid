@@ -1,0 +1,102 @@
+---
+---
+
+<footer class="site-footer">
+  <span class="who">
+    <span class="name">Humayun Rashid</span>
+    <span class="tz">
+      <span>NYC</span>
+      <span id="nyc-time">—:— —</span>
+    </span>
+  </span>
+  <span class="links">
+    <a href="https://www.linkedin.com/in/humayunrashid/" target="_blank" rel="noopener">LinkedIn</a>
+    <a href="https://github.com/itshum" target="_blank" rel="noopener">Github</a>
+    <a href="https://x.com/humrashid" target="_blank" rel="noopener">Twitter</a>
+    <a href="/humayun-rashid-resume.pdf" target="_blank" rel="noopener" type="application/pdf">CV</a>
+  </span>
+</footer>
+
+<style is:global>
+  /* Self-contained width/centering (matching the homepage's own .col
+     measure) so this drops into any page - case study or otherwise -
+     without depending on that page's particular .col variant. Colors
+     fall back to the homepage's light-mode values for pages that
+     don't define the --label/--title/--border theme variables. */
+  .site-footer {
+    max-width: 718px;
+    margin: 0 auto;
+    padding: 1.75rem 1.5rem 3rem;
+    border-top: 1px solid var(--border, #e2e0da);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: var(--label, #8a8a8a);
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .site-footer .who {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+  }
+
+  .site-footer .who .name {
+    color: var(--title, #262626);
+    font-weight: 500;
+  }
+
+  .site-footer .tz {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+  }
+
+  .site-footer .blink {
+    animation: site-footer-blink 1s steps(1) infinite;
+  }
+
+  @keyframes site-footer-blink {
+    50%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  .site-footer .links {
+    display: flex;
+    gap: 0.9rem;
+  }
+
+  .site-footer a {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .site-footer a:hover {
+    color: var(--title, #262626);
+  }
+</style>
+
+<script>
+  function initFooterClock(el: HTMLElement) {
+    function updateClock() {
+      const parts = new Intl.DateTimeFormat("en-US", {
+        timeZone: "America/New_York",
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      }).formatToParts(new Date());
+      const hour = parts.find((p) => p.type === "hour")?.value ?? "-";
+      const minute = parts.find((p) => p.type === "minute")?.value ?? "--";
+      const period = parts.find((p) => p.type === "dayPeriod")?.value ?? "";
+      el.innerHTML = `${hour}<span class="blink">:</span>${minute} ${period}`;
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
+  }
+
+  document.querySelectorAll<HTMLElement>("#nyc-time").forEach(initFooterClock);
+</script>
