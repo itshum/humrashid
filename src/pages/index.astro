@@ -291,16 +291,16 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
         display: inline-block;
       }
 
-      .work-row:hover .icon {
+      a.work-row:hover .icon {
         opacity: 1;
         color: var(--icon-hover);
       }
 
-      .work-row:hover .icon.external {
+      a.work-row:hover .icon.external {
         transform: translate(2px, -2px);
       }
 
-      .work-row:hover .icon.internal {
+      a.work-row:hover .icon.internal {
         transform: translateX(2px);
       }
 
@@ -351,16 +351,16 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
             </span>
           </a>
 
-          <a class="work-row" href="/work/nessa-labs">
+          <div class="work-row">
             <span class="title">Nessa Labs</span>
             <span class="row-bottom">
               <span class="desc">Founder &amp; Design Director of product design studio for early stage startups.</span>
               <span class="meta">
-                <span class="year">2021 – 2026</span>
-                <span class="icon internal">→</span>
+                <span class="year">2020 – 2025</span>
+                <span class="icon" aria-hidden="true">→</span>
               </span>
             </span>
-          </a>
+          </div>
 
           <a class="work-row" href="/work/pack">
             <span class="title">Pack Platform</span>
@@ -400,7 +400,7 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
             <span class="row-bottom">
               <span class="desc">Product strategy and design for donation enablement platform.</span>
               <span class="meta">
-                <span class="year">2022</span>
+                <span class="year">2021</span>
                 <span class="icon external">↗</span>
               </span>
             </span>
