@@ -1,6 +1,6 @@
 ---
 title: "Pack"
-summary: "Turning an agency's custom commerce builds into a scalable, merchant-approachable SaaS product."
+summary: "Turning an agency's custom commerce builds into a scalable, merchant friendly SaaS platform."
 company: "Pack"
 role: "Design Director"
 timeframe: "2023"

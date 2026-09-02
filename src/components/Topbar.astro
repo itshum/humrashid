@@ -47,10 +47,9 @@ const { showBack = false } = Astro.props;
   }
 
   /* Ghost button - transparent until hover, then fills in with the same
-     highlight used by the homepage's work-row hover state. Fixed
-     colors, not theme-variable-driven: the back link only ever
-     appears on case study pages, which don't have dark styling, so
-     it should never pick up the homepage's night-mode palette. */
+     highlight used by the homepage's work-row hover state. Theme
+     variable-driven so it matches whichever page it's on (case study
+     pages now carry the same dark-mode tokens as the homepage). */
   .topbar .back-link {
     display: inline-flex;
     align-items: center;
@@ -58,14 +57,14 @@ const { showBack = false } = Astro.props;
     padding: 0.5rem 0.75rem;
     border-radius: 4px;
     font-size: 0.85rem;
-    color: #8a8a8a;
+    color: var(--label, #8a8a8a);
     text-decoration: none;
     transition: background 0.15s ease, color 0.15s ease;
   }
 
   .topbar .back-link:hover {
-    background: #eae9e5;
-    color: #262626;
+    background: var(--hover-bg, #eae9e5);
+    color: var(--title, #262626);
   }
 
   .topbar .back-link .arrow {

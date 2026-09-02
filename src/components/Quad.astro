@@ -11,10 +11,10 @@ interface Props {
 const { images } = Astro.props;
 ---
 
-<div class="quad" data-reveal>
+<div class="quad">
   {
-    images.map((image) => (
-      <div class="quad-item">
+    images.map((image, i) => (
+      <div class="quad-item" data-reveal style={`transition-delay: ${i * 90}ms;`}>
         <img src={image.src} alt={image.alt} />
       </div>
     ))

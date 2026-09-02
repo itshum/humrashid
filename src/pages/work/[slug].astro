@@ -48,6 +48,23 @@ const paragraphs = (text: string) =>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <script is:inline>
+      // Set before first paint so there's no light-mode flash before
+      // Topbar's script confirms/re-checks the same NYC-time rule.
+      (function () {
+        var parts = new Intl.DateTimeFormat("en-US", {
+          timeZone: "America/New_York",
+          hour: "numeric",
+          hour12: false,
+        }).formatToParts(new Date());
+        var hour = Number(
+          (parts.filter(function (p) {
+            return p.type === "hour";
+          })[0] || {}).value || 12
+        );
+        document.documentElement.dataset.theme = hour >= 19 || hour < 6 ? "dark" : "light";
+      })();
+    </script>
     <title>{data.title} · Humayun Rashid</title>
     <meta name="description" content={data.summary} />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -57,6 +74,39 @@ const paragraphs = (text: string) =>
       href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&display=swap"
     />
     <style is:global>
+      /* Time-based dark mode (see the inline head script + Topbar's
+         script, both keyed off NYC local time) - same tokens as the
+         homepage so the two pages feel like one site. */
+      :root {
+        --bg: #f8f8f6;
+        --text: #262626;
+        --text-secondary: #2b2b2b;
+        --label: #8a8a8a;
+        --hover-bg: #eae9e5;
+        --title: #262626;
+        --year: #9a9994;
+        --icon: #c9c7c0;
+        --icon-hover: #6b6b6b;
+        --border: #e2e0da;
+        --selection-bg: #1f3d2e;
+        --selection-text: #f8f8f6;
+      }
+
+      :root[data-theme="dark"] {
+        --bg: #1b1b19;
+        --text: #eeede8;
+        --text-secondary: #d6d5d0;
+        --label: #93928c;
+        --hover-bg: #2b2b28;
+        --title: #eeede8;
+        --year: #77766f;
+        --icon: #55544e;
+        --icon-hover: #b5b4ad;
+        --border: #333230;
+        --selection-bg: #4fae82;
+        --selection-text: #1b1b19;
+      }
+
       * {
         box-sizing: border-box;
       }
@@ -68,13 +118,19 @@ const paragraphs = (text: string) =>
       html,
       body {
         margin: 0;
-        background: #f8f8f6;
-        color: #262626;
+        background: var(--bg);
+        color: var(--text);
         font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+        transition: background 0.3s ease, color 0.3s ease;
       }
 
       a {
         color: inherit;
+      }
+
+      ::selection {
+        background: var(--selection-bg);
+        color: var(--selection-text);
       }
 
       .col {
@@ -91,7 +147,7 @@ const paragraphs = (text: string) =>
 
       .hero .eyebrow {
         font-size: 0.8rem;
-        color: #8a8a8a;
+        color: var(--label);
         margin: 0 0 1.25rem;
       }
 
@@ -104,7 +160,7 @@ const paragraphs = (text: string) =>
 
       .hero .summary {
         font-size: 1.15rem;
-        color: #5c5c5c;
+        color: var(--text-secondary);
         line-height: 1.6;
         max-width: 42ch;
         margin: 0 auto;
@@ -128,13 +184,13 @@ const paragraphs = (text: string) =>
 
       .meta-item .meta-label {
         font-size: 0.75rem;
-        color: #b0b0b0;
+        color: var(--year);
       }
 
       .meta-item .meta-value {
         font-size: 0.75rem;
         font-weight: 500;
-        color: #8a8a8a;
+        color: var(--label);
       }
 
       /* Full width, padded to the same gutter as the topbar's logo and
@@ -175,17 +231,17 @@ const paragraphs = (text: string) =>
       .toc-line {
         width: 18px;
         height: 1.8px;
-        background: #d8d6d0;
+        background: var(--icon);
         border-radius: 1px;
         transition: background 0.2s ease, width 0.2s ease;
       }
 
       .toc-line:hover {
-        background: #b0b0b0;
+        background: var(--icon-hover);
       }
 
       .toc-line.active {
-        background: #1f3d2e;
+        background: var(--selection-bg);
         width: 25px;
       }
 
@@ -197,7 +253,7 @@ const paragraphs = (text: string) =>
 
       section .label {
         font-size: 0.8rem;
-        color: #b0b0b0;
+        color: var(--year);
         text-align: center;
         margin: 0 0 1.25rem;
       }
@@ -213,7 +269,7 @@ const paragraphs = (text: string) =>
       section p {
         font-size: 1.05rem;
         line-height: 1.75;
-        color: #2b2b2b;
+        color: var(--text-secondary);
         margin: 0 0 1.25rem;
       }
 
@@ -233,7 +289,7 @@ const paragraphs = (text: string) =>
         display: block;
         text-align: center;
         font-size: 0.8rem;
-        color: #b0b0b0;
+        color: var(--year);
         margin-bottom: 0.5rem;
       }
 
@@ -269,7 +325,7 @@ const paragraphs = (text: string) =>
         font-size: 1.3rem;
         font-weight: 500;
         line-height: 1.55;
-        color: #262626;
+        color: var(--title);
         max-width: 68ch;
         margin: 0 auto;
       }
@@ -278,7 +334,7 @@ const paragraphs = (text: string) =>
         display: block;
         font-size: 0.85rem;
         font-weight: 400;
-        color: #8a8a8a;
+        color: var(--label);
         margin-top: 1.5rem;
       }
 
@@ -288,7 +344,11 @@ const paragraphs = (text: string) =>
       #more-work {
         max-width: 1100px;
         margin: 0 auto;
-        padding: 0 2rem 5rem;
+        padding: 1.5rem 2rem 5rem;
+      }
+
+      #more-work .label {
+        margin-bottom: 2.25rem;
       }
 
       .next-work {
@@ -301,54 +361,56 @@ const paragraphs = (text: string) =>
          padding lives on the row itself so the highlight bleeds past
          the text measure on both sides. */
       .next-work-row {
+        position: relative;
         display: block;
-        padding: 1.1rem 1.1rem;
+        padding: 1.21rem 2.5rem 1.21rem 1.1rem;
         border-radius: 6px;
         text-decoration: none;
         transition: background 0.15s ease;
       }
 
       .next-work-row:hover {
-        background: #eae9e5;
-      }
-
-      .next-work-row .row-top {
-        display: flex;
-        align-items: baseline;
-        justify-content: space-between;
-        gap: 0.75rem;
-        margin-bottom: 0.3rem;
+        background: var(--hover-bg);
       }
 
       .next-work-row .title {
+        display: block;
         font-size: 1.05rem;
         font-weight: 500;
-        color: #262626;
+        color: var(--title);
+        margin-bottom: 0.3rem;
       }
 
+      /* Centered against the row's full height (not just the title
+         line) and pinned to the right edge, so it reads as a single
+         affordance for the whole card rather than sitting next to the
+         title specifically. */
       .next-work-row .icon {
+        position: absolute;
+        top: 50%;
+        right: 1.1rem;
+        transform: translateY(-50%);
         font-size: 0.85rem;
-        color: #c9c7c0;
+        color: var(--icon);
         opacity: 0;
-        flex-shrink: 0;
         transition: opacity 0.15s ease, transform 0.15s ease;
       }
 
       .next-work-row:hover .icon {
         opacity: 1;
-        color: #262626;
-        transform: translateX(2px);
+        color: var(--icon-hover);
+        transform: translateY(-50%) translateX(2px);
       }
 
       .next-work-row .desc {
         display: block;
         font-size: 0.92rem;
-        color: #8a8a8a;
+        color: var(--label);
       }
 
       .divider {
         height: 1px;
-        background: #efeee9;
+        background: var(--border);
         max-width: 80px;
         margin: 0 auto;
       }
@@ -590,10 +652,8 @@ const paragraphs = (text: string) =>
           <div class="next-work">
             {nextCaseStudies.map((cs) => (
               <a class="next-work-row" href={`/work/${cs.id}`} data-reveal>
-                <span class="row-top">
-                  <span class="title">{cs.data.title}</span>
-                  <span class="icon">→</span>
-                </span>
+                <span class="icon">→</span>
+                <span class="title">{cs.data.title}</span>
                 <span class="desc">{cs.data.summary}</span>
               </a>
             ))}

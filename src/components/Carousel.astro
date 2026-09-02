@@ -92,16 +92,16 @@ const uid = `carousel-${Math.random().toString(36).slice(2, 9)}`;
     width: 44px;
     height: 44px;
     border-radius: 100px;
-    border: 1px solid #e2e0da;
+    border: 1px solid var(--border, #e2e0da);
     background: transparent;
-    color: #262626;
+    color: var(--text, #262626);
     cursor: pointer;
     transition: background 0.15s ease, border-color 0.15s ease;
   }
 
   .carousel-btn:hover {
-    background: #eae9e5;
-    border-color: #d8d6d0;
+    background: var(--hover-bg, #eae9e5);
+    border-color: var(--icon, #d8d6d0);
   }
 
   .carousel-btn svg {
