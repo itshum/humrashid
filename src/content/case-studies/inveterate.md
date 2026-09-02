@@ -37,7 +37,7 @@ item2Grid:
     alt: "Membership builder benefit customization"
   - src: "/case-studies/inveterate/16-membership-builder-interface-desktop.webp"
     alt: "Membership builder landing page editor"
-dataSectionLabel: "04 — Data & analytics"
+dataSectionLabel: "4. Data & Analytics"
 dataSectionHeading: "One picture of how the program is actually doing"
 dataSectionBody: |
   Merchants needed to make sense of their own customer and sales data: conversion rates, churn, average order value by category, and more. None of it was useful scattered across spreadsheets.
@@ -54,20 +54,20 @@ item3Image: "/case-studies/inveterate/24-Builder-landing-page.png"
 item3ImageAlt: "Landing page builder with live preview"
 solutionHeading: "Systems and customer benefits behind the membership platform"
 solutionItems:
-  - tag: "01 — Brand system"
+  - tag: "1. Brand System"
     heading: "A product with more brand personality than B2B usually allows"
     body: |
       Most B2B platforms play it safe. Inveterate wanted the opposite: a bold, irreverent identity that felt more like a consumer brand than backend software. We adopted their existing brand system and built a design language, logo, color system, and UI kit that carried that same attitude everywhere, from the product itself to offline and out-of-home marketing.
-  - tag: "02 — Unified data & analytics"
+  - tag: "2. Unified Data & Analytics"
     heading: "One dashboard for the whole membership lifecycle"
     body: |
       Merchants needed a single place to actually understand their program: who signed up, how much they've spent, what's selling, where churn is happening. We designed a unified data dashboard that pulls the entire membership lifecycle into a few clear views, so a decision that used to take a spreadsheet takes a glance instead.
-  - tag: "03 — Platform benefits & features"
+  - tag: "3. Platform Benefits & Features"
     heading: "A flexible menu of shopper perks"
     body: |
       The value of a membership program comes down to what's actually inside it. We designed a library of benefits, exclusive drops, tiered discounts, expedited shipping, referrals, store credit, each built as a modular, tiered add-on so merchants could shape a program around their own customers instead of a fixed template.
-  - tag: "05 — Membership program builder"
-    heading: "Launch a program in weeks, not quarters"
+  - tag: "5. Membership Program Builder"
+    heading: "Launch a program in weeks, not months"
     body: |
       At the center of the platform is the builder: the tool merchants actually use to stand up a program. We designed it for real flexibility (tiered pricing, benefit activation, a custom landing page) so a brand could either launch fast through self-service or work hand-in-hand with Inveterate's team for a fully white-glove build.
 quote:

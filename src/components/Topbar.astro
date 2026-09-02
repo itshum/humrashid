@@ -32,21 +32,17 @@ const { showBack = false } = Astro.props;
     z-index: 20;
   }
 
-  /* 5x5, not 4x4 - the easter-egg pixel animations (see the script
-     below) need enough resolution to read as a dog, a bird, a
-     skyline, without the grid outgrowing the 4x4 mark's original
-     footprint (roughly 30px square either way). */
   .logo-mark {
     display: inline-grid;
-    grid-template-columns: repeat(5, 4.3px);
-    grid-template-rows: repeat(5, 4.3px);
-    gap: 2.1px;
+    grid-template-columns: repeat(4, 6px);
+    grid-template-rows: repeat(4, 6px);
+    gap: 2.5px;
     margin-left: auto;
   }
 
   .logo-mark .px {
-    width: 4.3px;
-    height: 4.3px;
+    width: 5.5px;
+    height: 5.5px;
     transition: background 0.3s ease;
   }
 
@@ -144,10 +140,9 @@ const { showBack = false } = Astro.props;
   applyTheme();
   setInterval(applyTheme, 60000);
 
-  // The 5x5 grey grid is the default state - it's just there, fully
-  // formed, the instant the page loads. A fixed subset of cells (a
-  // tiny lowercase "hr" monogram - h's full-height stem/arch/leg in
-  // cols 0-2, r's shorter x-height stem/hook sharing cols 3-4) then
+  // The 4x4 grey grid is the default state - it's just there, fully
+  // formed, the instant the page loads. A fixed subset of cells (the
+  // closest a 4x4 grid gets to an abstract "H" + lowercase "r") then
   // animate to the letterform color, staggered pixel by pixel, the
   // same pattern on every visit. Cells still reroll randomly as the
   // cursor moves around the topbar. Colors swap with the theme so the
@@ -157,18 +152,14 @@ const { showBack = false } = Astro.props;
     dark: { filler: "#3a3a37" },
   };
   const LETTER_CHANCE = 0.45;
-  const CELL_COUNT = 25;
+  const CELL_COUNT = 16;
   const TOTAL_DURATION_MS = 1200;
-  // Row-major, 5 cols x 5 rows. Reads as "hr": h's ascender stem (col
-  // 0, full height) with its arch (row 2) and short right leg (col 2,
-  // rows 3-4); r sits at x-height only (cols 3-4, starting row 2)
-  // with its stem and a small hook flagging right at the top.
+  // Row-major, 4 cols x 4 rows.
   const DEFAULT_PATTERN = [
-    1, 0, 0, 0, 0,
-    1, 0, 0, 0, 0,
-    1, 1, 0, 1, 1,
-    1, 0, 1, 1, 0,
-    1, 0, 1, 1, 0,
+    1, 0, 1, 1,
+    1, 0, 1, 0,
+    1, 1, 1, 0,
+    1, 0, 1, 0,
   ];
 
   function currentPalette() {
@@ -188,7 +179,7 @@ const { showBack = false } = Astro.props;
         cell.style.background = "";
         cell.classList.add("is-letter");
         if (!cell.style.animationDelay) {
-          // i*7 mod 25 is a full permutation of 0-24 (gcd(7,25)=1), so
+          // i*7 mod 16 is a full permutation of 0-15 (gcd(7,16)=1), so
           // consecutive cells - and the fixed DEFAULT_PATTERN subset -
           // land at well-spread points across the 5s cycle instead of
           // clustering near the same phase.
@@ -234,181 +225,12 @@ const { showBack = false } = Astro.props;
       if (now - lastShuffle < SHUFFLE_INTERVAL_MS) return;
       lastShuffle = now;
 
-      if (eggPlaying) {
-        stopEgg();
-        scheduleNextEgg(EGG_REST_MS);
-      }
-
       const shuffleCount = 1 + Math.floor(Math.random() * 2);
       for (let n = 0; n < shuffleCount; n++) {
         const i = Math.floor(Math.random() * cells.length);
         setCellState(i, Math.random() < LETTER_CHANCE);
       }
     });
-
-    // Easter egg: after the tab's been open a while, the mark stops
-    // being a static logo and plays a tiny looping pixel-art vignette
-    // - NYC vignettes, low-fi, Dino-Game-on-offline spirit - then
-    // rests back at the normal shimmer pattern before trying another.
-    // Hovering the mark (above) cancels whatever's playing instantly
-    // and hands back to the interactive shuffle, so the egg never
-    // fights the existing hover behavior.
-    const REDUCED_MOTION = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const EGG_FIRST_DELAY_MS = 45000;
-    const EGG_REST_MS = 20000;
-    const EGG_PLAY_MS = 7000;
-
-    // Frames are lists of lit cell indexes, row-major on the 5x5 grid
-    // (index = row * 5 + col, 0-24). "mono" animations render every
-    // lit cell in the same solid --title color, so a silhouette reads
-    // clearly; "neon" animations (Times Square) get a random pearl
-    // color per lit cell instead, redrawn every frame.
-    const EGG_ANIMATIONS = [
-      {
-        name: "dog-chasing-stick",
-        style: "mono",
-        fps: 4,
-        frames: [
-          [11, 15, 16, 19, 21],
-          [12, 16, 17, 19, 22],
-          [13, 17, 18, 19, 23],
-          [14, 18, 19, 24],
-        ],
-      },
-      {
-        name: "pigeon-flying",
-        style: "mono",
-        fps: 3,
-        frames: [
-          [5, 7, 11],
-          [12, 16, 18],
-          [7, 9, 13],
-          [14, 18],
-        ],
-      },
-      {
-        name: "nyc-skyline",
-        style: "mono",
-        fps: 1.2,
-        frames: [
-          [6, 11, 13, 15, 16, 18, 19, 20, 21, 22, 23, 24, 1],
-          [6, 11, 13, 15, 16, 18, 19, 20, 21, 22, 23, 24, 8],
-          [6, 11, 13, 15, 16, 18, 19, 20, 21, 22, 23, 24, 4],
-          [6, 11, 13, 15, 16, 18, 19, 20, 21, 22, 23, 24],
-        ],
-      },
-      {
-        name: "mta-train",
-        style: "mono",
-        fps: 3.5,
-        frames: [
-          [10, 15, 20, 21, 22, 23, 24],
-          [11, 16, 20, 21, 22, 23, 24],
-          [12, 17, 20, 21, 22, 23, 24],
-          [13, 18, 20, 21, 22, 23, 24],
-          [14, 19, 20, 21, 22, 23, 24],
-        ],
-      },
-      {
-        name: "times-square",
-        style: "neon",
-        fps: 4,
-        procedural: () => {
-          const count = 6 + Math.floor(Math.random() * 5);
-          const lit = new Set();
-          while (lit.size < count) {
-            lit.add(Math.floor(Math.random() * CELL_COUNT));
-          }
-          return [...lit];
-        },
-      },
-    ];
-
-    const NEON_COLORS = [
-      "rgb(150, 130, 210)",
-      "rgb(120, 190, 200)",
-      "rgb(200, 190, 130)",
-      "rgb(210, 140, 180)",
-      "rgb(130, 170, 220)",
-    ];
-
-    let eggPlaying = false;
-    let eggTimeoutId = null;
-    let eggScheduleId = null;
-    let lastEggIndex = -1;
-
-    function renderEggFrame(litIndexes, style) {
-      const lit = new Set(litIndexes);
-      for (let i = 0; i < CELL_COUNT; i++) {
-        const cell = cells[i];
-        cell.classList.remove("is-letter");
-        // Snappy, not the default 0.3s - pixel-art frames need to
-        // flip cleanly rather than cross-fade into each other, or
-        // motion (the dog's legs, the train sliding) turns to mush.
-        cell.style.transitionDuration = "0.08s";
-        if (lit.has(i)) {
-          cell.style.background = style === "neon" ? NEON_COLORS[Math.floor(Math.random() * NEON_COLORS.length)] : "var(--title)";
-        } else {
-          cell.style.background = currentPalette().filler;
-        }
-      }
-    }
-
-    function restoreIdle() {
-      for (let i = 0; i < CELL_COUNT; i++) {
-        cells[i].style.transitionDuration = "";
-        setCellState(i, isLetter[i]);
-      }
-    }
-
-    function stopEgg() {
-      eggPlaying = false;
-      if (eggTimeoutId) clearTimeout(eggTimeoutId);
-      eggTimeoutId = null;
-      restoreIdle();
-    }
-
-    function playEgg(anim) {
-      eggPlaying = true;
-      const frameMs = 1000 / anim.fps;
-      const startedAt = performance.now();
-      let frameIndex = 0;
-
-      function tick() {
-        if (!eggPlaying) return;
-        if (performance.now() - startedAt >= EGG_PLAY_MS) {
-          eggPlaying = false;
-          restoreIdle();
-          scheduleNextEgg(EGG_REST_MS);
-          return;
-        }
-        const litIndexes = anim.procedural ? anim.procedural() : anim.frames[frameIndex % anim.frames.length];
-        frameIndex++;
-        renderEggFrame(litIndexes, anim.style);
-        eggTimeoutId = setTimeout(tick, frameMs);
-      }
-      tick();
-    }
-
-    function scheduleNextEgg(delayMs) {
-      if (eggScheduleId) clearTimeout(eggScheduleId);
-      eggScheduleId = setTimeout(() => {
-        if (document.hidden) {
-          scheduleNextEgg(5000);
-          return;
-        }
-        let idx = Math.floor(Math.random() * EGG_ANIMATIONS.length);
-        if (idx === lastEggIndex && EGG_ANIMATIONS.length > 1) {
-          idx = (idx + 1) % EGG_ANIMATIONS.length;
-        }
-        lastEggIndex = idx;
-        playEgg(EGG_ANIMATIONS[idx]);
-      }, delayMs);
-    }
-
-    if (!REDUCED_MOTION) {
-      scheduleNextEgg(EGG_FIRST_DELAY_MS);
-    }
   }
 
   // Experimental: text selection picks a random color from the same

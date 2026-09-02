@@ -46,7 +46,7 @@ devGrid:
     alt: "Deploy history and status"
 solutionHeading: "Designing critical workflows for merchants and developers"
 solutionItems:
-  - tag: "01 — The dashboard"
+  - tag: "1. The Dashboard"
     heading: "One place to understand the store"
     image: "/case-studies/pack/03-s01-transition-desktop.webp"
     imageAlt: "Dashboard home with usage analytics"
@@ -55,23 +55,23 @@ solutionItems:
       alt: "Dashboard wireframe"
     body: |
       Store owners needed one place to understand how their storefront was actually performing: revenue, traffic, conversion, site speed. Instead of a wall of charts, we organized the dashboard around what a merchant would actually want to check on a given day. A sidebar carries across multiple storefronts, so managing more than one store never feels like starting from scratch.
-  - tag: "02 — Developer experience"
+  - tag: "2. Developer Experience"
     heading: "Opinion-free setup, built for developers"
     body: |
       Modern headless builds mean wrangling a pile of apps just to get started. We stripped the setup down so developers could plug into Git with their own API keys and start building without an opinionated workflow forced on them, with real visibility into deploys and status instead of a black box.
-  - tag: "03 — The site customizer"
+  - tag: "3. The Site Customizer"
     heading: "Merchant friendly editing, not an abstraction of it"
     body: |
       Most WYSIWYG site builders make you choose between flexibility and simplicity, and usually fail at both. We rebuilt the customizer around a sidebar that slides out over a live preview of the actual storefront, so a marketer edits the real page, not an abstraction of it. Every component, banners, product carousels, video modules, rich text, was built to the same global system, so swapping one out never breaks the page around it.
 
       The goal was letting a marketer launch a new landing page or run an A/B test without pulling in a developer. That's the actual measure of whether a customizer works.
-  - tag: "04 — Merchandising"
+  - tag: "4. Merchandising"
     heading: "Bundles in a few clicks, not a spreadsheet"
     image: "/case-studies/pack/06-s01-merchandising-desktop.webp"
     imageAlt: "Merchandising interface"
     body: |
       Headless builds have a reputation for clunky merchandising, mostly because commerce infrastructure and merchandising tools tend to get designed separately and bolted together after the fact. We redesigned this so merchants could build product bundles and collections through intelligent, attribute-based grouping instead of manual, one-by-one setup. It's a small change with a large effect: what used to take a spreadsheet and a developer now takes a few clicks.
-designSystemLabel: "05 — The design system"
+designSystemLabel: "5. The Design System"
 designSystemHeading: "One system, built to grow with the product"
 designSystemBody: |
   As Pack grew more complex, its design system hadn't kept pace. We rebuilt it from the ground up: a custom iconography library, a refreshed color palette, bold lifestyle photography, and a new set of UI components, each considered for its own use case, flexibility, and reuse across the platform. The goal was one cohesive kit that could extend to every touchpoint as the product kept growing.
