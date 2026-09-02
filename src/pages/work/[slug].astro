@@ -208,6 +208,28 @@ const paragraphs = (text: string) =>
         border-radius: 4px;
       }
 
+      /* Some source screenshots end in a ragged edge at the very
+         bottom - a fixed aspect-ratio crop gives it one plain,
+         straight line instead. */
+      .hero-media.crop-tight {
+        aspect-ratio: 2898 / 1569;
+        overflow: hidden;
+        border-radius: 4px;
+      }
+
+      .hero-media.crop-tight img {
+        height: 100%;
+        object-fit: cover;
+        object-position: top;
+      }
+
+      /* This one screenshot's own background is near-white, same as
+         the page - without an edge of its own it has no visible
+         boundary against --bg. */
+      .quad-item img[src*="33-s02-investor-profiles-3"] {
+        border: 1px solid var(--border);
+      }
+
       /* Prose sections - generous whitespace, no boxed dividers */
       /* Margin, not padding, so this collapses evenly with whatever
          sits on either side (another section's margin, or a media
@@ -419,6 +441,8 @@ const paragraphs = (text: string) =>
       .next-work-row .desc {
         display: block;
         font-size: 0.92rem;
+        line-height: 1.5;
+        letter-spacing: 0.25px;
         color: var(--label);
       }
 
@@ -618,6 +642,11 @@ const paragraphs = (text: string) =>
                     />
                   </div>
                 )}
+                {i === 1 && data.item1Image && (
+                  <div class="hero-media" data-reveal>
+                    <img src={data.item1Image} alt={data.item1ImageAlt ?? item.heading} />
+                  </div>
+                )}
                 {i === 1 && data.devGrid && data.devGrid.length > 0 && <Quad images={data.devGrid} />}
                 {i === 1 && data.item1Compare && (
                   <CompareReveal
@@ -655,6 +684,7 @@ const paragraphs = (text: string) =>
                     <img src={data.item3Image} alt={data.item3ImageAlt ?? item.heading} />
                   </div>
                 )}
+                {i === 4 && data.item4Grid && data.item4Grid.length > 0 && <Quad images={data.item4Grid} />}
               </>
             ))}
           </section>
@@ -702,7 +732,12 @@ const paragraphs = (text: string) =>
       )
     }
 
-    {data.postQuoteGrid && data.postQuoteGrid.length > 0 && <Quad images={data.postQuoteGrid} />}
+    {data.postQuoteGrid && data.postQuoteGrid.length === 1 && (
+      <div class="hero-media crop-tight" data-reveal>
+        <img src={data.postQuoteGrid[0].src} alt={data.postQuoteGrid[0].alt} />
+      </div>
+    )}
+    {data.postQuoteGrid && data.postQuoteGrid.length > 1 && <Quad images={data.postQuoteGrid} />}
 
     {data.sideBySide && <SideBySide left={data.sideBySide.left} right={data.sideBySide.right} />}
 

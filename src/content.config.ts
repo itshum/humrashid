@@ -84,6 +84,9 @@ const caseStudies = defineCollection({
     // Full-bleed 2x2 grid rendered after solution item 02 (developer
     // experience).
     devGrid: z.array(z.object({ src: z.string(), alt: z.string() })).length(4).optional(),
+    // Full-bleed image right after solution item 02.
+    item1Image: z.string().optional(),
+    item1ImageAlt: z.string().optional(),
     // Full-width drag-to-reveal slider (wireframe vs. final image)
     // rendered after solution item 02, alongside devGrid.
     item1Compare: z
@@ -117,6 +120,9 @@ const caseStudies = defineCollection({
     // Full-bleed image right after solution item 04.
     item3Image: z.string().optional(),
     item3ImageAlt: z.string().optional(),
+    // Full-width row of images (any count) right after solution item
+    // 05, immediately before the quote.
+    item4Grid: z.array(z.object({ src: z.string(), alt: z.string() })).optional(),
     // Standalone text section (+ optional slideshow) right after
     // item2Grid, still within the solution item 03 slot.
     dataSectionLabel: z.string().optional(),

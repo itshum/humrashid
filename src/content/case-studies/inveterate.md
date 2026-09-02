@@ -57,7 +57,7 @@ solutionItems:
   - tag: "1. Brand System"
     heading: "A product with more brand personality than B2B usually allows"
     body: |
-      Most B2B platforms play it safe. Inveterate wanted the opposite: a bold, irreverent identity that felt more like a consumer brand than backend software. We adopted their existing brand system and built a design language, logo, color system, and UI kit that carried that same attitude everywhere, from the product itself to offline and out-of-home marketing.
+      Most B2B platforms play it safe. Inveterate wanted the opposite: a bold, irreverent identity that felt more like a consumer brand than backend software. We adopted their existing brand system and built a design language, logo, color system, and UI kit that carried that same attitude everywhere within the product for a cohesive and consistent merchant experience.
   - tag: "2. Unified Data & Analytics"
     heading: "One dashboard for the whole membership lifecycle"
     body: |
