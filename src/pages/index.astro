@@ -131,6 +131,13 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
         margin: 0 0 1.25rem;
       }
 
+      @media (max-width: 600px) {
+        .intro p {
+          font-size: 1.05rem;
+          line-height: 1.65;
+        }
+      }
+
       .intro p:last-child {
         margin-bottom: 0;
       }
@@ -249,24 +256,30 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
         background: var(--hover-bg);
       }
 
-      .work-row .title {
-        font-size: 1.05rem;
-        font-weight: 500;
-        color: var(--title);
-        display: block;
-        margin-bottom: 0.3rem;
-      }
-
-      .work-row .row-bottom {
+      /* Title and year/icon share one line, full width - the
+         description sits on its own line below instead of squeezed
+         into the same row, which is what let it wrap awkwardly next
+         to a stranded year on narrow screens. */
+      .work-row .row-top {
         display: flex;
         align-items: baseline;
         justify-content: space-between;
         gap: 1.5rem;
       }
 
+      .work-row .title {
+        font-size: 1.05rem;
+        font-weight: 500;
+        color: var(--title);
+      }
+
       .work-row .desc {
+        display: block;
         font-size: 0.92rem;
+        line-height: 1.5;
+        letter-spacing: 0.15px;
         color: var(--label);
+        margin-top: 0.5rem;
       }
 
       .work-row .meta {
@@ -341,69 +354,69 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
 
         <div class="work-list">
           <a class="work-row" href="https://sublime.security/" target="_blank" rel="noopener">
-            <span class="title">Sublime Security</span>
-            <span class="row-bottom">
-              <span class="desc">Led product design for security teams to stop malicious threats.</span>
+            <span class="row-top">
+              <span class="title">Sublime Security</span>
               <span class="meta">
                 <span class="year">2026</span>
                 <span class="icon external">↗</span>
               </span>
             </span>
+            <span class="desc">Led product design for security teams to stop malicious threats.</span>
           </a>
 
           <div class="work-row">
-            <span class="title">Nessa Labs</span>
-            <span class="row-bottom">
-              <span class="desc">Founder &amp; Design Director of product design studio for early stage startups.</span>
+            <span class="row-top">
+              <span class="title">Nessa Labs</span>
               <span class="meta">
                 <span class="year">2020 – 2025</span>
                 <span class="icon" aria-hidden="true">→</span>
               </span>
             </span>
+            <span class="desc">Founder &amp; Design Director of product design studio for early stage startups.</span>
           </div>
 
           <a class="work-row" href="/work/pack">
-            <span class="title">Pack Platform</span>
-            <span class="row-bottom">
-              <span class="desc">Product redesign for headless commerce platform.</span>
+            <span class="row-top">
+              <span class="title">Pack Platform</span>
               <span class="meta">
                 <span class="year">2023</span>
                 <span class="icon internal">→</span>
               </span>
             </span>
+            <span class="desc">Product redesign for headless commerce platform.</span>
           </a>
 
           <a class="work-row" href="/work/ppvp">
-            <span class="title">PPVP</span>
-            <span class="row-bottom">
-              <span class="desc">Mobile app design for investment platform for early stage funding.</span>
+            <span class="row-top">
+              <span class="title">PPVP</span>
               <span class="meta">
                 <span class="year">2023</span>
                 <span class="icon internal">→</span>
               </span>
             </span>
+            <span class="desc">Mobile app design for investment platform for early stage funding.</span>
           </a>
 
           <a class="work-row" href="/work/inveterate">
-            <span class="title">Inveterate</span>
-            <span class="row-bottom">
-              <span class="desc">Product strategy and design for loyalty and membership platform.</span>
+            <span class="row-top">
+              <span class="title">Inveterate</span>
               <span class="meta">
                 <span class="year">2022</span>
                 <span class="icon internal">→</span>
               </span>
             </span>
+            <span class="desc">Product strategy and design for loyalty and membership platform.</span>
           </a>
 
           <a class="work-row" href="https://www.shoppinggives.com/" target="_blank" rel="noopener">
-            <span class="title">Shopping Gives</span>
-            <span class="row-bottom">
-              <span class="desc">Product strategy and design for donation enablement platform.</span>
+            <span class="row-top">
+              <span class="title">Shopping Gives</span>
               <span class="meta">
                 <span class="year">2021</span>
                 <span class="icon external">↗</span>
               </span>
             </span>
+            <span class="desc">Product strategy and design for donation enablement platform.</span>
           </a>
         </div>
       </section>

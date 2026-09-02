@@ -175,6 +175,19 @@ const paragraphs = (text: string) =>
         flex-wrap: wrap;
       }
 
+      /* Four items in a row don't fit this narrow - a wrapped flex
+         row centers each line on its own, which strands the 4th item
+         alone and off-center under the first three. A real 2-column
+         grid keeps it a deliberate, centered 2x2 block instead. */
+      @media (max-width: 600px) {
+        .meta-row {
+          display: grid;
+          grid-template-columns: repeat(2, auto);
+          justify-content: center;
+          gap: 1.75rem 3rem;
+        }
+      }
+
       .meta-item {
         display: flex;
         flex-direction: column;
@@ -299,9 +312,17 @@ const paragraphs = (text: string) =>
         text-wrap: balance;
       }
 
+      /* Numbered "5. ..." alongside the solution items' own "1-4."
+         tags, so its heading should read at the same size as theirs
+         (.solution-item h3), not the larger generic section h2. */
+      #design-system h2 {
+        font-size: 1.25rem;
+        margin: 0 0 1.25rem;
+      }
+
       section p {
         font-size: 1.05rem;
-        line-height: 1.75;
+        line-height: 1.65;
         color: var(--text-secondary);
         margin: 0 0 1.25rem;
       }
@@ -364,6 +385,13 @@ const paragraphs = (text: string) =>
         max-width: 68ch;
         margin: 0 auto;
         text-wrap: balance;
+      }
+
+      @media (max-width: 600px) {
+        .quote {
+          font-size: 1.15rem;
+          line-height: 1.45;
+        }
       }
 
       .quote .attribution {

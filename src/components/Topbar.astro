@@ -32,12 +32,19 @@ const { showBack = false } = Astro.props;
     z-index: 20;
   }
 
+  /* Just this mark gets its own opaque backing (sized to itself, not
+     a full-width bar) so scrolled content doesn't visibly collide
+     with it while the topbar stays sticky - the rest of the topbar
+     (back link, empty space) stays transparent. */
   .logo-mark {
     display: inline-grid;
     grid-template-columns: repeat(4, 6px);
     grid-template-rows: repeat(4, 6px);
     gap: 2.5px;
     margin-left: auto;
+    background: var(--bg, #f8f8f6);
+    padding: 4px;
+    border-radius: 4px;
   }
 
   .logo-mark .px {
@@ -99,7 +106,8 @@ const { showBack = false } = Astro.props;
     transition: background 0.15s ease, color 0.15s ease;
   }
 
-  .topbar .back-link:hover {
+  .topbar .back-link:hover,
+  .topbar .back-link.is-scrolled {
     background: var(--hover-bg, #eae9e5);
     color: var(--title, #262626);
   }
@@ -139,6 +147,26 @@ const { showBack = false } = Astro.props;
 
   applyTheme();
   setInterval(applyTheme, 60000);
+
+  // Touch devices have no real hover, so the back link's ghost-button
+  // state (transparent until hover) never gets a visible boundary on
+  // mobile - it just reads as plain text. Once scrolled down into the
+  // page, past the hero, force the hover appearance on so it reads
+  // clearly as a tappable button rather than static text.
+  const backLinkEl = document.querySelector(".back-link");
+  if (backLinkEl) {
+    const mobileQuery = window.matchMedia("(max-width: 600px)");
+    const SCROLL_ACTIVATE_PX = 150;
+
+    function updateBackLinkState() {
+      const shouldActivate = mobileQuery.matches && window.scrollY > SCROLL_ACTIVATE_PX;
+      backLinkEl.classList.toggle("is-scrolled", shouldActivate);
+    }
+
+    updateBackLinkState();
+    window.addEventListener("scroll", updateBackLinkState, { passive: true });
+    mobileQuery.addEventListener("change", updateBackLinkState);
+  }
 
   // The 4x4 grey grid is the default state - it's just there, fully
   // formed, the instant the page loads. A fixed subset of cells (the

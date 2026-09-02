@@ -83,6 +83,18 @@
     gap: 0.75rem;
   }
 
+  /* Once name+clock wrap onto their own row (same breakpoint as the
+     .links row wrapping below it), spread them to the row's full
+     width instead of leaving the clock stranded right next to the
+     name - its right edge then lines up with the links row's own
+     edge below it. */
+  @media (max-width: 480px) {
+    .site-footer .who {
+      width: 100%;
+      justify-content: space-between;
+    }
+  }
+
   .site-footer .who .name {
     color: var(--title, #262626);
     font-weight: 500;
