@@ -24,10 +24,10 @@
      fall back to the homepage's light-mode values for pages that
      don't define the --label/--title/--border theme variables. */
   .site-footer {
+    position: relative;
     max-width: 718px;
     margin: 0 auto;
     padding: 1.75rem 1.5rem 3rem;
-    border-top: 1px solid var(--border, #e2e0da);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -35,6 +35,46 @@
     color: var(--label, #8a8a8a);
     flex-wrap: wrap;
     gap: 1rem;
+  }
+
+  /* Pearlescent shimmer line, in place of a plain border-top - a soft
+     iridescent gradient (borrowed from Nessa's own footer) drifting
+     slowly across the top edge instead of a static border color. */
+  .site-footer::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 1.5rem;
+    right: 1.5rem;
+    height: 1px;
+    background: repeating-linear-gradient(
+      100deg,
+      var(--border, #e2e0da) 0%,
+      rgba(150, 130, 210, 0.55) 5%,
+      rgba(120, 190, 200, 0.55) 10%,
+      rgba(200, 190, 130, 0.5) 15%,
+      rgba(210, 140, 180, 0.55) 20%,
+      rgba(130, 170, 220, 0.55) 25%,
+      var(--border, #e2e0da) 32%
+    );
+    background-size: 260% 100%;
+    animation: site-footer-shimmer 9s linear infinite;
+    opacity: 0.8;
+  }
+
+  @keyframes site-footer-shimmer {
+    0% {
+      background-position: 0% 0%;
+    }
+    100% {
+      background-position: 100% 0%;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .site-footer::before {
+      animation: none;
+    }
   }
 
   .site-footer .who {

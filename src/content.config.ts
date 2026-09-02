@@ -84,6 +84,52 @@ const caseStudies = defineCollection({
     // Full-bleed 2x2 grid rendered after solution item 02 (developer
     // experience).
     devGrid: z.array(z.object({ src: z.string(), alt: z.string() })).length(4).optional(),
+    // Full-width drag-to-reveal slider (wireframe vs. final image)
+    // rendered after solution item 02, alongside devGrid.
+    item1Compare: z
+      .object({
+        image: z.string(),
+        imageAlt: z.string().optional(),
+        wireframe: z.object({
+          src: z.string(),
+          alt: z.string().optional(),
+        }),
+      })
+      .optional(),
+    // Wide (not full-bleed) image right after solution item 03,
+    // rendered via the WideImage component.
+    item2WideImage: z
+      .object({
+        src: z.string(),
+        alt: z.string().optional(),
+      })
+      .optional(),
+    // Full-width row of images (any count) right after item2WideImage,
+    // still within the solution item 03 slot.
+    item2Grid: z
+      .array(
+        z.object({
+          src: z.string(),
+          alt: z.string(),
+        })
+      )
+      .optional(),
+    // Full-bleed image right after solution item 04.
+    item3Image: z.string().optional(),
+    item3ImageAlt: z.string().optional(),
+    // Standalone text section (+ optional slideshow) right after
+    // item2Grid, still within the solution item 03 slot.
+    dataSectionLabel: z.string().optional(),
+    dataSectionHeading: z.string().optional(),
+    dataSectionBody: z.string().optional(),
+    dataGallery: z
+      .array(
+        z.object({
+          src: z.string(),
+          alt: z.string(),
+        })
+      )
+      .optional(),
     designSystemLabel: z.string().optional(),
     designSystemHeading: z.string().optional(),
     designSystemBody: z.string().optional(),
@@ -110,6 +156,15 @@ const caseStudies = defineCollection({
         text: z.string(),
         attribution: z.string(),
       })
+      .optional(),
+    // Full-width row of images (any count) right after the quote.
+    postQuoteGrid: z
+      .array(
+        z.object({
+          src: z.string(),
+          alt: z.string(),
+        })
+      )
       .optional(),
     outcomeHeading: z.string().optional(),
     outcome: z.string(),

@@ -197,6 +197,7 @@ const paragraphs = (text: string) =>
          back link, so the image edges line up with them. */
       .hero-media {
         margin-top: 4rem;
+        margin-bottom: 4rem;
         padding: 0 2rem;
       }
 
@@ -207,8 +208,12 @@ const paragraphs = (text: string) =>
       }
 
       /* Prose sections - generous whitespace, no boxed dividers */
+      /* Margin, not padding, so this collapses evenly with whatever
+         sits on either side (another section's margin, or a media
+         component's own margin) - padding never collapses, which is
+         what caused uneven/doubled gaps around section text before. */
       section {
-        padding: 4.5rem 0;
+        margin: 4.5rem 0;
         scroll-margin-top: 100px;
       }
 
@@ -295,7 +300,7 @@ const paragraphs = (text: string) =>
 
       .solution-item h3 {
         font-size: 1.25rem;
-        font-weight: 600;
+        font-weight: 500;
         text-align: center;
         margin: 0 0 1.25rem;
       }
@@ -315,7 +320,8 @@ const paragraphs = (text: string) =>
          centered wrapper instead of inheriting .col's width. */
       .quote-section {
         max-width: 700px;
-        margin: 0 auto;
+        margin-left: auto;
+        margin-right: auto;
         padding-left: 1.5rem;
         padding-right: 1.5rem;
       }
@@ -408,11 +414,29 @@ const paragraphs = (text: string) =>
         color: var(--label);
       }
 
+      /* The line is drawn with a real border (not box-shadow), which
+         deliberately makes this a non-empty box: that blocks margin
+         collapse, so the gap above and below the line is always
+         exactly what's set here - never dependent on how deeply the
+         divider happens to be nested relative to the section that
+         follows it. The section that follows has its own top margin
+         zeroed out (below) so this is the single source of spacing
+         on both sides of the line, everywhere it's used. */
       .divider {
-        height: 1px;
-        background: var(--border);
+        height: 0;
         max-width: 80px;
-        margin: 0 auto;
+        margin: 4rem auto 2.5rem;
+        border-top: 1px solid var(--border);
+      }
+
+      /* Divider owns the spacing to whatever follows it, in both the
+         "divider + section share a .col" layout (Approach, data
+         section, design system) and the "divider sits alone in its
+         own .col right before the section" layout (Solution, quote,
+         more work) - see the two markup patterns in the body below. */
+      .divider + section,
+      .col:has(> .divider) + section {
+        margin-top: 0;
       }
 
       /* Subtle fade-up on scroll, applied to every major copy/media
@@ -493,6 +517,8 @@ const paragraphs = (text: string) =>
     </nav>
 
     <div class="col" data-reveal>
+      <div class="divider"></div>
+
       <section id="challenge">
         <p class="label">Challenge</p>
         {data.challengeHeading && <h2>{data.challengeHeading}</h2>}
@@ -585,8 +611,41 @@ const paragraphs = (text: string) =>
                   </div>
                 )}
                 {i === 1 && data.devGrid && data.devGrid.length > 0 && <Quad images={data.devGrid} />}
+                {i === 1 && data.item1Compare && (
+                  <CompareReveal
+                    leftSrc={data.item1Compare.wireframe.src}
+                    leftAlt={data.item1Compare.wireframe.alt ?? `${item.heading} wireframe`}
+                    rightSrc={data.item1Compare.image}
+                    rightAlt={data.item1Compare.imageAlt ?? item.heading}
+                  />
+                )}
                 {i === 2 && data.approachGallery && data.approachGallery.length > 0 && (
                   <Carousel slides={data.approachGallery} />
+                )}
+                {i === 2 && data.item2WideImage && (
+                  <WideImage
+                    src={data.item2WideImage.src}
+                    alt={data.item2WideImage.alt ?? item.heading}
+                  />
+                )}
+                {i === 2 && data.item2Grid && data.item2Grid.length > 0 && <Quad images={data.item2Grid} />}
+                {i === 2 && data.dataSectionHeading && (
+                  <div class="solution-item" data-reveal>
+                    <div class="col" id="data-section">
+                      {data.dataSectionLabel && <span class="tag">{data.dataSectionLabel}</span>}
+                      <h3>{data.dataSectionHeading}</h3>
+                      {data.dataSectionBody &&
+                        paragraphs(data.dataSectionBody).map((p) => <p>{p}</p>)}
+                    </div>
+                  </div>
+                )}
+                {i === 2 && data.dataGallery && data.dataGallery.length > 0 && (
+                  <Carousel slides={data.dataGallery} />
+                )}
+                {i === 3 && data.item3Image && (
+                  <div class="hero-media" data-reveal>
+                    <img src={data.item3Image} alt={data.item3ImageAlt ?? item.heading} />
+                  </div>
                 )}
               </>
             ))}
@@ -634,6 +693,8 @@ const paragraphs = (text: string) =>
         </>
       )
     }
+
+    {data.postQuoteGrid && data.postQuoteGrid.length > 0 && <Quad images={data.postQuoteGrid} />}
 
     {data.sideBySide && <SideBySide left={data.sideBySide.left} right={data.sideBySide.right} />}
 
