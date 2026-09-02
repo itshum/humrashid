@@ -1,6 +1,6 @@
 ---
 title: "Inveterate"
-summary: "Product strategy and design for loyalty and membership platform."
+summary: "Taking a loyalty and membership platform from zero to one for eCommerce brands."
 company: "Inveterate"
 role: "Design Director"
 timeframe: "2022"
@@ -17,12 +17,17 @@ problem: |
 approachHeading: "One system, built to flex two ways"
 approach: |
   We started by mapping out every place the platform needed to bend: a merchant setting up their first program in an afternoon, and an enterprise brand customizing every touchpoint of theirs. That split shaped almost every decision that followed, from the design system down to how a single benefit gets configured.
+approachGrid:
+  - src: "/case-studies/inveterate/02-s01-design-system-components-desktop.webp"
+    alt: "Store details onboarding form"
+  - src: "/case-studies/inveterate/03-s01-ui-kit-library-desktop.webp"
+    alt: "Welcome and onboarding checklist"
 solutionHeading: "Four systems behind the membership platform"
 solutionItems:
   - tag: "01 — Brand system"
     heading: "A brand with more personality than B2B usually allows"
     body: |
-      Most B2B platforms play it safe. Inveterate wanted the opposite: a bold, irreverent identity that felt more like a consumer brand than backend software. We built a design language, logo, color system, and UI kit that carried that same attitude everywhere, from the product itself to offline and out-of-home marketing.
+      Most B2B platforms play it safe. Inveterate wanted the opposite: a bold, irreverent identity that felt more like a consumer brand than backend software. We adopted their existing brand system and built a design language, logo, color system, and UI kit that carried that same attitude everywhere, from the product itself to offline and out-of-home marketing.
   - tag: "02 — Unified data & analytics"
     heading: "One dashboard for the whole membership lifecycle"
     body: |
