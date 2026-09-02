@@ -236,7 +236,7 @@ const paragraphs = (text: string) =>
       .toc-line {
         width: 18px;
         height: 1.8px;
-        background: var(--icon);
+        background: var(--label);
         border-radius: 1px;
         transition: background 0.2s ease, width 0.2s ease;
       }
@@ -245,8 +245,12 @@ const paragraphs = (text: string) =>
         background: var(--icon-hover);
       }
 
+      /* Deliberately neutral, not tied to --selection-bg - the page
+         already has color (logo cells, footer shimmer, text
+         selection), so this stays off-white/dark via --title, which
+         already flips per theme, rather than adding another accent. */
       .toc-line.active {
-        background: var(--selection-bg);
+        background: var(--title);
         width: 25px;
       }
 
