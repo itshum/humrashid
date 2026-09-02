@@ -46,6 +46,43 @@ const { showBack = false } = Astro.props;
     transition: background 0.3s ease;
   }
 
+  /* Experimental: letter cells carry the same pearlescent palette as
+     the homepage footer's shimmer line (same five hues, same order -
+     see .site-footer::before in Footer.astro), just opaque instead of
+     faded into --border. Sized way past the cell so a slow position
+     animation reads as constant, shifting color inside each tiny
+     square rather than a static fill. Each cell's animation-delay is
+     set from JS so they drift independently instead of in lockstep. */
+  .logo-mark .px.is-letter {
+    background-image: repeating-linear-gradient(
+      120deg,
+      rgb(150, 130, 210) 0%,
+      rgb(120, 190, 200) 12%,
+      rgb(200, 190, 130) 24%,
+      rgb(210, 140, 180) 36%,
+      rgb(130, 170, 220) 48%,
+      rgb(150, 130, 210) 60%
+    );
+    background-size: 500% 500%;
+    animation: logo-cell-shimmer 5s linear infinite;
+  }
+
+  @keyframes logo-cell-shimmer {
+    0% {
+      background-position: 0% 50%;
+    }
+    100% {
+      background-position: 100% 50%;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .logo-mark .px.is-letter {
+      animation: none;
+      background-position: 30% 50% !important;
+    }
+  }
+
   /* Ghost button - transparent until hover, then fills in with the same
      highlight used by the homepage's work-row hover state. Theme
      variable-driven so it matches whichever page it's on (case study
@@ -111,8 +148,8 @@ const { showBack = false } = Astro.props;
   // cursor moves around the topbar. Colors swap with the theme so the
   // letterform stays legible against either background.
   const PALETTE = {
-    light: { letter: "#1f3d2e", filler: "#dcdcd8" },
-    dark: { letter: "#3a6b4d", filler: "#3a3a37" },
+    light: { filler: "#dcdcd8" },
+    dark: { filler: "#3a3a37" },
   };
   const LETTER_CHANCE = 0.45;
   const CELL_COUNT = 16;
@@ -134,6 +171,27 @@ const { showBack = false } = Astro.props;
   if (logoEl) {
     const cells = [];
     const isLetter = [];
+
+    function setCellState(i, letter) {
+      isLetter[i] = letter;
+      const cell = cells[i];
+      if (letter) {
+        cell.style.background = "";
+        cell.classList.add("is-letter");
+        if (!cell.style.animationDelay) {
+          // i*7 mod 16 is a full permutation of 0-15 (gcd(7,16)=1), so
+          // consecutive cells - and the fixed DEFAULT_PATTERN subset -
+          // land at well-spread points across the 5s cycle instead of
+          // clustering near the same phase.
+          const delay = (((i * 7) % CELL_COUNT) / CELL_COUNT) * 5;
+          cell.style.animationDelay = `-${delay.toFixed(3)}s`;
+        }
+      } else {
+        cell.classList.remove("is-letter");
+        cell.style.background = currentPalette().filler;
+      }
+    }
+
     for (let i = 0; i < CELL_COUNT; i++) {
       const px = document.createElement("span");
       px.className = "px";
@@ -147,15 +205,14 @@ const { showBack = false } = Astro.props;
     const perCellDelay = letterIndexes.length ? TOTAL_DURATION_MS / letterIndexes.length : 0;
     letterIndexes.forEach((i, order) => {
       setTimeout(() => {
-        cells[i].style.background = currentPalette().letter;
-        isLetter[i] = true;
+        setCellState(i, true);
       }, order * perCellDelay);
     });
 
     window.addEventListener("themechange", () => {
       const palette = currentPalette();
       cells.forEach((cell, i) => {
-        cell.style.background = isLetter[i] ? palette.letter : palette.filler;
+        if (!isLetter[i]) cell.style.background = palette.filler;
       });
     });
 
@@ -168,14 +225,46 @@ const { showBack = false } = Astro.props;
       if (now - lastShuffle < SHUFFLE_INTERVAL_MS) return;
       lastShuffle = now;
 
-      const palette = currentPalette();
       const shuffleCount = 1 + Math.floor(Math.random() * 2);
       for (let n = 0; n < shuffleCount; n++) {
         const i = Math.floor(Math.random() * cells.length);
-        const cellIsLetter = Math.random() < LETTER_CHANCE;
-        isLetter[i] = cellIsLetter;
-        cells[i].style.background = cellIsLetter ? palette.letter : palette.filler;
+        setCellState(i, Math.random() < LETTER_CHANCE);
       }
     });
   }
+
+  // Experimental: text selection picks a random color from the same
+  // pearlescent palette as the logo cells and the footer shimmer line
+  // (see .logo-mark .px.is-letter and .site-footer::before), so every
+  // new selection lands on a different hue instead of the fixed
+  // theme green. Driven by selectionchange rather than mouseup so it
+  // also covers keyboard/double-click selection.
+  const SELECTION_PALETTE = [
+    { bg: "rgb(150, 130, 210)", text: "#1b1b19" },
+    { bg: "rgb(120, 190, 200)", text: "#1b1b19" },
+    { bg: "rgb(200, 190, 130)", text: "#1b1b19" },
+    { bg: "rgb(210, 140, 180)", text: "#1b1b19" },
+    { bg: "rgb(130, 170, 220)", text: "#1b1b19" },
+  ];
+  let lastSelectionSwatch = -1;
+  let wasCollapsed = true;
+
+  document.addEventListener("selectionchange", () => {
+    const selection = document.getSelection();
+    const collapsed = !selection || selection.isCollapsed;
+    if (collapsed || !wasCollapsed) {
+      wasCollapsed = collapsed;
+      return;
+    }
+    wasCollapsed = collapsed;
+
+    let index = Math.floor(Math.random() * SELECTION_PALETTE.length);
+    if (index === lastSelectionSwatch) {
+      index = (index + 1) % SELECTION_PALETTE.length;
+    }
+    lastSelectionSwatch = index;
+    const swatch = SELECTION_PALETTE[index];
+    document.documentElement.style.setProperty("--selection-bg", swatch.bg);
+    document.documentElement.style.setProperty("--selection-text", swatch.text);
+  });
 </script>
