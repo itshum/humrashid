@@ -25,6 +25,11 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="canonical" href="https://www.humrashid.com/" />
     <script is:inline>
       // Set before first paint so there's no light-mode flash before
       // Topbar's script confirms/re-checks the same NYC-time rule.
@@ -43,7 +48,40 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
       })();
     </script>
     <title>Humayun Rashid · Product Designer</title>
-    <meta name="description" content="Humayun Rashid — product designer and founder based in New York City." />
+    <meta
+      name="description"
+      content="Humayun Rashid is a product designer and founder based in New York City with a decade of experience building products that solve real problems."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Humayun Rashid" />
+    <meta property="og:title" content="Humayun Rashid · Product Designer" />
+    <meta
+      property="og:description"
+      content="Humayun Rashid is a product designer and founder based in New York City with a decade of experience building products that solve real problems."
+    />
+    <meta property="og:url" content="https://www.humrashid.com/" />
+    <meta property="og:image" content="https://www.humrashid.com/og-image.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Humayun Rashid · Product Designer" />
+    <meta
+      name="twitter:description"
+      content="Humayun Rashid is a product designer and founder based in New York City with a decade of experience building products that solve real problems."
+    />
+    <meta name="twitter:image" content="https://www.humrashid.com/og-image.jpg" />
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Person",
+      name: "Humayun Rashid",
+      jobTitle: "Product Designer",
+      url: "https://www.humrashid.com/",
+      image: "https://www.humrashid.com/og-image.jpg",
+      address: {
+        "@type": "PostalAddress",
+        addressLocality: "New York",
+        addressRegion: "NY",
+        addressCountry: "US",
+      },
+    })} />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

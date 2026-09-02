@@ -32,19 +32,25 @@ const { showBack = false } = Astro.props;
     z-index: 20;
   }
 
-  /* Just this mark gets its own opaque backing (sized to itself, not
-     a full-width bar) so scrolled content doesn't visibly collide
-     with it while the topbar stays sticky - the rest of the topbar
-     (back link, empty space) stays transparent. */
   .logo-mark {
     display: inline-grid;
     grid-template-columns: repeat(4, 6px);
     grid-template-rows: repeat(4, 6px);
     gap: 2.5px;
     margin-left: auto;
-    background: var(--bg, #f8f8f6);
-    padding: 4px;
-    border-radius: 4px;
+  }
+
+  /* Mobile only - this mark gets its own opaque backing (sized to
+     itself, not a full-width bar) so scrolled content doesn't
+     visibly collide with it while the topbar stays sticky. Desktop
+     and tablet have enough surrounding whitespace that this never
+     comes up, so it'd just look like a stray card there. */
+  @media (max-width: 600px) {
+    .logo-mark {
+      background: var(--bg, #f8f8f6);
+      padding: 4px;
+      border-radius: 4px;
+    }
   }
 
   .logo-mark .px {

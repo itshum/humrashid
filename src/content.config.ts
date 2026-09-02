@@ -6,6 +6,11 @@ const caseStudies = defineCollection({
   schema: z.object({
     title: z.string(),
     summary: z.string(),
+    // Shorter one-liner for cross-links (the homepage list, the "More
+    // work" row at the bottom of other case studies) - falls back to
+    // `summary` when unset, since the full summary works fine there
+    // for case studies that don't need a punchier version.
+    shortSummary: z.string().optional(),
     company: z.string(),
     role: z.string(),
     timeframe: z.string(),

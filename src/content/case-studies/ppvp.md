@@ -1,6 +1,7 @@
 ---
 title: "PPVP"
 summary: "Designing an exclusive investment app for accredited investors."
+shortSummary: "Mobile app design for investment platform for early stage funding."
 company: "PPVP"
 role: "Design Director"
 timeframe: "2023"

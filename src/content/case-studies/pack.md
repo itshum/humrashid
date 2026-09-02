@@ -1,6 +1,7 @@
 ---
 title: "Pack"
 summary: "Turning an agency's custom commerce builds into a scalable, merchant friendly SaaS platform."
+shortSummary: "Product redesign for headless commerce platform."
 company: "Pack"
 role: "Design Director"
 timeframe: "2023"

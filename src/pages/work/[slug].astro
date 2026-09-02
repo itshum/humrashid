@@ -48,6 +48,11 @@ const paragraphs = (text: string) =>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="canonical" href={`https://www.humrashid.com/work/${entry.id}`} />
     <script is:inline>
       // Set before first paint so there's no light-mode flash before
       // Topbar's script confirms/re-checks the same NYC-time rule.
@@ -67,6 +72,22 @@ const paragraphs = (text: string) =>
     </script>
     <title>{data.title} · Humayun Rashid</title>
     <meta name="description" content={data.summary} />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="Humayun Rashid" />
+    <meta property="og:title" content={`${data.title} · Humayun Rashid`} />
+    <meta property="og:description" content={data.summary} />
+    <meta property="og:url" content={`https://www.humrashid.com/work/${entry.id}`} />
+    <meta
+      property="og:image"
+      content={`https://www.humrashid.com${data.coverImage ?? "/og-image.jpg"}`}
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={`${data.title} · Humayun Rashid`} />
+    <meta name="twitter:description" content={data.summary} />
+    <meta
+      name="twitter:image"
+      content={`https://www.humrashid.com${data.coverImage ?? "/og-image.jpg"}`}
+    />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -207,6 +228,15 @@ const paragraphs = (text: string) =>
         color: var(--label);
       }
 
+      /* Both read a touch too small on an actual tablet/phone screen
+         at their desktop size - bump slightly for legibility. */
+      @media (max-width: 1000px) {
+        .meta-item .meta-label,
+        .meta-item .meta-value {
+          font-size: 0.85rem;
+        }
+      }
+
       /* Full width, padded to the same gutter as the topbar's logo and
          back link, so the image edges line up with them. */
       .hero-media {
@@ -303,6 +333,12 @@ const paragraphs = (text: string) =>
         margin: 0 0 1.25rem;
       }
 
+      @media (max-width: 1000px) {
+        section .label {
+          font-size: 0.85rem;
+        }
+      }
+
       section h2 {
         font-size: 1.6rem;
         font-weight: 500;
@@ -310,6 +346,12 @@ const paragraphs = (text: string) =>
         letter-spacing: -0.01em;
         margin: 0 0 2.5rem;
         text-wrap: balance;
+      }
+
+      @media (max-width: 600px) {
+        section h2 {
+          font-size: 1.4rem;
+        }
       }
 
       /* Numbered "5. ..." alongside the solution items' own "1-4."
@@ -788,7 +830,7 @@ const paragraphs = (text: string) =>
               <a class="next-work-row" href={`/work/${cs.id}`} data-reveal>
                 <span class="icon">→</span>
                 <span class="title">{cs.data.title}</span>
-                <span class="desc">{cs.data.summary}</span>
+                <span class="desc">{cs.data.shortSummary ?? cs.data.summary}</span>
               </a>
             ))}
           </div>
