@@ -3,18 +3,21 @@ import Topbar from "../components/Topbar.astro";
 import Footer from "../components/Footer.astro";
 
 const PHOTO_GRID = 10;
-const PHOTO_WIDTH = 263;
-const PHOTO_HEIGHT = 306;
-const tileWidth = PHOTO_WIDTH / PHOTO_GRID;
-const tileHeight = PHOTO_HEIGHT / PHOTO_GRID;
 
-// Stagger delay is randomized per hover at runtime (see the script
-// below), not baked in here - only the slice position is fixed.
+// Percentage-based, not fixed pixels - the container's actual
+// rendered size is set dynamically at runtime (see positionPhoto() in
+// the script below, which sizes it to match the name's underline
+// width), so the slice math can't assume a fixed 263x306 photo box.
+// Standard CSS background-position-percentage formula: at a tile of
+// size T within a background-size of 1000% (= 10T, the full image),
+// offsetting by `col` tiles needs position% = col * 100 / (GRID - 1).
 const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
   const col = i % PHOTO_GRID;
   const row = Math.floor(i / PHOTO_GRID);
+  const posX = ((col * 100) / (PHOTO_GRID - 1)).toFixed(3);
+  const posY = ((row * 100) / (PHOTO_GRID - 1)).toFixed(3);
   return {
-    style: `background-position: ${(-col * tileWidth).toFixed(2)}px ${(-row * tileHeight).toFixed(2)}px;`,
+    style: `background-position: ${posX}% ${posY}%;`,
   };
 });
 ---
@@ -86,7 +89,7 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap"
     />
     <style is:global>
       /* Time-based dark mode (see the inline head script + Topbar's
@@ -173,7 +176,38 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
          override of this rule. */
       .intro {
         position: relative;
-        margin-top: calc(3.41rem + 75px);
+        margin-top: calc(5rem + 90px);
+      }
+
+      /* Experimental H1 opener - testing a bolder, explicit name/role
+         statement above the existing intro paragraph. Reuses the
+         case-study template's h1 treatment (2.5rem/500,
+         letter-spacing -0.015em, text-wrap: balance) for a consistent
+         "this is a heading" feel across the site. */
+      .intro-h1 {
+        font-size: 2.375rem;
+        font-weight: 500;
+        letter-spacing: -0.015em;
+        line-height: 1.3;
+        color: var(--title);
+        margin: 0 0 2.25rem;
+        text-wrap: balance;
+      }
+
+      /* Instrument Serif's italic ampersand specifically - a small,
+         deliberate flourish against the otherwise all-Sans page. */
+      .intro-h1 .amp {
+        font-family: "Instrument Serif", Georgia, serif;
+        font-style: italic;
+        font-weight: 400;
+        font-size: 1.15em;
+        margin: 0 0.14em 0 0.02em;
+      }
+
+      @media (max-width: 600px) {
+        .intro-h1 {
+          font-size: 1.9rem;
+        }
       }
 
       .intro p {
@@ -267,6 +301,10 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
          .intro) sidesteps that pattern entirely. */
       .name-photo {
         position: absolute;
+        /* Fallback only - positionPhoto() in the script below always
+           sets explicit width/height matching the underline's width
+           (preserving this 263:306 aspect ratio) before the photo can
+           ever become visible. */
         width: 263px;
         height: 306px;
         border-radius: 2px;
@@ -303,7 +341,7 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
       .pixel-tile {
         background-image: url("/headshot.jpg");
         background-repeat: no-repeat;
-        background-size: 263px 306px;
+        background-size: 1000% 1000%;
         opacity: 0;
         transition: opacity 0.4s ease;
       }
@@ -444,7 +482,7 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
       [data-load-reveal] {
         opacity: 0;
         transform: translateY(8px);
-        transition: opacity 0.5s ease, transform 0.5s ease;
+        transition: opacity 0.55s ease, transform 0.55s ease;
       }
 
       /* transform: none (not translateY(0)) at rest - translateY(0)
@@ -475,14 +513,14 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
 
     <div class="col">
       <div class="intro">
+        <h1 class="intro-h1" data-load-reveal><span class="name-trigger">Humayun Rashid</span> is a designer <span class="amp">&amp;</span> founder in New York City</h1>
         <p data-load-reveal>
-          I'm <span class="name-trigger">Humayun Rashid</span>, a product designer and founder based in New
-          York City with a decade of experience building products.
+          I've spent over a decade designing and building products across B2B SaaS and eCommerce.
           Most recently, I was on the early design team at Sublime Security, the fastest-growing
           cybersecurity email startup in the US. I led design on crucial launches like
-          quarantine digests and dynamic phishing simulations. Before that, I founded and served
-          as Design Director at Nessa Labs, a design studio where I advised and designed digital
-          products for early-stage SaaS startups.
+          quarantine digests and dynamic phishing simulations. Before that, I founded and led
+          Nessa Labs, a studio where I advised founders and designed digital products for
+          early-stage startups.
         </p>
         <p data-load-reveal>
           I care about what never makes it onto the screen: the onboarding flow nobody notices,
@@ -525,7 +563,7 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
                 <span class="icon" aria-hidden="true">→</span>
               </span>
             </span>
-            <span class="desc">Founder &amp; Design Director of product design studio for early stage startups.</span>
+            <span class="desc">Founder &amp; Design Director of product design studio for early-stage startups.</span>
           </div>
 
           <a class="work-row" data-load-reveal href="/work/pack">
@@ -547,7 +585,7 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
                 <span class="icon internal">→</span>
               </span>
             </span>
-            <span class="desc">Mobile app design for investment platform for early stage funding.</span>
+            <span class="desc">Mobile app design for investment platform for early-stage funding.</span>
           </a>
 
           <a class="work-row" data-load-reveal href="/work/inveterate">
@@ -582,22 +620,29 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
       // On-load entrance for the intro paragraphs and work list -
       // always fires on every load/refresh (not gated behind scroll
       // the way the case study template's reveal is), staggered in
-      // DOM order so the 3 paragraphs settle in first, then the work
-      // rows one by one below them. Two rAFs so the initial opacity:0
-      // state actually paints before the transition starts, or the
-      // first item would just snap straight to visible.
+      // DOM order: headline first, then a deliberately longer pause
+      // (HEADLINE_GAP_MS, bigger than the normal per-item step) so it
+      // has room to breathe before the paragraphs start, then the
+      // paragraphs and work rows step in one by one after that. Two
+      // rAFs so the initial opacity:0 state actually paints before
+      // the transition starts, or the first item would just snap
+      // straight to visible.
       const loadRevealEls = document.querySelectorAll<HTMLElement>("[data-load-reveal]");
-      const LOAD_REVEAL_STEP_MS = 85;
+      const LOAD_REVEAL_STEP_MS = 110;
+      const LOAD_REVEAL_HEADLINE_GAP_MS = 340;
+
+      const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
       if (loadRevealEls.length > 0) {
-        const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
         if (prefersReducedMotion) {
           loadRevealEls.forEach((el) => el.classList.add("is-in"));
         } else {
           requestAnimationFrame(() => {
             requestAnimationFrame(() => {
               loadRevealEls.forEach((el, i) => {
-                setTimeout(() => el.classList.add("is-in"), i * LOAD_REVEAL_STEP_MS);
+                const delay =
+                  i === 0 ? 0 : LOAD_REVEAL_HEADLINE_GAP_MS + (i - 1) * LOAD_REVEAL_STEP_MS;
+                setTimeout(() => el.classList.add("is-in"), delay);
               });
             });
           });
@@ -624,11 +669,19 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
       // than a descendant of .name-trigger, so its position has to be
       // computed from .name-trigger's own rect instead of anchored
       // via CSS top/left.
+      // Original design's aspect ratio (263:306), preserved when the
+      // photo is resized to match the underline's width instead of
+      // using a fixed size.
+      const NAME_PHOTO_ASPECT = 306 / 263;
+
       function positionPhoto() {
         if (!nameTrigger || !namePhoto || !introEl) return;
         const triggerRect = nameTrigger.getBoundingClientRect();
         const introRect = introEl.getBoundingClientRect();
-        namePhoto.style.top = `${triggerRect.bottom - introRect.top + 14}px`;
+        const width = triggerRect.width;
+        namePhoto.style.width = `${width}px`;
+        namePhoto.style.height = `${width * NAME_PHOTO_ASPECT}px`;
+        namePhoto.style.top = `${triggerRect.bottom - introRect.top + 5}px`;
         namePhoto.style.left = `${triggerRect.left - introRect.left}px`;
       }
 
