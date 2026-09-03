@@ -172,6 +172,7 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
          applies at every breakpoint since there's no mobile/tablet
          override of this rule. */
       .intro {
+        position: relative;
         margin-top: calc(3.41rem + 75px);
       }
 
@@ -204,19 +205,10 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
          individually blurred and staggered so they sharpen into focus
          out of order rather than as one flat crossfade. No color
          overlay - the blur alone reads as "pixelated". */
-      /* isolation: isolate forces a real stacking context here, so
-         .name-photo's z-index is resolved locally against this
-         element's own content instead of bubbling up to the page
-         root. Without it, Chromium was inconsistently painting the
-         paragraph's later, wrapped lines (a plain in-flow sibling
-         several lines down, well outside .name-trigger's own single
-         line box) above the photo card instead of beneath it, even
-         though nothing between here and <body> creates a stacking
-         context and z-index: 30 should already win. */
       .name-trigger {
         position: relative;
-        isolation: isolate;
         display: inline-block;
+        cursor: pointer;
       }
 
       /* Touch devices have no real :hover, so tapping the name relies
@@ -259,10 +251,22 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
         transform: scaleX(1);
       }
 
+      /* Positioned via JS (top/left set inline, computed from
+         .name-trigger's own bounding rect - see the script below),
+         not CSS anchored to .name-trigger directly. It used to be a
+         DOM descendant of .name-trigger (an inline-block on line 1
+         of the paragraph), overflowing 306px down across several of
+         the paragraph's own wrapped lines below it. Chromium would
+         intermittently paint some of those wrapped sibling lines
+         above this card instead of beneath it - reproducible even at
+         z-index: 9999, so not a stacking-context/z-index problem at
+         all, but something specific to an absolutely positioned
+         element overflowing out of an inline-block into its own
+         paragraph's wrapped lines. Moving it out to be a plain
+         sibling of the paragraphs (still inside position: relative
+         .intro) sidesteps that pattern entirely. */
       .name-photo {
         position: absolute;
-        top: calc(100% + 14px);
-        left: 0;
         width: 263px;
         height: 306px;
         border-radius: 2px;
@@ -276,8 +280,7 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
         background: var(--hover-bg);
       }
 
-      .name-trigger:hover .name-photo,
-      .name-trigger.is-active .name-photo {
+      .name-photo.is-visible {
         opacity: 1;
         transform: translateY(0) scale(1);
       }
@@ -305,8 +308,7 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
         transition: opacity 0.4s ease;
       }
 
-      .name-trigger:hover .pixel-tile,
-      .name-trigger.is-active .pixel-tile {
+      .name-photo.is-visible .pixel-tile {
         opacity: 1;
       }
 
@@ -396,6 +398,25 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
         display: inline-block;
       }
 
+      /* Touch devices have no real hover to linger in, just a brief
+         :active flash on tap - so unlike on desktop (where the icon's
+         gap is kept reserved in the flex flow so a lingering hover
+         doesn't shift the year sideways when it appears), there's no
+         need to reserve that space here. Overlaying it instead lets
+         the year sit flush with the row's true right edge (matching
+         the topbar/logo) the rest of the time. */
+      @media (hover: none) {
+        .work-row .meta {
+          position: relative;
+        }
+
+        .work-row .icon {
+          position: absolute;
+          top: 0;
+          right: -1rem;
+        }
+      }
+
       a.work-row:hover .icon,
       a.work-row:active .icon {
         opacity: 1;
@@ -455,12 +476,8 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
     <div class="col">
       <div class="intro">
         <p data-load-reveal>
-          I'm <span class="name-trigger">Humayun Rashid<span class="name-photo" role="img" aria-label="Headshot of Humayun Rashid">
-              <span class="pixel-grid" aria-hidden="true">
-                {photoTiles.map((tile) => <span class="pixel-tile" style={tile.style} />)}
-              </span>
-            </span></span>, a product designer and founder based in New
-          York City with a decade of experience building products that solve real problems.
+          I'm <span class="name-trigger">Humayun Rashid</span>, a product designer and founder based in New
+          York City with a decade of experience building products.
           Most recently, I was on the early design team at Sublime Security, the fastest-growing
           cybersecurity email startup in the US. I led design on crucial launches like
           quarantine digests and dynamic phishing simulations. Before that, I founded and served
@@ -477,6 +494,12 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
         <p data-load-reveal>
           Great design is deciding what to leave out.
         </p>
+
+        <span class="name-photo" role="img" aria-label="Headshot of Humayun Rashid">
+          <span class="pixel-grid" aria-hidden="true">
+            {photoTiles.map((tile) => <span class="pixel-tile" style={tile.style} />)}
+          </span>
+        </span>
       </div>
 
       <section>
@@ -581,12 +604,14 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
         }
       }
 
-      // Re-randomize which tiles clear first on every hover, so the
-      // reveal never sweeps the same top-left-to-bottom-right way
-      // twice in a row.
+      // Re-randomize which tiles clear first on every reveal, so it
+      // never sweeps the same top-left-to-bottom-right way twice in a
+      // row.
       const MAX_DELAY_S = 1.1;
-      const nameTrigger = document.querySelector(".name-trigger");
-      const pixelTiles = document.querySelectorAll(".pixel-tile");
+      const nameTrigger = document.querySelector<HTMLElement>(".name-trigger");
+      const namePhoto = document.querySelector<HTMLElement>(".name-photo");
+      const introEl = document.querySelector<HTMLElement>(".intro");
+      const pixelTiles = document.querySelectorAll<HTMLElement>(".pixel-tile");
 
       function restaggerTiles() {
         pixelTiles.forEach((tile) => {
@@ -594,25 +619,55 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
         });
       }
 
-      nameTrigger?.addEventListener("mouseenter", restaggerTiles);
+      // .name-photo is a plain sibling of the paragraphs now (see the
+      // markup above and the comment on .name-photo's CSS) rather
+      // than a descendant of .name-trigger, so its position has to be
+      // computed from .name-trigger's own rect instead of anchored
+      // via CSS top/left.
+      function positionPhoto() {
+        if (!nameTrigger || !namePhoto || !introEl) return;
+        const triggerRect = nameTrigger.getBoundingClientRect();
+        const introRect = introEl.getBoundingClientRect();
+        namePhoto.style.top = `${triggerRect.bottom - introRect.top + 14}px`;
+        namePhoto.style.left = `${triggerRect.left - introRect.left}px`;
+      }
 
-      // Touch devices have no real hover, so the reveal above is
-      // driven by a tap-toggled class instead of relying on iOS's
-      // sticky-hover simulation (unreliable to trigger, and skips the
-      // transition/stagger entirely - see the (hover: none) padding
-      // rule above for the matching tap-target fix).
+      function showPhoto() {
+        positionPhoto();
+        restaggerTiles();
+        namePhoto?.classList.add("is-visible");
+      }
+
+      function hidePhoto() {
+        namePhoto?.classList.remove("is-visible");
+      }
+
       if (nameTrigger && window.matchMedia("(hover: none)").matches) {
+        // Touch devices have no real hover, so the reveal is driven by
+        // a tap-toggled class instead of relying on iOS's sticky-hover
+        // simulation (unreliable to trigger, and skips the
+        // transition/stagger entirely - see the (hover: none) padding
+        // rule above for the matching tap-target fix).
         nameTrigger.addEventListener("click", () => {
           const isActive = nameTrigger.classList.toggle("is-active");
-          if (isActive) restaggerTiles();
+          if (isActive) showPhoto();
+          else hidePhoto();
         });
 
         document.addEventListener("click", (event) => {
-          if (!nameTrigger.contains(event.target)) {
+          if (!nameTrigger.contains(event.target as Node)) {
             nameTrigger.classList.remove("is-active");
+            hidePhoto();
           }
         });
+      } else {
+        nameTrigger?.addEventListener("mouseenter", showPhoto);
+        nameTrigger?.addEventListener("mouseleave", hidePhoto);
       }
+
+      window.addEventListener("resize", () => {
+        if (namePhoto?.classList.contains("is-visible")) positionPhoto();
+      });
     </script>
   </body>
 </html>
