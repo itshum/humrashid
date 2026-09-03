@@ -37,6 +37,23 @@
     gap: 1rem;
   }
 
+  /* Matches .col's own mobile-only bump from 1.5rem to 2rem (see
+     index.astro/[slug].astro), which exists so page content lines up
+     with the topbar's 2rem gutter on narrow viewports. Without this,
+     the footer's text sits 8px further left than everything above it
+     on mobile specifically - desktop never needed this override since
+     .col and the footer both already use 1.5rem there. The matching
+     ::before (shimmer line) override lives further down, after the
+     base ::before rule it needs to win against - same selector
+     specificity, so source order decides, and a media query earlier
+     in the file loses to a plain rule later in the file regardless of
+     which one actually matches the viewport. */
+  @media (max-width: 600px) {
+    .site-footer {
+      padding: 1.75rem 2rem;
+    }
+  }
+
   /* Pearlescent shimmer line, in place of a plain border-top - a soft
      iridescent gradient (borrowed from Nessa's own footer) drifting
      slowly across the top edge instead of a static border color. */
@@ -60,6 +77,13 @@
     background-size: 260% 100%;
     animation: site-footer-shimmer 9s linear infinite;
     opacity: 0.8;
+  }
+
+  @media (max-width: 600px) {
+    .site-footer::before {
+      left: 2rem;
+      right: 2rem;
+    }
   }
 
   @keyframes site-footer-shimmer {

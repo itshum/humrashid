@@ -437,21 +437,16 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
       }
 
       /* Touch devices have no real hover to linger in, just a brief
-         :active flash on tap - so unlike on desktop (where the icon's
-         gap is kept reserved in the flex flow so a lingering hover
-         doesn't shift the year sideways when it appears), there's no
-         need to reserve that space here. Overlaying it instead lets
-         the year sit flush with the row's true right edge (matching
-         the topbar/logo) the rest of the time. */
+         :active flash on tap, and no room left for the icon either
+         way: the year sits flush with the row's true right edge here
+         (matching the topbar/logo - see .work-row .year below), which
+         leaves no space for the icon to render without overlapping
+         the year or spilling outside the row's own highlighted
+         background. The :active highlight alone is enough tap
+         feedback on touch, so the icon just doesn't render here. */
       @media (hover: none) {
-        .work-row .meta {
-          position: relative;
-        }
-
         .work-row .icon {
-          position: absolute;
-          top: 0;
-          right: -1rem;
+          display: none;
         }
       }
 
