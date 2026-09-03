@@ -1,0 +1,316 @@
+---
+import Topbar from "../components/Topbar.astro";
+import Footer from "../components/Footer.astro";
+
+const principles = [
+  {
+    num: "1",
+    title: "Show, don't tell.",
+    body: "Ten years of shipping taught me decks convince nobody. A working prototype argues my case better than I ever could, so I build the real thing first and explain it second.",
+  },
+  {
+    num: "2",
+    title: "Simple is hard.",
+    body: "Cutting a feature takes more conviction than adding one. I've run this discipline on every product I've shipped, and the pattern always holds: what survives the cut is what mattered.",
+  },
+  {
+    num: "3",
+    title: "Prototype from day one.",
+    body: "Specs go stale the moment they're written. I've built this way for a decade: a rough, clickable version in week one beats a polished document in month three, every time.",
+  },
+  {
+    num: "4",
+    title: "Bring every stakeholder along.",
+    body: "Every product I've shipped had a narrative, and every person touching it needed to hear the same one. I retell it until engineering, sales, and leadership are solving the same problem.",
+  },
+  {
+    num: "5",
+    title: "Talk to users as early and as often as possible.",
+    body: "I've never regretted a user conversation. I've regretted plenty of assumptions. This is the one step I don't skip, no matter how confident the room feels.",
+  },
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="canonical" href="https://www.humrashid.com/principles" />
+    <script is:inline>
+      // Set before first paint so there's no light-mode flash before
+      // Topbar's script confirms/re-checks the same NYC-time rule.
+      (function () {
+        var parts = new Intl.DateTimeFormat("en-US", {
+          timeZone: "America/New_York",
+          hour: "numeric",
+          hour12: false,
+        }).formatToParts(new Date());
+        var hour = Number(
+          (parts.filter(function (p) {
+            return p.type === "hour";
+          })[0] || {}).value || 12
+        );
+        document.documentElement.dataset.theme = hour >= 19 || hour < 6 ? "dark" : "light";
+      })();
+    </script>
+    <title>Principles · Humayun Rashid</title>
+    <meta
+      name="description"
+      content="A few things Humayun Rashid believes about design, held onto through a decade of shipping products that actually had to work."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap"
+    />
+    <style is:global>
+      :root {
+        --bg: #f8f8f6;
+        --text: #262626;
+        --text-secondary: #2b2b2b;
+        --label: #7a7a7a;
+        --hover-bg: #eae9e5;
+        --title: #262626;
+        --year: #8a8984;
+        --icon: #c9c7c0;
+        --icon-hover: #6b6b6b;
+        --border: #e2e0da;
+        --selection-bg: #1f3d2e;
+        --selection-text: #f8f8f6;
+      }
+
+      :root[data-theme="dark"] {
+        --bg: #171715;
+        --text: #eeede8;
+        --text-secondary: #d6d5d0;
+        --label: #93928c;
+        --hover-bg: #272724;
+        --title: #eeede8;
+        --year: #73726b;
+        --icon: #51504a;
+        --icon-hover: #b5b4ad;
+        --border: #2f2e2c;
+        --selection-bg: #4fae82;
+        --selection-text: #171715;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      html,
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+        transition: background 0.3s ease, color 0.3s ease;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      ::selection {
+        background: var(--selection-bg);
+        color: var(--selection-text);
+      }
+
+      .col {
+        max-width: 700px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+      }
+
+      @media (max-width: 600px) {
+        .col {
+          padding: 0 2rem;
+        }
+      }
+
+      .hero {
+        text-align: center;
+        padding: 4.2rem 0 3.5rem;
+      }
+
+      .hero .eyebrow {
+        font-size: 0.8rem;
+        color: var(--label);
+        margin: 0 0 1.25rem;
+      }
+
+      .hero h1 {
+        font-size: 1.15rem;
+        font-weight: 400;
+        color: var(--text-secondary);
+        letter-spacing: normal;
+        line-height: 1.6;
+        max-width: 46ch;
+        margin: 0 auto;
+        text-wrap: balance;
+      }
+
+      .principles-list {
+        padding: 1rem 0 8rem;
+      }
+
+      .principle {
+        display: flex;
+        align-items: flex-start;
+        gap: 1.75rem;
+      }
+
+      /* Instrument Serif italic - the same "one deliberate serif
+         flourish against an all-Sans page" treatment as the
+         homepage's italic ampersand, reused here for the numeral
+         instead of a plain sans-serif digit. Quiet by weight and
+         color (regular weight, --year not --title) rather than
+         loud - a mark of pace through the list, not a headline. */
+      .principle-num {
+        flex: none;
+        width: 1.85rem;
+        font-family: "Instrument Serif", Georgia, serif;
+        font-style: italic;
+        font-size: 2rem;
+        line-height: 1;
+        color: var(--year);
+      }
+
+      .principle-content {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .principle h2 {
+        font-size: 1.4rem;
+        font-weight: 500;
+        letter-spacing: -0.01em;
+        margin: 0 0 0.75rem;
+        text-wrap: balance;
+      }
+
+      .principle p {
+        font-size: 1.05rem;
+        line-height: 1.65;
+        color: var(--text-secondary);
+        margin: 0;
+      }
+
+      @media (max-width: 600px) {
+        .principle {
+          gap: 1.1rem;
+        }
+
+        .principle-num {
+          width: 1.5rem;
+          font-size: 1.6rem;
+        }
+
+        .principle h2 {
+          font-size: 1.25rem;
+        }
+
+        .principle p {
+          font-size: 1rem;
+        }
+      }
+
+      .divider {
+        height: 0;
+        max-width: 80px;
+        margin: 4rem auto;
+        border-top: 1px solid var(--border);
+      }
+
+      /* Subtle fade-up on scroll, same feel as the case study
+         template - content sits slightly below and transparent until
+         it scrolls into view, then settles into place. Fires once. */
+      [data-reveal] {
+        opacity: 0;
+        transform: translateY(24px);
+        transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      [data-reveal].is-revealed {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        [data-reveal] {
+          opacity: 1;
+          transform: none;
+          transition: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <Topbar showBack />
+
+    <div class="col">
+      <div class="hero" data-reveal>
+        <p class="eyebrow">Principles</p>
+        <h1>
+          My design process, refined over more than ten years of shipping. Repeatable, because
+          it delivers.
+        </h1>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="principles-list">
+        {
+          principles.map((p, i) => (
+            <>
+              <div class="principle" data-reveal style={`transition-delay: ${i * 90}ms`}>
+                <span class="principle-num" aria-hidden="true">
+                  {p.num}
+                </span>
+                <div class="principle-content">
+                  <h2>{p.title}</h2>
+                  <p>{p.body}</p>
+                </div>
+              </div>
+              {i < principles.length - 1 && <div class="divider" />}
+            </>
+          ))
+        }
+      </div>
+    </div>
+
+    <Footer />
+
+    <script>
+      const revealEls = document.querySelectorAll<HTMLElement>("[data-reveal]");
+      if (revealEls.length > 0) {
+        if ("IntersectionObserver" in window) {
+          const revealObserver = new IntersectionObserver(
+            (entries) => {
+              entries.forEach((entry) => {
+                if (!entry.isIntersecting) return;
+                entry.target.classList.add("is-revealed");
+                revealObserver.unobserve(entry.target);
+              });
+            },
+            { threshold: 0.25, rootMargin: "0px 0px -15% 0px" }
+          );
+          revealEls.forEach((el) => revealObserver.observe(el));
+        } else {
+          revealEls.forEach((el) => el.classList.add("is-revealed"));
+        }
+      }
+    </script>
+  </body>
+</html>
