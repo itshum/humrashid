@@ -34,28 +34,64 @@ const { showBack = false } = Astro.props;
 
   .logo-mark {
     display: inline-grid;
-    grid-template-columns: repeat(4, 6px);
-    grid-template-rows: repeat(4, 6px);
-    gap: 2.5px;
+    grid-template-columns: repeat(4, 6.6px);
+    grid-template-rows: repeat(4, 6.6px);
+    gap: 2.75px;
     margin-left: auto;
   }
 
-  /* Mobile only - this mark gets its own opaque backing (sized to
-     itself, not a full-width bar) so scrolled content doesn't
-     visibly collide with it while the topbar stays sticky. Desktop
-     and tablet have enough surrounding whitespace that this never
-     comes up, so it'd just look like a stray card there. */
+  /* Tablet only - sized independently of the desktop base above for
+     legibility at typical tablet viewing distance. Same opaque-seams
+     treatment as mobile below: background fill with no padding, so
+     scrolled content can't show through the gaps between cells but
+     there's no border/card ring around the outside. */
+  @media (min-width: 601px) and (max-width: 1000px) {
+    .logo-mark {
+      grid-template-columns: repeat(4, 7.935px);
+      grid-template-rows: repeat(4, 7.935px);
+      gap: 3.306px;
+      background: var(--bg, #f8f8f6);
+    }
+
+    .logo-mark .px {
+      width: 7.935px;
+      height: 7.935px;
+    }
+  }
+
+  /* Mobile only - the grid keeps its normal cell gaps (same look as
+     desktop/tablet), but .logo-mark itself gets an opaque backing
+     with no padding, so that backing exactly fills the gap seams
+     between/around cells - no more, no less - and scrolled content
+     never shows through those seams while the topbar stays sticky.
+     No padding means no border/card ring around the outside; no
+     border-radius means it's just a fill, not a visible card (tablet
+     gets the same treatment above; desktop has enough surrounding
+     whitespace that this never comes up there). Also sized 10% larger
+     than desktop for legibility at mobile viewing distance;
+     align-items: center on .topbar keeps it
+     vertically centered with the back link regardless of size.
+     place-items: center keeps each cell centered in its track rather
+     than defaulting to start-aligned, which would otherwise read as a
+     lopsided sliver of extra gap on the right/bottom of every cell. */
   @media (max-width: 600px) {
     .logo-mark {
+      grid-template-columns: repeat(4, 6.6px);
+      grid-template-rows: repeat(4, 6.6px);
+      gap: 2.75px;
+      place-items: center;
       background: var(--bg, #f8f8f6);
-      padding: 4px;
-      border-radius: 4px;
+    }
+
+    .logo-mark .px {
+      width: 6.05px;
+      height: 6.05px;
     }
   }
 
   .logo-mark .px {
-    width: 5.5px;
-    height: 5.5px;
+    width: 6.05px;
+    height: 6.05px;
     transition: background 0.3s ease;
   }
 
@@ -183,7 +219,7 @@ const { showBack = false } = Astro.props;
   // letterform stays legible against either background.
   const PALETTE = {
     light: { filler: "#dcdcd8" },
-    dark: { filler: "#3a3a37" },
+    dark: { filler: "#32322f" },
   };
   const LETTER_CHANCE = 0.45;
   const CELL_COUNT = 16;

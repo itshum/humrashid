@@ -114,18 +114,18 @@ const paragraphs = (text: string) =>
       }
 
       :root[data-theme="dark"] {
-        --bg: #1b1b19;
+        --bg: #131311;
         --text: #eeede8;
         --text-secondary: #d6d5d0;
         --label: #93928c;
-        --hover-bg: #2b2b28;
+        --hover-bg: #232320;
         --title: #eeede8;
-        --year: #77766f;
-        --icon: #55544e;
+        --year: #6f6e67;
+        --icon: #4d4c46;
         --icon-hover: #b5b4ad;
-        --border: #333230;
+        --border: #2b2a28;
         --selection-bg: #4fae82;
-        --selection-text: #1b1b19;
+        --selection-text: #131311;
       }
 
       * {
@@ -158,6 +158,16 @@ const paragraphs = (text: string) =>
         max-width: 700px;
         margin: 0 auto;
         padding: 0 1.5rem;
+      }
+
+      /* On mobile .col's padding IS the distance from the viewport
+         edge (no centering slack the way there is on wider screens),
+         so it has to match the topbar's 2rem horizontal padding
+         exactly or text runs wider than the back link/logo above it. */
+      @media (max-width: 600px) {
+        .col {
+          padding: 0 2rem;
+        }
       }
 
       /* Hero — centered, generous, no boxed meta grid */
@@ -475,7 +485,13 @@ const paragraphs = (text: string) =>
         transition: background 0.15s ease;
       }
 
-      .next-work-row:hover {
+      /* :active alongside :hover - touch devices have no real hover,
+         so without this the highlight/arrow only show up through
+         iOS's flaky sticky-hover simulation. :active fires the
+         instant a finger touches down, giving immediate native-app-
+         style press feedback rather than requiring a lucky hover. */
+      .next-work-row:hover,
+      .next-work-row:active {
         background: var(--hover-bg);
       }
 
@@ -502,7 +518,8 @@ const paragraphs = (text: string) =>
         transition: opacity 0.15s ease, transform 0.15s ease;
       }
 
-      .next-work-row:hover .icon {
+      .next-work-row:hover .icon,
+      .next-work-row:active .icon {
         opacity: 1;
         color: var(--icon-hover);
         transform: translateY(-50%) translateX(2px);
@@ -562,6 +579,84 @@ const paragraphs = (text: string) =>
           opacity: 1;
           transform: none;
           transition: none;
+        }
+      }
+
+      /* Tap-to-expand lightbox for content screenshots - on mobile
+         especially, a full-width screenshot scaled down to a ~340px
+         column is too small to read any UI detail inside it. Any
+         image in the case study body (see the click-delegation script
+         below for the exact scope/exclusions) opens full-screen on
+         tap instead of requiring a rotate-to-landscape workaround. */
+      .lightbox-eligible {
+        cursor: zoom-in;
+      }
+
+      .lightbox {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        background: rgba(10, 10, 9, 0.94);
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.25s ease;
+      }
+
+      .lightbox.is-open {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .lightbox img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        border-radius: 4px;
+        cursor: zoom-out;
+      }
+
+      /* Same outlined-circle style as the carousel's prev/next buttons
+         (.carousel-btn in Carousel.astro) - thin border, transparent
+         fill, fills in on hover - just with an X instead of an arrow,
+         so the site's nav-button language stays consistent. Colors
+         are hardcoded rather than pulled from the --text/--border
+         theme vars: the lightbox backdrop is always near-black
+         regardless of site theme, and those vars flip dark in light
+         mode, which would make the button vanish against it. */
+      .lightbox-close {
+        position: absolute;
+        top: 1.25rem;
+        right: 1.25rem;
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(248, 248, 246, 0.3);
+        border-radius: 100px;
+        background: transparent;
+        color: #f8f8f6;
+        cursor: pointer;
+        transition: background 0.15s ease, border-color 0.15s ease;
+      }
+
+      .lightbox-close:hover {
+        background: rgba(248, 248, 246, 0.12);
+        border-color: rgba(248, 248, 246, 0.5);
+      }
+
+      .lightbox-close svg {
+        width: 18px;
+        height: 18px;
+      }
+
+      @media (max-width: 600px) {
+        .lightbox {
+          padding: 1.25rem;
         }
       }
     </style>
@@ -837,6 +932,66 @@ const paragraphs = (text: string) =>
         </section>
       )
     }
+
+    <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-hidden="true">
+      <button class="lightbox-close" type="button" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 6 6 18" />
+          <path d="M6 6l12 12" />
+        </svg>
+      </button>
+      <img src="" alt="" />
+    </div>
+
+    <script>
+      // Tap-to-expand lightbox: any content image (excluding the
+      // interactive compare-reveal slider, which already has its own
+      // drag-to-reveal gesture, and anything that's really a link -
+      // like the "more work" thumbnails) opens full-screen on click.
+      const lightbox = document.getElementById("lightbox");
+      const lightboxImg = lightbox?.querySelector("img");
+      const lightboxClose = lightbox?.querySelector(".lightbox-close");
+
+      function openLightbox(src: string, alt: string) {
+        if (!lightbox || !lightboxImg) return;
+        lightboxImg.setAttribute("src", src);
+        lightboxImg.setAttribute("alt", alt);
+        lightbox.classList.add("is-open");
+        lightbox.setAttribute("aria-hidden", "false");
+        document.body.style.overflow = "hidden";
+      }
+
+      function closeLightbox() {
+        if (!lightbox || !lightboxImg) return;
+        lightbox.classList.remove("is-open");
+        lightbox.setAttribute("aria-hidden", "true");
+        document.body.style.overflow = "";
+      }
+
+      // Mark every eligible image up front (not just after the first
+      // click) so the zoom-in cursor is there to hint at the
+      // interaction before anyone has tapped anything.
+      document.querySelectorAll("img").forEach((img) => {
+        if (img.closest(".compare-reveal, .topbar, a, .lightbox")) return;
+        img.classList.add("lightbox-eligible");
+      });
+
+      document.body.addEventListener("click", (event) => {
+        const target = event.target as HTMLElement;
+        const img = target.closest("img");
+        if (!img || !(img instanceof HTMLImageElement)) return;
+        if (!img.classList.contains("lightbox-eligible")) return;
+        openLightbox(img.currentSrc || img.src, img.alt);
+      });
+
+      lightboxClose?.addEventListener("click", closeLightbox);
+      lightbox?.addEventListener("click", (event) => {
+        if (event.target === lightbox) closeLightbox();
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") closeLightbox();
+      });
+    </script>
 
     <script>
       const tocLinks = document.querySelectorAll<HTMLAnchorElement>(".toc-line");
