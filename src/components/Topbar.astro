@@ -1,9 +1,10 @@
 ---
 interface Props {
   showBack?: boolean;
+  showNav?: boolean;
 }
 
-const { showBack = false } = Astro.props;
+const { showBack = false, showNav = false } = Astro.props;
 ---
 
 <div class="topbar">
@@ -13,6 +14,15 @@ const { showBack = false } = Astro.props;
         <span class="arrow">←</span>
         Back
       </a>
+    )
+  }
+  {
+    showNav && (
+      <nav class="nav-links">
+        <a href="/ideas">Ideas</a>
+        <a href="/apps">Apps</a>
+        <a href="/principles">Principles</a>
+      </nav>
     )
   }
   <a class="logo-mark" id="logo-mark" href="/" aria-label="Home"></a>
@@ -34,6 +44,19 @@ const { showBack = false } = Astro.props;
     position: sticky;
     top: 0;
     z-index: 40;
+  }
+
+  /* Mobile only - now that nav links can share the bar with the logo
+     (and back-link, on case study pages), give the whole sticky bar
+     its own opaque backing rather than patching each element
+     individually the way .logo-mark used to on its own. Desktop and
+     tablet have enough surrounding whitespace that scrolled content
+     passing "through" the bar was never an issue there. */
+  @media (max-width: 600px) {
+    .topbar {
+      background: var(--bg, #f8f8f6);
+      padding-bottom: 0.75rem;
+    }
   }
 
   .logo-mark {
@@ -165,6 +188,33 @@ const { showBack = false } = Astro.props;
 
   .topbar .back-link:hover .arrow {
     transform: translateX(-2px);
+  }
+
+  /* Same ghost-button treatment as .back-link (ends up on the same
+     left side of the bar, just on pages with no back link to show
+     instead) - ordinary weight, quiet until interacted with, so nav
+     never competes with the logo mark sitting opposite it. */
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .nav-links a {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    color: var(--label, #8a8a8a);
+    text-decoration: none;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  .nav-links a:hover,
+  .nav-links a:active {
+    background: var(--hover-bg, #eae9e5);
+    color: var(--title, #262626);
   }
 </style>
 
