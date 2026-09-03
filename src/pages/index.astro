@@ -168,8 +168,11 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
         }
       }
 
+      /* 25% less top space than the original calc(4.55rem + 100px) -
+         applies at every breakpoint since there's no mobile/tablet
+         override of this rule. */
       .intro {
-        margin-top: calc(4.55rem + 100px);
+        margin-top: calc(3.41rem + 75px);
       }
 
       .intro p {
@@ -201,8 +204,18 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
          individually blurred and staggered so they sharpen into focus
          out of order rather than as one flat crossfade. No color
          overlay - the blur alone reads as "pixelated". */
+      /* isolation: isolate forces a real stacking context here, so
+         .name-photo's z-index is resolved locally against this
+         element's own content instead of bubbling up to the page
+         root. Without it, Chromium was inconsistently painting the
+         paragraph's later, wrapped lines (a plain in-flow sibling
+         several lines down, well outside .name-trigger's own single
+         line box) above the photo card instead of beneath it, even
+         though nothing between here and <body> creates a stacking
+         context and z-index: 30 should already win. */
       .name-trigger {
         position: relative;
+        isolation: isolate;
         display: inline-block;
       }
 
@@ -399,6 +412,41 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
         transform: translateX(2px);
       }
 
+      /* On-load entrance, not scroll-triggered like the case study
+         template's [data-reveal] (that one uses an IntersectionObserver
+         since its content is far down a long page). This content sits
+         at/near the fold, so it should always animate in immediately
+         on every load/refresh instead of waiting on scroll. Kept
+         short and subtle - a small lift, not the case study's bigger
+         28px/0.8s version - since this fires unprompted on every
+         visit rather than once as the user scrolls to it. */
+      [data-load-reveal] {
+        opacity: 0;
+        transform: translateY(8px);
+        transition: opacity 0.5s ease, transform 0.5s ease;
+      }
+
+      /* transform: none (not translateY(0)) at rest - translateY(0)
+         is still a non-"none" transform value, which establishes a
+         new stacking context on the element for as long as it's set.
+         The first intro paragraph contains .name-trigger's absolutely
+         positioned, z-indexed photo card - trapped inside that
+         stacking context, its z-index only wins against siblings
+         inside this paragraph, not the page content around it, so it
+         was rendering the surrounding text on top of the photo
+         instead of under it once the reveal settled. */
+      [data-load-reveal].is-in {
+        opacity: 1;
+        transform: none;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        [data-load-reveal] {
+          opacity: 1;
+          transform: none;
+          transition: none;
+        }
+      }
     </style>
   </head>
   <body>
@@ -406,7 +454,7 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
 
     <div class="col">
       <div class="intro">
-        <p>
+        <p data-load-reveal>
           I'm <span class="name-trigger">Humayun Rashid<span class="name-photo" role="img" aria-label="Headshot of Humayun Rashid">
               <span class="pixel-grid" aria-hidden="true">
                 {photoTiles.map((tile) => <span class="pixel-tile" style={tile.style} />)}
@@ -419,23 +467,23 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
           as Design Director at Nessa Labs, a design studio where I advised and designed digital
           products for early-stage SaaS startups.
         </p>
-        <p>
+        <p data-load-reveal>
           I care about what never makes it onto the screen: the onboarding flow nobody notices,
           the empty state that quietly loses the user, the setting that should've been the
           default all along. Getting those subtle details right starts with talking to users
           first, understanding where they get stuck before assuming you know the fix. That's
           where the real work happens, and where most teams give up.
         </p>
-        <p>
+        <p data-load-reveal>
           Great design is deciding what to leave out.
         </p>
       </div>
 
       <section>
-        <p class="section-heading">Select Work</p>
+        <p class="section-heading" data-load-reveal>Select Work</p>
 
         <div class="work-list">
-          <a class="work-row" href="https://sublime.security/" target="_blank" rel="noopener">
+          <a class="work-row" data-load-reveal href="https://sublime.security/" target="_blank" rel="noopener">
             <span class="row-top">
               <span class="title">Sublime Security</span>
               <span class="meta">
@@ -446,7 +494,7 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
             <span class="desc">Led product design for security teams to stop malicious threats.</span>
           </a>
 
-          <div class="work-row">
+          <div class="work-row" data-load-reveal>
             <span class="row-top">
               <span class="title">Nessa Labs</span>
               <span class="meta">
@@ -457,7 +505,7 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
             <span class="desc">Founder &amp; Design Director of product design studio for early stage startups.</span>
           </div>
 
-          <a class="work-row" href="/work/pack">
+          <a class="work-row" data-load-reveal href="/work/pack">
             <span class="row-top">
               <span class="title">Pack Platform</span>
               <span class="meta">
@@ -468,7 +516,7 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
             <span class="desc">Product redesign for headless commerce platform.</span>
           </a>
 
-          <a class="work-row" href="/work/ppvp">
+          <a class="work-row" data-load-reveal href="/work/ppvp">
             <span class="row-top">
               <span class="title">PPVP</span>
               <span class="meta">
@@ -479,7 +527,7 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
             <span class="desc">Mobile app design for investment platform for early stage funding.</span>
           </a>
 
-          <a class="work-row" href="/work/inveterate">
+          <a class="work-row" data-load-reveal href="/work/inveterate">
             <span class="row-top">
               <span class="title">Inveterate</span>
               <span class="meta">
@@ -490,7 +538,7 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
             <span class="desc">Product strategy and design for loyalty and membership platform.</span>
           </a>
 
-          <a class="work-row" href="https://www.shoppinggives.com/" target="_blank" rel="noopener">
+          <a class="work-row" data-load-reveal href="https://www.shoppinggives.com/" target="_blank" rel="noopener">
             <span class="row-top">
               <span class="title">Shopping Gives</span>
               <span class="meta">
@@ -508,6 +556,31 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
     <Footer />
 
     <script>
+      // On-load entrance for the intro paragraphs and work list -
+      // always fires on every load/refresh (not gated behind scroll
+      // the way the case study template's reveal is), staggered in
+      // DOM order so the 3 paragraphs settle in first, then the work
+      // rows one by one below them. Two rAFs so the initial opacity:0
+      // state actually paints before the transition starts, or the
+      // first item would just snap straight to visible.
+      const loadRevealEls = document.querySelectorAll<HTMLElement>("[data-load-reveal]");
+      const LOAD_REVEAL_STEP_MS = 85;
+
+      if (loadRevealEls.length > 0) {
+        const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        if (prefersReducedMotion) {
+          loadRevealEls.forEach((el) => el.classList.add("is-in"));
+        } else {
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              loadRevealEls.forEach((el, i) => {
+                setTimeout(() => el.classList.add("is-in"), i * LOAD_REVEAL_STEP_MS);
+              });
+            });
+          });
+        }
+      }
+
       // Re-randomize which tiles clear first on every hover, so the
       // reveal never sweeps the same top-left-to-bottom-right way
       // twice in a row.

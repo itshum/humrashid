@@ -23,13 +23,17 @@ const { showBack = false } = Astro.props;
      logo mark sits flush right against the real page edge on every
      page; the back link, when present, sits flush left instead, so
      "back" reads in its natural left-pointing position. */
+  /* z-index kept above every other in-page overlay (currently the
+     homepage's name-hover photo card at z-index: 30) - the sticky
+     topbar/logo should never be covered by page content scrolling
+     underneath it. */
   .topbar {
     display: flex;
     align-items: center;
     padding: 2.5rem 2rem 0;
     position: sticky;
     top: 0;
-    z-index: 20;
+    z-index: 40;
   }
 
   .logo-mark {
