@@ -224,6 +224,18 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
         }
       }
 
+      /* Tablet was inheriting the desktop size unchanged - technically
+         the same absolute value that reads fine on desktop, but next
+         to the (much larger, unscaled-for-tablet) H1 above it, the
+         contrast reads more exaggerated at tablet viewing distance.
+         Bumped one step up from the 1.15rem desktop/mobile-fallback
+         size rather than left matching desktop. */
+      @media (min-width: 601px) and (max-width: 1000px) {
+        .intro p {
+          font-size: 1.25rem;
+        }
+      }
+
       .intro p:last-child {
         margin-bottom: 0;
       }
@@ -434,6 +446,24 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
         opacity: 0;
         transition: opacity 0.15s ease, transform 0.15s ease;
         display: inline-block;
+      }
+
+      /* Same as .intro p above - tablet was inheriting the desktop
+         size unchanged, which reads a little small at tablet viewing
+         distance next to the titles/headline around it. */
+      @media (min-width: 601px) and (max-width: 1000px) {
+        .work-row .title {
+          font-size: 1.15rem;
+        }
+
+        .work-row .desc {
+          font-size: 1.02rem;
+        }
+
+        .work-row .year,
+        .work-row .icon {
+          font-size: 0.95rem;
+        }
       }
 
       /* Touch devices have no real hover to linger in, just a brief
