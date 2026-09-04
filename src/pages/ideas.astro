@@ -1,0 +1,292 @@
+---
+import Topbar from "../components/Topbar.astro";
+import Footer from "../components/Footer.astro";
+
+const posts = [
+  {
+    title: "Why most onboarding flows fail in the first ten seconds",
+    excerpt: "Users decide whether to trust a product before they've read a single word of copy.",
+    date: "Feb 18, 2026",
+  },
+  {
+    title: "The best prototype is the one nobody notices is a prototype",
+    excerpt: "If it looks unfinished, stakeholders panic. If it looks finished, they stop giving real feedback.",
+    date: "Jan 30, 2026",
+  },
+  {
+    title: "Simple isn't a compliment, it's a discipline",
+    excerpt: "Cutting a feature is a harder conversation than adding one, and that's exactly why it works.",
+    date: "Jan 9, 2026",
+  },
+  {
+    title: "What ten years of client work taught me about saying no",
+    excerpt: "Every 'no' protected a shipping date. Here's how I learned to say it without sounding difficult.",
+    date: "Dec 14, 2025",
+  },
+  {
+    title: "Talking to five users beats guessing with fifty stakeholders",
+    excerpt: "The most confident room is usually the one that skipped user research.",
+    date: "Nov 22, 2025",
+  },
+  {
+    title: "The empty state is where most products quietly lose people",
+    excerpt: "Nobody complains about a blank screen. They just leave.",
+    date: "Oct 30, 2025",
+  },
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="canonical" href="https://www.humrashid.com/ideas" />
+    <script is:inline>
+      // Set before first paint so there's no light-mode flash before
+      // Topbar's script confirms/re-checks the same NYC-time rule.
+      (function () {
+        var parts = new Intl.DateTimeFormat("en-US", {
+          timeZone: "America/New_York",
+          hour: "numeric",
+          hour12: false,
+        }).formatToParts(new Date());
+        var hour = Number(
+          (parts.filter(function (p) {
+            return p.type === "hour";
+          })[0] || {}).value || 12
+        );
+        document.documentElement.dataset.theme = hour >= 19 || hour < 6 ? "dark" : "light";
+      })();
+    </script>
+    <title>Ideas · Humayun Rashid</title>
+    <meta
+      name="description"
+      content="Notes on design, product, and building things worth using, from Humayun Rashid."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&display=swap"
+    />
+    <style is:global>
+      :root {
+        --bg: #f8f8f6;
+        --text: #262626;
+        --text-secondary: #2b2b2b;
+        --label: #7a7a7a;
+        --hover-bg: #eae9e5;
+        --title: #262626;
+        --year: #8a8984;
+        --border: #e2e0da;
+        --selection-bg: #1f3d2e;
+        --selection-text: #f8f8f6;
+      }
+
+      :root[data-theme="dark"] {
+        --bg: #171715;
+        --text: #eeede8;
+        --text-secondary: #d6d5d0;
+        --label: #93928c;
+        --hover-bg: #272724;
+        --title: #eeede8;
+        --year: #73726b;
+        --border: #2f2e2c;
+        --selection-bg: #4fae82;
+        --selection-text: #171715;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+        transition: background 0.3s ease, color 0.3s ease;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      ::selection {
+        background: var(--selection-bg);
+        color: var(--selection-text);
+      }
+
+      .col {
+        max-width: 700px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+      }
+
+      @media (max-width: 600px) {
+        .col {
+          padding: 0 2rem;
+        }
+      }
+
+      .hero {
+        padding: 4.2rem 0 3rem;
+      }
+
+      .hero .eyebrow {
+        font-size: 0.8rem;
+        color: var(--label);
+        margin: 0 0 1.25rem;
+      }
+
+      .hero h1 {
+        font-size: 1.15rem;
+        font-weight: 400;
+        color: var(--text-secondary);
+        line-height: 1.6;
+        max-width: 46ch;
+        margin: 0;
+        text-wrap: balance;
+      }
+
+      .post-list {
+        padding-bottom: 8rem;
+      }
+
+      /* Plain text rows, not buttons - these are placeholders with no
+         destination yet, so no hover highlight or pointer affordance
+         (unlike .work-row on the homepage, which is a real link). */
+      .post-row {
+        display: block;
+        padding: 1.5rem 0;
+        border-top: 1px solid var(--border);
+      }
+
+      .post-list > :first-child {
+        border-top: none;
+      }
+
+      .post-row .row-top {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 1.5rem;
+      }
+
+      .post-row .title {
+        font-size: 1.1rem;
+        font-weight: 500;
+        color: var(--title);
+        text-wrap: balance;
+      }
+
+      .post-row .date {
+        font-size: 0.85rem;
+        color: var(--year);
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+
+      .post-row .excerpt {
+        display: block;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        color: var(--label);
+        margin-top: 0.5rem;
+        max-width: 56ch;
+      }
+
+      @media (min-width: 601px) and (max-width: 1000px) {
+        .post-row .title {
+          font-size: 1.2rem;
+        }
+
+        .post-row .excerpt {
+          font-size: 1.02rem;
+        }
+
+        .post-row .date {
+          font-size: 0.92rem;
+        }
+      }
+
+      /* Subtle fade-up on scroll, same feel as the case study
+         template and the Principles page - fires once. */
+      [data-reveal] {
+        opacity: 0;
+        transform: translateY(24px);
+        transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      [data-reveal].is-revealed {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        [data-reveal] {
+          opacity: 1;
+          transform: none;
+          transition: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <Topbar showBack />
+
+    <div class="col">
+      <div class="hero" data-reveal>
+        <p class="eyebrow">Ideas</p>
+        <h1>Notes on design, product, and building things worth using.</h1>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="post-list">
+        {
+          posts.map((post, i) => (
+            <div class="post-row" data-reveal style={`transition-delay: ${i * 70}ms`}>
+              <div class="row-top">
+                <span class="title">{post.title}</span>
+                <span class="date">{post.date}</span>
+              </div>
+              <span class="excerpt">{post.excerpt}</span>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+
+    <Footer />
+
+    <script>
+      const revealEls = document.querySelectorAll<HTMLElement>("[data-reveal]");
+      if (revealEls.length > 0) {
+        if ("IntersectionObserver" in window) {
+          const revealObserver = new IntersectionObserver(
+            (entries) => {
+              entries.forEach((entry) => {
+                if (!entry.isIntersecting) return;
+                entry.target.classList.add("is-revealed");
+                revealObserver.unobserve(entry.target);
+              });
+            },
+            { threshold: 0.15, rootMargin: "0px 0px -10% 0px" }
+          );
+          revealEls.forEach((el) => revealObserver.observe(el));
+        } else {
+          revealEls.forEach((el) => el.classList.add("is-revealed"));
+        }
+      }
+    </script>
+  </body>
+</html>
