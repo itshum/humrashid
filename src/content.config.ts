@@ -185,4 +185,14 @@ const caseStudies = defineCollection({
   }),
 });
 
-export const collections = { caseStudies };
+const ideas = defineCollection({
+  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/ideas" }),
+  schema: z.object({
+    title: z.string(),
+    excerpt: z.string(),
+    date: z.coerce.date(),
+    draft: z.boolean().default(true),
+  }),
+});
+
+export const collections = { caseStudies, ideas };

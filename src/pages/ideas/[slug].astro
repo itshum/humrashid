@@ -1,16 +1,26 @@
 ---
-import Topbar from "../components/Topbar.astro";
-import Footer from "../components/Footer.astro";
-import { getCollection } from "astro:content";
+import Topbar from "../../components/Topbar.astro";
+import Footer from "../../components/Footer.astro";
+import { getCollection, render } from "astro:content";
 
-const posts = (await getCollection("ideas", ({ data }) => !data.draft)).sort(
-  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
-);
+export async function getStaticPaths() {
+  const posts = await getCollection("ideas", ({ data }) => !data.draft);
+  return posts.map((entry) => ({
+    params: { slug: entry.id },
+    props: { entry },
+  }));
+}
 
-const formatDate = (date: Date) =>
-  new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" }).format(
-    date
-  );
+const { entry } = Astro.props;
+const { data } = entry;
+const { Content } = await render(entry);
+
+const formattedDate = new Intl.DateTimeFormat("en-US", {
+  month: "short",
+  day: "numeric",
+  year: "numeric",
+  timeZone: "UTC",
+}).format(data.date);
 ---
 
 <!doctype html>
@@ -23,7 +33,7 @@ const formatDate = (date: Date) =>
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
-    <link rel="canonical" href="https://www.humrashid.com/ideas" />
+    <link rel="canonical" href={`https://www.humrashid.com/ideas/${entry.id}`} />
     <script is:inline>
       // Set before first paint so there's no light-mode flash before
       // Topbar's script confirms/re-checks the same NYC-time rule.
@@ -41,11 +51,8 @@ const formatDate = (date: Date) =>
         document.documentElement.dataset.theme = hour >= 19 || hour < 6 ? "dark" : "light";
       })();
     </script>
-    <title>Ideas · Humayun Rashid</title>
-    <meta
-      name="description"
-      content="Notes on design, product, and building things worth using, from Humayun Rashid."
-    />
+    <title>{data.title} · Humayun Rashid</title>
+    <meta name="description" content={data.excerpt} />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -58,7 +65,6 @@ const formatDate = (date: Date) =>
         --text: #262626;
         --text-secondary: #2b2b2b;
         --label: #7a7a7a;
-        --hover-bg: #eae9e5;
         --title: #262626;
         --year: #8a8984;
         --border: #e2e0da;
@@ -71,7 +77,6 @@ const formatDate = (date: Date) =>
         --text: #eeede8;
         --text-secondary: #d6d5d0;
         --label: #93928c;
-        --hover-bg: #272724;
         --title: #eeede8;
         --year: #73726b;
         --border: #2f2e2c;
@@ -102,7 +107,7 @@ const formatDate = (date: Date) =>
       }
 
       .col {
-        max-width: 718px;
+        max-width: 700px;
         margin: 0 auto;
         padding: 0 1.5rem;
       }
@@ -113,83 +118,50 @@ const formatDate = (date: Date) =>
         }
       }
 
-      .post-list {
-        padding: 4.5rem 0 8rem;
-        margin: 0 -0.9rem;
+      .post-hero {
+        padding: 4.5rem 0 3rem;
       }
 
-      /* Same hover treatment as .work-row on the homepage - the
-         highlight bleeds past the text measure on both sides, which
-         is why the row gets its own horizontal padding instead of
-         inheriting .col's. */
-      .post-row {
-        display: block;
-        padding: 1.1rem 0.9rem;
-        border-radius: 6px;
-        text-decoration: none;
-        transition: background 0.15s ease;
+      .post-hero .eyebrow {
+        font-size: 0.8rem;
+        color: var(--label);
+        margin: 0 0 1.25rem;
       }
 
-      .post-row:hover,
-      .post-row:active {
-        background: var(--hover-bg);
-      }
-
-      .post-row .row-top {
-        display: flex;
-        align-items: baseline;
-        justify-content: space-between;
-        gap: 1.5rem;
-      }
-
-      /* min-width: 0 lets a flex item shrink below its content size,
-         which is what allows the ellipsis truncation to actually
-         engage instead of the row just overflowing. Both title and
-         excerpt clamp to a single line so every row reserves exactly
-         the same height, whatever the real post title ends up being. */
-      .post-row .title {
-        margin: 0;
-        min-width: 0;
-        flex: 1;
-        font-size: 1.1rem;
+      .post-hero h1 {
+        font-size: 2.1rem;
         font-weight: 500;
-        color: var(--title);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        letter-spacing: -0.015em;
+        line-height: 1.3;
+        margin: 0 0 1rem;
+        text-wrap: balance;
       }
 
-      .post-row .date {
+      .post-hero .date {
         font-size: 0.85rem;
         color: var(--year);
         font-variant-numeric: tabular-nums;
-        white-space: nowrap;
-        flex-shrink: 0;
       }
 
-      .post-row .excerpt {
-        display: block;
-        font-size: 0.95rem;
-        line-height: 1.6;
-        color: var(--label);
-        margin-top: 0.5rem;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+      @media (max-width: 600px) {
+        .post-hero h1 {
+          font-size: 1.65rem;
+        }
       }
 
-      @media (min-width: 601px) and (max-width: 1000px) {
-        .post-row .title {
-          font-size: 1.2rem;
-        }
+      .post-body {
+        padding-bottom: 6rem;
+      }
 
-        .post-row .excerpt {
-          font-size: 1.02rem;
-        }
+      .post-body p {
+        font-size: 1.05rem;
+        line-height: 1.75;
+        color: var(--text-secondary);
+        margin: 0 0 1.5rem;
+      }
 
-        .post-row .date {
-          font-size: 0.92rem;
-        }
+      .post-body p:last-child {
+        margin-bottom: 0;
       }
 
       /* Subtle fade-up on scroll, same feel as the case study
@@ -218,18 +190,16 @@ const formatDate = (date: Date) =>
     <Topbar showBack />
 
     <div class="col">
-      <div class="post-list">
-        {
-          posts.map((post, i) => (
-            <a class="post-row" href={`/ideas/${post.id}`} data-reveal style={`transition-delay: ${i * 70}ms`}>
-              <div class="row-top">
-                <h2 class="title">{post.data.title}</h2>
-                <span class="date">{formatDate(post.data.date)}</span>
-              </div>
-              <span class="excerpt">{post.data.excerpt}</span>
-            </a>
-          ))
-        }
+      <div class="post-hero" data-reveal>
+        <p class="eyebrow">Ideas</p>
+        <h1>{data.title}</h1>
+        <p class="date">{formattedDate}</p>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="post-body" data-reveal>
+        <Content />
       </div>
     </div>
 
