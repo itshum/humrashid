@@ -195,13 +195,67 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
       }
 
       /* Instrument Serif's italic ampersand specifically - a small,
-         deliberate flourish against the otherwise all-Sans page. */
+         deliberate flourish against the otherwise all-Sans page. Sized
+         as an inline SVG (the glyph's own outline, extracted from the
+         webfont) rather than live text, so it can draw itself in on
+         load. Dimensions are the glyph's font-unit bounding box
+         (525 x 739 of 1000 units/em) scaled by the old 1.15em flourish
+         factor: 0.525*1.15 / 0.739*1.15. */
       .intro-h1 .amp {
-        font-family: "Instrument Serif", Georgia, serif;
-        font-style: italic;
-        font-weight: 400;
-        font-size: 1.15em;
-        margin: 0 0.14em 0 0.02em;
+        display: inline-block;
+        width: 0.604em;
+        height: 0.85em;
+        margin: 0 0.161em 0 0.023em;
+        vertical-align: baseline;
+      }
+
+      .amp-glyph {
+        fill: var(--title);
+      }
+
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+
+      /* The mask stroke is one continuous walk of the glyph's own
+         medial-axis skeleton (computed from the extracted outline via
+         skimage, then reduced to a route that's guaranteed - verified
+         by rasterizing and diffing against the true glyph fill - to
+         fully cover its ink; a hand-eyeballed brush path kept missing
+         corners no matter how generous the width). stroke-width 100
+         matches the glyph's own measured stroke thickness (max local
+         diameter ~82 units) rather than an oversized guess. Revealed
+         via stroke-dashoffset on a normalized (pathLength=1) path so
+         timing doesn't depend on the route's actual geometric length -
+         only the masked glyph fill is ever visible, not the brush. */
+      .amp-mask-stroke {
+        fill: none;
+        stroke: #fff;
+        stroke-width: 100;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-dasharray: 1;
+        stroke-dashoffset: 1;
+        transition: stroke-dashoffset 2.2s cubic-bezier(0.45, 0, 0.2, 1);
+      }
+
+      .intro-h1.is-in .amp-mask-stroke {
+        stroke-dashoffset: 0;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .amp-mask-stroke {
+          transition: none;
+          stroke-dashoffset: 0;
+        }
       }
 
       @media (max-width: 600px) {
@@ -538,7 +592,14 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
 
     <div class="col">
       <div class="intro">
-        <h1 class="intro-h1" data-load-reveal><span class="name-trigger">Humayun Rashid</span> is a designer <span class="amp">&amp;</span> founder in New York City</h1>
+        <h1 class="intro-h1" data-load-reveal><span class="name-trigger">Humayun Rashid</span> is a designer <span class="amp" aria-hidden="true"><svg viewBox="0 -730 525 739" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <mask id="amp-reveal-mask" maskUnits="userSpaceOnUse" x="-100" y="-830" width="725" height="950">
+                  <path class="amp-mask-stroke" pathLength="1" d="M473.0,-398.0 L504.0,-373.0 L514.0,-319.0 L421.0,-291.0 L429.0,-161.0 L370.0,-60.0 L302.0,-19.0 L219.0,-8.0 L104.0,-61.0 L56.0,-186.0 L91.0,-344.0 L140.0,-402.0 L212.0,-441.0 L293.0,-431.0 L213.0,-441.0 L188.0,-497.0 L187.0,-589.0 L237.0,-672.0 L334.0,-708.0 L408.0,-684.0 L429.0,-656.0 L423.0,-509.0 L429.0,-656.0 L396.0,-693.0 L295.0,-703.0 L209.0,-640.0 L183.0,-531.0 L212.0,-441.0 L106.0,-367.0 L63.0,-266.0 L61.0,-149.0 L104.0,-61.0 L219.0,-8.0 L302.0,-19.0 L370.0,-60.0 L429.0,-161.0 L421.0,-292.0 L320.0,-298.0 L272.0,-260.0 L266.0,-210.0 L310.0,-180.0 L265.0,-214.0 L293.0,-286.0 L501.0,-303.0 L512.0,-356.0 L473.0,-398.0" />
+                </mask>
+              </defs>
+              <path class="amp-glyph" mask="url(#amp-reveal-mask)" d="M223 9 Q162 9 116.0 -17 Q70 -43 44.5 -89 Q19 -135 19 -196 Q19 -255 42.5 -306 Q66 -357 106.5 -394 Q147 -431 198 -447 Q168 -486 168 -545 Q168 -597 191.5 -639 Q215 -681 255.5 -705.5 Q296 -730 346 -730 Q378 -730 407.5 -719.5 Q437 -709 456 -691 Q470 -678 466 -658 L438 -512 Q435 -497 424 -497 Q412 -497 411 -514 L410 -535 Q406 -618 387.0 -652.5 Q368 -687 325 -687 Q289 -687 260.5 -668 Q232 -649 215.0 -616 Q198 -583 198 -541 Q198 -482 230 -454 Q245 -456 260 -456 Q313 -456 313 -430 Q313 -406 275 -406 Q244 -406 218 -426 Q91 -387 91 -218 Q91 -126 131.0 -74.5 Q171 -23 241 -23 Q291 -23 331.5 -48 Q372 -73 396.0 -114.5 Q420 -156 420 -207 Q420 -285 346 -285 Q317 -285 300.5 -273.5 Q284 -262 284 -245 Q284 -230 294.0 -225 Q304 -220 317.0 -217 Q330 -214 340.0 -206.5 Q350 -199 350 -179 Q350 -161 337.0 -150.5 Q324 -140 303 -140 Q276 -140 260.0 -160 Q244 -180 244 -213 Q244 -250 266.0 -277 Q288 -304 325.5 -316 Q363 -328 408 -320 L439 -315 Q504 -305 504 -331 Q504 -343 493.0 -348 Q482 -353 468.0 -357.5 Q454 -362 443.0 -370.5 Q432 -379 432 -397 Q432 -414 444.0 -425 Q456 -436 478 -436 Q507 -436 523.0 -415.5 Q539 -395 539 -361 Q539 -318 512.0 -292 Q485 -266 443 -269 Q450 -246 450 -214 Q450 -150 420.5 -99.5 Q391 -49 340.0 -20 Q289 9 223 9 Z" />
+            </svg></span><span class="sr-only">&amp;</span> founder in New York City</h1>
         <p data-load-reveal>
           I've spent over a decade designing and building products across B2B SaaS and eCommerce.
           Most recently, I was on the early design team at Sublime Security, the fastest-growing
