@@ -585,9 +585,191 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
           transition: none;
         }
       }
+
+      /* --- Experimental: Pack row hover takeover -------------------
+         A test of a full-page color/UI takeover on hover, using real
+         crops from the Pack case study. Colors are sampled from the
+         actual case study assets (#0c3336 dark teal, #c4d5d0 sage),
+         not invented. Cards sit in the margins around the centered
+         .col text so they never cover copy. Desktop-hover-only and
+         wide-viewport-only - see the (hover: hover) media query and
+         the JS gate below, which only attaches the listener when
+         that query matches. */
+      #pack-takeover {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.7s ease;
+        /* Sampled from Pack's own UI (customizer sidebar, nav system) -
+           stays in the same dark teal-to-forest-green register the
+           whole way rather than washing out to a pale sage, which read
+           as off-brand. */
+        background: linear-gradient(135deg, #071c1d 0%, #0f322e 40%, #1c4a3f 70%, #26594a 100%);
+      }
+
+      html.pack-hover #pack-takeover {
+        opacity: 1;
+      }
+
+      .pack-card {
+        position: fixed;
+        width: 260px;
+        height: auto;
+        border-radius: 10px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      html.pack-hover .pack-card {
+        pointer-events: auto;
+      }
+
+      .pack-card-1 {
+        top: 7rem;
+        left: 3vw;
+        transform: translate(-40px, -20px) rotate(-9deg) scale(0.9);
+        transition-delay: 0s;
+      }
+
+      .pack-card-2 {
+        bottom: 6rem;
+        left: 4vw;
+        width: 240px;
+        transform: translate(-40px, 30px) rotate(6deg) scale(0.9);
+        transition-delay: 0.08s;
+      }
+
+      .pack-card-3 {
+        top: 6rem;
+        right: 3vw;
+        width: 250px;
+        transform: translate(40px, -20px) rotate(7deg) scale(0.9);
+        transition-delay: 0.04s;
+      }
+
+      .pack-card-4 {
+        bottom: 8rem;
+        right: 3.5vw;
+        width: 230px;
+        transform: translate(40px, 30px) rotate(-6deg) scale(0.9);
+        transition-delay: 0.12s;
+      }
+
+      .pack-card-5 {
+        top: 3rem;
+        left: calc(50% - 130px);
+        width: 260px;
+        transform: translate(0, -50px) rotate(-5deg) scale(0.9);
+        transition-delay: 0.16s;
+      }
+
+      html.pack-hover .pack-card {
+        opacity: 1;
+        transform: translate(0, 0) rotate(var(--rest-rotate, 0deg)) scale(1);
+      }
+
+      html.pack-hover .pack-card-1 {
+        --rest-rotate: -4deg;
+      }
+      html.pack-hover .pack-card-2 {
+        --rest-rotate: 3deg;
+      }
+      html.pack-hover .pack-card-3 {
+        --rest-rotate: 3deg;
+      }
+      html.pack-hover .pack-card-4 {
+        --rest-rotate: -3deg;
+      }
+      html.pack-hover .pack-card-5 {
+        --rest-rotate: 2deg;
+      }
+
+      /* Everything else on the page fades out so the Pack row is the
+         only surviving piece of "the homepage" during the takeover -
+         opacity (not display:none) so nothing reflows, and
+         pointer-events:none so the now-invisible rows/nav/footer
+         can't intercept the pointer or accidentally register their
+         own hover state underneath the takeover. */
+      html.pack-hover .topbar,
+      html.pack-hover .intro,
+      html.pack-hover .section-heading,
+      html.pack-hover .site-footer {
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.4s ease;
+      }
+
+      html.pack-hover .work-row:not(#pack-row) {
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.4s ease;
+      }
+
+      /* The row itself gets its own light-on-dark treatment while
+         active, since the site's normal hover state (a light grey
+         fill, dark text) was designed for the page's own light/dark
+         backgrounds, not this teal takeover. */
+      html.pack-hover #pack-row {
+        background: rgba(255, 255, 255, 0.16);
+        backdrop-filter: blur(6px);
+      }
+
+      html.pack-hover #pack-row .title {
+        color: #f8fdfb;
+        text-shadow: 0 1px 4px rgba(3, 15, 14, 0.35);
+      }
+
+      html.pack-hover #pack-row .desc {
+        color: rgba(248, 253, 251, 0.88);
+        text-shadow: 0 1px 4px rgba(3, 15, 14, 0.3);
+      }
+
+      html.pack-hover #pack-row .year {
+        color: rgba(248, 253, 251, 0.78);
+      }
+
+      html.pack-hover #pack-row .icon.internal {
+        color: #b7edd3;
+      }
+
+      /* Needs real margin on both sides of the centered .col text to
+         avoid the cards ever overlapping copy, and a real desktop
+         pointer to make sense as a hover effect - the JS gate below
+         mirrors this same condition before it ever adds the class,
+         this is just a visual backstop. */
+      @media (max-width: 1200px), (hover: none), (pointer: coarse) {
+        #pack-takeover,
+        .pack-card {
+          display: none;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        #pack-takeover,
+        .pack-card {
+          transition: none;
+        }
+      }
     </style>
   </head>
   <body>
+    <!-- Experimental hover takeover for the Pack Platform work row -
+         a full-page color/UI takeover test, gated to real desktop
+         hover so it's inert on touch. Sits first in the DOM (behind
+         everything else in default stacking order) so the page's own
+         text and controls always render on top of it. -->
+    <div id="pack-takeover" aria-hidden="true">
+      <img class="pack-card pack-card-1" src="/case-studies/pack/fragments/pageviews.png" alt="" />
+      <img class="pack-card pack-card-2" src="/case-studies/pack/fragments/conversion.png" alt="" />
+      <img class="pack-card pack-card-3" src="/case-studies/pack/fragments/dropdown.png" alt="" />
+      <img class="pack-card pack-card-4" src="/case-studies/pack/fragments/modal.png" alt="" />
+      <img class="pack-card pack-card-5" src="/case-studies/pack/fragments/notifications.png" alt="" />
+    </div>
+
     <Topbar showNav />
 
     <div class="col">
@@ -652,7 +834,7 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
             <span class="desc">Founder &amp; Design Director of product design studio for early-stage startups.</span>
           </div>
 
-          <a class="work-row" data-load-reveal href="/work/pack">
+          <a class="work-row" id="pack-row" data-load-reveal href="/work/pack">
             <span class="row-top">
               <span class="title">Pack Platform</span>
               <span class="meta">
@@ -807,6 +989,42 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
       window.addEventListener("resize", () => {
         if (namePhoto?.classList.contains("is-visible")) positionPhoto();
       });
+
+      // Experimental Pack row hover takeover - only wired up on real
+      // desktop hover (not touch, which fakes hover on tap and would
+      // otherwise leave the effect stuck on after a scroll-past-tap).
+      // Re-checked live rather than cached, since a window can move
+      // between a trackpad-only laptop and a mouse-equipped desktop
+      // between visits.
+      //
+      // "Locked in" behavior: the row and every floating card are
+      // treated as one combined hover zone. Leaving any one of them
+      // schedules a short deactivation instead of firing immediately,
+      // which gets cancelled if the pointer lands on another zone
+      // within that window - so crossing the small gap between the
+      // row and a card (or between two cards) doesn't flicker the
+      // takeover off. It only actually deactivates once the pointer
+      // has left every zone and stayed out.
+      const packRow = document.getElementById("pack-row");
+      const packCards = Array.from(document.querySelectorAll<HTMLElement>(".pack-card"));
+      const desktopHoverQuery = window.matchMedia("(hover: hover) and (pointer: fine)");
+      if (packRow && desktopHoverQuery.matches) {
+        let deactivateTimer: ReturnType<typeof setTimeout> | undefined;
+        const activate = () => {
+          clearTimeout(deactivateTimer);
+          document.documentElement.classList.add("pack-hover");
+        };
+        const scheduleDeactivate = () => {
+          clearTimeout(deactivateTimer);
+          deactivateTimer = setTimeout(() => {
+            document.documentElement.classList.remove("pack-hover");
+          }, 150);
+        };
+        for (const zone of [packRow, ...packCards]) {
+          zone.addEventListener("mouseenter", activate);
+          zone.addEventListener("mouseleave", scheduleDeactivate);
+        }
+      }
     </script>
   </body>
 </html>
