@@ -1,25 +1,6 @@
 ---
 import Topbar from "../components/Topbar.astro";
 import Footer from "../components/Footer.astro";
-
-const PHOTO_GRID = 10;
-
-// Percentage-based, not fixed pixels - the container's actual
-// rendered size is set dynamically at runtime (see positionPhoto() in
-// the script below, which sizes it to match the name's underline
-// width), so the slice math can't assume a fixed 263x306 photo box.
-// Standard CSS background-position-percentage formula: at a tile of
-// size T within a background-size of 1000% (= 10T, the full image),
-// offsetting by `col` tiles needs position% = col * 100 / (GRID - 1).
-const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
-  const col = i % PHOTO_GRID;
-  const row = Math.floor(i / PHOTO_GRID);
-  const posX = ((col * 100) / (PHOTO_GRID - 1)).toFixed(3);
-  const posY = ((row * 100) / (PHOTO_GRID - 1)).toFixed(3);
-  return {
-    style: `background-position: ${posX}% ${posY}%;`,
-  };
-});
 ---
 
 <!doctype html>
@@ -96,17 +77,17 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
          script, both keyed off NYC local time) - an off dark grey,
          never pure black, mirroring the light palette's warmth. */
       :root {
-        --bg: #f8f8f6;
+        --bg: #f0f0ee;
         --text: #262626;
         --text-secondary: #2b2b2b;
         --label: #7a7a7a;
         --label-cool: #76787d;
-        --hover-bg: #eae9e5;
+        --hover-bg: #e2e1dd;
         --title: #262626;
         --year: #8a8984;
         --icon: #c9c7c0;
         --icon-hover: #6b6b6b;
-        --border: #e2e0da;
+        --border: #dad8d2;
         --selection-bg: #1f3d2e;
         --selection-text: #f8f8f6;
         --photo-shadow: 0 16px 40px rgba(0, 0, 0, 0.16), 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -377,7 +358,7 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
         overflow: hidden;
         opacity: 0;
         transform: translateY(-6px) scale(0.97);
-        transition: opacity 0.3s ease, transform 0.3s ease;
+        transition: opacity 0.3s ease;
         pointer-events: none;
         z-index: 30;
         box-shadow: var(--photo-shadow);
@@ -386,34 +367,13 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
 
       .name-photo.is-visible {
         opacity: 1;
-        transform: translateY(0) scale(1);
       }
 
-      .pixel-grid {
-        position: absolute;
-        inset: 0;
-        display: grid;
-        grid-template-columns: repeat(10, 1fr);
-        grid-template-rows: repeat(10, 1fr);
-      }
-
-      /* Each tile only ever shows its own slice of the real photo
-         (via background-position) - never the full image at once, and
-         nothing is visible until its own tile appears. Tiles pop in
-         one at a time (opacity only, no blur/movement/rotation) in a
-         random order set by the script below, so the picture builds
-         up piece by piece instead of one blurred image sharpening as
-         a whole. */
-      .pixel-tile {
-        background-image: url("/headshot.jpg");
-        background-repeat: no-repeat;
-        background-size: 1000% 1000%;
-        opacity: 0;
-        transition: opacity 0.4s ease;
-      }
-
-      .name-photo.is-visible .pixel-tile {
-        opacity: 1;
+      .name-photo-img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
       }
 
       section {
@@ -620,9 +580,7 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
         </p>
 
         <span class="name-photo" role="img" aria-label="Headshot of Humayun Rashid">
-          <span class="pixel-grid" aria-hidden="true">
-            {photoTiles.map((tile) => <span class="pixel-tile" style={tile.style} />)}
-          </span>
+          <img class="name-photo-img" src="/headshot.jpg" alt="" />
         </span>
       </div>
 
@@ -735,20 +693,9 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
         }
       }
 
-      // Re-randomize which tiles clear first on every reveal, so it
-      // never sweeps the same top-left-to-bottom-right way twice in a
-      // row.
-      const MAX_DELAY_S = 1.1;
       const nameTrigger = document.querySelector<HTMLElement>(".name-trigger");
       const namePhoto = document.querySelector<HTMLElement>(".name-photo");
       const introEl = document.querySelector<HTMLElement>(".intro");
-      const pixelTiles = document.querySelectorAll<HTMLElement>(".pixel-tile");
-
-      function restaggerTiles() {
-        pixelTiles.forEach((tile) => {
-          tile.style.transitionDelay = `${(Math.random() * MAX_DELAY_S).toFixed(3)}s`;
-        });
-      }
 
       // .name-photo is a plain sibling of the paragraphs now (see the
       // markup above and the comment on .name-photo's CSS) rather
@@ -771,14 +718,79 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
         namePhoto.style.left = `${triggerRect.left - introRect.left}px`;
       }
 
+      // Cursor-follow, à la Upstatement's hover-teases (upstatement.com) -
+      // inspected live: theirs isn't CSS-transition-driven (the hover
+      // figure computes to transition-duration: 0s), it's a
+      // requestAnimationFrame loop lerping toward the cursor. This is
+      // the same technique, sized down for a name-width card instead
+      // of a full media tease: the photo's base position/size still
+      // comes from positionPhoto() above (anchored to the underline),
+      // and a small clamped offset on top of that drifts toward
+      // wherever the cursor sits within the name, so the card feels
+      // loosely attached to the pointer without ever leaving the
+      // name's own footprint.
+      const FOLLOW_RANGE_X = 22;
+      const FOLLOW_RANGE_Y = 12;
+      const FOLLOW_LERP = 0.16;
+      const ENTRANCE_LERP = 0.22;
+
+      let targetFollowX = 0;
+      let targetFollowY = 0;
+      let followX = 0;
+      let followY = 0;
+      let entranceT = 0; // 0 = just-revealed pose, 1 = settled
+      let followRafId: number | null = null;
+
+      function followTick() {
+        followX += (targetFollowX - followX) * FOLLOW_LERP;
+        followY += (targetFollowY - followY) * FOLLOW_LERP;
+        entranceT += (1 - entranceT) * ENTRANCE_LERP;
+
+        const scale = 0.97 + 0.03 * entranceT;
+        const entranceY = -6 * (1 - entranceT);
+
+        if (namePhoto) {
+          namePhoto.style.transform = `translate(${followX.toFixed(2)}px, ${(followY + entranceY).toFixed(2)}px) scale(${scale.toFixed(4)})`;
+        }
+
+        const settled =
+          Math.abs(targetFollowX - followX) < 0.05 &&
+          Math.abs(targetFollowY - followY) < 0.05 &&
+          entranceT > 0.999;
+
+        if (!settled) {
+          followRafId = requestAnimationFrame(followTick);
+        } else {
+          followRafId = null;
+        }
+      }
+
+      function ensureFollowLoop() {
+        if (followRafId == null) followRafId = requestAnimationFrame(followTick);
+      }
+
+      function updateFollowTarget(clientX: number, clientY: number) {
+        if (!nameTrigger) return;
+        const rect = nameTrigger.getBoundingClientRect();
+        const relX = (clientX - rect.left) / rect.width;
+        const relY = (clientY - rect.top) / rect.height;
+        targetFollowX = (Math.min(1, Math.max(0, relX)) - 0.5) * 2 * FOLLOW_RANGE_X;
+        targetFollowY = (Math.min(1, Math.max(0, relY)) - 0.5) * 2 * FOLLOW_RANGE_Y;
+        ensureFollowLoop();
+      }
+
       function showPhoto() {
         positionPhoto();
-        restaggerTiles();
+        entranceT = prefersReducedMotion ? 1 : 0;
         namePhoto?.classList.add("is-visible");
+        ensureFollowLoop();
       }
 
       function hidePhoto() {
         namePhoto?.classList.remove("is-visible");
+        targetFollowX = 0;
+        targetFollowY = 0;
+        ensureFollowLoop();
       }
 
       if (nameTrigger && window.matchMedia("(hover: none)").matches) {
@@ -786,7 +798,8 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
         // a tap-toggled class instead of relying on iOS's sticky-hover
         // simulation (unreliable to trigger, and skips the
         // transition/stagger entirely - see the (hover: none) padding
-        // rule above for the matching tap-target fix).
+        // rule above for the matching tap-target fix). No cursor to
+        // follow here either, so the photo just settles at center.
         nameTrigger.addEventListener("click", () => {
           const isActive = nameTrigger.classList.toggle("is-active");
           if (isActive) showPhoto();
@@ -801,6 +814,11 @@ const photoTiles = Array.from({ length: PHOTO_GRID * PHOTO_GRID }, (_, i) => {
         });
       } else {
         nameTrigger?.addEventListener("mouseenter", showPhoto);
+        if (!prefersReducedMotion) {
+          nameTrigger?.addEventListener("mousemove", (event) => {
+            updateFollowTarget(event.clientX, event.clientY);
+          });
+        }
         nameTrigger?.addEventListener("mouseleave", hidePhoto);
       }
 
