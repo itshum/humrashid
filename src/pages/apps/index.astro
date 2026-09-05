@@ -4,9 +4,9 @@ import Footer from "../../components/Footer.astro";
 
 const apps = [
   {
-    slug: "render",
+    slug: "rendr",
     name: "rendr",
-    desc: "Drop in a screenshot, pick a background and a frame, export it sized for the social post you're actually posting to.",
+    desc: "Polished backgrounds for any screenshot.",
   },
 ];
 ---
@@ -103,14 +103,21 @@ const apps = [
         padding: 0 1.5rem;
       }
 
+      .col-wide {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+      }
+
       @media (max-width: 600px) {
-        .col {
+        .col,
+        .col-wide {
           padding: 0 2rem;
         }
       }
 
       .hero {
-        padding: 4.2rem 0 2rem;
+        padding: 4.2rem 0 2.5rem;
       }
 
       .hero .eyebrow {
@@ -129,79 +136,119 @@ const apps = [
         text-wrap: balance;
       }
 
-      .app-list {
-        padding: 1rem 0 8rem;
-        margin: 0 -0.9rem;
-        border-top: 1px solid var(--border);
+      /* --- Card grid --- */
+      .app-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+        padding: 0 0 8rem;
       }
 
-      .app-row {
+      @media (max-width: 700px) {
+        .app-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      /* Variant E: plain bordered card, one quiet gradient swatch as
+         the preview (no nested UI chrome, no composed scene) and a
+         faint tint shift into the text footer - restraint over
+         illustration. */
+      .app-card {
         display: block;
-        padding: 1.1rem 0.9rem;
-        border-radius: 6px;
         text-decoration: none;
-        transition: background 0.15s ease;
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        overflow: hidden;
+        background: var(--bg);
+        transition: border-color 0.15s ease, transform 0.15s ease;
       }
 
-      .app-row:hover,
-      .app-row:active {
+      .app-card:hover {
+        border-color: var(--label);
+        transform: translateY(-2px);
+      }
+
+      .app-card-body {
+        padding: 1.1rem 1.25rem 1.3rem;
         background: var(--hover-bg);
       }
 
-      .app-row .row-top {
+      .app-card .title-row {
         display: flex;
-        align-items: baseline;
+        align-items: center;
         justify-content: space-between;
-        gap: 1.5rem;
       }
 
-      .app-row .title {
-        font-size: 1.05rem;
-        font-weight: 500;
+      .app-card .title {
+        font-size: 1.1rem;
+        font-weight: 600;
         color: var(--title);
       }
 
-      .app-row .icon {
+      .app-card .icon {
         font-size: 0.85rem;
         color: var(--label);
         opacity: 0;
         transition: opacity 0.15s ease, transform 0.15s ease;
-        display: inline-block;
       }
 
-      .app-row:hover .icon,
-      .app-row:active .icon {
+      .app-card:hover .icon {
         opacity: 1;
         transform: translateX(2px);
       }
 
-      .app-row .desc {
+      .app-card .desc {
         display: block;
-        font-size: 0.92rem;
+        font-size: 0.88rem;
         line-height: 1.5;
         color: var(--label);
-        margin-top: 0.5rem;
+        margin-top: 0.4rem;
+      }
+
+      .app-preview {
+        aspect-ratio: 16 / 11;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: radial-gradient(circle at 30% 30%, #f5b9d6, transparent 65%),
+          radial-gradient(circle at 75% 70%, #8c6fd6, transparent 65%), #170f1f;
+      }
+
+      /* The one visual metaphor: your image, placed on a background -
+         nothing else, no UI chrome. */
+      .app-preview .frame {
+        width: 32%;
+        aspect-ratio: 1;
+        background: rgba(255, 255, 255, 0.94);
+        border-radius: 6px;
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
       }
     </style>
   </head>
   <body>
     <Topbar showBack />
 
-    <div class="col">
+    <div class="col-wide">
       <div class="hero">
         <p class="eyebrow">Apps</p>
         <h1>Small standalone tools, built and shipped one at a time.</h1>
       </div>
 
-      <div class="app-list">
+      <div class="app-grid">
         {
           apps.map((app) => (
-            <a class="app-row" href={`/apps/${app.slug}/`}>
-              <span class="row-top">
-                <span class="title">{app.name}</span>
-                <span class="icon" aria-hidden="true">→</span>
-              </span>
-              <span class="desc">{app.desc}</span>
+            <a class="app-card" href={`/apps/${app.slug}/`}>
+              <div class="app-preview">
+                <div class="frame" />
+              </div>
+              <div class="app-card-body">
+                <span class="title-row">
+                  <span class="title">{app.name}</span>
+                  <span class="icon" aria-hidden="true">→</span>
+                </span>
+                <span class="desc">{app.desc}</span>
+              </div>
             </a>
           ))
         }
