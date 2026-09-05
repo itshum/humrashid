@@ -36,8 +36,9 @@ system to maintain.
 3. **Hairline borders.** 1px strokes throughout — bars, nodes, axis
    lines. Never thicker unless it's the one accented element, and even
    then stay at 1-1.5px.
-4. **Corners stay small.** 0px (sharp) for process/rectangle nodes,
-   up to ~6-8px for pill-shaped start/end nodes. Never a large,
+4. **Corners stay small.** 2px for process/rectangle nodes and bars —
+   just enough to soften the edge without reading as rounded — up to
+   ~6-8px for pill-shaped start/end nodes. Never a large,
    friendly-rounded-card radius — that reads as UI chrome, not an
    editorial figure.
 5. **Everything on a 4px grid.** Every x/y coordinate, width, height,

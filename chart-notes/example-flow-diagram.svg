@@ -8,7 +8,7 @@
 
     Colors are CSS custom properties (with light-mode fallbacks) so
     this tracks the site's real light/dark theme automatically once
-    embedded in a page that defines --text/--label/--border/etc. on
+    embedded in a page that defines the text/label/border tokens on
     an ancestor - see preview.html for both themes side by side.
   -->
 
@@ -26,7 +26,7 @@
   <line x1="160" y1="56" x2="160" y2="88" style="stroke:var(--label,#7a7a7a)" stroke-width="1" marker-end="url(#arrow)" />
 
   <!-- step 1 (rectangle) -->
-  <rect x="72" y="92" width="176" height="44" style="fill:var(--bg,#ffffff);stroke:var(--text,#262626)" stroke-width="1" />
+  <rect x="72" y="92" width="176" height="44" rx="2" style="fill:var(--bg,#ffffff);stroke:var(--text,#262626)" stroke-width="1" />
   <text x="160" y="119" style="fill:var(--text,#262626)" font-size="13" text-anchor="middle">Check existing cache</text>
 
   <line x1="160" y1="136" x2="160" y2="168" style="stroke:var(--label,#7a7a7a)" stroke-width="1" marker-end="url(#arrow)" />
@@ -40,7 +40,7 @@
   <line x1="232" y1="208" x2="272" y2="208" style="stroke:var(--label,#7a7a7a)" stroke-width="1" />
   <text x="252" y="200" style="fill:var(--label,#7a7a7a)" font-size="10" text-anchor="middle">NO</text>
   <line x1="272" y1="208" x2="272" y2="244" style="stroke:var(--label,#7a7a7a)" stroke-width="1" marker-end="url(#arrow)" />
-  <rect x="196" y="248" width="152" height="40" style="fill:var(--bg,#ffffff);stroke:var(--text,#262626)" stroke-width="1" />
+  <rect x="196" y="248" width="152" height="40" rx="2" style="fill:var(--bg,#ffffff);stroke:var(--text,#262626)" stroke-width="1" />
   <text x="272" y="273" style="fill:var(--text,#262626)" font-size="12" text-anchor="middle">Rebuild from source</text>
 
   <!-- "yes" branch straight down to the accented outcome - label
