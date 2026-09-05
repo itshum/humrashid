@@ -720,6 +720,11 @@
         max-height: 100%;
         border-radius: 6px;
         box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+        outline: none;
+      }
+
+      .stage canvas:focus-visible {
+        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5), 0 0 0 2px var(--app-accent);
       }
 
       .stage[hidden] {
@@ -892,7 +897,7 @@
             <strong>Nothing to preview yet</strong>
             Upload an image on the left to see it composited live.
           </div>
-          <canvas id="previewCanvas" hidden></canvas>
+          <canvas id="previewCanvas" tabindex="0" hidden></canvas>
           <div class="stage-info" id="stageInfo" hidden></div>
         </main>
       </div>
@@ -1546,7 +1551,7 @@
       // render() - never inside render() itself, since that same
       // function also produces the actual exported file and these
       // guides must never end up baked into a download.
-      const GUIDE_COLOR = "#ff3b8d";
+      const GUIDE_COLOR = "#0d99ff";
 
       function drawMeasurement(
         c: CanvasRenderingContext2D,
@@ -1565,10 +1570,10 @@
         c.lineTo(x2, y2);
         c.stroke();
 
-        c.font = "11px ui-monospace, SFMono-Regular, Menlo, monospace";
-        const padX = 5;
+        c.font = "13px ui-monospace, SFMono-Regular, Menlo, monospace";
+        const padX = 6;
         const boxW = c.measureText(label).width + padX * 2;
-        const boxH = 16;
+        const boxH = 20;
         c.fillStyle = GUIDE_COLOR;
         roundedRectPath(c, labelX - boxW / 2, labelY - boxH / 2, boxW, boxH, 3);
         c.fill();
@@ -2176,6 +2181,7 @@
 
       canvas.addEventListener("pointerdown", (e) => {
         if (!state.assetImg) return;
+        canvas.focus();
         dragging = true;
         dragStartX = e.clientX;
         dragStartY = e.clientY;
@@ -2200,6 +2206,34 @@
           // with synthetic/test events) - the guides are already
           // cleared above regardless.
         }
+      });
+
+      // Arrow keys nudge the image for pixel-precise positioning -
+      // 1px per press, 10px with Shift held. Guides light up the same
+      // way they do for a pointer drag, then fade out shortly after
+      // the last key press rather than needing an explicit "release."
+      const ARROW_KEYS: Record<string, [number, number]> = {
+        ArrowUp: [0, -1],
+        ArrowDown: [0, 1],
+        ArrowLeft: [-1, 0],
+        ArrowRight: [1, 0],
+      };
+      let nudgeGuideTimeout: ReturnType<typeof setTimeout> | null = null;
+
+      canvas.addEventListener("keydown", (e) => {
+        const delta = ARROW_KEYS[e.key];
+        if (!delta || !state.assetImg) return;
+        e.preventDefault();
+        const step = e.shiftKey ? 10 : 1;
+        state.offsetX += delta[0] * step;
+        state.offsetY += delta[1] * step;
+        dragging = true;
+        renderPreview();
+        if (nudgeGuideTimeout) clearTimeout(nudgeGuideTimeout);
+        nudgeGuideTimeout = setTimeout(() => {
+          dragging = false;
+          renderPreview();
+        }, 600);
       });
 
       // ---------- Export ----------
