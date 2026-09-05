@@ -745,6 +745,10 @@
         white-space: nowrap;
       }
 
+      .stage-info-rest {
+        margin-left: 0.6rem;
+      }
+
       .stage-info[hidden] {
         display: none;
       }
@@ -2255,7 +2259,7 @@
         exportHint.textContent = `${w} × ${h} ${formatLabel}${scaleSuffix}`;
         const qualityLabel = state.exportFormat === "png" ? "Lossless" : `${Math.round(EXPORT_QUALITY * 100)}% quality`;
         const fileName = filenameEl.textContent || "";
-        stageInfo.innerHTML = `<strong>${fileName}</strong> · ${w}×${h} · ${formatLabel} · ${qualityLabel}`;
+        stageInfo.innerHTML = `<strong>${fileName}</strong><span class="stage-info-rest">${w}×${h} · ${formatLabel} · ${qualityLabel}</span>`;
         stageInfo.hidden = false;
       }
 
