@@ -1,0 +1,213 @@
+---
+import Topbar from "../../components/Topbar.astro";
+import Footer from "../../components/Footer.astro";
+
+const apps = [
+  {
+    slug: "render",
+    name: "rendr",
+    desc: "Drop in a screenshot, pick a background and a frame, export it sized for the social post you're actually posting to.",
+  },
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="canonical" href="https://www.humrashid.com/apps" />
+    <script is:inline>
+      (function () {
+        var parts = new Intl.DateTimeFormat("en-US", {
+          timeZone: "America/New_York",
+          hour: "numeric",
+          hour12: false,
+        }).formatToParts(new Date());
+        var hour = Number(
+          (parts.filter(function (p) {
+            return p.type === "hour";
+          })[0] || {}).value || 12
+        );
+        document.documentElement.dataset.theme = hour >= 19 || hour < 6 ? "dark" : "light";
+      })();
+    </script>
+    <title>Apps · Humayun Rashid</title>
+    <meta
+      name="description"
+      content="Small standalone tools built by Humayun Rashid."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&display=swap"
+    />
+    <style is:global>
+      :root {
+        --bg: #f6f6f3;
+        --text: #262626;
+        --text-secondary: #2b2b2b;
+        --label: #7a7a7a;
+        --hover-bg: #e8e7e2;
+        --title: #262626;
+        --year: #8a8984;
+        --border: #e0ded7;
+        --selection-bg: #1f3d2e;
+        --selection-text: #f8f8f6;
+      }
+
+      :root[data-theme="dark"] {
+        --bg: #0d0d0c;
+        --text: #eeede8;
+        --text-secondary: #d6d5d0;
+        --label: #93928c;
+        --hover-bg: #1d1d1b;
+        --title: #eeede8;
+        --year: #696862;
+        --border: #252423;
+        --selection-bg: #4fae82;
+        --selection-text: #171715;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+        transition: background 0.3s ease, color 0.3s ease;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      ::selection {
+        background: var(--selection-bg);
+        color: var(--selection-text);
+      }
+
+      .col {
+        max-width: 718px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+      }
+
+      @media (max-width: 600px) {
+        .col {
+          padding: 0 2rem;
+        }
+      }
+
+      .hero {
+        padding: 4.2rem 0 2rem;
+      }
+
+      .hero .eyebrow {
+        font-size: 0.8rem;
+        color: var(--label);
+        margin: 0 0 1.25rem;
+      }
+
+      .hero h1 {
+        font-size: 1.15rem;
+        font-weight: 400;
+        color: var(--text-secondary);
+        line-height: 1.6;
+        max-width: 46ch;
+        margin: 0;
+        text-wrap: balance;
+      }
+
+      .app-list {
+        padding: 1rem 0 8rem;
+        margin: 0 -0.9rem;
+        border-top: 1px solid var(--border);
+      }
+
+      .app-row {
+        display: block;
+        padding: 1.1rem 0.9rem;
+        border-radius: 6px;
+        text-decoration: none;
+        transition: background 0.15s ease;
+      }
+
+      .app-row:hover,
+      .app-row:active {
+        background: var(--hover-bg);
+      }
+
+      .app-row .row-top {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 1.5rem;
+      }
+
+      .app-row .title {
+        font-size: 1.05rem;
+        font-weight: 500;
+        color: var(--title);
+      }
+
+      .app-row .icon {
+        font-size: 0.85rem;
+        color: var(--label);
+        opacity: 0;
+        transition: opacity 0.15s ease, transform 0.15s ease;
+        display: inline-block;
+      }
+
+      .app-row:hover .icon,
+      .app-row:active .icon {
+        opacity: 1;
+        transform: translateX(2px);
+      }
+
+      .app-row .desc {
+        display: block;
+        font-size: 0.92rem;
+        line-height: 1.5;
+        color: var(--label);
+        margin-top: 0.5rem;
+      }
+    </style>
+  </head>
+  <body>
+    <Topbar showBack />
+
+    <div class="col">
+      <div class="hero">
+        <p class="eyebrow">Apps</p>
+        <h1>Small standalone tools, built and shipped one at a time.</h1>
+      </div>
+
+      <div class="app-list">
+        {
+          apps.map((app) => (
+            <a class="app-row" href={`/apps/${app.slug}/`}>
+              <span class="row-top">
+                <span class="title">{app.name}</span>
+                <span class="icon" aria-hidden="true">→</span>
+              </span>
+              <span class="desc">{app.desc}</span>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+
+    <Footer />
+  </body>
+</html>

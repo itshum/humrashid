@@ -1,0 +1,1692 @@
+---
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="canonical" href="https://www.humrashid.com/apps/render/" />
+    <title>rendr · Humayun Rashid</title>
+    <meta
+      name="description"
+      content="Drop in a screenshot, pick a background and a frame, export it sized for the social post you're posting to. Runs entirely in your browser."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap"
+    />
+    <style is:global>
+      /* Standalone tool shell - fixed dark identity, independent of
+         the main site's time-based light/dark theme. This is its own
+         small product, not another portfolio page. */
+      /* Tokens studied from Linear's actual product UI: a near-black
+         base (not pure black), surfaces built from translucent white
+         over that base rather than distinct opaque grays, and hairline
+         borders at low alpha instead of a solid border color - that
+         combination is most of what makes it read as refined rather
+         than just "dark mode." Accent is intentionally NOT Linear's
+         purple - bright orange per direction, and used sparingly
+         (selection/primary action only), matching how restrained
+         Linear itself is with color. */
+      :root {
+        --app-bg: #08090a;
+        --app-panel: rgba(255, 255, 255, 0.04);
+        /* Solid, not translucent - for floating overlays (the size
+           dropdown) that sit on top of other scrolling content and
+           need to actually occlude it, not blend with whatever's
+           behind. Roughly what --app-panel looks like composited over
+           --app-bg, precomputed as an opaque color. */
+        --app-overlay: #18191b;
+        --app-hover: rgba(255, 255, 255, 0.06);
+        --app-border: rgba(255, 255, 255, 0.1);
+        --app-border-strong: rgba(255, 255, 255, 0.16);
+        --app-text: #f7f8f8;
+        --app-label: #8a8f98;
+        --app-label-dim: #62666d;
+        --app-accent: #ff5a1f;
+        --app-accent-text: #1a0d05;
+        --app-danger: #e2867a;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: var(--app-bg);
+        color: var(--app-text);
+        font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      .app-shell {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+      }
+
+      .app-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid var(--app-border);
+        flex: none;
+      }
+
+      .app-header .back {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.85rem;
+        color: var(--app-label);
+        text-decoration: none;
+        transition: color 0.15s ease;
+      }
+
+      .app-header .back:hover {
+        color: var(--app-text);
+      }
+
+      .app-header .name {
+        font-family: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+        font-size: 1rem;
+        font-weight: 700;
+        text-transform: lowercase;
+        letter-spacing: 0.01em;
+        color: var(--app-accent);
+      }
+
+      .app-body {
+        flex: 1;
+        display: flex;
+        min-height: 0;
+      }
+
+      @media (max-width: 860px) {
+        .app-body {
+          flex-direction: column;
+        }
+      }
+
+      /* --- Sidebar / control panel --- */
+      /* .panel is a fixed-height flex column so .panel-scroll can
+         scroll on its own while .panel-footer (the export button)
+         stays put underneath it, instead of scrolling away with the
+         settings above it. */
+      .panel {
+        width: 300px;
+        flex: none;
+        border-right: 1px solid var(--app-border);
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+      }
+
+      .panel-scroll {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        padding: 0.25rem 0;
+      }
+
+      .panel-footer {
+        flex: none;
+        padding: 1rem 1.25rem 1.25rem;
+        border-top: 1px solid var(--app-border);
+      }
+
+      @media (max-width: 860px) {
+        .panel {
+          width: 100%;
+          border-right: none;
+          border-bottom: 1px solid var(--app-border);
+          max-height: 60vh;
+        }
+      }
+
+      .panel-section {
+        padding: 0.9rem 1.25rem;
+      }
+
+      /* Linear keeps color out of its own nav section labels ("Workspace",
+         "Favorites") - just dim, small, quiet text. Orange is reserved
+         for state (selection, the primary action) rather than used to
+         decorate every heading. */
+      .panel-section h2 {
+        font-size: 0.72rem;
+        font-weight: 500;
+        text-transform: none;
+        letter-spacing: 0;
+        color: var(--app-label-dim);
+        margin: 0 0 0.85rem;
+      }
+
+      /* --- Upload dropzone --- */
+      .dropzone {
+        border: 1px dashed var(--app-border);
+        border-radius: 10px;
+        padding: 0.75rem;
+        text-align: center;
+        cursor: pointer;
+        transition: border-color 0.15s ease, background 0.15s ease;
+      }
+
+      .dropzone:hover,
+      .dropzone.is-dragover {
+        border-color: var(--app-label);
+        background: var(--app-hover);
+      }
+
+      .dropzone-icon {
+        width: 16px;
+        height: 16px;
+        color: var(--app-label-dim);
+        margin-bottom: 0.35rem;
+      }
+
+      .dropzone p {
+        margin: 0;
+        font-size: 0.8rem;
+        color: var(--app-label);
+        line-height: 1.4;
+        white-space: nowrap;
+      }
+
+      .dropzone .filename {
+        margin-top: 0.35rem;
+        font-size: 0.76rem;
+        color: var(--app-text);
+        word-break: break-all;
+        white-space: normal;
+      }
+
+      /* --- Swatch grids (background presets, container, size) --- */
+      .swatch-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        grid-auto-rows: 56px;
+        gap: 0.5rem;
+      }
+
+      .swatch {
+        width: 100%;
+        height: 100%;
+        border-radius: 8px;
+        border: 1px solid var(--app-border);
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        transition: border-color 0.15s ease, transform 0.1s ease;
+        padding: 0;
+        background: none;
+      }
+
+      .swatch:hover {
+        border-color: var(--app-label);
+      }
+
+      .swatch.is-active {
+        border-color: var(--app-accent);
+        box-shadow: 0 0 0 1px var(--app-accent);
+      }
+
+      .swatch-label {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        font-size: 0.6rem;
+        text-align: center;
+        padding: 0.2rem 0;
+        background: rgba(0, 0, 0, 0.45);
+        color: #fff;
+      }
+
+      .bg-pane {
+        margin-top: 0.75rem;
+      }
+
+      .swatch-color-input {
+        width: 100%;
+        height: 56px;
+        border-radius: 8px;
+        border: 1px solid var(--app-border);
+        cursor: pointer;
+        padding: 0;
+        background: none;
+        appearance: none;
+        overflow: hidden;
+      }
+
+      .swatch-color-input::-webkit-color-swatch-wrapper {
+        padding: 0;
+      }
+
+      .swatch-color-input::-webkit-color-swatch {
+        border: none;
+        border-radius: 7px;
+      }
+
+      .upload-bg-btn {
+        width: 100%;
+        background: none;
+        border: 1px solid var(--app-border);
+        color: var(--app-label);
+        border-radius: 8px;
+        padding: 0.5rem;
+        font-size: 0.78rem;
+        font-family: inherit;
+        cursor: pointer;
+        transition: border-color 0.15s ease, color 0.15s ease;
+      }
+
+      .upload-bg-btn:hover {
+        border-color: var(--app-label);
+        color: var(--app-text);
+      }
+
+      /* --- Segmented control (container type) --- */
+      .segmented {
+        display: flex;
+        border: 1px solid var(--app-border);
+        border-radius: 9px;
+        padding: 2px;
+        gap: 2px;
+      }
+
+      .segmented button {
+        flex: 1;
+        background: none;
+        border: none;
+        border-radius: 7px;
+        padding: 0.45rem 0.4rem;
+        font-family: inherit;
+        font-size: 0.78rem;
+        color: var(--app-label);
+        cursor: pointer;
+        transition: background 0.15s ease, color 0.15s ease;
+      }
+
+      .segmented button:hover {
+        color: var(--app-text);
+      }
+
+      .segmented button.is-active {
+        background: var(--app-hover);
+        color: var(--app-text);
+      }
+
+      /* --- Size preset list --- */
+      /* Custom dropdown - a native <select>'s open menu is drawn by
+         the OS, not the page, so it can't be styled to match; this
+         builds the same trigger + menu entirely out of our own
+         markup instead. */
+      .dropdown {
+        position: relative;
+      }
+
+      .dropdown-trigger {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        background: var(--app-hover);
+        border: 1px solid var(--app-border);
+        border-radius: 8px;
+        padding: 0.6rem 0.75rem;
+        font-family: inherit;
+        font-size: 0.82rem;
+        color: var(--app-text);
+        cursor: pointer;
+        transition: border-color 0.15s ease;
+      }
+
+      .dropdown-trigger:hover,
+      .dropdown.is-open .dropdown-trigger {
+        border-color: var(--app-label);
+      }
+
+      .dropdown-caret {
+        flex: none;
+        width: 10px;
+        height: 6px;
+        color: var(--app-label-dim);
+        transition: transform 0.15s ease;
+      }
+
+      .dropdown.is-open .dropdown-caret {
+        transform: rotate(180deg);
+      }
+
+      .dropdown-menu {
+        position: absolute;
+        top: calc(100% + 6px);
+        left: 0;
+        right: 0;
+        z-index: 20;
+        background: var(--app-overlay);
+        border: 1px solid var(--app-border-strong);
+        border-radius: 10px;
+        padding: 0.3rem;
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+        max-height: 260px;
+        overflow-y: auto;
+      }
+
+      .dropdown-menu[hidden] {
+        display: none;
+      }
+
+      .dropdown-option {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        padding: 0.55rem 0.6rem;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.82rem;
+        color: var(--app-text);
+      }
+
+      .dropdown-option:hover {
+        background: var(--app-hover);
+      }
+
+      .dropdown-option .dims {
+        font-size: 0.72rem;
+        color: var(--app-label-dim);
+        font-variant-numeric: tabular-nums;
+      }
+
+      .dropdown-option.is-selected {
+        color: var(--app-accent);
+      }
+
+      .dropdown-option.is-selected .dims {
+        color: var(--app-accent);
+        opacity: 0.75;
+      }
+
+      /* --- DialKit-style scrub chip --- */
+      .scrub-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      /* DialKit's own control reads as a horizontal slider track, not
+         a plain label+value chip: tick marks scored across the full
+         width at rest, and a lighter fill sweeping in from the left
+         proportional to the value - both sit behind the label/value
+         text via z-index. */
+      .scrub {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        overflow: hidden;
+        background: var(--app-hover)
+          repeating-linear-gradient(
+            to right,
+            var(--app-border) 0,
+            var(--app-border) 1px,
+            transparent 1px,
+            transparent 12.5%
+          );
+        border: 1px solid var(--app-border);
+        border-radius: 9px;
+        padding: 0.55rem 0.75rem;
+        cursor: ew-resize;
+        user-select: none;
+        touch-action: none;
+      }
+
+      .scrub:hover {
+        border-color: var(--app-label);
+      }
+
+      .scrub.is-dragging {
+        border-color: var(--app-accent);
+      }
+
+      .scrub-fill {
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 0%;
+        background: rgba(255, 90, 31, 0.18);
+        pointer-events: none;
+      }
+
+      .scrub-label {
+        position: relative;
+        z-index: 1;
+        font-size: 0.8rem;
+        color: var(--app-label);
+      }
+
+      .scrub-value {
+        position: relative;
+        z-index: 1;
+        font-size: 0.8rem;
+        font-variant-numeric: tabular-nums;
+        color: var(--app-text);
+      }
+
+      .scrub-value input {
+        width: 3.2rem;
+        background: none;
+        border: none;
+        color: var(--app-text);
+        font-family: inherit;
+        font-size: 0.8rem;
+        text-align: right;
+        outline: none;
+      }
+
+      .scrub-unit {
+        color: var(--app-label-dim);
+        margin-left: 0.1rem;
+      }
+
+      /* --- Export button --- */
+      .export-btn {
+        width: 100%;
+        background: var(--app-accent);
+        color: var(--app-accent-text);
+        border: none;
+        border-radius: 9px;
+        padding: 0.7rem;
+        font-family: inherit;
+        font-size: 0.88rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: opacity 0.15s ease;
+      }
+
+      .export-btn:hover {
+        opacity: 0.9;
+      }
+
+      .export-btn:disabled {
+        opacity: 0.4;
+        cursor: default;
+      }
+
+      .export-hint {
+        margin: 0.6rem 0 0;
+        font-size: 0.72rem;
+        color: var(--app-label-dim);
+        text-align: center;
+      }
+
+      /* --- Stage (canvas preview area) --- */
+      .stage {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        min-width: 0;
+        min-height: 0;
+        position: relative;
+      }
+
+      .stage canvas {
+        max-width: 100%;
+        max-height: 100%;
+        border-radius: 6px;
+        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+      }
+
+      .stage[hidden] {
+        display: none;
+      }
+
+      .stage-empty {
+        text-align: center;
+        color: var(--app-label);
+        font-size: 0.88rem;
+        max-width: 22rem;
+      }
+
+      .stage-empty strong {
+        display: block;
+        color: var(--app-text);
+        font-size: 1.1rem;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="app-header">
+        <a class="back" href="/apps/">
+          <span aria-hidden="true">←</span>
+          humrashid.com/apps
+        </a>
+        <span class="name">rendr</span>
+      </header>
+
+      <div class="app-body">
+        <aside class="panel">
+          <div class="panel-scroll">
+            <div class="panel-section">
+              <h2>Upload</h2>
+              <div class="dropzone" id="dropzone">
+                <svg class="dropzone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M12 15V4" />
+                  <path d="M7.5 8.5 12 4l4.5 4.5" />
+                  <path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" />
+                </svg>
+                <p>Drop or click to upload</p>
+                <p class="filename" id="filename" hidden></p>
+              </div>
+              <input type="file" id="fileInput" accept="image/*" hidden />
+            </div>
+
+            <div class="panel-section">
+              <h2>Background</h2>
+              <div class="segmented" id="bgModeSeg">
+                <button type="button" data-value="gradient" class="is-active">Gradient</button>
+                <button type="button" data-value="color">Color</button>
+                <button type="button" data-value="image">Image</button>
+                <button type="button" data-value="texture">Texture</button>
+              </div>
+
+              <div class="bg-pane" id="bgPaneGradient">
+                <div class="swatch-grid" id="bgSwatches"></div>
+              </div>
+
+              <div class="bg-pane" id="bgPaneColor" hidden>
+                <input type="color" class="swatch-color-input" id="bgColorInput" value="#e5e0d5" />
+              </div>
+
+              <div class="bg-pane" id="bgPaneImage" hidden>
+                <button type="button" class="upload-bg-btn" id="bgUploadBtn">Upload background image</button>
+                <input type="file" id="bgFileInput" accept="image/*" hidden />
+              </div>
+
+              <div class="bg-pane" id="bgPaneTexture" hidden>
+                <div class="swatch-grid" id="textureSwatches"></div>
+              </div>
+            </div>
+
+            <div class="panel-section">
+              <h2>Frame</h2>
+              <div class="segmented" id="containerSeg">
+                <button type="button" data-value="none" class="is-active">None</button>
+                <button type="button" data-value="card">Card</button>
+                <button type="button" data-value="browser">Browser</button>
+              </div>
+            </div>
+
+            <div class="panel-section">
+              <h2>Size</h2>
+              <div class="dropdown" id="sizeDropdown">
+                <button type="button" class="dropdown-trigger" id="sizeDropdownTrigger" aria-haspopup="listbox">
+                  <span id="sizeDropdownLabel"></span>
+                  <svg class="dropdown-caret" viewBox="0 0 10 6" fill="none" aria-hidden="true">
+                    <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </button>
+                <div class="dropdown-menu" id="sizeDropdownMenu" role="listbox" hidden></div>
+              </div>
+            </div>
+
+            <div class="panel-section">
+              <h2>Adjust</h2>
+              <div class="scrub-group" id="scrubGroup"></div>
+            </div>
+          </div>
+
+          <div class="panel-footer">
+            <button type="button" class="export-btn" id="exportBtn" disabled>Download PNG</button>
+            <p class="export-hint" id="exportHint">Upload an image to get started</p>
+          </div>
+        </aside>
+
+        <main class="stage" id="stage">
+          <div class="stage-empty" id="stageEmpty">
+            <strong>Nothing to preview yet</strong>
+            Upload an image on the left to see it composited live.
+          </div>
+          <canvas id="previewCanvas" hidden></canvas>
+        </main>
+      </div>
+    </div>
+
+    <script>
+      // ---------- Presets ----------
+      type GradientBlob = { x: number; y: number; r: number; color: string };
+      type GradientPreset = { id: string; label: string; base: string; blobs: GradientBlob[] };
+
+      // Fewer, larger, heavily-overlapping blobs arranged as a
+      // diagonal sweep (one hue dominant per corner) rather than 5
+      // small blobs scattered evenly - reads as one continuous
+      // painterly wash instead of a cluster of visible circles, and
+      // each palette stays within a harmonious 2-3 hue family instead
+      // of a competing rainbow of accents.
+      const GRADIENT_PRESETS: GradientPreset[] = [
+        {
+          id: "bloom",
+          label: "Bloom",
+          base: "#170f1f",
+          blobs: [
+            { x: 0.12, y: 0.15, r: 0.75, color: "#f5b9d6" },
+            { x: 0.55, y: 0.5, r: 0.62, color: "#f2a56a" },
+            { x: 0.88, y: 0.85, r: 0.78, color: "#8c6fd6" },
+          ],
+        },
+        {
+          id: "tide",
+          label: "Tide",
+          base: "#04181d",
+          blobs: [
+            { x: 0.1, y: 0.12, r: 0.78, color: "#9fe2ec" },
+            { x: 0.55, y: 0.5, r: 0.6, color: "#4fae8a" },
+            { x: 0.9, y: 0.88, r: 0.78, color: "#1f5f7f" },
+          ],
+        },
+        {
+          id: "ember",
+          label: "Ember",
+          base: "#0f1c17",
+          blobs: [
+            { x: 0.85, y: 0.15, r: 0.8, color: "#f2a65a" },
+            { x: 0.5, y: 0.5, r: 0.58, color: "#e8c56a" },
+            { x: 0.12, y: 0.85, r: 0.78, color: "#3f8f7a" },
+          ],
+        },
+        {
+          id: "dusk",
+          label: "Dusk",
+          base: "#120e22",
+          blobs: [
+            { x: 0.15, y: 0.18, r: 0.75, color: "#9088e0" },
+            { x: 0.55, y: 0.5, r: 0.58, color: "#cf8fc4" },
+            { x: 0.88, y: 0.85, r: 0.78, color: "#4a3f8a" },
+          ],
+        },
+        {
+          id: "linen",
+          label: "Linen",
+          base: "#efe7d9",
+          blobs: [
+            { x: 0.15, y: 0.15, r: 0.8, color: "#fffaf2" },
+            { x: 0.85, y: 0.85, r: 0.8, color: "#e3c9ac" },
+          ],
+        },
+        {
+          id: "slate",
+          label: "Slate",
+          base: "#0a0a0b",
+          blobs: [
+            { x: 0.2, y: 0.2, r: 0.75, color: "#2b2c30" },
+            { x: 0.8, y: 0.8, r: 0.75, color: "#1c1e22" },
+          ],
+        },
+      ];
+
+      // Precomputed once and reused as a tiling pattern - a faint
+      // grain over the mesh is what keeps a large blurred gradient
+      // from looking like a flat vector blob; regenerating random
+      // pixels on every render call would be wasted work since the
+      // same tile can just repeat.
+      const NOISE_TILE_SIZE = 128;
+      const noiseTileCanvas = document.createElement("canvas");
+      noiseTileCanvas.width = NOISE_TILE_SIZE;
+      noiseTileCanvas.height = NOISE_TILE_SIZE;
+      {
+        const nctx = noiseTileCanvas.getContext("2d")!;
+        const imgData = nctx.createImageData(NOISE_TILE_SIZE, NOISE_TILE_SIZE);
+        for (let i = 0; i < imgData.data.length; i += 4) {
+          const v = Math.floor(Math.random() * 255);
+          imgData.data[i] = v;
+          imgData.data[i + 1] = v;
+          imgData.data[i + 2] = v;
+          imgData.data[i + 3] = 255;
+        }
+        nctx.putImageData(imgData, 0, 0);
+      }
+
+      function drawGrain(c: CanvasRenderingContext2D, W: number, H: number, opacity: number) {
+        const pattern = c.createPattern(noiseTileCanvas, "repeat");
+        if (!pattern) return;
+        c.save();
+        c.globalAlpha = opacity;
+        c.globalCompositeOperation = "overlay";
+        c.fillStyle = pattern;
+        c.fillRect(0, 0, W, H);
+        c.restore();
+      }
+
+      // ---------- Texture shaders (second background layer) ----------
+      // All drawn in translucent white, sitting between the gradient
+      // mesh and the asset - a second layer of depth beyond just
+      // color, the way a dot-grid or contour line sits over a flat
+      // gradient in the reference screenshots. `size` is already
+      // baseline-scaled px by the time it reaches these.
+      type TextureId = "none" | "dots" | "grid" | "diagonal" | "waves" | "topo";
+
+      function drawDotsTexture(c: CanvasRenderingContext2D, W: number, H: number, size: number) {
+        c.save();
+        c.fillStyle = "rgba(255,255,255,0.28)";
+        const r = Math.max(1, size * 0.07);
+        for (let y = size / 2; y < H; y += size) {
+          for (let x = size / 2; x < W; x += size) {
+            c.beginPath();
+            c.arc(x, y, r, 0, Math.PI * 2);
+            c.fill();
+          }
+        }
+        c.restore();
+      }
+
+      function drawGridTexture(c: CanvasRenderingContext2D, W: number, H: number, size: number) {
+        c.save();
+        c.strokeStyle = "rgba(255,255,255,0.18)";
+        c.lineWidth = Math.max(1, size * 0.015);
+        c.beginPath();
+        for (let x = 0; x <= W; x += size) {
+          c.moveTo(x, 0);
+          c.lineTo(x, H);
+        }
+        for (let y = 0; y <= H; y += size) {
+          c.moveTo(0, y);
+          c.lineTo(W, y);
+        }
+        c.stroke();
+        c.restore();
+      }
+
+      function drawDiagonalTexture(c: CanvasRenderingContext2D, W: number, H: number, size: number) {
+        c.save();
+        c.strokeStyle = "rgba(255,255,255,0.18)";
+        c.lineWidth = Math.max(1, size * 0.025);
+        const diag = Math.sqrt(W * W + H * H);
+        c.beginPath();
+        for (let d = -diag; d < diag; d += size) {
+          c.moveTo(d, 0);
+          c.lineTo(d + diag, diag);
+        }
+        c.stroke();
+        c.restore();
+      }
+
+      function drawWavesTexture(c: CanvasRenderingContext2D, W: number, H: number, size: number) {
+        c.save();
+        c.strokeStyle = "rgba(255,255,255,0.2)";
+        c.lineWidth = Math.max(1, size * 0.02);
+        const amplitude = size * 0.28;
+        const wavelength = size * 1.6;
+        for (let y = size / 2; y < H + amplitude; y += size) {
+          c.beginPath();
+          for (let x = 0; x <= W; x += 6) {
+            const yy = y + Math.sin((x / wavelength) * Math.PI * 2) * amplitude;
+            if (x === 0) c.moveTo(x, yy);
+            else c.lineTo(x, yy);
+          }
+          c.stroke();
+        }
+        c.restore();
+      }
+
+      // Irregular closed contour loops around a few fixed centers,
+      // each ring perturbed by a couple of sine harmonics so it reads
+      // as organic elevation lines rather than perfect circles.
+      function drawTopoTexture(c: CanvasRenderingContext2D, W: number, H: number, size: number) {
+        c.save();
+        c.strokeStyle = "rgba(255,255,255,0.22)";
+        c.lineWidth = Math.max(1, size * 0.014);
+        const centers = [
+          { x: 0.22, y: 0.28 },
+          { x: 0.75, y: 0.62 },
+          { x: 0.42, y: 0.85 },
+        ];
+        const ringCount = Math.max(3, Math.round((Math.min(W, H) * 0.9) / size));
+        centers.forEach((center, ci) => {
+          const cx = center.x * W;
+          const cy = center.y * H;
+          for (let i = 1; i <= ringCount; i++) {
+            const baseR = i * size * 0.75;
+            const points = 48;
+            c.beginPath();
+            for (let p = 0; p <= points; p++) {
+              const angle = (p / points) * Math.PI * 2;
+              const noise = Math.sin(angle * 3 + ci * 2.1) * size * 0.16 + Math.cos(angle * 5 + ci) * size * 0.08;
+              const r = baseR + noise;
+              const x = cx + Math.cos(angle) * r;
+              const y = cy + Math.sin(angle) * r;
+              if (p === 0) c.moveTo(x, y);
+              else c.lineTo(x, y);
+            }
+            c.closePath();
+            c.stroke();
+          }
+        });
+        c.restore();
+      }
+
+      function drawTexture(c: CanvasRenderingContext2D, W: number, H: number, id: TextureId, size: number) {
+        if (id === "dots") drawDotsTexture(c, W, H, size);
+        else if (id === "grid") drawGridTexture(c, W, H, size);
+        else if (id === "diagonal") drawDiagonalTexture(c, W, H, size);
+        else if (id === "waves") drawWavesTexture(c, W, H, size);
+        else if (id === "topo") drawTopoTexture(c, W, H, size);
+      }
+
+      const TEXTURE_PRESETS: { id: TextureId; label: string }[] = [
+        { id: "none", label: "None" },
+        { id: "dots", label: "Dots" },
+        { id: "grid", label: "Grid" },
+        { id: "diagonal", label: "Diagonal" },
+        { id: "waves", label: "Waves" },
+        { id: "topo", label: "Topo" },
+      ];
+
+      const SIZE_PRESETS = [
+        { id: "x-post", label: "X post", w: 1600, h: 900 },
+        { id: "linkedin-post", label: "LinkedIn post", w: 1200, h: 627 },
+        { id: "ig-post", label: "Instagram post", w: 1080, h: 1080 },
+        { id: "ig-portrait", label: "Instagram portrait", w: 1080, h: 1350 },
+        { id: "ig-story", label: "Instagram story", w: 1080, h: 1920 },
+      ];
+
+      // Values below are authored against this reference size, then
+      // scaled by the actual canvas's shorter side so paddings/radii
+      // look proportionally consistent whether we're rendering a
+      // square post or a tall story.
+      const BASELINE = 1080;
+
+      type BgState =
+        | { type: "gradient"; preset: GradientPreset }
+        | { type: "color"; value: string }
+        | { type: "image"; img: HTMLImageElement };
+
+      const state = {
+        assetImg: null as HTMLImageElement | null,
+        background: { type: "gradient", preset: GRADIENT_PRESETS[0] } as BgState,
+        container: "none" as "none" | "card" | "browser",
+        size: SIZE_PRESETS[2],
+        padding: 64,
+        radius: 16,
+        shadow: 40,
+        bgBlur: 0,
+        texture: "none" as TextureId,
+        textureSize: 48,
+        zoom: 1,
+        offsetX: 0,
+        offsetY: 0,
+      };
+
+      // ---------- DOM refs ----------
+      const dropzone = document.getElementById("dropzone") as HTMLElement;
+      const fileInput = document.getElementById("fileInput") as HTMLInputElement;
+      const filenameEl = document.getElementById("filename") as HTMLElement;
+      const bgSwatchesEl = document.getElementById("bgSwatches") as HTMLElement;
+      const bgColorInput = document.getElementById("bgColorInput") as HTMLInputElement;
+      const bgUploadBtn = document.getElementById("bgUploadBtn") as HTMLButtonElement;
+      const bgFileInput = document.getElementById("bgFileInput") as HTMLInputElement;
+      const textureSwatchesEl = document.getElementById("textureSwatches") as HTMLElement;
+      const bgModeSeg = document.getElementById("bgModeSeg") as HTMLElement;
+      const bgPanes: Record<string, HTMLElement> = {
+        gradient: document.getElementById("bgPaneGradient") as HTMLElement,
+        color: document.getElementById("bgPaneColor") as HTMLElement,
+        image: document.getElementById("bgPaneImage") as HTMLElement,
+        texture: document.getElementById("bgPaneTexture") as HTMLElement,
+      };
+      const containerSeg = document.getElementById("containerSeg") as HTMLElement;
+      const sizeDropdown = document.getElementById("sizeDropdown") as HTMLElement;
+      const sizeDropdownTrigger = document.getElementById("sizeDropdownTrigger") as HTMLButtonElement;
+      const sizeDropdownLabel = document.getElementById("sizeDropdownLabel") as HTMLElement;
+      const sizeDropdownMenu = document.getElementById("sizeDropdownMenu") as HTMLElement;
+      const scrubGroupEl = document.getElementById("scrubGroup") as HTMLElement;
+      const exportBtn = document.getElementById("exportBtn") as HTMLButtonElement;
+      const exportHint = document.getElementById("exportHint") as HTMLElement;
+      const stageEl = document.getElementById("stage") as HTMLElement;
+      const stageEmptyEl = document.getElementById("stageEmpty") as HTMLElement;
+      const canvas = document.getElementById("previewCanvas") as HTMLCanvasElement;
+      const ctx = canvas.getContext("2d")!;
+
+      // ---------- Rendering ----------
+      function drawGradientPreset(c: CanvasRenderingContext2D, W: number, H: number, preset: GradientPreset) {
+        c.save();
+        c.fillStyle = preset.base;
+        c.fillRect(0, 0, W, H);
+        // Heavier blur + a softer mid-stop (instead of color -> transparent
+        // in one step) than a first pass - the goal is a continuous
+        // painterly wash where blobs melt into each other, not a
+        // cluster of visible distinct circles.
+        c.filter = `blur(${Math.round(Math.min(W, H) * 0.24)}px)`;
+        c.globalCompositeOperation = "screen";
+        for (const b of preset.blobs) {
+          const r = b.r * Math.min(W, H);
+          const cx = b.x * W;
+          const cy = b.y * H;
+          const grad = c.createRadialGradient(cx, cy, 0, cx, cy, r);
+          grad.addColorStop(0, b.color);
+          grad.addColorStop(0.6, b.color);
+          grad.addColorStop(1, "transparent");
+          c.fillStyle = grad;
+          c.beginPath();
+          c.arc(cx, cy, r, 0, Math.PI * 2);
+          c.fill();
+        }
+        c.restore();
+        drawGrain(c, W, H, 0.045);
+      }
+
+      function drawCoverImage(c: CanvasRenderingContext2D, img: HTMLImageElement, W: number, H: number) {
+        const imgRatio = img.width / img.height;
+        const boxRatio = W / H;
+        let sw = img.width;
+        let sh = img.height;
+        let sx = 0;
+        let sy = 0;
+        if (imgRatio > boxRatio) {
+          sw = img.height * boxRatio;
+          sx = (img.width - sw) / 2;
+        } else {
+          sh = img.width / boxRatio;
+          sy = (img.height - sh) / 2;
+        }
+        c.drawImage(img, sx, sy, sw, sh, 0, 0, W, H);
+      }
+
+      function roundedRectPath(c: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
+        const rr = Math.min(r, w / 2, h / 2);
+        c.beginPath();
+        c.moveTo(x + rr, y);
+        c.arcTo(x + w, y, x + w, y + h, rr);
+        c.arcTo(x + w, y + h, x, y + h, rr);
+        c.arcTo(x, y + h, x, y, rr);
+        c.arcTo(x, y, x + w, y, rr);
+        c.closePath();
+      }
+
+      function render(c: CanvasRenderingContext2D, W: number, H: number) {
+        c.clearRect(0, 0, W, H);
+        const scale = Math.min(W, H) / BASELINE;
+
+        // 1. Background
+        if (state.background.type === "gradient") {
+          drawGradientPreset(c, W, H, state.background.preset);
+        } else if (state.background.type === "color") {
+          c.fillStyle = state.background.value;
+          c.fillRect(0, 0, W, H);
+        } else if (state.background.type === "image") {
+          if (state.bgBlur > 0) {
+            c.save();
+            c.filter = `blur(${state.bgBlur * scale}px)`;
+            drawCoverImage(c, state.background.img, W, H);
+            c.restore();
+          } else {
+            drawCoverImage(c, state.background.img, W, H);
+          }
+        }
+
+        // 1b. Texture shader layer, on top of the background color/
+        // image but still behind the asset.
+        if (state.texture !== "none") {
+          drawTexture(c, W, H, state.texture, state.textureSize * scale);
+        }
+
+        if (!state.assetImg) return;
+
+        // 2. Layout content rect (contain-fit within padded frame,
+        // minus room for a browser chrome bar if selected)
+        const pad = state.padding * scale;
+        const chromeBar = state.container === "browser" ? 34 * scale : 0;
+        const availW = W - pad * 2;
+        const availH = H - pad * 2 - chromeBar;
+        const imgRatio = state.assetImg.width / state.assetImg.height;
+        const boxRatio = availW / availH;
+        let contentW = availW;
+        let contentH = availH;
+        if (imgRatio > boxRatio) {
+          contentH = availW / imgRatio;
+        } else {
+          contentW = availH * imgRatio;
+        }
+        contentW *= state.zoom;
+        contentH *= state.zoom;
+        const contentX = (W - contentW) / 2 + state.offsetX * scale;
+        const contentY = (H - chromeBar - contentH) / 2 + chromeBar + state.offsetY * scale;
+
+        const radius = state.radius * scale;
+        const outerX = contentX;
+        const outerY = contentY - chromeBar;
+        const outerW = contentW;
+        const outerH = contentH + chromeBar;
+
+        // 3. Container chrome + shadow
+        if (state.container !== "none") {
+          c.save();
+          if (state.shadow > 0) {
+            c.shadowColor = "rgba(0,0,0,0.45)";
+            c.shadowBlur = state.shadow * scale;
+            c.shadowOffsetY = state.shadow * 0.3 * scale;
+          }
+          roundedRectPath(c, outerX, outerY, outerW, outerH, radius);
+          c.fillStyle = state.container === "browser" ? "#2a2a2c" : "#ffffff";
+          c.fill();
+          c.restore();
+
+          if (state.container === "browser") {
+            c.save();
+            c.fillStyle = "#2a2a2c";
+            const dotY = outerY + chromeBar / 2;
+            const dotR = 3.6 * scale;
+            const dotGap = 9 * scale;
+            const dotStartX = outerX + 14 * scale;
+            ["#ff5f57", "#febc2e", "#28c840"].forEach((color, i) => {
+              c.beginPath();
+              c.arc(dotStartX + i * dotGap, dotY, dotR, 0, Math.PI * 2);
+              c.fillStyle = color;
+              c.fill();
+            });
+            c.restore();
+          }
+        } else if (state.shadow > 0) {
+          c.save();
+          c.shadowColor = "rgba(0,0,0,0.45)";
+          c.shadowBlur = state.shadow * scale;
+          c.shadowOffsetY = state.shadow * 0.3 * scale;
+          roundedRectPath(c, contentX, contentY, contentW, contentH, radius);
+          c.fillStyle = "rgba(0,0,0,0.001)";
+          c.fill();
+          c.restore();
+        }
+
+        // 4. Clip + draw the asset image
+        c.save();
+        roundedRectPath(c, contentX, contentY, contentW, contentH, radius);
+        c.clip();
+        c.drawImage(state.assetImg, contentX, contentY, contentW, contentH);
+        c.restore();
+      }
+
+      // ---------- Preview sizing (capped for performance; export uses full res) ----------
+      // CSS size stays capped at PREVIEW_MAX for layout, but the
+      // canvas's actual backing-store resolution is multiplied by
+      // devicePixelRatio - without this a 640px-wide canvas shown on
+      // a 2x/3x display gets stretched across 2-3x the physical
+      // pixels with no extra detail to fill them, which is what reads
+      // as "blurry." The render() function itself is resolution-
+      // agnostic, so this only changes the numbers passed into it.
+      const PREVIEW_MAX = 720;
+
+      function resizePreviewCanvas() {
+        const ratio = state.size.w / state.size.h;
+        let pw = PREVIEW_MAX;
+        let ph = PREVIEW_MAX;
+        if (ratio > 1) {
+          ph = PREVIEW_MAX / ratio;
+        } else {
+          pw = PREVIEW_MAX * ratio;
+        }
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = Math.round(pw * dpr);
+        canvas.height = Math.round(ph * dpr);
+        canvas.style.width = `${Math.round(pw)}px`;
+        canvas.style.height = `${Math.round(ph)}px`;
+      }
+
+      function renderPreview() {
+        resizePreviewCanvas();
+        render(ctx, canvas.width, canvas.height);
+      }
+
+      // ---------- Upload handling ----------
+      function loadAssetFile(file: File) {
+        if (!file.type.startsWith("image/")) return;
+        const url = URL.createObjectURL(file);
+        const img = new Image();
+        img.onload = () => {
+          state.assetImg = img;
+          state.zoom = 1;
+          state.offsetX = 0;
+          state.offsetY = 0;
+          filenameEl.textContent = file.name;
+          filenameEl.hidden = false;
+          stageEmptyEl.hidden = true;
+          canvas.hidden = false;
+          exportBtn.disabled = false;
+          exportHint.textContent = `${state.size.w} × ${state.size.h} PNG`;
+
+          // The real default: a gradient generated from the image's
+          // own colors, not a generic preset - applied automatically
+          // so uploading alone gets you a matched background.
+          const autoPreset = buildAutoGradientPreset(img);
+          gradientPresetByBtn.set(autoSwatchBtn, autoPreset);
+          autoSwatchBtn.style.background = gradientPresetCss(autoPreset);
+          autoSwatchBtn.hidden = false;
+          state.background = { type: "gradient", preset: autoPreset };
+          bgSwatchesEl.querySelectorAll(".swatch").forEach((el) => el.classList.remove("is-active"));
+          autoSwatchBtn.classList.add("is-active");
+          setBgMode("gradient");
+
+          renderPreview();
+        };
+        img.src = url;
+      }
+
+      dropzone.addEventListener("click", () => fileInput.click());
+      fileInput.addEventListener("change", () => {
+        if (fileInput.files?.[0]) loadAssetFile(fileInput.files[0]);
+      });
+      ["dragover", "dragenter"].forEach((evt) =>
+        dropzone.addEventListener(evt, (e) => {
+          e.preventDefault();
+          dropzone.classList.add("is-dragover");
+        })
+      );
+      ["dragleave", "drop"].forEach((evt) =>
+        dropzone.addEventListener(evt, () => dropzone.classList.remove("is-dragover"))
+      );
+      dropzone.addEventListener("drop", (e) => {
+        e.preventDefault();
+        const file = e.dataTransfer?.files?.[0];
+        if (file) loadAssetFile(file);
+      });
+
+      // Also accept a drop directly on the stage once an asset exists
+      stageEl.addEventListener("dragover", (e) => e.preventDefault());
+      stageEl.addEventListener("drop", (e) => {
+        e.preventDefault();
+        const file = e.dataTransfer?.files?.[0];
+        if (file) loadAssetFile(file);
+      });
+
+      // ---------- Background swatches ----------
+      // ---------- Auto palette extraction ----------
+      // The real value here isn't the six static presets, it's a
+      // gradient generated FROM the uploaded image's own colors - the
+      // same idea as Apple Music/Photos or an Instagram Story
+      // background picking up the color of whatever you post.
+      function rgbToHsl(r: number, g: number, b: number): [number, number, number] {
+        r /= 255;
+        g /= 255;
+        b /= 255;
+        const max = Math.max(r, g, b);
+        const min = Math.min(r, g, b);
+        let h = 0;
+        let s = 0;
+        const l = (max + min) / 2;
+        const d = max - min;
+        if (d !== 0) {
+          s = d / (1 - Math.abs(2 * l - 1));
+          if (max === r) h = ((g - b) / d) % 6;
+          else if (max === g) h = (b - r) / d + 2;
+          else h = (r - g) / d + 4;
+          h *= 60;
+          if (h < 0) h += 360;
+        }
+        return [h, s, l];
+      }
+
+      // Downsamples the image to a small canvas, quantizes pixels into
+      // coarse color buckets, and returns the most frequent ones -
+      // preferring buckets with real saturation/lightness (so a photo
+      // dominated by white sky or black shadow still yields color)
+      // rather than the single most literal statistical mode.
+      function extractPaletteFromImage(img: HTMLImageElement, count: number): string[] {
+        const size = 48;
+        const off = document.createElement("canvas");
+        off.width = size;
+        off.height = size;
+        const octx = off.getContext("2d")!;
+        octx.drawImage(img, 0, 0, size, size);
+
+        let data: Uint8ClampedArray;
+        try {
+          data = octx.getImageData(0, 0, size, size).data;
+        } catch {
+          return [];
+        }
+
+        const step = 28;
+        const buckets = new Map<string, { count: number; r: number; g: number; b: number }>();
+        for (let i = 0; i < data.length; i += 4) {
+          if (data[i + 3] < 128) continue;
+          const r = Math.min(255, Math.round(data[i] / step) * step);
+          const g = Math.min(255, Math.round(data[i + 1] / step) * step);
+          const b = Math.min(255, Math.round(data[i + 2] / step) * step);
+          const key = `${r},${g},${b}`;
+          const existing = buckets.get(key);
+          if (existing) existing.count++;
+          else buckets.set(key, { count: 1, r, g, b });
+        }
+
+        const all = Array.from(buckets.values()).sort((a, b) => b.count - a.count);
+        const vivid = all.filter((c) => {
+          const [, s, l] = rgbToHsl(c.r, c.g, c.b);
+          return s > 0.18 && l > 0.12 && l < 0.9;
+        });
+        const pool = vivid.length >= count ? vivid : all;
+        return pool.slice(0, count).map((c) => `rgb(${c.r}, ${c.g}, ${c.b})`);
+      }
+
+      function darkenRgb(rgbStr: string, factor: number): string {
+        const m = rgbStr.match(/\d+/g);
+        if (!m) return "#141414";
+        const [r, g, b] = m.map(Number);
+        return `rgb(${Math.round(r * factor)}, ${Math.round(g * factor)}, ${Math.round(b * factor)})`;
+      }
+
+      function buildAutoGradientPreset(img: HTMLImageElement): GradientPreset {
+        const fallback = ["rgb(138, 143, 152)", "rgb(90, 95, 104)", "rgb(42, 44, 48)"];
+        const extracted = extractPaletteFromImage(img, 3);
+        const picked = extracted.length >= 3 ? extracted : fallback;
+        const base = darkenRgb(picked[picked.length - 1], 0.28);
+        const positions = [
+          { x: 0.12, y: 0.15, r: 0.78 },
+          { x: 0.55, y: 0.5, r: 0.6 },
+          { x: 0.88, y: 0.85, r: 0.78 },
+        ];
+        const blobs = picked.slice(0, 3).map((color, i) => ({ ...positions[i], color }));
+        return { id: "auto", label: "Auto", base, blobs };
+      }
+
+      function gradientPresetCss(preset: GradientPreset) {
+        const stops = preset.blobs
+          .map((b) => `radial-gradient(circle at ${b.x * 100}% ${b.y * 100}%, ${b.color}, transparent 60%)`)
+          .join(", ");
+        return `${stops}, ${preset.base}`;
+      }
+
+      // Preset lookup keyed by button rather than array index - the
+      // Auto swatch below isn't part of GRADIENT_PRESETS and gets
+      // recolored in place on every upload, so DOM position can't
+      // reliably map back to a static array index.
+      const gradientPresetByBtn = new Map<HTMLButtonElement, GradientPreset>();
+
+      const autoSwatchBtn = document.createElement("button");
+      autoSwatchBtn.type = "button";
+      autoSwatchBtn.className = "swatch";
+      autoSwatchBtn.title = "Auto - matches your uploaded image";
+      autoSwatchBtn.hidden = true;
+      autoSwatchBtn.addEventListener("click", () => {
+        const preset = gradientPresetByBtn.get(autoSwatchBtn);
+        if (!preset) return;
+        state.background = { type: "gradient", preset };
+        bgSwatchesEl.querySelectorAll(".swatch").forEach((el) => el.classList.remove("is-active"));
+        autoSwatchBtn.classList.add("is-active");
+        renderPreview();
+      });
+      bgSwatchesEl.appendChild(autoSwatchBtn);
+
+      GRADIENT_PRESETS.forEach((preset, i) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "swatch" + (i === 0 ? " is-active" : "");
+        btn.style.background = gradientPresetCss(preset);
+        btn.title = preset.label;
+        gradientPresetByBtn.set(btn, preset);
+        btn.addEventListener("click", () => {
+          state.background = { type: "gradient", preset };
+          bgSwatchesEl.querySelectorAll(".swatch").forEach((el) => el.classList.remove("is-active"));
+          btn.classList.add("is-active");
+          renderPreview();
+        });
+        bgSwatchesEl.appendChild(btn);
+      });
+
+      bgColorInput.addEventListener("input", () => {
+        state.background = { type: "color", value: bgColorInput.value };
+        bgSwatchesEl.querySelectorAll(".swatch").forEach((el) => el.classList.remove("is-active"));
+        renderPreview();
+      });
+
+      let uploadedBgImage: HTMLImageElement | null = null;
+
+      bgUploadBtn.addEventListener("click", () => bgFileInput.click());
+      bgFileInput.addEventListener("change", () => {
+        const file = bgFileInput.files?.[0];
+        if (!file) return;
+        const url = URL.createObjectURL(file);
+        const img = new Image();
+        img.onload = () => {
+          uploadedBgImage = img;
+          state.background = { type: "image", img };
+          bgSwatchesEl.querySelectorAll(".swatch").forEach((el) => el.classList.remove("is-active"));
+          renderPreview();
+        };
+        img.src = url;
+      });
+
+      // ---------- Background mode tabs ----------
+      // Gradient/Color/Image/Texture used to be four separate always-
+      // visible blocks stacked in one section - cleaner as a single
+      // segmented switcher showing one at a time. Texture is really a
+      // layer on top of whichever base (gradient/color/image) is
+      // active, not a fourth mutually-exclusive background, so
+      // switching to it only reveals its controls without touching
+      // state.background.
+      function setBgMode(mode: string) {
+        for (const [key, pane] of Object.entries(bgPanes)) {
+          pane.hidden = key !== mode;
+        }
+        bgModeSeg.querySelectorAll("button").forEach((b) => {
+          b.classList.toggle("is-active", (b as HTMLElement).dataset.value === mode);
+        });
+
+        if (mode === "gradient") {
+          const activeSwatch = bgSwatchesEl.querySelector(".swatch.is-active") as HTMLButtonElement | null;
+          const preset = (activeSwatch && gradientPresetByBtn.get(activeSwatch)) || GRADIENT_PRESETS[0];
+          state.background = { type: "gradient", preset };
+          renderPreview();
+        } else if (mode === "color") {
+          state.background = { type: "color", value: bgColorInput.value };
+          renderPreview();
+        } else if (mode === "image" && uploadedBgImage) {
+          state.background = { type: "image", img: uploadedBgImage };
+          renderPreview();
+        }
+      }
+
+      bgModeSeg.querySelectorAll("button").forEach((btn) => {
+        btn.addEventListener("click", () => setBgMode((btn as HTMLElement).dataset.value!));
+      });
+
+      // ---------- Texture swatches ----------
+      // Each swatch gets a tiny live-rendered preview (a real mini
+      // canvas run through the same draw function) rather than a
+      // static icon, so what you pick is exactly what you get.
+      const TEXTURE_SWATCH_SIZE = 56;
+      TEXTURE_PRESETS.forEach((preset, i) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "swatch" + (i === 0 ? " is-active" : "");
+        btn.title = preset.label;
+        btn.style.background = "#1c1c1e";
+        if (preset.id !== "none") {
+          // Same devicePixelRatio fix as the main preview canvas -
+          // without it these tiny swatches look soft/blurry on any
+          // Retina-class display.
+          const dpr = window.devicePixelRatio || 1;
+          const mini = document.createElement("canvas");
+          mini.width = TEXTURE_SWATCH_SIZE * dpr;
+          mini.height = TEXTURE_SWATCH_SIZE * dpr;
+          mini.style.width = "100%";
+          mini.style.height = "100%";
+          mini.style.display = "block";
+          const mctx = mini.getContext("2d")!;
+          drawTexture(mctx, TEXTURE_SWATCH_SIZE * dpr, TEXTURE_SWATCH_SIZE * dpr, preset.id, 16 * dpr);
+          btn.appendChild(mini);
+        }
+        btn.addEventListener("click", () => {
+          state.texture = preset.id;
+          textureSwatchesEl.querySelectorAll(".swatch").forEach((el) => el.classList.remove("is-active"));
+          btn.classList.add("is-active");
+          renderScrubs();
+          renderPreview();
+        });
+        textureSwatchesEl.appendChild(btn);
+      });
+
+      // ---------- Container segmented control ----------
+      containerSeg.querySelectorAll("button").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          containerSeg.querySelectorAll("button").forEach((b) => b.classList.remove("is-active"));
+          btn.classList.add("is-active");
+          state.container = btn.dataset.value as typeof state.container;
+          renderPreview();
+        });
+      });
+
+      // ---------- Size presets (custom dropdown) ----------
+      function selectSizePreset(preset: (typeof SIZE_PRESETS)[number]) {
+        state.size = preset;
+        sizeDropdownLabel.textContent = `${preset.label} ${preset.w}×${preset.h}`;
+        sizeDropdownMenu.querySelectorAll(".dropdown-option").forEach((el) => {
+          el.classList.toggle("is-selected", (el as HTMLElement).dataset.id === preset.id);
+        });
+        if (state.assetImg) exportHint.textContent = `${state.size.w} × ${state.size.h} PNG`;
+        renderPreview();
+      }
+
+      SIZE_PRESETS.forEach((preset, i) => {
+        const option = document.createElement("div");
+        option.className = "dropdown-option" + (i === 2 ? " is-selected" : "");
+        option.dataset.id = preset.id;
+        option.setAttribute("role", "option");
+        option.innerHTML = `<span>${preset.label}</span><span class="dims">${preset.w}×${preset.h}</span>`;
+        option.addEventListener("click", () => {
+          selectSizePreset(preset);
+          closeSizeDropdown();
+        });
+        sizeDropdownMenu.appendChild(option);
+      });
+      sizeDropdownLabel.textContent = `${SIZE_PRESETS[2].label} ${SIZE_PRESETS[2].w}×${SIZE_PRESETS[2].h}`;
+
+      function openSizeDropdown() {
+        sizeDropdownMenu.hidden = false;
+        sizeDropdown.classList.add("is-open");
+        document.addEventListener("click", onSizeDropdownOutsideClick);
+      }
+      function closeSizeDropdown() {
+        sizeDropdownMenu.hidden = true;
+        sizeDropdown.classList.remove("is-open");
+        document.removeEventListener("click", onSizeDropdownOutsideClick);
+      }
+      function onSizeDropdownOutsideClick(e: MouseEvent) {
+        if (!sizeDropdown.contains(e.target as Node)) closeSizeDropdown();
+      }
+
+      sizeDropdownTrigger.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (sizeDropdownMenu.hidden) openSizeDropdown();
+        else closeSizeDropdown();
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && !sizeDropdownMenu.hidden) closeSizeDropdown();
+      });
+
+      // ---------- Scrub chips (DialKit-style scrubbable numbers) ----------
+      type ScrubConfig = {
+        key: "padding" | "radius" | "shadow" | "bgBlur" | "textureSize" | "zoom";
+        label: string;
+        min: number;
+        max: number;
+        step: number;
+        unit: string;
+        format?: (v: number) => string;
+        showWhen?: () => boolean;
+      };
+
+      const SCRUB_CONFIGS: ScrubConfig[] = [
+        { key: "padding", label: "Padding", min: 0, max: 200, step: 1, unit: "px" },
+        { key: "radius", label: "Radius", min: 0, max: 64, step: 1, unit: "px" },
+        { key: "shadow", label: "Shadow", min: 0, max: 100, step: 1, unit: "" },
+        {
+          key: "bgBlur",
+          label: "BG blur",
+          min: 0,
+          max: 40,
+          step: 1,
+          unit: "px",
+          showWhen: () => state.background.type === "image",
+        },
+        {
+          key: "textureSize",
+          label: "Texture size",
+          min: 16,
+          max: 160,
+          step: 1,
+          unit: "px",
+          showWhen: () => state.texture !== "none",
+        },
+        {
+          key: "zoom",
+          label: "Zoom",
+          min: 0.5,
+          max: 2,
+          step: 0.01,
+          unit: "%",
+          format: (v) => Math.round(v * 100).toString(),
+        },
+      ];
+
+      function fillPercent(cfg: ScrubConfig, val: number) {
+        return Math.min(100, Math.max(0, ((val - cfg.min) / (cfg.max - cfg.min)) * 100));
+      }
+
+      function renderScrubs() {
+        scrubGroupEl.innerHTML = "";
+        for (const cfg of SCRUB_CONFIGS) {
+          if (cfg.showWhen && !cfg.showWhen()) continue;
+          const el = document.createElement("div");
+          el.className = "scrub";
+          const currentVal = (state as any)[cfg.key] as number;
+          const displayVal = cfg.format ? cfg.format(currentVal) : Math.round(currentVal).toString();
+          el.innerHTML = `<div class="scrub-fill" style="width:${fillPercent(cfg, currentVal)}%"></div><span class="scrub-label">${cfg.label}</span><span class="scrub-value"><span class="scrub-num">${displayVal}</span><span class="scrub-unit">${cfg.unit}</span></span>`;
+          attachScrubDrag(el, cfg);
+          scrubGroupEl.appendChild(el);
+        }
+      }
+
+      function attachScrubDrag(el: HTMLElement, cfg: ScrubConfig) {
+        const numEl = el.querySelector(".scrub-num") as HTMLElement;
+        const fillEl = el.querySelector(".scrub-fill") as HTMLElement;
+        let startX = 0;
+        let startVal = 0;
+        let dragged = false;
+
+        const sensitivity = (cfg.max - cfg.min) / 200; // full drag width ~200px
+
+        function onMove(e: PointerEvent) {
+          const dx = e.clientX - startX;
+          if (Math.abs(dx) > 2) dragged = true;
+          let next = startVal + dx * sensitivity;
+          next = Math.min(cfg.max, Math.max(cfg.min, next));
+          next = Math.round(next / cfg.step) * cfg.step;
+          (state as any)[cfg.key] = next;
+          numEl.textContent = cfg.format ? cfg.format(next) : Math.round(next).toString();
+          fillEl.style.width = `${fillPercent(cfg, next)}%`;
+          renderPreview();
+        }
+
+        function onUp(e: PointerEvent) {
+          el.classList.remove("is-dragging");
+          el.releasePointerCapture(e.pointerId);
+          window.removeEventListener("pointermove", onMove);
+          window.removeEventListener("pointerup", onUp);
+          if (!dragged) openInlineEdit();
+        }
+
+        el.addEventListener("pointerdown", (e) => {
+          startX = e.clientX;
+          startVal = (state as any)[cfg.key];
+          dragged = false;
+          el.classList.add("is-dragging");
+          el.setPointerCapture(e.pointerId);
+          window.addEventListener("pointermove", onMove);
+          window.addEventListener("pointerup", onUp);
+        });
+
+        function openInlineEdit() {
+          const current = (state as any)[cfg.key];
+          const input = document.createElement("input");
+          input.type = "number";
+          input.value = (cfg.format ? cfg.format(current) : current).toString();
+          input.step = cfg.step.toString();
+          const valueSpan = el.querySelector(".scrub-value") as HTMLElement;
+          valueSpan.innerHTML = "";
+          valueSpan.appendChild(input);
+          const unitSpan = document.createElement("span");
+          unitSpan.className = "scrub-unit";
+          unitSpan.textContent = cfg.unit;
+          valueSpan.appendChild(unitSpan);
+          input.focus();
+          input.select();
+
+          function commit() {
+            let v = parseFloat(input.value);
+            if (Number.isNaN(v)) v = current;
+            v = cfg.format && cfg.unit === "%" ? v / 100 : v;
+            v = Math.min(cfg.max, Math.max(cfg.min, v));
+            (state as any)[cfg.key] = v;
+            renderScrubs();
+            renderPreview();
+          }
+
+          input.addEventListener("blur", commit);
+          input.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") input.blur();
+          });
+        }
+      }
+
+      renderScrubs();
+
+      // ---------- Drag-to-reposition the asset on the stage ----------
+      let dragging = false;
+      let dragStartX = 0;
+      let dragStartY = 0;
+      let dragOffsetStartX = 0;
+      let dragOffsetStartY = 0;
+
+      canvas.addEventListener("pointerdown", (e) => {
+        if (!state.assetImg) return;
+        dragging = true;
+        dragStartX = e.clientX;
+        dragStartY = e.clientY;
+        dragOffsetStartX = state.offsetX;
+        dragOffsetStartY = state.offsetY;
+        canvas.setPointerCapture(e.pointerId);
+      });
+      canvas.addEventListener("pointermove", (e) => {
+        if (!dragging) return;
+        const scaleFactor = state.size.w / canvas.getBoundingClientRect().width;
+        state.offsetX = dragOffsetStartX + (e.clientX - dragStartX) * scaleFactor;
+        state.offsetY = dragOffsetStartY + (e.clientY - dragStartY) * scaleFactor;
+        renderPreview();
+      });
+      canvas.addEventListener("pointerup", (e) => {
+        dragging = false;
+        canvas.releasePointerCapture(e.pointerId);
+      });
+
+      // ---------- Export ----------
+      exportBtn.addEventListener("click", () => {
+        if (!state.assetImg) return;
+        const out = document.createElement("canvas");
+        out.width = state.size.w;
+        out.height = state.size.h;
+        const outCtx = out.getContext("2d")!;
+        render(outCtx, out.width, out.height);
+        out.toBlob((blob) => {
+          if (!blob) return;
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `render-${state.size.id}.png`;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          URL.revokeObjectURL(url);
+        }, "image/png");
+      });
+
+      // ---------- Init ----------
+      renderPreview();
+    </script>
+  </body>
+</html>
