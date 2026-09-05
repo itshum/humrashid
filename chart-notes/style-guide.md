@@ -40,7 +40,14 @@ system to maintain.
    just enough to soften the edge without reading as rounded — up to
    ~6-8px for pill-shaped start/end nodes. Never a large,
    friendly-rounded-card radius — that reads as UI chrome, not an
-   editorial figure.
+   editorial figure. **Bars/columns sitting on a baseline round only
+   the two corners away from the baseline** (top corners for a
+   vertical bar) — the edge touching the axis line stays flat, since a
+   rounded corner there reads as a gap between the bar and its own
+   baseline. A standalone rectangle with no adjacent line (a flow-diagram
+   step, for example) rounds all four corners. SVG's `rect rx` rounds
+   every corner uniformly, so a baseline-touching bar needs a `path`
+   instead — see `example-bar-chart.svg` for the exact shape.
 5. **Everything on a 4px grid.** Every x/y coordinate, width, height,
    and gap should be a multiple of 4. This one is non-negotiable —
    it's most of what separates a deliberate diagram from one that

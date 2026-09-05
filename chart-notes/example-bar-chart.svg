@@ -18,28 +18,28 @@
   <text x="24" y="164" style="fill:var(--label,#7a7a7a)" font-size="10" letter-spacing="1"
         transform="rotate(-90 24 164)" text-anchor="middle">VALUE</text>
 
-  <!-- bar 1 -->
-  <rect x="72" y="160" width="48" height="120" rx="2" style="fill:var(--hover-bg,#e8e7e2);stroke:var(--border,#e0ded7)" stroke-width="1" />
+  <!-- bar 1 - top corners rounded, base flush with the baseline -->
+  <path d="M74,160 H118 A2,2 0 0 1 120,162 V280 H72 V162 A2,2 0 0 1 74,160 Z" style="fill:var(--hover-bg,#e8e7e2);stroke:var(--border,#e0ded7)" stroke-width="1" />
   <text x="96" y="152" style="fill:var(--label,#7a7a7a)" font-size="12" text-anchor="middle">120</text>
   <text x="96" y="300" style="fill:var(--label,#7a7a7a)" font-size="11" text-anchor="middle">A</text>
 
   <!-- bar 2 -->
-  <rect x="144" y="130" width="48" height="150" rx="2" style="fill:var(--hover-bg,#e8e7e2);stroke:var(--border,#e0ded7)" stroke-width="1" />
+  <path d="M146,130 H190 A2,2 0 0 1 192,132 V280 H144 V132 A2,2 0 0 1 146,130 Z" style="fill:var(--hover-bg,#e8e7e2);stroke:var(--border,#e0ded7)" stroke-width="1" />
   <text x="168" y="122" style="fill:var(--label,#7a7a7a)" font-size="12" text-anchor="middle">150</text>
   <text x="168" y="300" style="fill:var(--label,#7a7a7a)" font-size="11" text-anchor="middle">B</text>
 
   <!-- bar 3 -->
-  <rect x="216" y="115" width="48" height="165" rx="2" style="fill:var(--hover-bg,#e8e7e2);stroke:var(--border,#e0ded7)" stroke-width="1" />
+  <path d="M218,115 H262 A2,2 0 0 1 264,117 V280 H216 V117 A2,2 0 0 1 218,115 Z" style="fill:var(--hover-bg,#e8e7e2);stroke:var(--border,#e0ded7)" stroke-width="1" />
   <text x="240" y="107" style="fill:var(--label,#7a7a7a)" font-size="12" text-anchor="middle">165</text>
   <text x="240" y="300" style="fill:var(--label,#7a7a7a)" font-size="11" text-anchor="middle">C</text>
 
   <!-- bar 4 - accented, the one thing to notice -->
-  <rect x="288" y="70" width="48" height="210" rx="2" style="fill:var(--selection-bg,#1f3d2e);stroke:var(--selection-bg,#1f3d2e)" stroke-width="1" />
+  <path d="M290,70 H334 A2,2 0 0 1 336,72 V280 H288 V72 A2,2 0 0 1 290,70 Z" style="fill:var(--selection-bg,#1f3d2e);stroke:var(--selection-bg,#1f3d2e)" stroke-width="1" />
   <text x="312" y="62" style="fill:var(--title,#262626)" font-size="12" font-weight="500" text-anchor="middle">210</text>
   <text x="312" y="300" style="fill:var(--title,#262626)" font-size="11" font-weight="500" text-anchor="middle">D</text>
 
   <!-- bar 5 -->
-  <rect x="360" y="140" width="48" height="140" rx="2" style="fill:var(--hover-bg,#e8e7e2);stroke:var(--border,#e0ded7)" stroke-width="1" />
+  <path d="M362,140 H406 A2,2 0 0 1 408,142 V280 H360 V142 A2,2 0 0 1 362,140 Z" style="fill:var(--hover-bg,#e8e7e2);stroke:var(--border,#e0ded7)" stroke-width="1" />
   <text x="384" y="132" style="fill:var(--label,#7a7a7a)" font-size="12" text-anchor="middle">140</text>
   <text x="384" y="300" style="fill:var(--label,#7a7a7a)" font-size="11" text-anchor="middle">E</text>
 </svg>
