@@ -102,13 +102,25 @@ Two ready-to-adapt SVGs live alongside this file:
 - `example-flow-diagram.svg` — a simple 4-step process with one
   accented outcome node.
 
-Both are built at a 4px-aligned coordinate grid using the token names
-above (as literal hex for light mode, since SVGs embedded in blog
-Markdown can't read CSS custom properties from the page — swap in the
-dark-mode hex column if a chart needs to ship dark-mode-aware, e.g. via
-two `<picture>` sources or an inline `<svg>` using `currentColor` plus
-CSS custom properties when it's embedded directly in an Astro page
-rather than a flat blog image).
+Both are built at a 4px-aligned coordinate grid, and every color is a
+CSS custom property with a light-mode fallback (e.g.
+`style="fill:var(--selection-bg,#1f3d2e)"`) rather than flat hex. That
+means:
+
+- Embedded **inline** in an Astro page (paste the `<svg>` markup
+  directly into the template), it automatically tracks the page's real
+  `:root`/`:root[data-theme="dark"]` tokens — no extra work.
+- Opened or referenced as a **standalone file** (a blog post image, a
+  raw `file://` open) with no ancestor defining those tokens, it falls
+  back to the light-mode hex baked into each `var()` call, so it still
+  renders correctly, just not theme-reactive.
+- `preview.html` (alongside this file) demonstrates both themes side by
+  side for both templates - it fetches each `.svg` and inlines it into
+  a themed panel, since only a truly inline SVG shares CSS custom
+  properties with its page (an `<object>` or `<img>` embed does not).
+  Serve `chart-notes/` over HTTP to open it (`fetch()` needs http(s),
+  not `file://`) - e.g. temporarily copy it into `public/` the way any
+  other local-preview file gets tested, then remove it after.
 
 ## When *not* to draw a chart
 
