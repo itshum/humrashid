@@ -10,7 +10,7 @@ approach: "TBD — placeholder, fill in during content phase."
 outcome: "TBD — placeholder, fill in during content phase."
 whatIdDoDifferently: "TBD"
 order: 1
-draft: true
+draft: false
 ---
 
 ## The work
