@@ -87,11 +87,26 @@
       .app-header .back {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0;
         font-size: 0.85rem;
         color: var(--app-label);
         text-decoration: none;
         transition: color 0.15s ease;
+      }
+
+      .app-header .back-label {
+        display: inline-block;
+        max-width: 0;
+        overflow: hidden;
+        white-space: nowrap;
+        opacity: 0;
+        transition: max-width 0.2s ease, opacity 0.15s ease, margin-left 0.2s ease;
+      }
+
+      .app-header .back:hover .back-label {
+        max-width: 200px;
+        opacity: 1;
+        margin-left: 0.5rem;
       }
 
       .app-header .back:hover {
@@ -230,6 +245,11 @@
         transition: border-color 0.15s ease, transform 0.1s ease;
         padding: 0;
         background: none;
+        /* Chromium can let a gradient background bleed a sliver past
+           the visual rounded corner, showing as a stray colored fringe
+           right at the border - clipping to the padding box keeps the
+           background strictly inside the border. */
+        background-clip: padding-box;
       }
 
       .swatch:hover {
@@ -306,6 +326,10 @@
 
       .upload-bg-btn {
         width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.45rem;
         background: none;
         border: 1px solid var(--app-border);
         color: var(--app-label);
@@ -320,6 +344,12 @@
       .upload-bg-btn:hover {
         border-color: var(--app-label);
         color: var(--app-text);
+      }
+
+      .upload-bg-btn svg {
+        width: 14px;
+        height: 14px;
+        flex: none;
       }
 
       /* --- Segmented control (container type) --- */
@@ -382,6 +412,22 @@
       .dropdown-trigger:hover,
       .dropdown.is-open .dropdown-trigger {
         border-color: var(--app-label);
+      }
+
+      .trigger-label {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 0.75rem;
+      }
+
+      .trigger-label .dims {
+        flex: none;
+        font-size: 0.72rem;
+        color: var(--app-label-dim);
+        font-variant-numeric: tabular-nums;
       }
 
       .dropdown-caret {
@@ -494,7 +540,7 @@
         left: 0;
         bottom: 0;
         width: 0%;
-        background: rgba(255, 90, 31, 0.18);
+        background: rgba(255, 145, 100, 0.4);
         pointer-events: none;
       }
 
@@ -530,27 +576,121 @@
       }
 
       /* --- Export button --- */
-      .export-btn {
-        width: 100%;
+      /* Split button: main action + an attached caret that opens a
+         format/scale menu, rather than a separate row of controls. */
+      .export-control {
+        position: relative;
+        display: flex;
+      }
+
+      .export-btn,
+      .export-caret {
         background: var(--app-accent);
         color: var(--app-accent-text);
         border: none;
-        border-radius: 9px;
-        padding: 0.7rem;
         font-family: inherit;
-        font-size: 0.88rem;
-        font-weight: 500;
         cursor: pointer;
         transition: opacity 0.15s ease;
       }
 
-      .export-btn:hover {
+      .export-btn {
+        flex: 1;
+        border-radius: 9px 0 0 9px;
+        padding: 0.7rem;
+        font-size: 0.88rem;
+        font-weight: 500;
+      }
+
+      .export-caret {
+        flex: none;
+        width: 2.4rem;
+        border-left: 1px solid rgba(0, 0, 0, 0.18);
+        border-radius: 0 9px 9px 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .export-btn:hover,
+      .export-caret:hover {
         opacity: 0.9;
       }
 
-      .export-btn:disabled {
+      .export-btn:disabled,
+      .export-caret:disabled {
         opacity: 0.4;
         cursor: default;
+      }
+
+      .export-caret svg {
+        width: 10px;
+        height: 6px;
+        transition: transform 0.15s ease;
+      }
+
+      .export-control.is-open .export-caret svg {
+        transform: rotate(180deg);
+      }
+
+      .export-menu {
+        position: absolute;
+        bottom: calc(100% + 6px);
+        left: 0;
+        right: 0;
+        z-index: 20;
+        background: var(--app-overlay);
+        border: 1px solid var(--app-border-strong);
+        border-radius: 10px;
+        padding: 0.4rem;
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+      }
+
+      .export-menu[hidden] {
+        display: none;
+      }
+
+      .export-menu-label {
+        font-size: 0.68rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--app-label-dim);
+        padding: 0.4rem 0.6rem 0.3rem;
+      }
+
+      .export-menu-row {
+        display: flex;
+        gap: 0.3rem;
+        padding: 0 0.3rem 0.4rem;
+      }
+
+      .export-menu-option {
+        flex: 1;
+        background: none;
+        border: 1px solid var(--app-border);
+        border-radius: 6px;
+        padding: 0.4rem 0.3rem;
+        font-family: inherit;
+        font-size: 0.78rem;
+        color: var(--app-label);
+        cursor: pointer;
+        transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+      }
+
+      .export-menu-option:hover {
+        color: var(--app-text);
+        border-color: var(--app-label);
+      }
+
+      .export-menu-option.is-selected {
+        background: var(--app-hover);
+        color: var(--app-text);
+        border-color: var(--app-accent);
+      }
+
+      #scaleMenuRow .export-menu-option {
+        font-size: 0.95rem;
+        font-weight: 500;
+        padding: 0.5rem 0.3rem;
       }
 
       .export-hint {
@@ -583,6 +723,29 @@
         display: none;
       }
 
+      .stage-info {
+        position: absolute;
+        left: 1.25rem;
+        bottom: 1.25rem;
+        background: var(--app-overlay);
+        border: 1px solid var(--app-border);
+        border-radius: 7px;
+        padding: 0.4rem 0.7rem;
+        font-size: 0.75rem;
+        color: var(--app-label);
+        font-variant-numeric: tabular-nums;
+        pointer-events: none;
+      }
+
+      .stage-info[hidden] {
+        display: none;
+      }
+
+      .stage-info strong {
+        color: var(--app-text);
+        font-weight: 500;
+      }
+
       .stage-empty {
         text-align: center;
         color: var(--app-label);
@@ -604,7 +767,7 @@
       <header class="app-header">
         <a class="back" href="/apps/">
           <span aria-hidden="true">←</span>
-          humrashid.com/apps
+          <span class="back-label">humrashid.com/apps</span>
         </a>
         <span class="name">rendr</span>
       </header>
@@ -647,7 +810,14 @@
               </div>
 
               <div class="bg-pane" id="bgPaneImage" hidden>
-                <button type="button" class="upload-bg-btn" id="bgUploadBtn">Upload background image</button>
+                <button type="button" class="upload-bg-btn" id="bgUploadBtn">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M12 15V4" />
+                    <path d="M7.5 8.5 12 4l4.5 4.5" />
+                    <path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" />
+                  </svg>
+                  Upload background image
+                </button>
                 <input type="file" id="bgFileInput" accept="image/*" hidden />
               </div>
 
@@ -669,7 +839,10 @@
               <h2>Size</h2>
               <div class="dropdown" id="sizeDropdown">
                 <button type="button" class="dropdown-trigger" id="sizeDropdownTrigger" aria-haspopup="listbox">
-                  <span id="sizeDropdownLabel"></span>
+                  <span class="trigger-label">
+                    <span id="sizeDropdownName"></span>
+                    <span class="dims" id="sizeDropdownDims"></span>
+                  </span>
                   <svg class="dropdown-caret" viewBox="0 0 10 6" fill="none" aria-hidden="true">
                     <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
                   </svg>
@@ -685,7 +858,28 @@
           </div>
 
           <div class="panel-footer">
-            <button type="button" class="export-btn" id="exportBtn" disabled>Download PNG</button>
+            <div class="export-control" id="exportControl">
+              <button type="button" class="export-btn" id="exportBtn" disabled>Download PNG</button>
+              <button type="button" class="export-caret" id="exportCaretBtn" aria-haspopup="listbox" disabled>
+                <svg viewBox="0 0 10 6" fill="none" aria-hidden="true">
+                  <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </button>
+              <div class="export-menu" id="exportMenu" hidden>
+                <div class="export-menu-label">Format</div>
+                <div class="export-menu-row" id="formatMenuRow">
+                  <button type="button" class="export-menu-option is-selected" data-format="png">PNG</button>
+                  <button type="button" class="export-menu-option" data-format="jpeg">JPEG</button>
+                  <button type="button" class="export-menu-option" data-format="webp">WebP</button>
+                </div>
+                <div class="export-menu-label">Scale</div>
+                <div class="export-menu-row" id="scaleMenuRow">
+                  <button type="button" class="export-menu-option is-selected" data-scale="1">1×</button>
+                  <button type="button" class="export-menu-option" data-scale="2">2×</button>
+                  <button type="button" class="export-menu-option" data-scale="3">3×</button>
+                </div>
+              </div>
+            </div>
             <p class="export-hint" id="exportHint">Upload an image to get started</p>
           </div>
         </aside>
@@ -696,6 +890,7 @@
             Upload an image on the left to see it composited live.
           </div>
           <canvas id="previewCanvas" hidden></canvas>
+          <div class="stage-info" id="stageInfo" hidden></div>
         </main>
       </div>
     </div>
@@ -811,7 +1006,19 @@
       // color, the way a dot-grid or contour line sits over a flat
       // gradient in the reference screenshots. `size` is already
       // baseline-scaled px by the time it reaches these.
-      type TextureId = "none" | "dots" | "grid" | "diagonal" | "waves" | "topo";
+      type TextureId =
+        | "none"
+        | "dots"
+        | "grid"
+        | "diagonal"
+        | "waves"
+        | "topo"
+        | "crosshatch"
+        | "checker"
+        | "rings"
+        | "noise"
+        | "chevron"
+        | "hexgrid";
 
       function drawDotsTexture(c: CanvasRenderingContext2D, W: number, H: number, size: number) {
         c.save();
@@ -912,12 +1119,133 @@
         c.restore();
       }
 
+      function drawCrosshatchTexture(c: CanvasRenderingContext2D, W: number, H: number, size: number) {
+        c.save();
+        c.strokeStyle = "rgba(255,255,255,0.16)";
+        c.lineWidth = Math.max(1, size * 0.02);
+        const diag = Math.sqrt(W * W + H * H);
+        c.beginPath();
+        for (let d = -diag; d < diag; d += size) {
+          c.moveTo(d, 0);
+          c.lineTo(d + diag, diag);
+          c.moveTo(d + diag, 0);
+          c.lineTo(d, diag);
+        }
+        c.stroke();
+        c.restore();
+      }
+
+      function drawCheckerTexture(c: CanvasRenderingContext2D, W: number, H: number, size: number) {
+        c.save();
+        c.fillStyle = "rgba(255,255,255,0.1)";
+        let row = 0;
+        for (let y = 0; y < H; y += size, row++) {
+          for (let x = row % 2 === 0 ? 0 : size; x < W; x += size * 2) {
+            c.fillRect(x, y, size, size);
+          }
+        }
+        c.restore();
+      }
+
+      function drawRingsTexture(c: CanvasRenderingContext2D, W: number, H: number, size: number) {
+        c.save();
+        c.strokeStyle = "rgba(255,255,255,0.2)";
+        c.lineWidth = Math.max(1, size * 0.02);
+        const cell = size * 2.2;
+        for (let cy = cell / 2; cy < H + cell; cy += cell) {
+          for (let cx = cell / 2; cx < W + cell; cx += cell) {
+            for (let r = size * 0.3; r < cell * 0.55; r += size * 0.32) {
+              c.beginPath();
+              c.arc(cx, cy, r, 0, Math.PI * 2);
+              c.stroke();
+            }
+          }
+        }
+        c.restore();
+      }
+
+      // Deterministic pseudo-random speckle (a seeded hash, not
+      // Math.random) so the same swatch/canvas size always renders the
+      // same speckle instead of reshuffling on every re-render.
+      function drawNoiseTexture(c: CanvasRenderingContext2D, W: number, H: number, size: number) {
+        c.save();
+        c.fillStyle = "rgba(255,255,255,0.35)";
+        const step = Math.max(3, size * 0.22);
+        let seed = 1;
+        const rand = () => {
+          seed = (seed * 16807) % 2147483647;
+          return seed / 2147483647;
+        };
+        for (let y = 0; y < H; y += step) {
+          for (let x = 0; x < W; x += step) {
+            if (rand() > 0.72) {
+              const r = step * 0.18 * (0.6 + rand() * 0.8);
+              c.globalAlpha = 0.2 + rand() * 0.4;
+              c.beginPath();
+              c.arc(x + rand() * step, y + rand() * step, r, 0, Math.PI * 2);
+              c.fill();
+            }
+          }
+        }
+        c.restore();
+      }
+
+      function drawChevronTexture(c: CanvasRenderingContext2D, W: number, H: number, size: number) {
+        c.save();
+        c.strokeStyle = "rgba(255,255,255,0.2)";
+        c.lineWidth = Math.max(1, size * 0.022);
+        const amp = size * 0.5;
+        for (let y = -amp; y < H + amp; y += amp * 2) {
+          c.beginPath();
+          for (let x = 0; x <= W + size; x += size) {
+            const yy = y + (Math.floor(x / size) % 2 === 0 ? 0 : amp);
+            if (x === 0) c.moveTo(x, yy);
+            else c.lineTo(x, yy);
+          }
+          c.stroke();
+        }
+        c.restore();
+      }
+
+      function drawHexgridTexture(c: CanvasRenderingContext2D, W: number, H: number, size: number) {
+        c.save();
+        c.strokeStyle = "rgba(255,255,255,0.18)";
+        c.lineWidth = Math.max(1, size * 0.018);
+        const r = size * 0.6;
+        const hexW = r * 2;
+        const hexH = Math.sqrt(3) * r;
+        const colStep = hexW * 0.75;
+        let col = 0;
+        for (let cx = 0; cx < W + hexW; cx += colStep, col++) {
+          const yOffset = col % 2 === 0 ? 0 : hexH / 2;
+          for (let cy = yOffset - hexH; cy < H + hexH; cy += hexH) {
+            c.beginPath();
+            for (let i = 0; i < 6; i++) {
+              const angle = (Math.PI / 3) * i;
+              const x = cx + r * Math.cos(angle);
+              const y = cy + r * Math.sin(angle);
+              if (i === 0) c.moveTo(x, y);
+              else c.lineTo(x, y);
+            }
+            c.closePath();
+            c.stroke();
+          }
+        }
+        c.restore();
+      }
+
       function drawTexture(c: CanvasRenderingContext2D, W: number, H: number, id: TextureId, size: number) {
         if (id === "dots") drawDotsTexture(c, W, H, size);
         else if (id === "grid") drawGridTexture(c, W, H, size);
         else if (id === "diagonal") drawDiagonalTexture(c, W, H, size);
         else if (id === "waves") drawWavesTexture(c, W, H, size);
         else if (id === "topo") drawTopoTexture(c, W, H, size);
+        else if (id === "crosshatch") drawCrosshatchTexture(c, W, H, size);
+        else if (id === "checker") drawCheckerTexture(c, W, H, size);
+        else if (id === "rings") drawRingsTexture(c, W, H, size);
+        else if (id === "noise") drawNoiseTexture(c, W, H, size);
+        else if (id === "chevron") drawChevronTexture(c, W, H, size);
+        else if (id === "hexgrid") drawHexgridTexture(c, W, H, size);
       }
 
       const TEXTURE_PRESETS: { id: TextureId; label: string }[] = [
@@ -927,6 +1255,12 @@
         { id: "diagonal", label: "Diagonal" },
         { id: "waves", label: "Waves" },
         { id: "topo", label: "Topo" },
+        { id: "crosshatch", label: "Crosshatch" },
+        { id: "checker", label: "Checker" },
+        { id: "rings", label: "Rings" },
+        { id: "noise", label: "Noise" },
+        { id: "chevron", label: "Chevron" },
+        { id: "hexgrid", label: "Hex grid" },
       ];
 
       const SIZE_PRESETS = [
@@ -944,6 +1278,7 @@
       const BASELINE = 1080;
 
       type BgState =
+        | { type: "none" }
         | { type: "gradient"; preset: GradientPreset }
         | { type: "color"; value: string }
         | { type: "image"; img: HTMLImageElement };
@@ -962,6 +1297,8 @@
         zoom: 1,
         offsetX: 0,
         offsetY: 0,
+        exportFormat: "png" as "png" | "jpeg" | "webp",
+        exportScale: 1 as 1 | 2 | 3,
       };
 
       // ---------- DOM refs ----------
@@ -984,11 +1321,18 @@
       const containerSeg = document.getElementById("containerSeg") as HTMLElement;
       const sizeDropdown = document.getElementById("sizeDropdown") as HTMLElement;
       const sizeDropdownTrigger = document.getElementById("sizeDropdownTrigger") as HTMLButtonElement;
-      const sizeDropdownLabel = document.getElementById("sizeDropdownLabel") as HTMLElement;
+      const sizeDropdownName = document.getElementById("sizeDropdownName") as HTMLElement;
+      const sizeDropdownDims = document.getElementById("sizeDropdownDims") as HTMLElement;
       const sizeDropdownMenu = document.getElementById("sizeDropdownMenu") as HTMLElement;
       const scrubGroupEl = document.getElementById("scrubGroup") as HTMLElement;
+      const exportControl = document.getElementById("exportControl") as HTMLElement;
       const exportBtn = document.getElementById("exportBtn") as HTMLButtonElement;
+      const exportCaretBtn = document.getElementById("exportCaretBtn") as HTMLButtonElement;
+      const exportMenu = document.getElementById("exportMenu") as HTMLElement;
+      const formatMenuRow = document.getElementById("formatMenuRow") as HTMLElement;
+      const scaleMenuRow = document.getElementById("scaleMenuRow") as HTMLElement;
       const exportHint = document.getElementById("exportHint") as HTMLElement;
+      const stageInfo = document.getElementById("stageInfo") as HTMLElement;
       const stageEl = document.getElementById("stage") as HTMLElement;
       const stageEmptyEl = document.getElementById("stageEmpty") as HTMLElement;
       const canvas = document.getElementById("previewCanvas") as HTMLCanvasElement;
@@ -1198,7 +1542,8 @@
           stageEmptyEl.hidden = true;
           canvas.hidden = false;
           exportBtn.disabled = false;
-          exportHint.textContent = `${state.size.w} × ${state.size.h} PNG`;
+          exportCaretBtn.disabled = false;
+          updateExportInfo();
 
           // The real default: a gradient generated from the image's
           // own colors, not a generic preset - applied automatically
@@ -1347,6 +1692,18 @@
       // reliably map back to a static array index.
       const gradientPresetByBtn = new Map<HTMLButtonElement, GradientPreset>();
 
+      const noneSwatchBtn = document.createElement("button");
+      noneSwatchBtn.type = "button";
+      noneSwatchBtn.className = "swatch";
+      noneSwatchBtn.title = "None - no background";
+      noneSwatchBtn.addEventListener("click", () => {
+        state.background = { type: "none" };
+        bgSwatchesEl.querySelectorAll(".swatch").forEach((el) => el.classList.remove("is-active"));
+        noneSwatchBtn.classList.add("is-active");
+        renderPreview();
+      });
+      bgSwatchesEl.appendChild(noneSwatchBtn);
+
       const autoSwatchBtn = document.createElement("button");
       autoSwatchBtn.type = "button";
       autoSwatchBtn.className = "swatch";
@@ -1441,8 +1798,12 @@
 
         if (mode === "gradient") {
           const activeSwatch = bgSwatchesEl.querySelector(".swatch.is-active") as HTMLButtonElement | null;
-          const preset = (activeSwatch && gradientPresetByBtn.get(activeSwatch)) || GRADIENT_PRESETS[0];
-          state.background = { type: "gradient", preset };
+          if (activeSwatch === noneSwatchBtn) {
+            state.background = { type: "none" };
+          } else {
+            const preset = (activeSwatch && gradientPresetByBtn.get(activeSwatch)) || GRADIENT_PRESETS[0];
+            state.background = { type: "gradient", preset };
+          }
           renderPreview();
         } else if (mode === "color") {
           state.background = { type: "color", value: bgColorInput.value };
@@ -1506,11 +1867,12 @@
       // ---------- Size presets (custom dropdown) ----------
       function selectSizePreset(preset: (typeof SIZE_PRESETS)[number]) {
         state.size = preset;
-        sizeDropdownLabel.textContent = `${preset.label} ${preset.w}×${preset.h}`;
+        sizeDropdownName.textContent = preset.label;
+        sizeDropdownDims.textContent = `${preset.w}×${preset.h}`;
         sizeDropdownMenu.querySelectorAll(".dropdown-option").forEach((el) => {
           el.classList.toggle("is-selected", (el as HTMLElement).dataset.id === preset.id);
         });
-        if (state.assetImg) exportHint.textContent = `${state.size.w} × ${state.size.h} PNG`;
+        updateExportInfo();
         renderPreview();
       }
 
@@ -1526,7 +1888,8 @@
         });
         sizeDropdownMenu.appendChild(option);
       });
-      sizeDropdownLabel.textContent = `${SIZE_PRESETS[2].label} ${SIZE_PRESETS[2].w}×${SIZE_PRESETS[2].h}`;
+      sizeDropdownName.textContent = SIZE_PRESETS[2].label;
+      sizeDropdownDims.textContent = `${SIZE_PRESETS[2].w}×${SIZE_PRESETS[2].h}`;
 
       function openSizeDropdown() {
         sizeDropdownMenu.hidden = false;
@@ -1717,24 +2080,93 @@
       });
 
       // ---------- Export ----------
+      const FORMAT_LABELS: Record<string, string> = { png: "PNG", jpeg: "JPEG", webp: "WebP" };
+      const FORMAT_MIME: Record<string, string> = { png: "image/png", jpeg: "image/jpeg", webp: "image/webp" };
+      const FORMAT_EXT: Record<string, string> = { png: "png", jpeg: "jpg", webp: "webp" };
+      const EXPORT_QUALITY = 0.92;
+
+      function updateExportInfo() {
+        const formatLabel = FORMAT_LABELS[state.exportFormat];
+        exportBtn.textContent = `Download ${formatLabel}`;
+        if (!state.assetImg) {
+          stageInfo.hidden = true;
+          return;
+        }
+        const w = state.size.w * state.exportScale;
+        const h = state.size.h * state.exportScale;
+        const scaleSuffix = state.exportScale > 1 ? ` · ${state.exportScale}×` : "";
+        exportHint.textContent = `${w} × ${h} ${formatLabel}${scaleSuffix}`;
+        const qualityLabel = state.exportFormat === "png" ? "Lossless" : `${Math.round(EXPORT_QUALITY * 100)}% quality`;
+        stageInfo.innerHTML = `<strong>${w}×${h}</strong> · ${formatLabel} · ${qualityLabel}`;
+        stageInfo.hidden = false;
+      }
+
+      // ---------- Export menu (format + scale) ----------
+      function openExportMenu() {
+        exportMenu.hidden = false;
+        exportControl.classList.add("is-open");
+        document.addEventListener("click", onExportMenuOutsideClick);
+      }
+      function closeExportMenu() {
+        exportMenu.hidden = true;
+        exportControl.classList.remove("is-open");
+        document.removeEventListener("click", onExportMenuOutsideClick);
+      }
+      function onExportMenuOutsideClick(e: MouseEvent) {
+        if (!exportControl.contains(e.target as Node)) closeExportMenu();
+      }
+
+      exportCaretBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (exportMenu.hidden) openExportMenu();
+        else closeExportMenu();
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && !exportMenu.hidden) closeExportMenu();
+      });
+
+      formatMenuRow.querySelectorAll<HTMLButtonElement>(".export-menu-option").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          state.exportFormat = btn.dataset.format as "png" | "jpeg" | "webp";
+          formatMenuRow.querySelectorAll(".export-menu-option").forEach((el) => el.classList.remove("is-selected"));
+          btn.classList.add("is-selected");
+          updateExportInfo();
+        });
+      });
+
+      scaleMenuRow.querySelectorAll<HTMLButtonElement>(".export-menu-option").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          state.exportScale = Number(btn.dataset.scale) as 1 | 2 | 3;
+          scaleMenuRow.querySelectorAll(".export-menu-option").forEach((el) => el.classList.remove("is-selected"));
+          btn.classList.add("is-selected");
+          updateExportInfo();
+        });
+      });
+
       exportBtn.addEventListener("click", () => {
         if (!state.assetImg) return;
         const out = document.createElement("canvas");
-        out.width = state.size.w;
-        out.height = state.size.h;
+        out.width = state.size.w * state.exportScale;
+        out.height = state.size.h * state.exportScale;
         const outCtx = out.getContext("2d")!;
         render(outCtx, out.width, out.height);
-        out.toBlob((blob) => {
-          if (!blob) return;
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement("a");
-          a.href = url;
-          a.download = `render-${state.size.id}.png`;
-          document.body.appendChild(a);
-          a.click();
-          a.remove();
-          URL.revokeObjectURL(url);
-        }, "image/png");
+        const mime = FORMAT_MIME[state.exportFormat];
+        const quality = state.exportFormat === "png" ? undefined : EXPORT_QUALITY;
+        out.toBlob(
+          (blob) => {
+            if (!blob) return;
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `rendr-${state.size.id}.${FORMAT_EXT[state.exportFormat]}`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+          },
+          mime,
+          quality
+        );
       });
 
       // ---------- Init ----------
