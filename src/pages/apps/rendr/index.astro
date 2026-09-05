@@ -732,9 +732,6 @@
       }
 
       .stage-info {
-        position: absolute;
-        left: 1.25rem;
-        bottom: 1.25rem;
         background: var(--app-overlay);
         border: 1px solid var(--app-border);
         border-radius: 7px;
@@ -742,7 +739,10 @@
         font-size: 0.75rem;
         color: var(--app-label);
         font-variant-numeric: tabular-nums;
-        pointer-events: none;
+        max-width: 40vw;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
 
       .stage-info[hidden] {
@@ -777,6 +777,7 @@
           <span aria-hidden="true">←</span>
           <span class="back-label">humrashid.com/apps</span>
         </a>
+        <div class="stage-info" id="stageInfo" hidden></div>
         <span class="name">rendr</span>
       </header>
 
@@ -898,7 +899,6 @@
             Upload an image on the left to see it composited live.
           </div>
           <canvas id="previewCanvas" tabindex="0" hidden></canvas>
-          <div class="stage-info" id="stageInfo" hidden></div>
         </main>
       </div>
     </div>
@@ -2254,7 +2254,8 @@
         const scaleSuffix = state.exportScale > 1 ? ` · ${state.exportScale}×` : "";
         exportHint.textContent = `${w} × ${h} ${formatLabel}${scaleSuffix}`;
         const qualityLabel = state.exportFormat === "png" ? "Lossless" : `${Math.round(EXPORT_QUALITY * 100)}% quality`;
-        stageInfo.innerHTML = `<strong>${w}×${h}</strong> · ${formatLabel} · ${qualityLabel}`;
+        const fileName = filenameEl.textContent || "";
+        stageInfo.innerHTML = `<strong>${fileName}</strong> · ${w}×${h} · ${formatLabel} · ${qualityLabel}`;
         stageInfo.hidden = false;
       }
 
