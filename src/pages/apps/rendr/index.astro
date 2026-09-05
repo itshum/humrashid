@@ -540,7 +540,10 @@
         left: 0;
         bottom: 0;
         width: 0%;
-        background: rgba(255, 145, 100, 0.4);
+        /* Solid, not translucent - the tick marks live on .scrub's own
+           background underneath, and a translucent fill let them bleed
+           through instead of being covered as the bar fills in. */
+        background: #e05a1f;
         pointer-events: none;
       }
 
@@ -548,7 +551,7 @@
         position: relative;
         z-index: 1;
         font-size: 0.8rem;
-        color: var(--app-label);
+        color: var(--app-text);
       }
 
       .scrub-value {
@@ -1443,7 +1446,11 @@
         const contentX = (W - contentW) / 2 + state.offsetX * scale;
         const contentY = (H - chromeBar - contentH) / 2 + chromeBar + state.offsetY * scale;
 
-        const radius = state.radius * scale;
+        // Radius always controls the photo itself. The Browser
+        // window frame is a separate, fixed shape - its own corners
+        // don't follow the scrub, only the image inside it does.
+        const contentRadius = state.radius * scale;
+        const outerRadius = state.container === "browser" ? 4 * scale : contentRadius;
         const outerX = contentX;
         const outerY = contentY - chromeBar;
         const outerW = contentW;
@@ -1457,14 +1464,13 @@
             c.shadowBlur = state.shadow * scale;
             c.shadowOffsetY = state.shadow * 0.3 * scale;
           }
-          roundedRectPath(c, outerX, outerY, outerW, outerH, radius);
-          c.fillStyle = state.container === "browser" ? "#2a2a2c" : "#ffffff";
+          roundedRectPath(c, outerX, outerY, outerW, outerH, outerRadius);
+          c.fillStyle = state.container === "browser" ? "#e9e9eb" : "#ffffff";
           c.fill();
           c.restore();
 
           if (state.container === "browser") {
             c.save();
-            c.fillStyle = "#2a2a2c";
             const dotY = outerY + chromeBar / 2;
             const dotR = 3.6 * scale;
             const dotGap = 9 * scale;
@@ -1475,6 +1481,15 @@
               c.fillStyle = color;
               c.fill();
             });
+            // Subtle divider between the title bar and the image
+            // beneath it - without it the two areas run together
+            // with no visible seam.
+            c.strokeStyle = "rgba(0,0,0,0.14)";
+            c.lineWidth = Math.max(1, scale);
+            c.beginPath();
+            c.moveTo(outerX, outerY + chromeBar);
+            c.lineTo(outerX + outerW, outerY + chromeBar);
+            c.stroke();
             c.restore();
           }
         } else if (state.shadow > 0) {
@@ -1482,7 +1497,7 @@
           c.shadowColor = "rgba(0,0,0,0.45)";
           c.shadowBlur = state.shadow * scale;
           c.shadowOffsetY = state.shadow * 0.3 * scale;
-          roundedRectPath(c, contentX, contentY, contentW, contentH, radius);
+          roundedRectPath(c, contentX, contentY, contentW, contentH, contentRadius);
           c.fillStyle = "rgba(0,0,0,0.001)";
           c.fill();
           c.restore();
@@ -1490,7 +1505,7 @@
 
         // 4. Clip + draw the asset image
         c.save();
-        roundedRectPath(c, contentX, contentY, contentW, contentH, radius);
+        roundedRectPath(c, contentX, contentY, contentW, contentH, contentRadius);
         c.clip();
         c.drawImage(state.assetImg, contentX, contentY, contentW, contentH);
         c.restore();
@@ -1860,6 +1875,7 @@
           containerSeg.querySelectorAll("button").forEach((b) => b.classList.remove("is-active"));
           btn.classList.add("is-active");
           state.container = btn.dataset.value as typeof state.container;
+          renderScrubs();
           renderPreview();
         });
       });
@@ -1928,7 +1944,14 @@
 
       const SCRUB_CONFIGS: ScrubConfig[] = [
         { key: "padding", label: "Padding", min: 0, max: 200, step: 1, unit: "px" },
-        { key: "radius", label: "Radius", min: 0, max: 64, step: 1, unit: "px" },
+        {
+          key: "radius",
+          label: "Radius",
+          min: 0,
+          max: 64,
+          step: 1,
+          unit: "px",
+        },
         { key: "shadow", label: "Shadow", min: 0, max: 100, step: 1, unit: "" },
         {
           key: "bgBlur",
