@@ -257,8 +257,15 @@
         margin-top: 0.75rem;
       }
 
+      .color-row {
+        display: flex;
+        gap: 0.5rem;
+        align-items: stretch;
+      }
+
       .swatch-color-input {
-        width: 100%;
+        flex: 1;
+        min-width: 0;
         height: 56px;
         border-radius: 8px;
         border: 1px solid var(--app-border);
@@ -267,6 +274,25 @@
         background: none;
         appearance: none;
         overflow: hidden;
+      }
+
+      .hex-input {
+        flex: none;
+        width: 6.4rem;
+        background: var(--app-hover);
+        border: 1px solid var(--app-border);
+        border-radius: 8px;
+        padding: 0 0.6rem;
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 0.85rem;
+        color: var(--app-text);
+        text-transform: uppercase;
+        outline: none;
+        transition: border-color 0.15s ease;
+      }
+
+      .hex-input:focus {
+        border-color: var(--app-accent);
       }
 
       .swatch-color-input::-webkit-color-swatch-wrapper {
@@ -614,7 +640,10 @@
               </div>
 
               <div class="bg-pane" id="bgPaneColor" hidden>
-                <input type="color" class="swatch-color-input" id="bgColorInput" value="#e5e0d5" />
+                <div class="color-row">
+                  <input type="color" class="swatch-color-input" id="bgColorInput" value="#e5e0d5" />
+                  <input type="text" class="hex-input" id="bgHexInput" value="#E5E0D5" spellcheck="false" maxlength="7" />
+                </div>
               </div>
 
               <div class="bg-pane" id="bgPaneImage" hidden>
@@ -941,6 +970,7 @@
       const filenameEl = document.getElementById("filename") as HTMLElement;
       const bgSwatchesEl = document.getElementById("bgSwatches") as HTMLElement;
       const bgColorInput = document.getElementById("bgColorInput") as HTMLInputElement;
+      const bgHexInput = document.getElementById("bgHexInput") as HTMLInputElement;
       const bgUploadBtn = document.getElementById("bgUploadBtn") as HTMLButtonElement;
       const bgFileInput = document.getElementById("bgFileInput") as HTMLInputElement;
       const textureSwatchesEl = document.getElementById("textureSwatches") as HTMLElement;
@@ -1349,10 +1379,32 @@
       });
 
       bgColorInput.addEventListener("input", () => {
+        bgHexInput.value = bgColorInput.value.toUpperCase();
         state.background = { type: "color", value: bgColorInput.value };
         bgSwatchesEl.querySelectorAll(".swatch").forEach((el) => el.classList.remove("is-active"));
         renderPreview();
       });
+
+      const HEX_RE = /^#([0-9a-f]{6})$/i;
+
+      function commitHexInput() {
+        let value = bgHexInput.value.trim();
+        if (value && !value.startsWith("#")) value = `#${value}`;
+        if (!HEX_RE.test(value)) {
+          bgHexInput.value = bgColorInput.value.toUpperCase();
+          return;
+        }
+        bgColorInput.value = value;
+        bgHexInput.value = value.toUpperCase();
+        state.background = { type: "color", value };
+        bgSwatchesEl.querySelectorAll(".swatch").forEach((el) => el.classList.remove("is-active"));
+        renderPreview();
+      }
+
+      bgHexInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") bgHexInput.blur();
+      });
+      bgHexInput.addEventListener("blur", commitHexInput);
 
       let uploadedBgImage: HTMLImageElement | null = null;
 
