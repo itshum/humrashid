@@ -513,45 +513,27 @@ import Footer from "../components/Footer.astro";
       }
 
       /* --- Sublime row: password-gated case study --- */
-      /* .work-row here is a plain div (not the clickable element
-         itself, unlike the other rows) since it wraps two separate
-         interactive children - the gate-opening button and the
-         sublime.security link - and a button can't contain an <a>.
-         Hover/focus is keyed off this wrapper so either child
-         highlights the whole row, matching the other rows' feel. */
-      .work-row--gated {
-        padding: 0;
-      }
-
-      .work-row--gated:hover,
-      .work-row--gated:focus-within {
-        background: var(--hover-bg);
-      }
-
-      .gate-trigger {
+      /* Same .work-row treatment as the other rows, just a <button>
+         instead of an <a> since it opens the gate modal rather than
+         navigating directly. */
+      button.work-row {
         display: block;
         width: 100%;
         background: none;
         border: none;
-        padding: 1.1rem 0.9rem 0;
-        margin: 0;
         font-family: inherit;
         text-align: left;
         color: inherit;
         cursor: pointer;
       }
 
-      .gate-trigger:focus-visible {
+      button.work-row:focus-visible {
         outline: 2px solid var(--label);
         outline-offset: -2px;
-        border-radius: 6px;
       }
 
-      .work-row--gated .desc {
-        padding: 0 0.9rem 1.1rem;
-      }
-
-      .work-row--gated:hover .icon.internal {
+      button.work-row:hover .icon.internal,
+      button.work-row:focus-visible .icon.internal {
         opacity: 1;
         color: var(--icon-hover);
         transform: translateX(2px);
@@ -584,7 +566,7 @@ import Footer from "../components/Footer.astro";
         background: var(--bg);
         border: 1px solid var(--border);
         border-radius: 4px;
-        padding: 1.75rem;
+        padding: 1.5rem;
         box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
         transform: translateY(8px) scale(0.98);
         transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
@@ -621,13 +603,6 @@ import Footer from "../components/Footer.astro";
         color: var(--label);
         margin: 0 0 1.4rem;
         line-height: 1.5;
-      }
-
-      .gate-field-label {
-        font-size: 0.78rem;
-        color: var(--label);
-        margin: 0 0 0.5rem;
-        display: block;
       }
 
       .gate-field-wrap {
@@ -727,15 +702,22 @@ import Footer from "../components/Footer.astro";
         display: block;
       }
 
+      /* Collapsed to zero height by default - not just invisible -
+         so the gap it would otherwise reserve between the field and
+         the buttons doesn't show up until there's actually an error. */
       .gate-error-msg {
         font-size: 0.8rem;
         color: var(--danger);
-        margin: 0.55rem 0 0;
+        margin: 0;
+        height: 0;
+        overflow: hidden;
         opacity: 0;
         transition: opacity 0.15s ease;
       }
 
       .gate-error-msg.is-shown {
+        margin: 0.5rem 0 0;
+        height: auto;
         opacity: 1;
       }
 
@@ -816,7 +798,7 @@ import Footer from "../components/Footer.astro";
         justify-content: flex-end;
         align-items: center;
         gap: 0.4rem;
-        margin-top: 1.25rem;
+        margin-top: 0.9rem;
       }
 
       /* On-load entrance, not scroll-triggered like the case study
@@ -897,18 +879,16 @@ import Footer from "../components/Footer.astro";
         <p class="section-heading" data-load-reveal>Select Work</p>
 
         <div class="work-list">
-          <div class="work-row work-row--gated" data-load-reveal>
-            <button type="button" class="gate-trigger" id="sublimeGateTrigger" aria-haspopup="dialog">
-              <span class="row-top">
-                <span class="title">Sublime Security</span>
-                <span class="meta">
-                  <span class="year">2026</span>
-                  <span class="icon internal">→</span>
-                </span>
+          <button type="button" class="work-row" data-load-reveal id="sublimeGateTrigger" aria-haspopup="dialog">
+            <span class="row-top">
+              <span class="title">Sublime Security</span>
+              <span class="meta">
+                <span class="year">2026</span>
+                <span class="icon internal">→</span>
               </span>
-            </button>
+            </span>
             <span class="desc">Led product design for email security teams to stop malicious threats.</span>
-          </div>
+          </button>
 
           <div class="work-row" data-load-reveal>
             <span class="row-top">
@@ -972,8 +952,8 @@ import Footer from "../components/Footer.astro";
     <div class="gate-backdrop" id="gateBackdrop">
       <div class="gate-modal">
         <p class="modal-title">Password required</p>
-        <p class="modal-sub">This project is confidential. Enter the password to view.</p>
-        <label class="gate-field-label" for="gatePw">Password</label>
+        <p class="modal-sub">This project is confidential.</p>
+        <label class="sr-only" for="gatePw">Password</label>
         <div class="gate-field-wrap">
           <input type="password" id="gatePw" placeholder="Enter password" autocomplete="off" />
           <button class="gate-eye-toggle" id="gateEyeToggle" type="button" aria-label="Show password">
