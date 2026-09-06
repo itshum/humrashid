@@ -164,20 +164,25 @@ function corinthianColumn(cx: number, baseY: number, capY: number): string {
   `;
 }
 
-// Doric entablature: plain architrave band + triglyph/metope frieze + cornice.
+// Doric entablature: plain architrave band + triglyph/metope frieze
+// (with guttae, the small drip pegs beneath each triglyph) + cornice.
 function doricEntablature(xStart: number, xEnd: number, baseLineY: number): string {
   const friezeBottom = baseLineY;
   const friezeTop = baseLineY - 9;
   const cornice = friezeTop - 4;
   const count = Math.max(4, Math.round((xEnd - xStart) / 34));
   const triglyphs = evenlySpaced(xStart + 10, xEnd - 10, count)
-    .map(
-      (x) => `
+    .map((x) => {
+      const guttae = [-2, -0.7, 0.7, 2]
+        .map((d) => `<line x1="${x + d * 1.6}" y1="${friezeBottom}" x2="${x + d * 1.6}" y2="${friezeBottom + 2}" />`)
+        .join("");
+      return `
       <line x1="${x - 2.5}" y1="${friezeTop}" x2="${x - 2.5}" y2="${friezeBottom}" />
       <line x1="${x}" y1="${friezeTop}" x2="${x}" y2="${friezeBottom}" />
       <line x1="${x + 2.5}" y1="${friezeTop}" x2="${x + 2.5}" y2="${friezeBottom}" />
-    `
-    )
+      ${guttae}
+    `;
+    })
     .join("");
   return `
     <line x1="${xStart}" y1="${friezeBottom}" x2="${xEnd}" y2="${friezeBottom}" />
@@ -229,7 +234,9 @@ function stoaWing(xStart: number, xEnd: number, columnCount: number, order: "dor
   `;
 }
 
-// A tholos: coffered dome with radial ribs, an oculus finial, and an
+// A tholos: coffered dome with radial ribs meeting the dome's own
+// outline (never a second, independent arc - that's what was crossing
+// the ribs and reading as messy before), an oculus finial, and an
 // Ionic colonnade ringing the drum below it.
 function rotunda(cx: number, r: number): string {
   const domeBaseY = 190;
@@ -239,17 +246,33 @@ function rotunda(cx: number, r: number): string {
   const columns = evenlySpaced(cx - r + 14, cx + r - 14, 8)
     .map((x) => ionicColumn(x, BASE_Y, drumCapY))
     .join("");
-  const ribs = evenlySpaced(cx - r + 16, cx + r - 16, 7)
+  // Each rib is drawn to its own point ON the dome's ellipse, so it
+  // can never cross the dome outline - a true meridian, not a second
+  // silhouette.
+  const ribXs = evenlySpaced(cx - r + 14, cx + r - 14, 9);
+  const ribs = ribXs
     .map((x) => {
       const t = (x - cx) / r;
       const y = domeBaseY - Math.sqrt(Math.max(0, 1 - t * t)) * ry;
       return `<line x1="${x}" y1="${domeBaseY}" x2="${x}" y2="${y.toFixed(1)}" />`;
     })
     .join("");
+  // One low horizontal coffer band, height-scaled per rib so it
+  // traces a true ellipse segment inside the dome rather than a
+  // straight line that would poke outside the silhouette.
+  const bandFrac = 0.4;
+  const bandPoints = ribXs
+    .map((x) => {
+      const t = (x - cx) / r;
+      const outerY = domeBaseY - Math.sqrt(Math.max(0, 1 - t * t)) * ry;
+      const y = domeBaseY - (domeBaseY - outerY) * bandFrac;
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    })
+    .join(" ");
   return `
     <path d="M ${cx - r} ${domeBaseY} A ${r} ${ry} 0 0 1 ${cx + r} ${domeBaseY}" />
-    <path d="M ${cx - r + 8} ${domeBaseY} A ${r - 8} ${ry - 5} 0 0 1 ${cx + r - 8} ${domeBaseY}" />
     ${ribs}
+    <polyline points="${bandPoints}" />
     <line x1="${cx}" y1="${apexY}" x2="${cx}" y2="${apexY - 12}" />
     <circle cx="${cx}" cy="${apexY - 15}" r="3" />
     <line x1="${cx - r - 4}" y1="${domeBaseY + 3}" x2="${cx + r + 4}" y2="${domeBaseY + 3}" />
@@ -282,6 +305,9 @@ function mainTemple(xStart: number, xEnd: number, columnCount: number): string {
     <line x1="${center + pedimentHalfWidth + 8}" y1="${pedimentBaseY + 5}" x2="${center + pedimentHalfWidth + 8}" y2="${pedimentBaseY - 8}" />
     <line x1="${xStart - 18}" y1="${BASE_Y - 4}" x2="${xEnd + 18}" y2="${BASE_Y - 4}" />
     <line x1="${xStart - 24}" y1="${BASE_Y}" x2="${xEnd + 24}" y2="${BASE_Y}" />
+    <line x1="${center - 22}" y1="${entablatureBase}" x2="${center - 22}" y2="${BASE_Y}" />
+    <line x1="${center + 22}" y1="${entablatureBase}" x2="${center + 22}" y2="${BASE_Y}" />
+    <line x1="${center - 22}" y1="${entablatureBase}" x2="${center + 22}" y2="${entablatureBase}" />
     ${columns}
   `;
 }
@@ -451,6 +477,12 @@ const footerArtInner = [
          and every genre/category tag - rather than two separate
          controls. Same trigger/menu/option structure as rendr's own
          dropdown, restyled with Atrium's own tokens. */
+      .atrium-filter-group {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+      }
+
       .atrium-select {
         position: relative;
       }
@@ -531,6 +563,142 @@ const footerArtInner = [
         margin: 0.4rem 0.2rem;
       }
 
+      /* --- Search --- */
+      /* Collapsed to an icon-only circle (same border/hover language
+         as the dropdown trigger and the card's expand button); clicking
+         it grows a pill-shaped text field matching the dropdown's own
+         border, radius, and type, rather than a plain browser input. */
+      .atrium-search {
+        display: flex;
+        align-items: center;
+        position: relative;
+      }
+
+      .atrium-search-toggle {
+        flex-shrink: 0;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        background: none;
+        border: 1px solid var(--atrium-border);
+        border-radius: 999px;
+        color: var(--atrium-label);
+        cursor: pointer;
+        transition: border-color 0.15s ease, color 0.15s ease;
+      }
+
+      .atrium-search-toggle:hover,
+      .atrium-search.is-open .atrium-search-toggle {
+        border-color: var(--atrium-accent);
+        color: var(--atrium-accent);
+      }
+
+      .atrium-search-toggle svg {
+        width: 14px;
+        height: 14px;
+      }
+
+      .atrium-search-input {
+        width: 0;
+        min-width: 0;
+        margin-left: 0;
+        padding: 0.35rem 0;
+        border: 1px solid transparent;
+        border-radius: 999px;
+        background: none;
+        font-family: var(--atrium-font-body);
+        font-size: 0.78rem;
+        color: var(--atrium-ink);
+        opacity: 0;
+        transition: width 0.2s ease, opacity 0.15s ease, padding 0.2s ease, margin-left 0.2s ease, border-color 0.15s ease;
+      }
+
+      .atrium-search-input::placeholder {
+        color: var(--atrium-label);
+      }
+
+      .atrium-search-input:focus {
+        outline: none;
+      }
+
+      .atrium-search.is-open .atrium-search-input {
+        width: 190px;
+        margin-left: 0.5rem;
+        padding: 0.35rem 1.8rem 0.35rem 0.85rem;
+        opacity: 1;
+        background: #fbf7ee;
+        border-color: var(--atrium-border);
+      }
+
+      .atrium-search-clear {
+        position: absolute;
+        right: 6px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 20px;
+        height: 20px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--atrium-surface);
+        border: none;
+        border-radius: 50%;
+        color: var(--atrium-label);
+        cursor: pointer;
+        transition: color 0.15s ease;
+      }
+
+      /* Same author-vs-UA [hidden] specificity tie as the grid and
+         no-results block - this class sets its own `display`, so it
+         needs its own override or the button stays visible (and
+         overlapping the collapsed search icon) even when `hidden`. */
+      .atrium-search-clear[hidden] {
+        display: none;
+      }
+
+      .atrium-search-clear:hover {
+        color: var(--atrium-accent);
+      }
+
+      .atrium-search-clear svg {
+        width: 12px;
+        height: 12px;
+      }
+
+      .atrium-search.is-open .atrium-search-input:focus {
+        border-color: var(--atrium-accent);
+      }
+
+      .atrium-no-results {
+        max-width: 1240px;
+        margin: 0 auto;
+        min-height: 60vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        border-bottom: 1px solid var(--atrium-border);
+        text-align: center;
+      }
+
+      /* Same author-vs-UA specificity tie as .atrium-grid[hidden] -
+         an explicit `display` rule on this class needs its own
+         explicit override for the `hidden` attribute to actually win. */
+      .atrium-no-results[hidden] {
+        display: none;
+      }
+
+      .atrium-no-results p {
+        font-family: var(--atrium-font-display);
+        font-style: italic;
+        font-size: 1.1rem;
+        color: var(--atrium-label);
+      }
+
       /* --- Grid --- */
       /* Full-bleed, edge-to-edge - not inside .atrium-col. A true
          ruled grid - shared 1px hairlines between every cell, formed
@@ -543,6 +711,14 @@ const footerArtInner = [
         border-top: 1px solid var(--atrium-border);
         border-left: 1px solid var(--atrium-border);
         margin-bottom: 8rem;
+      }
+
+      /* An author `display` rule and the UA [hidden] rule tie on
+         specificity, and the author rule wins the tie - without this,
+         hiding the grid via the `hidden` attribute silently fails and
+         leaves its top/left border rendering on an empty box. */
+      .atrium-grid[hidden] {
+        display: none;
       }
 
       @media (max-width: 1300px) {
@@ -1121,6 +1297,18 @@ const footerArtInner = [
         margin-top: -2rem;
       }
 
+      /* No results to scroll through on the empty-search state, so
+         pin the illustration to the bottom of the viewport instead of
+         leaving it stranded just below a near-empty page. */
+      .atrium-footer-art.is-pinned {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        margin-top: 0;
+        z-index: 1;
+      }
+
       .atrium-footer-art svg {
         display: block;
         width: 100%;
@@ -1128,12 +1316,18 @@ const footerArtInner = [
       }
 
       .atrium-footer-art svg line,
-      .atrium-footer-art svg path {
+      .atrium-footer-art svg path,
+      .atrium-footer-art svg polyline {
         fill: none;
         stroke: var(--atrium-ink);
         stroke-width: 1;
         opacity: 0.4;
         vector-effect: non-scaling-stroke;
+      }
+
+      .atrium-footer-art svg circle {
+        fill: var(--atrium-ink);
+        opacity: 0.4;
       }
     </style>
   </head>
@@ -1156,6 +1350,7 @@ const footerArtInner = [
          the same dropdown + wordmark, kept in sync with it. -->
     <div class="atrium-stickybar" id="stickyBar">
       <div class="atrium-col stickybar-inner">
+        <div class="atrium-filter-group">
         <div class="atrium-select" id="atriumSelectFixed" data-select>
           <button type="button" class="atrium-select-trigger" data-select-trigger aria-haspopup="listbox">
             <span data-select-label>All</span>
@@ -1184,14 +1379,47 @@ const footerArtInner = [
             ))}
           </div>
         </div>
+
+        <div class="atrium-search" data-search>
+          <button type="button" class="atrium-search-toggle" data-search-toggle aria-label="Search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="11" cy="11" r="7" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+          </button>
+          <input
+            type="text"
+            class="atrium-search-input"
+            data-search-input
+            placeholder="Search titles, authors…"
+            aria-label="Search titles and authors"
+          />
+          <button type="button" class="atrium-search-clear" data-search-clear aria-label="Clear search" hidden>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        </div>
+
         <span class="atrium-wordmark">Atrium</span>
       </div>
+    </div>
+
+    <div class="atrium-no-results" id="atriumNoResults" hidden>
+      <p>We can't find what you're looking for. Try another search.</p>
     </div>
 
     <div class="atrium-grid" id="atriumGrid">
       {
         cards.map(({ entry, metaLine, facts, tag, coverStyle, externalUrl }) => (
-          <div class="atrium-card" data-reveal data-type={entry.data.type} data-tag={tag ?? ""}>
+          <div
+            class="atrium-card"
+            data-reveal
+            data-type={entry.data.type}
+            data-tag={tag ?? ""}
+            data-search={`${entry.data.title} ${metaLine}`.toLowerCase()}
+          >
             <div class="atrium-card-inner">
               <button type="button" class="atrium-card-hit" data-expand={entry.id}>
                 <div
@@ -1352,6 +1580,31 @@ const footerArtInner = [
       let revealed = Math.min(BATCH_SIZE, cards.length);
       let currentFilter = "all";
       let currentTag = "";
+      let searchQuery = "";
+      const noResults = document.getElementById("atriumNoResults") as HTMLElement | null;
+      const footerArtEl = document.getElementById("atriumFooterArt");
+      const heroEl = document.querySelector<HTMLElement>(".atrium-hero");
+
+      // --- Fixed bar reveal ---
+      // Normally hidden until the always-visible header (tracked by
+      // the sentinel just below it) scrolls out of view - but a short
+      // or empty search result must never strand the user without a
+      // way back to the full library, so a search in progress forces
+      // it visible regardless of scroll position.
+      const heroSentinel = document.getElementById("atriumHeroSentinel");
+      const stickyBar = document.getElementById("stickyBar");
+      let heroSentinelHidden = false;
+      function updateStickyBarVisibility() {
+        const narrowed = currentFilter !== "all" || currentTag !== "" || searchQuery !== "";
+        stickyBar?.classList.toggle("is-visible", heroSentinelHidden || narrowed);
+      }
+      if (heroSentinel) {
+        const barObserver = new IntersectionObserver(([entry]) => {
+          heroSentinelHidden = !entry.isIntersecting;
+          updateStickyBarVisibility();
+        });
+        barObserver.observe(heroSentinel);
+      }
 
       // A short last row still gets ruled/bordered cells rather than
       // bare background - figure out the live column count (it's
@@ -1365,16 +1618,31 @@ const footerArtInner = [
       }
 
       function applyVisibility() {
+        let visibleCount = 0;
         cards.forEach((card, i) => {
           const matchesFilter = currentFilter === "all" || card.dataset.type === currentFilter;
           const matchesTag = !currentTag || card.dataset.tag === currentTag;
-          // Batching only applies to the fully unfiltered view -
-          // picking a specific type or tag is a deliberate request to
-          // see all of them.
-          const withinBatch = currentFilter !== "all" || currentTag ? true : i < revealed;
-          card.style.display = matchesFilter && matchesTag && withinBatch ? "" : "none";
+          const matchesSearch = !searchQuery || (card.dataset.search ?? "").includes(searchQuery);
+          // Batching only applies to the fully unfiltered, unsearched
+          // view - picking a specific type, tag, or search query is a
+          // deliberate request to see every match at once.
+          const withinBatch = currentFilter !== "all" || currentTag || searchQuery ? true : i < revealed;
+          const visible = matchesFilter && matchesTag && matchesSearch && withinBatch;
+          card.style.display = visible ? "" : "none";
+          if (visible) visibleCount++;
         });
         updateFillers();
+        const isEmpty = visibleCount === 0;
+        if (noResults) noResults.hidden = !isEmpty;
+        if (grid) grid.hidden = isEmpty;
+        // The hero copy is redundant (and just adds dead space above
+        // it) once the page is only showing the no-results message.
+        if (heroEl) heroEl.hidden = isEmpty;
+        // Nothing to scroll through on the empty state, so pin the
+        // footer illustration to the bottom of the screen instead of
+        // leaving it stranded below a mostly-empty page.
+        footerArtEl?.classList.toggle("is-pinned", isEmpty);
+        updateStickyBarVisibility();
       }
 
       // A filter/tag change can reveal cards that were never part of
@@ -1435,7 +1703,8 @@ const footerArtInner = [
             isLoadingMore ||
             revealed >= cards.length ||
             currentFilter !== "all" ||
-            currentTag
+            currentTag ||
+            searchQuery
           ) {
             return;
           }
@@ -1489,6 +1758,65 @@ const footerArtInner = [
         if (e.key === "Escape") closeAllSelects();
       });
 
+      // --- Search (title/author only, combined with the dropdown's
+      // type/tag filter rather than replacing it) ---
+      const searchWidget = document.querySelector<HTMLElement>("[data-search]");
+      const searchToggle = searchWidget?.querySelector<HTMLElement>("[data-search-toggle]");
+      const searchInput = searchWidget?.querySelector<HTMLInputElement>("[data-search-input]");
+      const searchClear = searchWidget?.querySelector<HTMLElement>("[data-search-clear]");
+
+      function openSearch() {
+        searchWidget?.classList.add("is-open");
+        searchInput?.focus();
+      }
+      function closeSearch() {
+        if (!searchInput?.value) searchWidget?.classList.remove("is-open");
+      }
+      function clearSearch() {
+        if (searchInput) searchInput.value = "";
+        if (searchClear) searchClear.hidden = true;
+        searchQuery = "";
+        applyVisibility();
+        catchUpVisibleCards();
+      }
+
+      searchToggle?.addEventListener("click", () => {
+        if (searchWidget?.classList.contains("is-open")) closeSearch();
+        else openSearch();
+      });
+
+      searchClear?.addEventListener("click", () => {
+        clearSearch();
+        searchInput?.focus();
+      });
+
+      // The clear "x" only shows once there's something typed - it
+      // doesn't trigger a search itself, just tracks whether there's
+      // text to clear.
+      searchInput?.addEventListener("input", () => {
+        if (searchClear) searchClear.hidden = searchInput.value.length === 0;
+      });
+
+      // Only searches on Enter, not as the user types - avoids
+      // re-filtering (and re-triggering the entrance animation) on
+      // every keystroke.
+      searchInput?.addEventListener("keydown", (e) => {
+        if (e.key !== "Enter") return;
+        searchQuery = searchInput.value.trim().toLowerCase();
+        applyVisibility();
+        catchUpVisibleCards();
+      });
+
+      document.addEventListener("click", (e) => {
+        if (searchWidget && !searchWidget.contains(e.target as Node)) closeSearch();
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && searchWidget?.classList.contains("is-open")) {
+          clearSearch();
+          closeSearch();
+        }
+      });
+
       function selectValue(kind: string | undefined, value: string, label: string) {
         if (kind === "tag") {
           currentTag = value;
@@ -1518,18 +1846,6 @@ const footerArtInner = [
           });
         });
       });
-
-      // --- Fixed bar reveal ---
-      // Hidden until the always-visible header (tracked by this
-      // sentinel just below it) scrolls out of view.
-      const heroSentinel = document.getElementById("atriumHeroSentinel");
-      const stickyBar = document.getElementById("stickyBar");
-      if (heroSentinel && stickyBar) {
-        const barObserver = new IntersectionObserver(([entry]) => {
-          stickyBar.classList.toggle("is-visible", !entry.isIntersecting);
-        });
-        barObserver.observe(heroSentinel);
-      }
 
       // --- Entry modal ---
       // Every card's cover, title (when it has no external link), and
