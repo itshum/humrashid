@@ -10,6 +10,13 @@ articleAuthor: "Kevin Kelly"
 datePublished: 2008-06-10
 blurb: "Individual genius is mostly a myth - most breakthroughs come out of a whole scene of people pushing each other forward at the same time."
 coverColor: "#6b4a4a"
+coverImage: "/atrium-art/oath-of-the-horatii.jpg"
+showTitleOverlay: true
+artCredit:
+  title: "Oath of the Horatii"
+  artist: "Jacques-Louis David"
+  year: "1784"
+  note: "Three brothers swear an oath to their father, pledging their lives to Rome before battle."
 draft: false
 ---
 

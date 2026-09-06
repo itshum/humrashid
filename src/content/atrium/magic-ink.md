@@ -10,6 +10,13 @@ articleAuthor: "Bret Victor"
 datePublished: 2006-01-01
 blurb: "A dense case for software that shows information instead of asking you to operate it - graphic design, not interaction design."
 coverColor: "#3a4a4a"
+coverImage: "/atrium-art/school-of-athens.jpg"
+showTitleOverlay: true
+artCredit:
+  title: "The School of Athens"
+  artist: "Raphael"
+  year: "1511"
+  note: "Plato and Aristotle at the center of a fresco gathering nearly every great thinker of antiquity under one roof."
 draft: false
 ---
 

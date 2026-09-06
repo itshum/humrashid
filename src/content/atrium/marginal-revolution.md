@@ -8,6 +8,13 @@ category: "Economics"
 dateAdded: 2026-08-15
 blurb: "Small daily posts on economics and everything adjacent to it."
 coverColor: "#2f4a3a"
+coverImage: "/atrium-art/cicero-denounces-catiline.jpg"
+showTitleOverlay: true
+artCredit:
+  title: "Cicero Denounces Catiline"
+  artist: "Cesare Maccari"
+  year: "c. 1889"
+  note: "Cicero addresses the Roman Senate, exposing Catiline's conspiracy as the senators recoil around him."
 draft: false
 ---
 

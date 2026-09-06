@@ -10,6 +10,13 @@ articleAuthor: "Kevin Kelly"
 datePublished: 2008-03-04
 blurb: "The essay that gave independent creators a real alternative to chasing mass audiences - a thousand people who'll buy anything you make is enough to make a living."
 coverColor: "#3a5a4a"
+coverImage: "/atrium-art/ulysses-and-the-sirens.jpg"
+showTitleOverlay: true
+artCredit:
+  title: "Ulysses and the Sirens"
+  artist: "John William Waterhouse"
+  year: "1891"
+  note: "Odysseus, lashed to his ship's mast exactly as he'd ordered, strains against the ropes as the sirens close in."
 draft: false
 ---
 

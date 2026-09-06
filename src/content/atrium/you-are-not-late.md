@@ -10,6 +10,13 @@ articleAuthor: "Kevin Kelly"
 datePublished: 2014-08-05
 blurb: "However late you think you are to the internet, or to any big shift, you're not - the very best stuff is still ahead, not behind."
 coverColor: "#4a6b6b"
+coverImage: "/atrium-art/death-of-socrates.jpg"
+showTitleOverlay: true
+artCredit:
+  title: "The Death of Socrates"
+  artist: "Jacques-Louis David"
+  year: "1787"
+  note: "Socrates, sentenced to death by Athens, discusses the immortality of the soul with his students moments before drinking the hemlock."
 draft: false
 ---
 

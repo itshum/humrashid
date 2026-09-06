@@ -9,6 +9,13 @@ dateAdded: 2026-09-06
 articleAuthor: "Dieter Rams"
 blurb: "Rams' own list, and the one every other 'principles of design' list is quietly paraphrasing - 'as little design as possible' still the hardest one to actually practice."
 coverColor: "#3a3a3a"
+coverImage: "/atrium-art/oath-of-the-horatii.jpg"
+showTitleOverlay: true
+artCredit:
+  title: "Oath of the Horatii"
+  artist: "Jacques-Louis David"
+  year: "1784"
+  note: "Three brothers swear an oath to their father, pledging their lives to Rome before battle."
 draft: false
 ---
 

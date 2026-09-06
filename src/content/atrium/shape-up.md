@@ -8,6 +8,13 @@ category: "Product Process"
 dateAdded: 2026-09-06
 blurb: "Basecamp's own product process, written up in full and given away free - six-week cycles, appetites instead of estimates, and betting instead of backlogs."
 coverColor: "#1a1a1a"
+coverImage: "/atrium-art/cicero-denounces-catiline.jpg"
+showTitleOverlay: true
+artCredit:
+  title: "Cicero Denounces Catiline"
+  artist: "Cesare Maccari"
+  year: "c. 1889"
+  note: "Cicero addresses the Roman Senate, exposing Catiline's conspiracy as the senators recoil around him."
 draft: false
 ---
 

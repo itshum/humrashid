@@ -10,6 +10,13 @@ articleAuthor: "Antonio García Martínez"
 datePublished: 2018-05-01
 blurb: "A framework for the difference between following a process and understanding it well enough to write one."
 coverColor: "#3a2e4a"
+coverImage: "/atrium-art/oath-of-the-horatii.jpg"
+showTitleOverlay: true
+artCredit:
+  title: "Oath of the Horatii"
+  artist: "Jacques-Louis David"
+  year: "1784"
+  note: "Three brothers swear an oath to their father, pledging their lives to Rome before battle."
 draft: false
 ---
 

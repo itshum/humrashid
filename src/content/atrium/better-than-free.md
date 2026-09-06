@@ -10,6 +10,13 @@ articleAuthor: "Kevin Kelly"
 datePublished: 2008-01-31
 blurb: "On why, once anything is copyable, the only things worth paying for are the qualities that can't be copied - immediacy, personalization, trust."
 coverColor: "#4a4a6b"
+coverImage: "/atrium-art/ulysses-and-the-sirens.jpg"
+showTitleOverlay: true
+artCredit:
+  title: "Ulysses and the Sirens"
+  artist: "John William Waterhouse"
+  year: "1891"
+  note: "Odysseus, lashed to his ship's mast exactly as he'd ordered, strains against the ropes as the sirens close in."
 draft: false
 ---
 

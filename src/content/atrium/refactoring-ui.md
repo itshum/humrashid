@@ -8,6 +8,13 @@ rating: 5
 dateAdded: 2026-09-06
 blurb: "Concrete, tactical fixes for developers who can build an interface but can't make it look designed - rules of thumb, not theory."
 coverColor: "#4a3a6b"
+coverImage: "/atrium-art/school-of-athens.jpg"
+showTitleOverlay: true
+artCredit:
+  title: "The School of Athens"
+  artist: "Raphael"
+  year: "1511"
+  note: "Plato and Aristotle at the center of a fresco gathering nearly every great thinker of antiquity under one roof."
 draft: false
 ---
 

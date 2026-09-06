@@ -9,6 +9,13 @@ rating: 4
 dateAdded: 2026-09-06
 blurb: "Four principles - contrast, repetition, alignment, proximity - taught with enough before-and-after examples that they become instinct instead of a checklist."
 coverColor: "#c9573a"
+coverImage: "/atrium-art/cicero-denounces-catiline.jpg"
+showTitleOverlay: true
+artCredit:
+  title: "Cicero Denounces Catiline"
+  artist: "Cesare Maccari"
+  year: "c. 1889"
+  note: "Cicero addresses the Roman Senate, exposing Catiline's conspiracy as the senators recoil around him."
 draft: false
 ---
 

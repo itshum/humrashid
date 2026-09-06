@@ -10,6 +10,13 @@ articleAuthor: "Kevin Kelly"
 datePublished: 2020-04-28
 blurb: "Sixty-eight short, plainspoken rules for living well - the kind of advice that sounds obvious until you notice how rarely you actually follow it."
 coverColor: "#8a5a3a"
+coverImage: "/atrium-art/death-of-socrates.jpg"
+showTitleOverlay: true
+artCredit:
+  title: "The Death of Socrates"
+  artist: "Jacques-Louis David"
+  year: "1787"
+  note: "Socrates, sentenced to death by Athens, discusses the immortality of the soul with his students moments before drinking the hemlock."
 draft: false
 ---
 

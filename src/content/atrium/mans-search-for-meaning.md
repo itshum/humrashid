@@ -9,6 +9,13 @@ rating: 5
 dateAdded: 2026-08-20
 blurb: "A psychiatrist's account of surviving the camps, and what it taught him about purpose."
 coverColor: "#3a3a2e"
+coverImage: "/atrium-art/apotheosis-of-homer.jpg"
+showTitleOverlay: true
+artCredit:
+  title: "The Apotheosis of Homer"
+  artist: "Jean-Auguste-Dominique Ingres"
+  year: "1827"
+  note: "Homer crowned by the winged figure of Victory, surrounded by history's great poets and thinkers paying homage."
 purchaseStore: "Strand Book Store"
 purchaseUrl: "https://www.strandbooks.com/"
 draft: false

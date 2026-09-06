@@ -10,6 +10,13 @@ articleAuthor: "Kevin Kelly"
 datePublished: 2011-05-19
 blurb: "A better word than 'utopia' for how progress actually happens - not a leap to somewhere perfect, but a slow net-positive drift where today is a little better than yesterday."
 coverColor: "#5a6b4a"
+coverImage: "/atrium-art/ulysses-and-the-sirens.jpg"
+showTitleOverlay: true
+artCredit:
+  title: "Ulysses and the Sirens"
+  artist: "John William Waterhouse"
+  year: "1891"
+  note: "Odysseus, lashed to his ship's mast exactly as he'd ordered, strains against the ropes as the sirens close in."
 draft: false
 ---
 

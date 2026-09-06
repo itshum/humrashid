@@ -10,6 +10,13 @@ articleAuthor: "Bret Victor"
 datePublished: 2014-01-01
 blurb: "A talk-turned-essay arguing a screen and keyboard are a tiny fraction of how humans actually think - gesture, memory, physical tools."
 coverColor: "#4a3a4a"
+coverImage: "/atrium-art/school-of-athens.jpg"
+showTitleOverlay: true
+artCredit:
+  title: "The School of Athens"
+  artist: "Raphael"
+  year: "1511"
+  note: "Plato and Aristotle at the center of a fresco gathering nearly every great thinker of antiquity under one roof."
 draft: false
 ---
 

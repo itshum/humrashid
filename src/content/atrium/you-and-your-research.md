@@ -10,6 +10,13 @@ articleAuthor: "Richard Hamming"
 datePublished: 1986-03-01
 blurb: "Hamming's uncomfortable question: what are the important problems, and why aren't you working on them?"
 coverColor: "#2e4a4a"
+coverImage: "/atrium-art/apotheosis-of-homer.jpg"
+showTitleOverlay: true
+artCredit:
+  title: "The Apotheosis of Homer"
+  artist: "Jean-Auguste-Dominique Ingres"
+  year: "1827"
+  note: "Homer crowned by the winged figure of Victory, surrounded by history's great poets and thinkers paying homage."
 draft: false
 ---
 
