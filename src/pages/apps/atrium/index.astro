@@ -535,6 +535,28 @@ const footerArtInner = [
         box-shadow: 0 12px 28px rgba(43, 36, 32, 0.2);
         padding: 0.4rem;
         z-index: 20;
+        /* Thin, on-brand scrollbar in place of the default OS one -
+           still scrollable, just not a chunky grey bar over a card
+           this small. */
+        scrollbar-width: thin;
+        scrollbar-color: var(--atrium-border) transparent;
+      }
+
+      .atrium-select-menu::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      .atrium-select-menu::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      .atrium-select-menu::-webkit-scrollbar-thumb {
+        background: var(--atrium-border);
+        border-radius: 3px;
+      }
+
+      .atrium-select-menu::-webkit-scrollbar-thumb:hover {
+        background: var(--atrium-label);
       }
 
       .atrium-select-option {
@@ -719,6 +741,15 @@ const footerArtInner = [
          leaves its top/left border rendering on an empty box. */
       .atrium-grid[hidden] {
         display: none;
+      }
+
+      /* The grid's own top/left border is part of the container box,
+         not the individual (opacity: 0) cards - so it was rendering
+         as a stray line during the initial loader above, before any
+         card was actually visible. Transparent until JS reveals the
+         first batch. */
+      .atrium-grid.is-priming {
+        border-color: transparent;
       }
 
       @media (max-width: 1300px) {
@@ -993,21 +1024,28 @@ const footerArtInner = [
       }
 
       /* --- Loader (scroll-triggered "loading more") --- */
-      /* Collapsed to nothing until a batch is loading, then eases
-         open just enough to hold a small copper spinner, centered
-         across the full page width. */
+      /* Floats in the gap directly above the footer illustration
+         (inside .atrium-footer-art, pulled up out of its box the same
+         way .atrium-footer-meta is) rather than taking up its own
+         layout height - so a batch loading never pushes the
+         illustration down and back up, the way an in-flow height
+         change would. Same idea as a native app's own "loading more"
+         spinner floating over content instead of resizing it. */
       .atrium-loader {
+        position: absolute;
+        top: -3.5rem;
+        left: 0;
+        right: 0;
+        height: 3.5rem;
         display: flex;
         align-items: center;
         justify-content: center;
-        height: 0;
-        overflow: hidden;
         opacity: 0;
-        transition: opacity 0.2s ease, height 0.3s ease;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
       }
 
       .atrium-loader.is-visible {
-        height: 90px;
         opacity: 1;
       }
 
@@ -1304,7 +1342,7 @@ const footerArtInner = [
         text-decoration: none;
         font-size: 0.78rem;
         font-weight: 500;
-        border-radius: 2px;
+        border-radius: 4px;
         transition: background 0.15s ease, color 0.15s ease;
       }
 
@@ -1324,9 +1362,73 @@ const footerArtInner = [
          once the user actually scrolls this far - a small reward for
          reaching the end, not just static decoration. */
       .atrium-footer-art {
+        position: relative;
         width: 100%;
         height: 160px;
         margin-top: -2rem;
+      }
+
+      /* A small credit line resting near the grid's divider, above
+         the illustration itself - keeps the illustration's own
+         position/height untouched. .atrium-grid's 8rem margin-bottom
+         collapses with this box's -2rem margin-top into a 6rem gap
+         above the box, so top pulls the text up out of the box by
+         4.5rem of that gap, leaving 1.5rem of padding under the
+         divider rather than sitting flush against it. */
+      .atrium-footer-meta {
+        position: absolute;
+        top: -4.5rem;
+        left: 2rem;
+        right: 2rem;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-family: var(--atrium-font-body);
+        font-size: 0.72rem;
+        color: var(--atrium-label);
+      }
+
+      .atrium-footer-meta .credit-lead {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+      }
+
+      /* "Project by" is plain text outside the link entirely - only
+         "Humayun Rashid" (+ arrow) is the actual <a>, so both the
+         clickable area and the hover color/underline are scoped to
+         the name, not the whole line. */
+      .atrium-footer-meta .credit-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        color: var(--atrium-label);
+        text-decoration: none;
+        text-underline-offset: 2px;
+        transition: color 0.15s ease;
+      }
+
+      .atrium-footer-meta .credit-link:hover {
+        color: var(--atrium-accent);
+        text-decoration: underline;
+      }
+
+      .atrium-footer-meta .credit-link svg {
+        width: 10px;
+        height: 10px;
+        transition: transform 0.15s ease;
+      }
+
+      .atrium-footer-meta .credit-link:hover svg {
+        transform: translate(1px, -1px);
+      }
+
+      @media (max-width: 600px) {
+        .atrium-footer-meta {
+          left: 1.25rem;
+          right: 1.25rem;
+        }
       }
 
       /* No results to scroll through on the empty-search state, so
@@ -1451,7 +1553,7 @@ const footerArtInner = [
       <span class="atrium-loader-ring"></span>
     </div>
 
-    <div class="atrium-grid" id="atriumGrid">
+    <div class="atrium-grid is-priming" id="atriumGrid">
       {
         cards.map(({ entry, metaLine, facts, tag, coverStyle, externalUrl }) => (
           <div
@@ -1534,11 +1636,23 @@ const footerArtInner = [
       ))}
     </div>
     <div class="atrium-sentinel" id="atriumSentinel"></div>
-    <div class="atrium-loader" id="atriumLoader" aria-hidden="true">
-      <span class="atrium-loader-ring"></span>
-    </div>
 
     <div class="atrium-footer-art" id="atriumFooterArt">
+      <div class="atrium-loader" id="atriumLoader" aria-hidden="true">
+        <span class="atrium-loader-ring"></span>
+      </div>
+      <div class="atrium-footer-meta">
+        <span class="credit-lead">
+          Project by
+          <a class="credit-link" href="https://www.humrashid.com" target="_blank" rel="noopener">
+            Humayun Rashid
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M7 17L17 7M17 7H8M17 7v9" />
+            </svg>
+          </a>
+        </span>
+        <span>Atrium © 2026</span>
+      </div>
       <svg viewBox={`0 0 ${ART_WIDTH} ${ART_HEIGHT}`} preserveAspectRatio="none" aria-hidden="true" set:html={footerArtInner} />
     </div>
 
@@ -1732,6 +1846,7 @@ const footerArtInner = [
       const initialLoader = document.getElementById("atriumInitialLoader");
       window.setTimeout(() => {
         initialLoader?.classList.add("is-hidden");
+        grid.classList.remove("is-priming");
         revealCardsWithStagger(cards.filter((c) => c.style.display !== "none"));
       }, 500);
 
