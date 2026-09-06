@@ -120,45 +120,41 @@ const apps = [
         padding: 4.2rem 0 2.5rem;
       }
 
-      .hero .eyebrow {
-        font-size: 0.8rem;
-        color: var(--label);
-        margin: 0 0 1.25rem;
-      }
-
       .hero h1 {
-        font-size: 1.15rem;
+        font-size: 1rem;
         font-weight: 400;
         color: var(--text-secondary);
         line-height: 1.6;
-        max-width: 46ch;
         margin: 0;
-        text-wrap: balance;
       }
 
       /* --- Card grid --- */
-      .app-grid {
+      /* Two columns within the same measure as the footer beneath it
+         (.col, not .col-wide) so the grid's outer edges line up with
+         the footer content rather than sitting wider than it. */
+      .app-list {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
-        gap: 1.5rem;
-        padding: 0 0 8rem;
+        gap: 1.25rem;
+        padding: 0 0 14rem;
       }
 
-      @media (max-width: 700px) {
-        .app-grid {
+      @media (max-width: 560px) {
+        .app-list {
           grid-template-columns: 1fr;
         }
       }
 
-      /* Variant E: plain bordered card, one quiet gradient swatch as
-         the preview (no nested UI chrome, no composed scene) and a
-         faint tint shift into the text footer - restraint over
-         illustration. */
+      /* Plain bordered card. The preview is a real (inert) sample of
+         rendr's own control chips - a gradient swatch, a scrub
+         slider, a size dropdown - scattered and rotated like an
+         exploded-view diagram, rather than a generic icon or a
+         decorative gradient standing in for the product. */
       .app-card {
         display: block;
         text-decoration: none;
         border: 1px solid var(--border);
-        border-radius: 16px;
+        border-radius: 4px;
         overflow: hidden;
         background: var(--bg);
         transition: border-color 0.15s ease, transform 0.15s ease;
@@ -167,6 +163,25 @@ const apps = [
       .app-card:hover {
         border-color: var(--label);
         transform: translateY(-2px);
+      }
+
+      /* Empty slot for a not-yet-built app - dashed, muted, and inert
+         (no hover lift, no link) rather than a second real card. */
+      .app-card-placeholder {
+        border-style: dashed;
+      }
+
+      .app-card-placeholder .app-preview {
+        background: none;
+      }
+
+      .app-card-placeholder .title,
+      .app-card-placeholder .desc {
+        color: var(--label);
+      }
+
+      .app-card-placeholder .title {
+        font-weight: 500;
       }
 
       .app-card-body {
@@ -206,41 +221,119 @@ const apps = [
         margin-top: 0.4rem;
       }
 
+      /* rendr's own dark app shell tokens (see src/pages/apps/rendr/
+         index.astro) - this preview is a sample of that product's
+         actual UI, so it borrows that palette rather than this page's
+         light/dark theme variables. */
       .app-preview {
+        position: relative;
         aspect-ratio: 16 / 11;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: radial-gradient(circle at 30% 30%, #f5b9d6, transparent 65%),
-          radial-gradient(circle at 75% 70%, #8c6fd6, transparent 65%), #170f1f;
+        overflow: hidden;
+        background: #08090a;
       }
 
-      /* The one visual metaphor: your image, placed on a background -
-         nothing else, no UI chrome. */
-      .app-preview .frame {
-        width: 32%;
-        aspect-ratio: 1;
-        background: rgba(255, 255, 255, 0.94);
-        border-radius: 6px;
-        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+      .app-preview .chip {
+        position: absolute;
+        display: flex;
+        align-items: center;
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 0.68rem;
+        color: #f7f8f8;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+      }
+
+      .app-preview .chip-gradient {
+        top: 18%;
+        left: 10%;
+        width: 25%;
+        aspect-ratio: 4 / 3;
+        transform: rotate(-9deg);
+        background: radial-gradient(circle at 12% 15%, #f5b9d6, transparent 60%),
+          radial-gradient(circle at 55% 50%, #f2a56a, transparent 60%), radial-gradient(circle at 88% 85%, #8c6fd6, transparent 60%),
+          #170f1f;
+      }
+
+      .app-preview .chip-scrub {
+        top: 42%;
+        left: 36%;
+        width: 40%;
+        padding: 0.5rem 0.75rem;
+        justify-content: space-between;
+        gap: 0.6rem;
+        transform: rotate(3deg);
+        z-index: 2;
+      }
+
+      .app-preview .chip-scrub .fill {
+        position: absolute;
+        inset: 0;
+        width: 42%;
+        background: #e05a1f;
+        border-radius: 8px 0 0 8px;
+        z-index: -1;
+      }
+
+      .app-preview .chip-dropdown {
+        top: 62%;
+        left: 52%;
+        width: 42%;
+        padding: 0.5rem 0.75rem;
+        justify-content: space-between;
+        gap: 0.6rem;
+        transform: rotate(-4deg);
+      }
+
+      .app-preview .chip-dropdown .dims {
+        color: #8a8f98;
+      }
+
+      .app-preview .chip-hex {
+        top: 66%;
+        left: 8%;
+        padding: 0.4rem 0.6rem;
+        gap: 0.4rem;
+        transform: rotate(6deg);
+      }
+
+      .app-preview .chip-hex .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #e5e0d5;
+        flex: none;
       }
     </style>
   </head>
   <body>
     <Topbar showBack />
 
-    <div class="col-wide">
+    <div class="col">
       <div class="hero">
-        <p class="eyebrow">Apps</p>
-        <h1>Small standalone tools, built and shipped one at a time.</h1>
+        <h1>Standalone tools and apps, small software experiments built and shipped one at a time.</h1>
       </div>
 
-      <div class="app-grid">
+      <div class="app-list">
         {
           apps.map((app) => (
             <a class="app-card" href={`/apps/${app.slug}/`}>
               <div class="app-preview">
-                <div class="frame" />
+                <div class="chip chip-gradient" />
+                <div class="chip chip-scrub">
+                  <div class="fill" />
+                  <span>Radius</span>
+                  <span>16px</span>
+                </div>
+                <div class="chip chip-dropdown">
+                  <span>Instagram post</span>
+                  <span class="dims">1080×1080</span>
+                </div>
+                <div class="chip chip-hex">
+                  <span class="dot" />
+                  <span>#E5E0D5</span>
+                </div>
               </div>
               <div class="app-card-body">
                 <span class="title-row">
@@ -252,6 +345,15 @@ const apps = [
             </a>
           ))
         }
+        <div class="app-card app-card-placeholder">
+          <div class="app-preview" />
+          <div class="app-card-body">
+            <span class="title-row">
+              <span class="title">More soon</span>
+            </span>
+            <span class="desc">Another tool, in progress.</span>
+          </div>
+        </div>
       </div>
     </div>
 
