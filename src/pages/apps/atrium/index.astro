@@ -603,6 +603,7 @@ const footerArtInner = [
          line across a row, whether the card next to it is a tall
          portrait book or a short wide article/site image. */
       .atrium-cover {
+        position: relative;
         height: 235px;
         width: 46%;
         border-radius: 2px;
@@ -612,6 +613,17 @@ const footerArtInner = [
         margin: 0 auto 2rem;
         transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.6s ease;
         box-shadow: 0 6px 16px rgba(43, 36, 32, 0.22);
+      }
+
+      /* A decorative background (e.g. a painting standing in for a
+         real cover) needs a scrim behind the title for contrast that
+         a flat coverColor never required. */
+      .atrium-cover.has-title-scrim::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        background: linear-gradient(to top, rgba(20, 14, 10, 0.8), rgba(20, 14, 10, 0) 60%);
       }
 
       .atrium-card:hover .atrium-cover {
@@ -625,6 +637,8 @@ const footerArtInner = [
       }
 
       .atrium-cover .cover-title {
+        position: relative;
+        z-index: 1;
         font-family: var(--atrium-font-display);
         font-weight: 600;
         font-size: 1.05rem;
@@ -952,9 +966,36 @@ const footerArtInner = [
          reads as the start of the content, same as the panel. */
       .atrium-modal-image-col {
         display: flex;
-        align-items: flex-start;
-        justify-content: center;
+        flex-direction: column;
+        align-items: center;
         padding: 2.5rem 2rem;
+      }
+
+      /* Attribution for a decorative painting standing in as cover
+         art - small and muted on purpose, a footnote under the image
+         rather than something competing with the book's own details. */
+      .atrium-art-credit {
+        width: 78%;
+        margin-top: 0.75rem;
+        font-size: 0.68rem;
+        line-height: 1.4;
+        color: var(--atrium-label);
+        text-align: left;
+      }
+
+      .atrium-art-credit .art-credit-line {
+        display: block;
+        font-weight: 500;
+      }
+
+      .atrium-art-credit .art-credit-line b {
+        font-weight: 500;
+        font-style: italic;
+      }
+
+      .atrium-art-credit .art-credit-note {
+        display: block;
+        margin-top: 0.4rem;
       }
 
       .atrium-modal-image-col:hover .atrium-cover {
@@ -977,61 +1018,70 @@ const footerArtInner = [
         padding: 2.5rem 3rem 2.5rem 3.5rem;
         max-height: 88vh;
         overflow-y: auto;
-        max-width: 560px;
+        max-width: 600px;
       }
 
       .atrium-modal-content .atrium-kicker {
-        font-size: 0.75rem;
-        margin: 0 0 0.5rem;
+        font-size: 0.78rem;
+        margin: 0 0 0.6rem;
       }
 
       .atrium-modal-title {
         font-family: var(--atrium-font-display);
         font-weight: 600;
-        font-size: 1.5rem;
-        line-height: 1.3;
-        margin: 0 0 0.75rem;
+        font-size: 1.65rem;
+        line-height: 1.25;
+        margin: 0 0 1rem;
+      }
+
+      .atrium-modal-content .atrium-meta-line {
+        margin: 0 0 1.5rem;
       }
 
       .atrium-modal-content .atrium-tag {
-        font-size: 0.7rem;
+        font-size: 0.72rem;
         padding: 0.28rem 0.7rem;
-        margin: 0 0 0.85rem;
       }
 
       .atrium-modal-content .atrium-stars {
-        display: block;
-        font-size: 0.95rem;
-        margin: 0 0 1.25rem;
+        font-size: 1rem;
       }
 
       .atrium-modal-content .atrium-facts {
-        font-size: 0.78rem;
-        margin: 0 0 0.85rem;
+        font-size: 0.82rem;
+        margin: 0 0 0.9rem;
       }
 
       .atrium-modal-content .atrium-url {
-        font-size: 0.78rem;
-        margin: 0 0 0.85rem;
+        font-size: 0.82rem;
+        margin: 0 0 0.9rem;
         word-break: break-all;
       }
 
       .atrium-modal-blurb {
         font-family: var(--atrium-font-display);
         font-style: italic;
-        font-size: 1.05rem;
-        line-height: 1.5;
+        font-size: 1.15rem;
+        line-height: 1.6;
         color: var(--atrium-ink);
-        margin: 0 0 1.25rem;
+        margin: 0 0 1.6rem;
       }
 
       .atrium-modal-body {
-        font-size: 0.92rem;
-        line-height: 1.7;
+        font-size: 1rem;
+        line-height: 1.75;
+      }
+
+      .atrium-modal-body p {
+        margin: 0 0 1.2em;
       }
 
       .atrium-modal-body p:first-child {
         margin-top: 0;
+      }
+
+      .atrium-modal-body p:last-child {
+        margin-bottom: 0;
       }
 
       .atrium-cta {
@@ -1145,10 +1195,14 @@ const footerArtInner = [
             <div class="atrium-card-inner">
               <button type="button" class="atrium-card-hit" data-expand={entry.id}>
                 <div
-                  class={`atrium-cover${entry.data.type !== "book" ? " is-wide" : ""}`}
+                  class={`atrium-cover${entry.data.type !== "book" ? " is-wide" : ""}${
+                    !entry.data.coverImage || entry.data.showTitleOverlay ? " has-title-scrim" : ""
+                  }`}
                   style={{ background: coverStyle }}
                 >
-                  {!entry.data.coverImage && <span class="cover-title">{entry.data.title}</span>}
+                  {(!entry.data.coverImage || entry.data.showTitleOverlay) && (
+                    <span class="cover-title">{entry.data.title}</span>
+                  )}
                 </div>
                 <p class="atrium-kicker">{metaLine}</p>
               </button>
@@ -1234,11 +1288,23 @@ const footerArtInner = [
             <div class="atrium-modal-layout">
               <div class="atrium-modal-image-col">
                 <div
-                  class={`atrium-cover${entry.data.type !== "book" ? " is-wide" : ""}`}
+                  class={`atrium-cover${entry.data.type !== "book" ? " is-wide" : ""}${
+                    !entry.data.coverImage || entry.data.showTitleOverlay ? " has-title-scrim" : ""
+                  }`}
                   style={{ background: coverStyle }}
                 >
-                  {!entry.data.coverImage && <span class="cover-title">{entry.data.title}</span>}
+                  {(!entry.data.coverImage || entry.data.showTitleOverlay) && (
+                    <span class="cover-title">{entry.data.title}</span>
+                  )}
                 </div>
+                {entry.data.artCredit && (
+                  <p class="atrium-art-credit">
+                    <span class="art-credit-line">
+                      <b>{entry.data.artCredit.title}</b> - {entry.data.artCredit.artist}, {entry.data.artCredit.year}
+                    </span>
+                    {entry.data.artCredit.note && <span class="art-credit-note">{entry.data.artCredit.note}</span>}
+                  </p>
+                )}
               </div>
               <div class="atrium-modal-content">
                 <p class="atrium-kicker">{metaLine}</p>

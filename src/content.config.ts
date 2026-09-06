@@ -214,6 +214,24 @@ const atriumShared = {
   // place of the procedural placeholder once available. Optional so
   // entries can be added before art exists.
   coverImage: z.string().optional(),
+  // When an entry has no real cover art, `coverImage` can instead hold
+  // a decorative background (e.g. a Greco-Roman painting, picked at
+  // random from public/atrium-art/) - this flags that case so the
+  // title still renders on top, scrimmed for legibility, the same way
+  // it would over a flat coverColor.
+  showTitleOverlay: z.boolean().optional(),
+  // Attribution for a decorative painting standing in as coverImage -
+  // rendered as a small caption under the cover in the modal only
+  // (the grid card stays clean/small). Unrelated to authorship of the
+  // book/article/site itself.
+  artCredit: z
+    .object({
+      title: z.string(),
+      artist: z.string(),
+      year: z.string(),
+      note: z.string().optional(),
+    })
+    .optional(),
   draft: z.boolean().default(true),
 };
 

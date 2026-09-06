@@ -9,7 +9,7 @@ rating: 5
 dateAdded: 2026-09-06
 blurb: "The Swiss-design bible on grids - why a strict structure makes a layout more legible and flexible, not less, once you learn to use one."
 coverColor: "#3a3a3a"
-coverImage: "https://covers.openlibrary.org/b/id/5402100-L.jpg"
+coverImage: "https://covers.openlibrary.org/b/id/14355393-L.jpg"
 purchaseStore: "McNally Jackson"
 purchaseUrl: "https://www.mcnallyjackson.com/"
 draft: false

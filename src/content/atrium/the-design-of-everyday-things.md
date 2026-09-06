@@ -8,7 +8,14 @@ genre: "Design Theory"
 rating: 5
 dateAdded: 2026-09-06
 blurb: "The book that made 'affordance' and 'user error' into design vocabulary - still the clearest case for blaming the door, not the person pushing it."
-coverColor: "#b5541f"
+coverColor: "#2b2420"
+coverImage: "/atrium-art/death-of-socrates.jpg"
+showTitleOverlay: true
+artCredit:
+  title: "The Death of Socrates"
+  artist: "Jacques-Louis David"
+  year: "1787"
+  note: "Socrates, sentenced to death by Athens, discusses the immortality of the soul with his students moments before drinking the hemlock."
 purchaseStore: "McNally Jackson"
 purchaseUrl: "https://www.mcnallyjackson.com/"
 draft: false
