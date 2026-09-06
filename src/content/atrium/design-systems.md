@@ -7,7 +7,7 @@ pageCount: 204
 genre: "Design Systems"
 rating: 4
 dateAdded: 2026-09-06
-blurb: "Less a component-library how-to and more a case for design systems as a shared language a whole team maintains together, with real examples from Airbnb, Eurostar, and others."
+blurb: "Less a component-library how-to and more a case for design systems as a shared team language, with real examples from Airbnb and Eurostar."
 coverColor: "#a52f4a"
 coverImage: "https://covers.openlibrary.org/b/id/14619754-L.jpg"
 purchaseStore: "McNally Jackson"

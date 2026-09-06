@@ -8,6 +8,14 @@ const entries = (await getCollection("atrium", ({ data }) => !data.draft)).sort(
 const yearFormatter = new Intl.DateTimeFormat("en-US", { year: "numeric", timeZone: "UTC" });
 const monthYearFormatter = new Intl.DateTimeFormat("en-US", { month: "short", year: "numeric", timeZone: "UTC" });
 
+// Keeps the byline to a single line - past three names (a comma-
+// separated list, e.g. multiple book authors) it cuts off with an
+// ellipsis instead of wrapping to a second line.
+function truncateNames(names: string): string {
+  const parts = names.split(", ");
+  return parts.length <= 3 ? names : `${parts.slice(0, 3).join(", ")}…`;
+}
+
 // Everything a card needs for both the grid tile and its modal is
 // computed once here, including the rendered markdown body - there's
 // no separate detail page/route anymore, so this is the only place
@@ -26,7 +34,7 @@ const cards = await Promise.all(
       // The book/article/site "kind" is already implied by the cover
       // shape, page count, or URL below - no need to spell it out
       // again, so the kicker is just the byline.
-      metaLine = d.author;
+      metaLine = truncateNames(d.author);
       facts = [d.pageCount ? `${d.pageCount} pages` : null, d.publishDate ? yearFormatter.format(d.publishDate) : null].filter(Boolean).join(" · ");
       tag = d.genre ?? null;
       externalUrl = d.purchaseUrl ?? null;
@@ -570,7 +578,7 @@ const footerArtInner = [
          below) so the top and bottom can differ - more room to
          breathe under the cover, less dead space under the blurb. */
       .atrium-card-inner {
-        padding: 1.75rem 2rem 1.25rem;
+        padding: 1.75rem 1.5rem 1.25rem;
       }
 
       .atrium-card-hit {
@@ -602,7 +610,7 @@ const footerArtInner = [
         align-items: flex-end;
         padding: 1rem;
         margin: 0 auto 2rem;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.6s ease;
         box-shadow: 0 6px 16px rgba(43, 36, 32, 0.22);
       }
 
@@ -630,6 +638,9 @@ const footerArtInner = [
         text-transform: uppercase;
         color: var(--atrium-label);
         margin: 0 0 0.3rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
 
       /* The title is its own link (straight out to the external
@@ -655,13 +666,15 @@ const footerArtInner = [
       }
 
       .atrium-title-link:hover .atrium-title-external {
-        opacity: 0.55;
+        opacity: 1;
       }
 
+      /* Plain inline (not flex) on purpose - a flex box moves as one
+         unit when it doesn't fit, stranding the icon on its own line
+         after a long, wrapped title. Inline lets the icon flow right
+         after the last word like normal text, only dropping itself
+         (not the whole title) if there's no room left. */
       .atrium-title {
-        display: inline-flex;
-        align-items: baseline;
-        gap: 0.6rem;
         font-family: var(--atrium-font-display);
         font-weight: 600;
         font-size: 1rem;
@@ -669,12 +682,14 @@ const footerArtInner = [
       }
 
       .atrium-title-external {
-        flex-shrink: 0;
+        display: inline-block;
+        vertical-align: middle;
+        margin-left: 0.3rem;
         width: 11px;
         height: 11px;
         opacity: 0;
         transition: opacity 0.15s ease;
-        transform: translateY(1px);
+        transform: translateY(-1px);
       }
 
       /* --- Tag + rating meta line --- */
@@ -733,16 +748,15 @@ const footerArtInner = [
 
       /* Description reads last and is capped at three lines, so a
          long blurb can never throw off the row's shared height. */
+      /* A full three-line mini-review, written to fit rather than
+         clamped/ellipsized - the modal's markdown body is where the
+         longer, paragraph-length analysis lives. */
       .atrium-blurb {
         font-size: 0.82rem;
         line-height: 1.5;
         color: var(--atrium-ink);
         opacity: 0.8;
         margin: 0;
-        display: -webkit-box;
-        -webkit-box-orient: vertical;
-        -webkit-line-clamp: 3;
-        overflow: hidden;
       }
 
       /* --- Expand button --- */
@@ -775,8 +789,8 @@ const footerArtInner = [
       }
 
       .atrium-expand-btn:hover {
-        border-color: var(--atrium-ink);
-        color: var(--atrium-ink);
+        border-color: var(--atrium-accent);
+        color: var(--atrium-accent);
       }
 
       .atrium-expand-btn svg {
@@ -786,6 +800,66 @@ const footerArtInner = [
 
       .atrium-sentinel {
         height: 1px;
+      }
+
+      /* --- Loader (scroll-triggered "loading more") --- */
+      /* Collapsed to nothing until a batch is loading, then eases
+         open just enough to hold a small copper spinner, centered
+         across the full page width. */
+      .atrium-loader {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 0;
+        overflow: hidden;
+        opacity: 0;
+        transition: opacity 0.2s ease, height 0.3s ease;
+      }
+
+      .atrium-loader.is-visible {
+        height: 90px;
+        opacity: 1;
+      }
+
+      .atrium-loader-ring {
+        width: 26px;
+        height: 26px;
+        border: 2px solid var(--atrium-border);
+        border-top-color: var(--atrium-accent);
+        border-radius: 50%;
+        animation: atrium-spin 0.8s linear infinite;
+      }
+
+      @keyframes atrium-spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* --- Card entrance --- */
+      /* Cards fade/slide in left-to-right across a row (staggered via
+         transition-delay set in JS, per the row's live column count),
+         with the cover image itself set to a slightly longer delay so
+         it's the last thing to settle in, subtly. Only newly-revealed
+         cards (initial load, or a scroll-triggered batch) animate -
+         switching filters shows/hides instantly. */
+      .atrium-card[data-reveal] {
+        opacity: 0;
+        transform: translateX(-8px);
+        transition: opacity 0.5s ease, transform 0.5s ease;
+      }
+
+      .atrium-card[data-reveal].is-shown {
+        opacity: 1;
+        transform: none;
+      }
+
+      .atrium-card[data-reveal] .atrium-cover {
+        opacity: 0;
+      }
+
+      .atrium-card[data-reveal].is-shown .atrium-cover {
+        opacity: 1;
       }
 
       /* Completes a short last row with blank ruled cells instead of
@@ -851,8 +925,8 @@ const footerArtInner = [
       }
 
       .atrium-modal-close:hover {
-        border-color: var(--atrium-ink);
-        color: var(--atrium-ink);
+        border-color: var(--atrium-accent);
+        color: var(--atrium-accent);
       }
 
       .atrium-modal-close svg {
@@ -1091,7 +1165,7 @@ const footerArtInner = [
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
-                    stroke-width="2"
+                    stroke-width="2.75"
                     stroke-linecap="round"
                     stroke-linejoin="round"
                     aria-hidden="true"
@@ -1137,6 +1211,9 @@ const footerArtInner = [
       ))}
     </div>
     <div class="atrium-sentinel" id="atriumSentinel"></div>
+    <div class="atrium-loader" id="atriumLoader" aria-hidden="true">
+      <span class="atrium-loader-ring"></span>
+    </div>
 
     <div class="atrium-footer-art" id="atriumFooterArt">
       <svg viewBox={`0 0 ${ART_WIDTH} ${ART_HEIGHT}`} preserveAspectRatio="none" aria-hidden="true" set:html={footerArtInner} />
@@ -1233,7 +1310,47 @@ const footerArtInner = [
         });
         updateFillers();
       }
+
+      // A filter/tag change can reveal cards that were never part of
+      // a batch reveal (so never got their entrance animation) - show
+      // those instantly rather than leaving them invisible forever.
+      function catchUpVisibleCards() {
+        cards.forEach((card) => {
+          if (card.style.display !== "none" && !card.classList.contains("is-shown")) {
+            card.style.transitionDelay = "0ms";
+            card.classList.add("is-shown");
+          }
+        });
+      }
+
+      // --- Card entrance animation ---
+      // Fades/slides each newly-revealed card in left-to-right across
+      // its row (a per-card transition-delay based on live column
+      // count), with its cover image set to settle in a bit after the
+      // rest of the card - a subtle "loads last" touch, not a second
+      // reveal. Cards already marked .is-shown (already seen once)
+      // reappear instantly - only genuinely new ones animate.
+      function revealCardsWithStagger(cardsToReveal: HTMLElement[]) {
+        if (cardsToReveal.length === 0) return;
+        const columnCount = getComputedStyle(grid).gridTemplateColumns.split(" ").length;
+        cardsToReveal.forEach((card, i) => {
+          if (card.classList.contains("is-shown")) return;
+          const delay = (i % columnCount) * 70;
+          card.style.transitionDelay = `${delay}ms`;
+          const cover = card.querySelector<HTMLElement>(".atrium-cover");
+          if (cover) cover.style.transitionDelay = `${delay + 220}ms`;
+        });
+        // Force a reflow so the delay above is committed before the
+        // class flips - otherwise the browser can coalesce both style
+        // changes into one paint and skip the transition entirely.
+        void grid.offsetHeight;
+        requestAnimationFrame(() => {
+          cardsToReveal.forEach((card) => card.classList.add("is-shown"));
+        });
+      }
+
       applyVisibility();
+      revealCardsWithStagger(cards.filter((c) => c.style.display !== "none"));
 
       let resizeTimer: ReturnType<typeof setTimeout>;
       window.addEventListener("resize", () => {
@@ -1242,12 +1359,31 @@ const footerArtInner = [
       });
 
       const sentinel = document.getElementById("atriumSentinel");
+      const loader = document.getElementById("atriumLoader");
+      let isLoadingMore = false;
+
       if (sentinel) {
         const observer = new IntersectionObserver((entries) => {
-          if (!entries[0].isIntersecting || revealed >= cards.length) return;
-          revealed = Math.min(revealed + BATCH_SIZE, cards.length);
-          applyVisibility();
-          if (revealed >= cards.length) observer.disconnect();
+          if (
+            !entries[0].isIntersecting ||
+            isLoadingMore ||
+            revealed >= cards.length ||
+            currentFilter !== "all" ||
+            currentTag
+          ) {
+            return;
+          }
+          isLoadingMore = true;
+          loader?.classList.add("is-visible");
+          window.setTimeout(() => {
+            const previouslyRevealed = revealed;
+            revealed = Math.min(revealed + BATCH_SIZE, cards.length);
+            applyVisibility();
+            loader?.classList.remove("is-visible");
+            revealCardsWithStagger(cards.slice(previouslyRevealed, revealed).filter((c) => c.style.display !== "none"));
+            isLoadingMore = false;
+            if (revealed >= cards.length) observer.disconnect();
+          }, 500);
         });
         observer.observe(sentinel);
       }
@@ -1301,6 +1437,7 @@ const footerArtInner = [
         });
         closeAllSelects();
         applyVisibility();
+        catchUpVisibleCards();
       }
 
       selectInstances.forEach((instance) => {

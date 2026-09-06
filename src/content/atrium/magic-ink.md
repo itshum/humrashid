@@ -8,7 +8,7 @@ rating: 5
 dateAdded: 2026-09-06
 articleAuthor: "Bret Victor"
 datePublished: 2006-01-01
-blurb: "A long, dense case for software that shows information instead of asking you to operate it - most interfaces should be graphic design, not interaction design."
+blurb: "A dense case for software that shows information instead of asking you to operate it - graphic design, not interaction design."
 coverColor: "#3a4a4a"
 draft: false
 ---

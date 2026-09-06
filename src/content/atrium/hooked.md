@@ -7,7 +7,7 @@ pageCount: 256
 genre: "Product Design"
 rating: 3
 dateAdded: 2026-09-06
-blurb: "The trigger-action-reward-investment loop behind most habit-forming products, laid out plainly enough that it's just as useful for spotting the pattern as for building it."
+blurb: "The trigger-action-reward loop behind habit-forming products, laid out plainly enough to spot the pattern as well as build it."
 coverColor: "#c9b21f"
 coverImage: "https://covers.openlibrary.org/b/id/12511799-L.jpg"
 purchaseStore: "McNally Jackson"

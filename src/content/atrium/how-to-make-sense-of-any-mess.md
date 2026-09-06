@@ -7,7 +7,7 @@ pageCount: 154
 genre: "Information Architecture"
 rating: 4
 dateAdded: 2026-09-06
-blurb: "The most approachable entry point into information architecture there is - short, plainspoken, and applicable to any mess of information, not just websites."
+blurb: "The most approachable entry point into information architecture - short, plainspoken, and useful for any mess, not just websites."
 coverColor: "#a52f2f"
 coverImage: "https://covers.openlibrary.org/b/id/13124025-L.jpg"
 purchaseStore: "McNally Jackson"

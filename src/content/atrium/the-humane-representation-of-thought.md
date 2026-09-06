@@ -8,7 +8,7 @@ rating: 5
 dateAdded: 2026-09-06
 articleAuthor: "Bret Victor"
 datePublished: 2014-01-01
-blurb: "A talk-turned-essay arguing that a screen with a keyboard is a tiny fraction of how humans actually think - using their whole bodies, spatial memory, physical tools."
+blurb: "A talk-turned-essay arguing a screen and keyboard are a tiny fraction of how humans actually think - gesture, memory, physical tools."
 coverColor: "#4a3a4a"
 draft: false
 ---

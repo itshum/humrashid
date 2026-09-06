@@ -7,7 +7,7 @@ pageCount: 216
 genre: "Usability"
 rating: 4
 dateAdded: 2026-09-06
-blurb: "A short, funny case for obviousness over cleverness in web design - written before 'usability testing' was a job title, still the fastest way to explain it to someone who's never heard of it."
+blurb: "A short, funny case for obviousness over cleverness in web design - still the fastest way to explain usability testing to a newcomer."
 coverColor: "#e8622a"
 coverImage: "https://covers.openlibrary.org/b/id/554640-L.jpg"
 purchaseStore: "McNally Jackson"

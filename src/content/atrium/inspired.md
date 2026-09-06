@@ -7,7 +7,7 @@ pageCount: 368
 genre: "Product Management"
 rating: 5
 dateAdded: 2026-09-06
-blurb: "Cagan's case for product teams solving problems instead of shipping roadmap items - the clearest explanation I've read of what a strong product org actually does differently."
+blurb: "Cagan's case for product teams solving problems instead of shipping roadmap items - what a strong product org actually does differently."
 coverColor: "#c9762f"
 coverImage: "https://covers.openlibrary.org/b/id/9700654-L.jpg"
 purchaseStore: "McNally Jackson"

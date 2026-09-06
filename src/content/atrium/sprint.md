@@ -7,7 +7,7 @@ pageCount: 288
 genre: "Product Process"
 rating: 4
 dateAdded: 2026-09-06
-blurb: "The five-day process Google Ventures ran with portfolio companies to go from problem to tested prototype - a recipe, almost literally, down to the hour."
+blurb: "The five-day process Google Ventures ran with portfolio companies - problem to tested prototype, almost a recipe, down to the hour."
 coverColor: "#1f9ec9"
 coverImage: "https://covers.openlibrary.org/b/id/7431269-L.jpg"
 purchaseStore: "McNally Jackson"

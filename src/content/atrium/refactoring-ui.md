@@ -6,7 +6,7 @@ publishDate: 2018-01-01
 genre: "Visual Design"
 rating: 5
 dateAdded: 2026-09-06
-blurb: "Concrete, tactical fixes for developers who can build a working interface but can't make it look designed - spacing, color, hierarchy, explained as rules of thumb, not theory."
+blurb: "Concrete, tactical fixes for developers who can build an interface but can't make it look designed - rules of thumb, not theory."
 coverColor: "#4a3a6b"
 draft: false
 ---

@@ -7,7 +7,7 @@ pageCount: 304
 genre: "Design Theory"
 rating: 4
 dateAdded: 2026-09-06
-blurb: "Norman's follow-up walking back a little of his own simplicity gospel - some things are complex because the task actually is, and the goal is manageable complexity, not less of it."
+blurb: "Norman's follow-up on his own simplicity gospel - some tasks are genuinely complex, and the goal is manageable complexity, not less of it."
 coverColor: "#8a8a85"
 coverImage: "https://covers.openlibrary.org/b/id/8089577-L.jpg"
 purchaseStore: "McNally Jackson"
