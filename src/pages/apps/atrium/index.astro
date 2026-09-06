@@ -1,5 +1,5 @@
 ---
-import { getCollection } from "astro:content";
+import { getCollection, render } from "astro:content";
 
 const entries = (await getCollection("atrium", ({ data }) => !data.draft)).sort(
   (a, b) => b.data.dateAdded.valueOf() - a.data.dateAdded.valueOf()
@@ -8,36 +8,55 @@ const entries = (await getCollection("atrium", ({ data }) => !data.draft)).sort(
 const yearFormatter = new Intl.DateTimeFormat("en-US", { year: "numeric", timeZone: "UTC" });
 const monthYearFormatter = new Intl.DateTimeFormat("en-US", { month: "short", year: "numeric", timeZone: "UTC" });
 
-const cards = entries.map((entry) => {
-  const d = entry.data;
+// Everything a card needs for both the grid tile and its modal is
+// computed once here, including the rendered markdown body - there's
+// no separate detail page/route anymore, so this is the only place
+// `render(entry)` gets called.
+const cards = await Promise.all(
+  entries.map(async (entry) => {
+    const d = entry.data;
 
-  let metaLine = "";
-  let facts = "";
-  let tag: string | null = null;
+    let metaLine = "";
+    let facts = "";
+    let tag: string | null = null;
+    let externalUrl: string | null = null;
+    let ctaLabel = "";
 
-  if (d.type === "book") {
-    metaLine = `Book · ${d.author}`;
-    facts = [d.pageCount ? `${d.pageCount} pages` : null, d.publishDate ? yearFormatter.format(d.publishDate) : null].filter(Boolean).join(" · ");
-    tag = d.genre ?? null;
-  } else if (d.type === "article") {
-    metaLine = `Article · ${d.sourceName}`;
-    facts = [d.articleAuthor, d.datePublished ? monthYearFormatter.format(d.datePublished) : null, d.readTime].filter(Boolean).join(" · ");
-  } else {
-    metaLine = `Site · ${d.siteName}`;
-    tag = d.category;
-  }
+    if (d.type === "book") {
+      // The book/article/site "kind" is already implied by the cover
+      // shape, page count, or URL below - no need to spell it out
+      // again, so the kicker is just the byline.
+      metaLine = d.author;
+      facts = [d.pageCount ? `${d.pageCount} pages` : null, d.publishDate ? yearFormatter.format(d.publishDate) : null].filter(Boolean).join(" · ");
+      tag = d.genre ?? null;
+      externalUrl = d.purchaseUrl ?? null;
+      ctaLabel = d.purchaseStore ? `Buy at ${d.purchaseStore}` : "Where to buy";
+    } else if (d.type === "article") {
+      metaLine = d.sourceName;
+      facts = [d.articleAuthor, d.datePublished ? monthYearFormatter.format(d.datePublished) : null, d.readTime].filter(Boolean).join(" · ");
+      externalUrl = d.articleUrl;
+      ctaLabel = "Read the article";
+    } else {
+      metaLine = d.siteName;
+      tag = d.category;
+      externalUrl = d.siteUrl;
+      ctaLabel = "Visit the site";
+    }
 
-  // Every cover fills its box (no letterboxing, no dead space) at a
-  // shared fixed height (see .atrium-cover) - books get a narrower
-  // box since they read best in portrait; articles/sites get a wide
-  // box since they're sourced from landscape web imagery. Same height
-  // either way, so the text below always starts on the same line.
-  const coverStyle = d.coverImage
-    ? `${d.coverColor} url(${d.coverImage}) center/cover no-repeat`
-    : d.coverColor;
+    // Every cover fills its box (no letterboxing, no dead space) at a
+    // shared fixed height (see .atrium-cover) - books get a narrower
+    // box since they read best in portrait; articles/sites get a wide
+    // box since they're sourced from landscape web imagery. Same height
+    // either way, so the text below always starts on the same line.
+    const coverStyle = d.coverImage
+      ? `${d.coverColor} url(${d.coverImage}) center/cover no-repeat`
+      : d.coverColor;
 
-  return { entry, metaLine, facts, tag, coverStyle };
-});
+    const { Content } = await render(entry);
+
+    return { entry, metaLine, facts, tag, coverStyle, externalUrl, ctaLabel, Content };
+  })
+);
 
 const allTags = [...new Set(cards.map((c) => c.tag).filter((t): t is string => Boolean(t)))].sort();
 
@@ -444,13 +463,13 @@ const footerArtInner = [
       }
 
       .atrium-select-trigger:hover {
-        border-color: var(--atrium-ink);
-        color: var(--atrium-ink);
+        border-color: var(--atrium-accent);
+        color: var(--atrium-accent);
       }
 
       .atrium-select.is-open .atrium-select-trigger {
-        border-color: var(--atrium-ink);
-        color: var(--atrium-ink);
+        border-color: var(--atrium-accent);
+        color: var(--atrium-accent);
       }
 
       .atrium-select-caret {
@@ -540,13 +559,32 @@ const footerArtInner = [
         position: relative;
         border-right: 1px solid var(--atrium-border);
         border-bottom: 1px solid var(--atrium-border);
+        transition: background-color 0.15s ease;
       }
 
-      .atrium-card-link {
+      .atrium-card:not(.atrium-filler):hover {
+        background-color: rgba(255, 255, 255, 0.12);
+      }
+
+      /* Padding lives on this wrapper (not the two hit-area anchors
+         below) so the top and bottom can differ - more room to
+         breathe under the cover, less dead space under the blurb. */
+      .atrium-card-inner {
+        padding: 1.75rem 2rem 1.25rem;
+      }
+
+      .atrium-card-hit {
         display: block;
+        width: 100%;
         text-decoration: none;
         color: inherit;
-        padding: 2.5rem 2rem;
+        background: none;
+        border: none;
+        padding: 0;
+        margin: 0;
+        font: inherit;
+        text-align: left;
+        cursor: pointer;
       }
 
       /* Flat 2D cover for every type - a real image when available,
@@ -557,13 +595,13 @@ const footerArtInner = [
          line across a row, whether the card next to it is a tall
          portrait book or a short wide article/site image. */
       .atrium-cover {
-        height: 210px;
+        height: 235px;
         width: 46%;
         border-radius: 2px;
         display: flex;
         align-items: flex-end;
         padding: 1rem;
-        margin: 0 auto 1.5rem;
+        margin: 0 auto 2rem;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
         box-shadow: 0 6px 16px rgba(43, 36, 32, 0.22);
       }
@@ -594,15 +632,63 @@ const footerArtInner = [
         margin: 0 0 0.3rem;
       }
 
+      /* The title is its own link (straight out to the external
+         listing/article/site when there is one) rather than part of
+         the surrounding hit area, so the underline-on-hover + icon
+         read as "this text specifically is the external link". */
+      .atrium-title-link {
+        display: block;
+        width: 100%;
+        text-decoration: none;
+        color: inherit;
+        margin: 0 0 0.6rem;
+        background: none;
+        border: none;
+        padding: 0;
+        font: inherit;
+        text-align: left;
+        cursor: pointer;
+      }
+
+      .atrium-title-link:hover .atrium-title {
+        text-decoration: underline;
+      }
+
+      .atrium-title-link:hover .atrium-title-external {
+        opacity: 0.55;
+      }
+
       .atrium-title {
+        display: inline-flex;
+        align-items: baseline;
+        gap: 0.6rem;
         font-family: var(--atrium-font-display);
         font-weight: 600;
         font-size: 1rem;
         line-height: 1.3;
+      }
+
+      .atrium-title-external {
+        flex-shrink: 0;
+        width: 11px;
+        height: 11px;
+        opacity: 0;
+        transition: opacity 0.15s ease;
+        transform: translateY(1px);
+      }
+
+      /* --- Tag + rating meta line --- */
+      /* The genre/category pill and star rating share one line with
+         padding between them, instead of stacking on separate lines -
+         both are compact at-a-glance metadata, not full-width content. */
+      .atrium-meta-line {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.6rem;
         margin: 0 0 0.5rem;
       }
 
-      /* --- Genre / category pill --- */
       /* A distinct tag treatment, separate from plain text metadata,
          so it's easy to spot at a glance - a plain display badge, not
          a click target. Filtering by tag happens via the dropdown in
@@ -617,7 +703,6 @@ const footerArtInner = [
         border-radius: 999px;
         background: var(--atrium-surface);
         color: var(--atrium-label);
-        margin: 0 0 0.6rem;
       }
 
       .atrium-stars {
@@ -625,45 +710,51 @@ const footerArtInner = [
         font-size: 0.75rem;
         color: var(--atrium-border);
         letter-spacing: 0.1em;
-        margin: 0 0 0.5rem;
       }
 
       .atrium-stars .filled {
         color: var(--atrium-gold);
       }
 
-      .atrium-blurb {
-        font-size: 0.82rem;
-        line-height: 1.5;
-        color: var(--atrium-ink);
-        opacity: 0.8;
-        margin: 0.6rem 0 0;
-      }
-
       .atrium-facts {
         font-size: 0.72rem;
         letter-spacing: 0.04em;
         color: var(--atrium-label);
-        margin: 0.5rem 0 0;
+        margin: 0 0 1rem;
       }
 
       .atrium-url {
         font-size: 0.72rem;
         letter-spacing: 0.02em;
         color: var(--atrium-label);
-        margin: 0.5rem 0 0;
+        margin: 0 0 1rem;
         word-break: break-all;
       }
 
+      /* Description reads last and is capped at three lines, so a
+         long blurb can never throw off the row's shared height. */
+      .atrium-blurb {
+        font-size: 0.82rem;
+        line-height: 1.5;
+        color: var(--atrium-ink);
+        opacity: 0.8;
+        margin: 0;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 3;
+        overflow: hidden;
+      }
+
       /* --- Expand button --- */
-      /* A small affordance that only appears on hover, linking
-         straight to the detail page - not a hover-triggered panel. */
+      /* A small affordance that only appears on hover, opening the
+         entry's modal - not a hover-triggered panel. */
       .atrium-expand-btn {
         position: absolute;
         top: 0.75rem;
         right: 0.75rem;
         width: 30px;
         height: 30px;
+        padding: 0;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -671,6 +762,7 @@ const footerArtInner = [
         border: 1px solid var(--atrium-border);
         border-radius: 50%;
         color: var(--atrium-label);
+        cursor: pointer;
         opacity: 0;
         transform: scale(0.9);
         transition: opacity 0.15s ease, transform 0.15s ease, border-color 0.15s ease, color 0.15s ease;
@@ -702,6 +794,196 @@ const footerArtInner = [
       .atrium-filler {
         border-right: 1px solid var(--atrium-border);
         border-bottom: 1px solid var(--atrium-border);
+      }
+
+      /* --- Entry modal --- */
+      /* One fixed-size overlay per entry (hidden until opened) instead
+         of a separate detail page - same rectangular size, image on
+         the left, content on the right, for every entry regardless of
+         type. Only the image column and the internal content scroll
+         differ in what they hold; the shell is identical throughout. */
+      .atrium-modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(43, 36, 32, 0.5);
+        z-index: 100;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+      }
+
+      .atrium-modal-overlay.is-open {
+        display: flex;
+      }
+
+      body.atrium-modal-lock {
+        overflow: hidden;
+      }
+
+      .atrium-modal {
+        position: relative;
+        width: min(940px, 100%);
+        max-height: 88vh;
+        background: var(--atrium-bg);
+        border-radius: 4px;
+        box-shadow: 0 24px 64px rgba(43, 36, 32, 0.4);
+        overflow: hidden;
+      }
+
+      .atrium-modal-close {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--atrium-bg);
+        border: 1px solid var(--atrium-border);
+        border-radius: 50%;
+        color: var(--atrium-label);
+        cursor: pointer;
+        transition: border-color 0.15s ease, color 0.15s ease;
+        z-index: 2;
+      }
+
+      .atrium-modal-close:hover {
+        border-color: var(--atrium-ink);
+        color: var(--atrium-ink);
+      }
+
+      .atrium-modal-close svg {
+        width: 14px;
+        height: 14px;
+      }
+
+      .atrium-modal-layout {
+        display: grid;
+        grid-template-columns: 360px 1fr;
+        align-items: start;
+      }
+
+      @media (max-width: 760px) {
+        .atrium-modal-layout {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      /* Same interactive cover treatment as the grid card (drop
+         shadow, hover lift), scaled up to suit the much bigger modal
+         column - anchored to the top (not vertically centered) so it
+         reads as the start of the content, same as the panel. */
+      .atrium-modal-image-col {
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        padding: 2.5rem 2rem;
+      }
+
+      .atrium-modal-image-col:hover .atrium-cover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px rgba(43, 36, 32, 0.3);
+      }
+
+      .atrium-modal-image-col .atrium-cover {
+        width: 78%;
+        height: 400px;
+        margin: 0;
+      }
+
+      .atrium-modal-image-col .atrium-cover.is-wide {
+        width: 100%;
+        height: 210px;
+      }
+
+      .atrium-modal-content {
+        padding: 2.5rem 3rem 2.5rem 3.5rem;
+        max-height: 88vh;
+        overflow-y: auto;
+        max-width: 560px;
+      }
+
+      .atrium-modal-content .atrium-kicker {
+        font-size: 0.75rem;
+        margin: 0 0 0.5rem;
+      }
+
+      .atrium-modal-title {
+        font-family: var(--atrium-font-display);
+        font-weight: 600;
+        font-size: 1.5rem;
+        line-height: 1.3;
+        margin: 0 0 0.75rem;
+      }
+
+      .atrium-modal-content .atrium-tag {
+        font-size: 0.7rem;
+        padding: 0.28rem 0.7rem;
+        margin: 0 0 0.85rem;
+      }
+
+      .atrium-modal-content .atrium-stars {
+        display: block;
+        font-size: 0.95rem;
+        margin: 0 0 1.25rem;
+      }
+
+      .atrium-modal-content .atrium-facts {
+        font-size: 0.78rem;
+        margin: 0 0 0.85rem;
+      }
+
+      .atrium-modal-content .atrium-url {
+        font-size: 0.78rem;
+        margin: 0 0 0.85rem;
+        word-break: break-all;
+      }
+
+      .atrium-modal-blurb {
+        font-family: var(--atrium-font-display);
+        font-style: italic;
+        font-size: 1.05rem;
+        line-height: 1.5;
+        color: var(--atrium-ink);
+        margin: 0 0 1.25rem;
+      }
+
+      .atrium-modal-body {
+        font-size: 0.92rem;
+        line-height: 1.7;
+      }
+
+      .atrium-modal-body p:first-child {
+        margin-top: 0;
+      }
+
+      .atrium-cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        margin-top: 1.5rem;
+        padding: 0.5rem 0.9rem;
+        background: transparent;
+        color: var(--atrium-accent);
+        border: 1px solid var(--atrium-accent);
+        text-decoration: none;
+        font-size: 0.78rem;
+        font-weight: 500;
+        border-radius: 2px;
+        transition: background 0.15s ease, color 0.15s ease;
+      }
+
+      .atrium-cta:hover {
+        background: var(--atrium-accent);
+        color: var(--atrium-bg);
+      }
+
+      .atrium-cta svg {
+        width: 13px;
+        height: 13px;
       }
 
       /* --- Footer architecture --- */
@@ -784,35 +1066,68 @@ const footerArtInner = [
 
     <div class="atrium-grid" id="atriumGrid">
       {
-        cards.map(({ entry, metaLine, facts, tag, coverStyle }) => (
+        cards.map(({ entry, metaLine, facts, tag, coverStyle, externalUrl }) => (
           <div class="atrium-card" data-reveal data-type={entry.data.type} data-tag={tag ?? ""}>
-            <a class="atrium-card-link" href={`/apps/atrium/${entry.id}/`}>
-              <div
-                class={`atrium-cover${entry.data.type !== "book" ? " is-wide" : ""}`}
-                style={{ background: coverStyle }}
-              >
-                {!entry.data.coverImage && <span class="cover-title">{entry.data.title}</span>}
-              </div>
-              <p class="atrium-kicker">{metaLine}</p>
-              <p class="atrium-title">{entry.data.title}</p>
-              {tag && <span class="atrium-tag">{tag}</span>}
-              {entry.data.type !== "site" && (
-                <span class="atrium-stars" aria-hidden="true">
-                  {[1, 2, 3, 4, 5].map((n) => (
-                    <span class={n <= entry.data.rating ? "filled" : ""}>★</span>
-                  ))}
-                </span>
+            <div class="atrium-card-inner">
+              <button type="button" class="atrium-card-hit" data-expand={entry.id}>
+                <div
+                  class={`atrium-cover${entry.data.type !== "book" ? " is-wide" : ""}`}
+                  style={{ background: coverStyle }}
+                >
+                  {!entry.data.coverImage && <span class="cover-title">{entry.data.title}</span>}
+                </div>
+                <p class="atrium-kicker">{metaLine}</p>
+              </button>
+
+              {/* The title itself links straight out to the external
+                  listing/article/site - no need to open the modal
+                  just to click through - falling back to opening the
+                  modal only when a book has no purchase link. */}
+              {externalUrl ? (
+                <a class="atrium-title-link" href={externalUrl} target="_blank" rel="noopener">
+                  <span class="atrium-title">{entry.data.title}</span>
+                  <svg
+                    class="atrium-title-external"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M7 17L17 7M7 7h10v10" />
+                  </svg>
+                </a>
+              ) : (
+                <button type="button" class="atrium-title-link" data-expand={entry.id}>
+                  <span class="atrium-title">{entry.data.title}</span>
+                </button>
               )}
-              <p class="atrium-blurb">{entry.data.blurb}</p>
+
               {facts && <p class="atrium-facts">{facts}</p>}
               {entry.data.type === "site" && <p class="atrium-url">{entry.data.siteUrl.replace(/^https?:\/\//, "")}</p>}
-            </a>
 
-            <a class="atrium-expand-btn" href={`/apps/atrium/${entry.id}/`} aria-label={`Open: ${entry.data.title}`}>
+              <button type="button" class="atrium-card-hit" data-expand={entry.id}>
+                <div class="atrium-meta-line">
+                  {tag && <span class="atrium-tag">{tag}</span>}
+                  {entry.data.type !== "site" && (
+                    <span class="atrium-stars" aria-hidden="true">
+                      {[1, 2, 3, 4, 5].map((n) => (
+                        <span class={n <= entry.data.rating ? "filled" : ""}>★</span>
+                      ))}
+                    </span>
+                  )}
+                </div>
+                <p class="atrium-blurb">{entry.data.blurb}</p>
+              </button>
+            </div>
+
+            <button type="button" class="atrium-expand-btn" data-expand={entry.id} aria-label={`Open: ${entry.data.title}`}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
               </svg>
-            </a>
+            </button>
           </div>
         ))
       }
@@ -826,6 +1141,61 @@ const footerArtInner = [
     <div class="atrium-footer-art" id="atriumFooterArt">
       <svg viewBox={`0 0 ${ART_WIDTH} ${ART_HEIGHT}`} preserveAspectRatio="none" aria-hidden="true" set:html={footerArtInner} />
     </div>
+
+    {/* One modal per entry (all hidden until opened) rather than a
+        separate detail page/route - same fixed size and image-left,
+        content-right layout for every entry regardless of type. */}
+    {
+      cards.map(({ entry, metaLine, facts, tag, coverStyle, externalUrl, ctaLabel, Content }) => (
+        <div class="atrium-modal-overlay" id={`modal-${entry.id}`} data-modal>
+          <div class="atrium-modal" role="dialog" aria-modal="true" aria-label={entry.data.title}>
+            <button type="button" class="atrium-modal-close" data-modal-close aria-label="Close">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
+            </button>
+            <div class="atrium-modal-layout">
+              <div class="atrium-modal-image-col">
+                <div
+                  class={`atrium-cover${entry.data.type !== "book" ? " is-wide" : ""}`}
+                  style={{ background: coverStyle }}
+                >
+                  {!entry.data.coverImage && <span class="cover-title">{entry.data.title}</span>}
+                </div>
+              </div>
+              <div class="atrium-modal-content">
+                <p class="atrium-kicker">{metaLine}</p>
+                <h2 class="atrium-modal-title">{entry.data.title}</h2>
+                {facts && <p class="atrium-facts">{facts}</p>}
+                {entry.data.type === "site" && <p class="atrium-url">{entry.data.siteUrl.replace(/^https?:\/\//, "")}</p>}
+                <div class="atrium-meta-line">
+                  {tag && <span class="atrium-tag">{tag}</span>}
+                  {entry.data.type !== "site" && (
+                    <span class="atrium-stars" aria-hidden="true">
+                      {[1, 2, 3, 4, 5].map((n) => (
+                        <span class={n <= entry.data.rating ? "filled" : ""}>★</span>
+                      ))}
+                    </span>
+                  )}
+                </div>
+                <p class="atrium-modal-blurb">{entry.data.blurb}</p>
+                <div class="atrium-modal-body">
+                  <Content />
+                </div>
+                {externalUrl && (
+                  <a class="atrium-cta" href={externalUrl} target="_blank" rel="noopener">
+                    {ctaLabel}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M7 17L17 7M7 7h10v10" />
+                    </svg>
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      ))
+    }
 
     <script>
       // Cards beyond the first batch start hidden and fade in as the
@@ -957,6 +1327,40 @@ const footerArtInner = [
         });
         barObserver.observe(heroSentinel);
       }
+
+      // --- Entry modal ---
+      // Every card's cover, title (when it has no external link), and
+      // meta/blurb area - plus the corner expand button - all open the
+      // same per-entry modal instead of navigating to a detail page.
+      let openModal: HTMLElement | null = null;
+
+      function closeModal() {
+        if (!openModal) return;
+        openModal.classList.remove("is-open");
+        openModal = null;
+        document.body.classList.remove("atrium-modal-lock");
+      }
+
+      document.querySelectorAll<HTMLElement>("[data-expand]").forEach((trigger) => {
+        trigger.addEventListener("click", () => {
+          const modal = document.getElementById(`modal-${trigger.dataset.expand}`);
+          if (!modal) return;
+          modal.classList.add("is-open");
+          openModal = modal;
+          document.body.classList.add("atrium-modal-lock");
+        });
+      });
+
+      document.querySelectorAll<HTMLElement>("[data-modal]").forEach((overlay) => {
+        overlay.addEventListener("click", (e) => {
+          if (e.target === overlay) closeModal();
+        });
+        overlay.querySelector("[data-modal-close]")?.addEventListener("click", closeModal);
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeModal();
+      });
     </script>
   </body>
 </html>
