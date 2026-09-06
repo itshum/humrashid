@@ -155,6 +155,41 @@
         padding: 0.25rem 0;
       }
 
+      /* Thin, on-brand scrollbar in place of the default OS one for
+         every scrolling region in the app shell (still scrollable,
+         just not a chunky grey system bar over a dark UI). */
+      .panel-scroll,
+      #bgSwatches,
+      .dropdown-menu {
+        scrollbar-width: thin;
+        scrollbar-color: var(--app-border-strong) transparent;
+      }
+
+      .panel-scroll::-webkit-scrollbar,
+      #bgSwatches::-webkit-scrollbar,
+      .dropdown-menu::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      .panel-scroll::-webkit-scrollbar-track,
+      #bgSwatches::-webkit-scrollbar-track,
+      .dropdown-menu::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      .panel-scroll::-webkit-scrollbar-thumb,
+      #bgSwatches::-webkit-scrollbar-thumb,
+      .dropdown-menu::-webkit-scrollbar-thumb {
+        background: var(--app-border-strong);
+        border-radius: 3px;
+      }
+
+      .panel-scroll::-webkit-scrollbar-thumb:hover,
+      #bgSwatches::-webkit-scrollbar-thumb:hover,
+      .dropdown-menu::-webkit-scrollbar-thumb:hover {
+        background: var(--app-label);
+      }
+
       .panel-footer {
         flex: none;
         padding: 1rem 1.25rem 1.25rem;
