@@ -1,0 +1,579 @@
+---
+import { getCollection } from "astro:content";
+
+const entries = (await getCollection("atrium", ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.dateAdded.valueOf() - a.data.dateAdded.valueOf()
+);
+
+const yearFormatter = new Intl.DateTimeFormat("en-US", { year: "numeric", timeZone: "UTC" });
+const monthYearFormatter = new Intl.DateTimeFormat("en-US", { month: "short", year: "numeric", timeZone: "UTC" });
+
+const cards = entries.map((entry) => {
+  const d = entry.data;
+
+  let metaLine = "";
+  let facts = "";
+  let tag: string | null = null;
+  let bgSize: "cover" | "contain" = "cover";
+  let aspect = "16 / 10";
+
+  if (d.type === "book") {
+    metaLine = `Book · ${d.author}`;
+    facts = [d.pageCount ? `${d.pageCount} pages` : null, d.publishDate ? yearFormatter.format(d.publishDate) : null].filter(Boolean).join(" · ");
+    tag = d.genre ?? null;
+    aspect = "2 / 3";
+  } else if (d.type === "article") {
+    metaLine = `Article · ${d.sourceName}`;
+    facts = [d.articleAuthor, d.datePublished ? monthYearFormatter.format(d.datePublished) : null, d.readTime].filter(Boolean).join(" · ");
+  } else {
+    metaLine = `Site · ${d.siteName}`;
+    tag = d.category;
+    bgSize = "contain";
+  }
+
+  const coverStyle = d.coverImage
+    ? `${d.coverColor} url(${d.coverImage}) center/${bgSize} no-repeat`
+    : d.coverColor;
+
+  return { entry, metaLine, facts, tag, coverStyle, aspect };
+});
+
+const allTags = [...new Set(cards.map((c) => c.tag).filter((t): t is string => Boolean(t)))].sort();
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="canonical" href="https://www.humrashid.com/apps/atrium/" />
+    <title>Atrium · Humayun Rashid</title>
+    <meta
+      name="description"
+      content="A growing library of books, long-form articles, and sites worth your time."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&display=swap"
+    />
+    <style is:global>
+      /* Atrium's own fixed identity - a warm parchment reading room,
+         independent of the main site's time-based light/dark theme.
+         Same move as rendr's own permanent dark shell: this is its own
+         small experience, not another portfolio page. */
+      :root {
+        --atrium-bg: #f3ead9;
+        --atrium-surface: #ece0c8;
+        --atrium-ink: #2b2420;
+        --atrium-label: #8a7a63;
+        --atrium-border: #ddccac;
+        --atrium-accent: #a6402d;
+        --atrium-gold: #a9822f;
+        --atrium-font-display: "Playfair Display", Georgia, serif;
+        --atrium-font-body: "Source Serif 4", Georgia, serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        background: var(--atrium-bg);
+        color: var(--atrium-ink);
+        font-family: var(--atrium-font-body);
+      }
+
+      a {
+        color: inherit;
+      }
+
+      ::selection {
+        background: var(--atrium-accent);
+        color: var(--atrium-bg);
+      }
+
+      .atrium-col {
+        max-width: 1240px;
+        margin: 0 auto;
+        padding: 0 2rem;
+      }
+
+      .atrium-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1.5rem 0;
+      }
+
+      .atrium-back {
+        text-decoration: none;
+        font-size: 0.85rem;
+        color: var(--atrium-label);
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+      }
+
+      .atrium-back:hover {
+        color: var(--atrium-ink);
+      }
+
+      .atrium-wordmark {
+        font-family: var(--atrium-font-display);
+        font-weight: 700;
+        font-size: 1.3rem;
+        letter-spacing: 0.01em;
+        color: var(--atrium-accent);
+      }
+
+      .atrium-hero {
+        padding: 2rem 0 2rem;
+      }
+
+      .atrium-hero .kicker {
+        font-size: 0.75rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--atrium-label);
+        margin: 0 0 0.5rem;
+      }
+
+      .atrium-hero h1 {
+        font-family: var(--atrium-font-display);
+        font-weight: 600;
+        font-size: 1.1rem;
+        line-height: 1.4;
+        margin: 0;
+        white-space: nowrap;
+      }
+
+      /* --- Sticky filter bar - hidden until the user scrolls past
+         the hero, then fixed to the top. --- */
+      .atrium-stickybar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        background: var(--atrium-bg);
+        border-bottom: 1px solid var(--atrium-border);
+        transform: translateY(-100%);
+        transition: transform 0.25s ease;
+        z-index: 10;
+      }
+
+      .atrium-stickybar.is-visible {
+        transform: translateY(0);
+      }
+
+      .stickybar-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.85rem 0;
+      }
+
+      .atrium-filters {
+        display: flex;
+        gap: 0.5rem;
+      }
+
+      .atrium-filters button {
+        font-family: var(--atrium-font-body);
+        font-size: 0.78rem;
+        padding: 0.35rem 0.85rem;
+        border: 1px solid var(--atrium-border);
+        border-radius: 999px;
+        background: none;
+        color: var(--atrium-label);
+        cursor: pointer;
+        transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+      }
+
+      .atrium-filters button:hover {
+        border-color: var(--atrium-ink);
+        color: var(--atrium-ink);
+      }
+
+      .atrium-filters button.is-active {
+        background: var(--atrium-ink);
+        color: var(--atrium-bg);
+        border-color: var(--atrium-ink);
+      }
+
+      /* A plain native select - simplest possible control for
+         narrowing by genre/category, rather than clicking pills
+         scattered across the grid. Scales fine once the tag list
+         itself gets long. */
+      .atrium-tag-select {
+        font-family: var(--atrium-font-body);
+        font-size: 0.78rem;
+        padding: 0.35rem 1.8rem 0.35rem 0.85rem;
+        border: 1px solid var(--atrium-border);
+        border-radius: 999px;
+        background: var(--atrium-bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238a7a63' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+          no-repeat right 0.75rem center;
+        color: var(--atrium-label);
+        cursor: pointer;
+        appearance: none;
+      }
+
+      .atrium-tag-select:hover {
+        border-color: var(--atrium-ink);
+        color: var(--atrium-ink);
+      }
+
+      /* --- Grid --- */
+      /* Full-bleed, edge-to-edge - not inside .atrium-col. A true
+         ruled grid - shared 1px hairlines between every cell, formed
+         from each cell's own right/bottom border plus a top/left
+         border on the container, rather than a gap between floating
+         cards. */
+      .atrium-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        border-top: 1px solid var(--atrium-border);
+        border-left: 1px solid var(--atrium-border);
+        margin-bottom: 8rem;
+      }
+
+      @media (max-width: 1300px) {
+        .atrium-grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+
+      @media (max-width: 980px) {
+        .atrium-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      @media (max-width: 560px) {
+        .atrium-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .atrium-card {
+        position: relative;
+        border-right: 1px solid var(--atrium-border);
+        border-bottom: 1px solid var(--atrium-border);
+      }
+
+      .atrium-card-link {
+        display: block;
+        text-decoration: none;
+        color: inherit;
+        padding: 2.5rem 2rem;
+      }
+
+      /* Flat 2D cover for every type - a real image when available,
+         a subtle drop shadow for depth, and a hover lift + shadow
+         bump for a little vibrancy rather than a static rectangle. */
+      .atrium-cover {
+        width: 58%;
+        border-radius: 2px;
+        display: flex;
+        align-items: flex-end;
+        padding: 1rem;
+        margin: 0 auto 1.5rem;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        box-shadow: 0 6px 16px rgba(43, 36, 32, 0.22);
+      }
+
+      .atrium-card:hover .atrium-cover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px rgba(43, 36, 32, 0.3);
+      }
+
+      .atrium-cover.is-wide {
+        width: 100%;
+      }
+
+      .atrium-cover .cover-title {
+        font-family: var(--atrium-font-display);
+        font-weight: 600;
+        font-size: 1.05rem;
+        line-height: 1.25;
+        color: rgba(255, 255, 255, 0.94);
+      }
+
+      .atrium-kicker {
+        font-size: 0.68rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--atrium-label);
+        margin: 0 0 0.3rem;
+      }
+
+      .atrium-title {
+        font-family: var(--atrium-font-display);
+        font-weight: 600;
+        font-size: 1rem;
+        line-height: 1.3;
+        margin: 0 0 0.5rem;
+      }
+
+      /* --- Genre / category pill --- */
+      /* A distinct tag treatment, separate from plain text metadata,
+         so it's easy to spot at a glance - a plain display badge, not
+         a click target. Filtering by tag happens via the dropdown in
+         the sticky bar instead, which scales better once there are
+         many distinct tags to choose from. */
+      .atrium-tag {
+        display: inline-block;
+        font-size: 0.68rem;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        padding: 0.25rem 0.6rem;
+        border-radius: 999px;
+        background: var(--atrium-surface);
+        color: var(--atrium-label);
+        margin: 0 0 0.6rem;
+      }
+
+      .atrium-stars {
+        display: block;
+        font-size: 0.75rem;
+        color: var(--atrium-border);
+        letter-spacing: 0.1em;
+        margin: 0 0 0.5rem;
+      }
+
+      .atrium-stars .filled {
+        color: var(--atrium-gold);
+      }
+
+      .atrium-blurb {
+        font-size: 0.82rem;
+        line-height: 1.5;
+        color: var(--atrium-ink);
+        opacity: 0.8;
+        margin: 0.6rem 0 0;
+      }
+
+      .atrium-facts {
+        font-size: 0.72rem;
+        letter-spacing: 0.04em;
+        color: var(--atrium-label);
+        margin: 0.5rem 0 0;
+      }
+
+      .atrium-url {
+        font-size: 0.72rem;
+        letter-spacing: 0.02em;
+        color: var(--atrium-label);
+        margin: 0.5rem 0 0;
+        word-break: break-all;
+      }
+
+      /* --- Expand button --- */
+      /* A small affordance that only appears on hover, linking
+         straight to the detail page - not a hover-triggered panel. */
+      .atrium-expand-btn {
+        position: absolute;
+        top: 0.75rem;
+        right: 0.75rem;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--atrium-bg);
+        border: 1px solid var(--atrium-border);
+        border-radius: 50%;
+        color: var(--atrium-label);
+        opacity: 0;
+        transform: scale(0.9);
+        transition: opacity 0.15s ease, transform 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+        z-index: 7;
+      }
+
+      .atrium-card:hover .atrium-expand-btn {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      .atrium-expand-btn:hover {
+        border-color: var(--atrium-ink);
+        color: var(--atrium-ink);
+      }
+
+      .atrium-expand-btn svg {
+        width: 13px;
+        height: 13px;
+      }
+
+      .atrium-sentinel {
+        height: 1px;
+      }
+
+      /* Completes a short last row with blank ruled cells instead of
+         leaving bare, un-bordered background - matches the rest of
+         the grid's hairlines even when the row isn't full. */
+      .atrium-filler {
+        border-right: 1px solid var(--atrium-border);
+        border-bottom: 1px solid var(--atrium-border);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="atrium-stickybar" id="stickyBar">
+      <div class="atrium-col stickybar-inner">
+        <span class="atrium-wordmark">Atrium</span>
+        <div class="atrium-filters" id="atriumFilters">
+          <button type="button" data-filter="all" class="is-active">All</button>
+          <button type="button" data-filter="book">Books</button>
+          <button type="button" data-filter="article">Articles</button>
+          <button type="button" data-filter="site">Sites</button>
+          <select class="atrium-tag-select" id="atriumTagSelect">
+            <option value="">All tags</option>
+            {allTags.map((t) => <option value={t}>{t}</option>)}
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="atrium-col">
+      <div class="atrium-header">
+        <a class="atrium-back" href="/apps/">← humrashid.com</a>
+        <span class="atrium-wordmark">Atrium</span>
+      </div>
+
+      <div class="atrium-hero" id="atriumHeroSentinel">
+        <p class="kicker">A reading list, in progress</p>
+        <h1>Books, articles, and sites worth your time.</h1>
+      </div>
+    </div>
+
+    <div class="atrium-grid" id="atriumGrid">
+      {
+        cards.map(({ entry, metaLine, facts, tag, coverStyle, aspect }) => (
+          <div class="atrium-card" data-reveal data-type={entry.data.type} data-tag={tag ?? ""}>
+            <a class="atrium-card-link" href={`/apps/atrium/${entry.id}/`}>
+              <div
+                class={`atrium-cover${entry.data.type !== "book" ? " is-wide" : ""}`}
+                style={{ background: coverStyle, aspectRatio: aspect }}
+              >
+                {!entry.data.coverImage && <span class="cover-title">{entry.data.title}</span>}
+              </div>
+              <p class="atrium-kicker">{metaLine}</p>
+              <p class="atrium-title">{entry.data.title}</p>
+              {tag && <span class="atrium-tag">{tag}</span>}
+              {entry.data.type !== "site" && (
+                <span class="atrium-stars" aria-hidden="true">
+                  {[1, 2, 3, 4, 5].map((n) => (
+                    <span class={n <= entry.data.rating ? "filled" : ""}>★</span>
+                  ))}
+                </span>
+              )}
+              <p class="atrium-blurb">{entry.data.blurb}</p>
+              {facts && <p class="atrium-facts">{facts}</p>}
+              {entry.data.type === "site" && <p class="atrium-url">{entry.data.siteUrl.replace(/^https?:\/\//, "")}</p>}
+            </a>
+
+            <a class="atrium-expand-btn" href={`/apps/atrium/${entry.id}/`} aria-label={`Open: ${entry.data.title}`}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+              </svg>
+            </a>
+          </div>
+        ))
+      }
+      {/* Up to 3 blank filler cells (the most ever needed, at 4 columns) to complete a short last row - shown/hidden at runtime based on the actual visible count and current column count. */}
+      {[0, 1, 2].map(() => (
+        <div class="atrium-card atrium-filler" data-filler hidden />
+      ))}
+    </div>
+    <div class="atrium-sentinel" id="atriumSentinel"></div>
+
+    <script>
+      // Cards beyond the first batch start hidden and fade in as the
+      // sentinel at the bottom of the grid scrolls into view - a
+      // client-side "infinite scroll" that works against a fully
+      // static, build-time list rather than a real paginated API.
+      const BATCH_SIZE = 12;
+      const cards = Array.from(document.querySelectorAll<HTMLElement>("[data-reveal]"));
+      const fillers = Array.from(document.querySelectorAll<HTMLElement>("[data-filler]"));
+      const grid = document.getElementById("atriumGrid") as HTMLElement;
+      let revealed = Math.min(BATCH_SIZE, cards.length);
+      let currentFilter = "all";
+      let currentTag = "";
+
+      // A short last row still gets ruled/bordered cells rather than
+      // bare background - figure out the live column count (it's
+      // responsive) and fill in exactly as many blanks as needed.
+      function updateFillers() {
+        const columnCount = getComputedStyle(grid).gridTemplateColumns.split(" ").length;
+        const visibleCount = cards.filter((c) => c.style.display !== "none").length;
+        const remainder = visibleCount % columnCount;
+        const neededFillers = remainder === 0 ? 0 : columnCount - remainder;
+        fillers.forEach((el, i) => (el.hidden = i >= neededFillers));
+      }
+
+      function applyVisibility() {
+        cards.forEach((card, i) => {
+          const matchesFilter = currentFilter === "all" || card.dataset.type === currentFilter;
+          const matchesTag = !currentTag || card.dataset.tag === currentTag;
+          // Batching only applies to the fully unfiltered view -
+          // picking a specific type or tag is a deliberate request to
+          // see all of them.
+          const withinBatch = currentFilter !== "all" || currentTag ? true : i < revealed;
+          card.style.display = matchesFilter && matchesTag && withinBatch ? "" : "none";
+        });
+        updateFillers();
+      }
+      applyVisibility();
+
+      let resizeTimer: ReturnType<typeof setTimeout>;
+      window.addEventListener("resize", () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(updateFillers, 150);
+      });
+
+      const sentinel = document.getElementById("atriumSentinel");
+      if (sentinel) {
+        const observer = new IntersectionObserver((entries) => {
+          if (!entries[0].isIntersecting || revealed >= cards.length) return;
+          revealed = Math.min(revealed + BATCH_SIZE, cards.length);
+          applyVisibility();
+          if (revealed >= cards.length) observer.disconnect();
+        });
+        observer.observe(sentinel);
+      }
+
+      // --- Type filters ---
+      const filterButtons = document.querySelectorAll<HTMLButtonElement>("#atriumFilters button");
+      filterButtons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          currentFilter = btn.dataset.filter ?? "all";
+          filterButtons.forEach((b) => b.classList.toggle("is-active", b === btn));
+          applyVisibility();
+        });
+      });
+
+      // --- Genre / category tag filter (dropdown) ---
+      const tagSelect = document.getElementById("atriumTagSelect") as HTMLSelectElement | null;
+      tagSelect?.addEventListener("change", () => {
+        currentTag = tagSelect.value;
+        applyVisibility();
+      });
+
+      // --- Sticky bar reveal ---
+      const stickyBar = document.getElementById("stickyBar");
+      const heroSentinel = document.getElementById("atriumHeroSentinel");
+      if (stickyBar && heroSentinel) {
+        const barObserver = new IntersectionObserver(
+          ([e]) => stickyBar.classList.toggle("is-visible", !e.isIntersecting),
+          { rootMargin: "-1px 0px 0px 0px" }
+        );
+        barObserver.observe(heroSentinel);
+      }
+    </script>
+  </body>
+</html>

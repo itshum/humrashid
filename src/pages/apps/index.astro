@@ -2,13 +2,6 @@
 import Topbar from "../../components/Topbar.astro";
 import Footer from "../../components/Footer.astro";
 
-const apps = [
-  {
-    slug: "rendr",
-    name: "rendr",
-    desc: "Polished backgrounds for any screenshot.",
-  },
-];
 ---
 
 <!doctype html>
@@ -165,25 +158,6 @@ const apps = [
         transform: translateY(-2px);
       }
 
-      /* Empty slot for a not-yet-built app - dashed, muted, and inert
-         (no hover lift, no link) rather than a second real card. */
-      .app-card-placeholder {
-        border-style: dashed;
-      }
-
-      .app-card-placeholder .app-preview {
-        background: none;
-      }
-
-      .app-card-placeholder .title,
-      .app-card-placeholder .desc {
-        color: var(--label);
-      }
-
-      .app-card-placeholder .title {
-        font-weight: 500;
-      }
-
       .app-card-body {
         padding: 1.1rem 1.25rem 1.3rem;
         background: var(--hover-bg);
@@ -305,6 +279,61 @@ const apps = [
         background: #e5e0d5;
         flex: none;
       }
+
+      /* Atrium's own sepia/serif identity (see src/pages/apps/atrium/)
+         - same exploded-sample idea as rendr's chips above, just in
+         its own palette: a tilted book cover, a star rating, and a
+         small-caps kicker label. */
+      .app-preview-atrium {
+        background: #f3ead9;
+      }
+
+      .app-preview-atrium .chip {
+        position: absolute;
+        box-shadow: 0 8px 20px rgba(43, 36, 32, 0.25);
+      }
+
+      .app-preview-atrium .chip-cover {
+        top: 16%;
+        left: 12%;
+        width: 30%;
+        aspect-ratio: 2 / 3;
+        border-radius: 2px;
+        background: #6b5a45;
+        transform: rotate(-8deg);
+        display: flex;
+        align-items: flex-end;
+        padding: 0.5rem;
+        font-family: Georgia, "Source Serif 4", serif;
+        font-weight: 600;
+        font-size: 0.7rem;
+        color: rgba(255, 255, 255, 0.92);
+      }
+
+      .app-preview-atrium .chip-kicker {
+        top: 26%;
+        left: 52%;
+        padding: 0.4rem 0.65rem;
+        border-radius: 8px;
+        background: #ece0c8;
+        font-size: 0.62rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #8a7a63;
+        transform: rotate(4deg);
+      }
+
+      .app-preview-atrium .chip-rating {
+        top: 62%;
+        left: 48%;
+        padding: 0.5rem 0.75rem;
+        border-radius: 8px;
+        background: #ece0c8;
+        font-size: 0.8rem;
+        letter-spacing: 0.12em;
+        color: #a9822f;
+        transform: rotate(-5deg);
+      }
     </style>
   </head>
   <body>
@@ -316,44 +345,46 @@ const apps = [
       </div>
 
       <div class="app-list">
-        {
-          apps.map((app) => (
-            <a class="app-card" href={`/apps/${app.slug}/`}>
-              <div class="app-preview">
-                <div class="chip chip-gradient" />
-                <div class="chip chip-scrub">
-                  <div class="fill" />
-                  <span>Radius</span>
-                  <span>16px</span>
-                </div>
-                <div class="chip chip-dropdown">
-                  <span>Instagram post</span>
-                  <span class="dims">1080×1080</span>
-                </div>
-                <div class="chip chip-hex">
-                  <span class="dot" />
-                  <span>#E5E0D5</span>
-                </div>
-              </div>
-              <div class="app-card-body">
-                <span class="title-row">
-                  <span class="title">{app.name}</span>
-                  <span class="icon" aria-hidden="true">→</span>
-                </span>
-                <span class="desc">{app.desc}</span>
-              </div>
-            </a>
-          ))
-        }
-        <div class="app-card app-card-placeholder">
-          <div class="app-preview" />
+        <a class="app-card" href="/apps/rendr/">
+          <div class="app-preview">
+            <div class="chip chip-gradient" />
+            <div class="chip chip-scrub">
+              <div class="fill" />
+              <span>Radius</span>
+              <span>16px</span>
+            </div>
+            <div class="chip chip-dropdown">
+              <span>Instagram post</span>
+              <span class="dims">1080×1080</span>
+            </div>
+            <div class="chip chip-hex">
+              <span class="dot" />
+              <span>#E5E0D5</span>
+            </div>
+          </div>
           <div class="app-card-body">
             <span class="title-row">
-              <span class="title">More soon</span>
+              <span class="title">rendr</span>
+              <span class="icon" aria-hidden="true">→</span>
             </span>
-            <span class="desc">Another tool, in progress.</span>
+            <span class="desc">Polished backgrounds for any screenshot.</span>
           </div>
-        </div>
+        </a>
+
+        <a class="app-card" href="/apps/atrium/">
+          <div class="app-preview app-preview-atrium">
+            <div class="chip chip-cover">Meditations</div>
+            <div class="chip chip-kicker">Book · Marcus Aurelius</div>
+            <div class="chip chip-rating">★★★★★</div>
+          </div>
+          <div class="app-card-body">
+            <span class="title-row">
+              <span class="title">Atrium</span>
+              <span class="icon" aria-hidden="true">→</span>
+            </span>
+            <span class="desc">A growing library of books, articles, and sites.</span>
+          </div>
+        </a>
       </div>
     </div>
 
