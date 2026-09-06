@@ -14,31 +14,275 @@ const cards = entries.map((entry) => {
   let metaLine = "";
   let facts = "";
   let tag: string | null = null;
-  let bgSize: "cover" | "contain" = "cover";
-  let aspect = "16 / 10";
 
   if (d.type === "book") {
     metaLine = `Book · ${d.author}`;
     facts = [d.pageCount ? `${d.pageCount} pages` : null, d.publishDate ? yearFormatter.format(d.publishDate) : null].filter(Boolean).join(" · ");
     tag = d.genre ?? null;
-    aspect = "2 / 3";
   } else if (d.type === "article") {
     metaLine = `Article · ${d.sourceName}`;
     facts = [d.articleAuthor, d.datePublished ? monthYearFormatter.format(d.datePublished) : null, d.readTime].filter(Boolean).join(" · ");
   } else {
     metaLine = `Site · ${d.siteName}`;
     tag = d.category;
-    bgSize = "contain";
   }
 
+  // Every cover fills its box (no letterboxing, no dead space) at a
+  // shared fixed height (see .atrium-cover) - books get a narrower
+  // box since they read best in portrait; articles/sites get a wide
+  // box since they're sourced from landscape web imagery. Same height
+  // either way, so the text below always starts on the same line.
   const coverStyle = d.coverImage
-    ? `${d.coverColor} url(${d.coverImage}) center/${bgSize} no-repeat`
+    ? `${d.coverColor} url(${d.coverImage}) center/cover no-repeat`
     : d.coverColor;
 
-  return { entry, metaLine, facts, tag, coverStyle, aspect };
+  return { entry, metaLine, facts, tag, coverStyle };
 });
 
 const allTags = [...new Set(cards.map((c) => c.tag).filter((t): t is string => Boolean(t)))].sort();
+
+// Footer architecture illustration - a whole library-compound
+// skyline, not one repeating motif: a Doric stoa wing on each end, a
+// domed rotunda, a grand Corinthian main library at the center, an
+// Ionic annex, a freestanding monument column, and a few cypresses
+// for rhythm between buildings. Built from small helper functions
+// (one per element type: fluted shafts, order-specific capitals and
+// bases, triglyph/metope and dentil entablatures, a coffered dome)
+// rather than hand-placed coordinates, so the composition stays
+// legible and each building type is reusable at higher fidelity.
+const ART_WIDTH = 1600;
+const ART_HEIGHT = 260;
+const BASE_Y = 230;
+
+function evenlySpaced(start: number, end: number, count: number): number[] {
+  const step = (end - start) / (count - 1);
+  return Array.from({ length: count }, (_, i) => start + i * step);
+}
+
+function fluteLines(cx: number, top: number, bottom: number, halfWidth: number, count: number): string {
+  return evenlySpaced(cx - halfWidth + 1.5, cx + halfWidth - 1.5, count)
+    .map((x) => `<line x1="${x}" y1="${top}" x2="${x}" y2="${bottom}" />`)
+    .join("");
+}
+
+// Doric: plain echinus + abacus capital, no base moulding, fluted shaft.
+function doricColumn(cx: number, baseY: number, capY: number): string {
+  const hw = 7;
+  const shaftTop = capY + 7;
+  const baseTop = baseY - 4;
+  return `
+    <line x1="${cx - hw - 4}" y1="${capY - 7}" x2="${cx + hw + 4}" y2="${capY - 7}" />
+    <line x1="${cx - hw - 4}" y1="${capY - 7}" x2="${cx - hw - 4}" y2="${capY - 3}" />
+    <line x1="${cx + hw + 4}" y1="${capY - 7}" x2="${cx + hw + 4}" y2="${capY - 3}" />
+    <line x1="${cx - hw - 4}" y1="${capY - 3}" x2="${cx + hw + 4}" y2="${capY - 3}" />
+    <path d="M ${cx - hw - 4} ${capY - 3} Q ${cx - hw - 1} ${capY + 2} ${cx - hw} ${shaftTop}" />
+    <path d="M ${cx + hw + 4} ${capY - 3} Q ${cx + hw + 1} ${capY + 2} ${cx + hw} ${shaftTop}" />
+    <line x1="${cx - hw}" y1="${shaftTop}" x2="${cx - hw}" y2="${baseTop}" />
+    <line x1="${cx + hw}" y1="${shaftTop}" x2="${cx + hw}" y2="${baseTop}" />
+    ${fluteLines(cx, shaftTop, baseTop, hw, 3)}
+    <line x1="${cx - hw - 2}" y1="${baseTop}" x2="${cx + hw + 2}" y2="${baseTop}" />
+    <line x1="${cx - hw - 3}" y1="${baseY}" x2="${cx + hw + 3}" y2="${baseY}" />
+    <line x1="${cx - hw - 3}" y1="${baseTop}" x2="${cx - hw - 3}" y2="${baseY}" />
+    <line x1="${cx + hw + 3}" y1="${baseTop}" x2="${cx + hw + 3}" y2="${baseY}" />
+  `;
+}
+
+// Ionic: scroll-volute capital (two spirals), Attic base with a
+// double torus, fluted shaft.
+function ionicColumn(cx: number, baseY: number, capY: number): string {
+  const hw = 6;
+  const shaftTop = capY + 6;
+  const baseTop = baseY - 5;
+  return `
+    <line x1="${cx - hw - 6}" y1="${capY - 4}" x2="${cx + hw + 6}" y2="${capY - 4}" />
+    <path d="M ${cx - hw - 6} ${capY - 4} Q ${cx - hw - 9} ${capY} ${cx - hw - 5} ${capY + 3} Q ${cx - hw - 2} ${capY + 5} ${cx - hw} ${capY + 2}" />
+    <circle cx="${cx - hw - 5}" cy="${capY + 1}" r="2.2" />
+    <path d="M ${cx + hw + 6} ${capY - 4} Q ${cx + hw + 9} ${capY} ${cx + hw + 5} ${capY + 3} Q ${cx + hw + 2} ${capY + 5} ${cx + hw} ${capY + 2}" />
+    <circle cx="${cx + hw + 5}" cy="${capY + 1}" r="2.2" />
+    <line x1="${cx - hw}" y1="${capY + 2}" x2="${cx - hw}" y2="${shaftTop}" />
+    <line x1="${cx + hw}" y1="${capY + 2}" x2="${cx + hw}" y2="${shaftTop}" />
+    ${fluteLines(cx, shaftTop, baseTop, hw, 3)}
+    <line x1="${cx - hw}" y1="${shaftTop}" x2="${cx - hw}" y2="${baseTop}" />
+    <line x1="${cx + hw}" y1="${shaftTop}" x2="${cx + hw}" y2="${baseTop}" />
+    <line x1="${cx - hw - 2}" y1="${baseTop}" x2="${cx + hw + 2}" y2="${baseTop}" />
+    <line x1="${cx - hw - 3}" y1="${baseTop + 3}" x2="${cx + hw + 3}" y2="${baseTop + 3}" />
+    <line x1="${cx - hw - 3}" y1="${baseY}" x2="${cx + hw + 3}" y2="${baseY}" />
+    <line x1="${cx - hw - 3}" y1="${baseTop + 3}" x2="${cx - hw - 3}" y2="${baseY}" />
+    <line x1="${cx + hw + 3}" y1="${baseTop + 3}" x2="${cx + hw + 3}" y2="${baseY}" />
+  `;
+}
+
+// Corinthian: flaring acanthus-leaf bell capital, Attic base, fluted shaft.
+function corinthianColumn(cx: number, baseY: number, capY: number): string {
+  const hw = 6;
+  const shaftTop = capY + 14;
+  const baseTop = baseY - 5;
+  return `
+    <line x1="${cx - hw - 7}" y1="${capY - 14}" x2="${cx + hw + 7}" y2="${capY - 14}" />
+    <path d="M ${cx - hw - 7} ${capY - 14} L ${cx - hw - 3} ${capY - 2} L ${cx - hw} ${shaftTop}" />
+    <path d="M ${cx + hw + 7} ${capY - 14} L ${cx + hw + 3} ${capY - 2} L ${cx + hw} ${shaftTop}" />
+    <path d="M ${cx - hw - 5} ${capY - 9} L ${cx - hw - 1} ${capY - 4}" />
+    <path d="M ${cx + hw + 5} ${capY - 9} L ${cx + hw + 1} ${capY - 4}" />
+    <path d="M ${cx - hw - 2} ${capY - 12} L ${cx - 2} ${capY - 3}" />
+    <path d="M ${cx + hw + 2} ${capY - 12} L ${cx + 2} ${capY - 3}" />
+    <line x1="${cx}" y1="${capY - 14}" x2="${cx}" y2="${capY - 16}" />
+    <line x1="${cx - hw}" y1="${shaftTop}" x2="${cx - hw}" y2="${baseTop}" />
+    <line x1="${cx + hw}" y1="${shaftTop}" x2="${cx + hw}" y2="${baseTop}" />
+    ${fluteLines(cx, shaftTop, baseTop, hw, 3)}
+    <line x1="${cx - hw - 2}" y1="${baseTop}" x2="${cx + hw + 2}" y2="${baseTop}" />
+    <line x1="${cx - hw - 3}" y1="${baseTop + 3}" x2="${cx + hw + 3}" y2="${baseTop + 3}" />
+    <line x1="${cx - hw - 3}" y1="${baseY}" x2="${cx + hw + 3}" y2="${baseY}" />
+    <line x1="${cx - hw - 3}" y1="${baseTop + 3}" x2="${cx - hw - 3}" y2="${baseY}" />
+    <line x1="${cx + hw + 3}" y1="${baseTop + 3}" x2="${cx + hw + 3}" y2="${baseY}" />
+  `;
+}
+
+// Doric entablature: plain architrave band + triglyph/metope frieze + cornice.
+function doricEntablature(xStart: number, xEnd: number, baseLineY: number): string {
+  const friezeBottom = baseLineY;
+  const friezeTop = baseLineY - 9;
+  const cornice = friezeTop - 4;
+  const count = Math.max(4, Math.round((xEnd - xStart) / 34));
+  const triglyphs = evenlySpaced(xStart + 10, xEnd - 10, count)
+    .map(
+      (x) => `
+      <line x1="${x - 2.5}" y1="${friezeTop}" x2="${x - 2.5}" y2="${friezeBottom}" />
+      <line x1="${x}" y1="${friezeTop}" x2="${x}" y2="${friezeBottom}" />
+      <line x1="${x + 2.5}" y1="${friezeTop}" x2="${x + 2.5}" y2="${friezeBottom}" />
+    `
+    )
+    .join("");
+  return `
+    <line x1="${xStart}" y1="${friezeBottom}" x2="${xEnd}" y2="${friezeBottom}" />
+    <line x1="${xStart}" y1="${friezeTop}" x2="${xEnd}" y2="${friezeTop}" />
+    <line x1="${xStart}" y1="${cornice}" x2="${xEnd}" y2="${cornice}" />
+    ${triglyphs}
+  `;
+}
+
+// Ionic/Corinthian entablature: plain architrave + dentillated cornice.
+function ionicEntablature(xStart: number, xEnd: number, baseLineY: number): string {
+  const archTop = baseLineY - 7;
+  const dentilTop = archTop - 5;
+  const cornice = dentilTop - 3;
+  const count = Math.max(8, Math.round((xEnd - xStart) / 9));
+  const dentils = evenlySpaced(xStart + 5, xEnd - 5, count)
+    .map((x) => `<line x1="${x}" y1="${archTop}" x2="${x}" y2="${dentilTop}" />`)
+    .join("");
+  return `
+    <line x1="${xStart}" y1="${baseLineY}" x2="${xEnd}" y2="${baseLineY}" />
+    <line x1="${xStart}" y1="${archTop}" x2="${xEnd}" y2="${archTop}" />
+    <line x1="${xStart}" y1="${dentilTop}" x2="${xEnd}" y2="${dentilTop}" />
+    <line x1="${xStart}" y1="${cornice}" x2="${xEnd}" y2="${cornice}" />
+    ${dentils}
+  `;
+}
+
+function cypress(cx: number, baseY: number, height: number): string {
+  const topY = baseY - height;
+  return `
+    <path d="M ${cx} ${topY} L ${cx - 5} ${baseY} L ${cx + 5} ${baseY} Z" />
+    <line x1="${cx - 2.5}" y1="${topY + height * 0.2}" x2="${cx + 2.5}" y2="${topY + height * 0.2}" />
+    <line x1="${cx - 3.2}" y1="${topY + height * 0.45}" x2="${cx + 3.2}" y2="${topY + height * 0.45}" />
+    <line x1="${cx - 4}" y1="${topY + height * 0.7}" x2="${cx + 4}" y2="${topY + height * 0.7}" />
+  `;
+}
+
+function stoaWing(xStart: number, xEnd: number, columnCount: number, order: "doric" | "ionic"): string {
+  const capY = 202;
+  const columnFn = order === "doric" ? doricColumn : ionicColumn;
+  const entablatureFn = order === "doric" ? doricEntablature : ionicEntablature;
+  const columns = evenlySpaced(xStart + 20, xEnd - 20, columnCount)
+    .map((cx) => columnFn(cx, BASE_Y, capY))
+    .join("");
+  return `
+    ${entablatureFn(xStart - 6, xEnd + 6, capY - 6)}
+    <line x1="${xStart - 10}" y1="${BASE_Y - 4}" x2="${xEnd + 10}" y2="${BASE_Y - 4}" />
+    ${columns}
+  `;
+}
+
+// A tholos: coffered dome with radial ribs, an oculus finial, and an
+// Ionic colonnade ringing the drum below it.
+function rotunda(cx: number, r: number): string {
+  const domeBaseY = 190;
+  const ry = r * 0.58;
+  const apexY = domeBaseY - ry;
+  const drumCapY = domeBaseY - 6;
+  const columns = evenlySpaced(cx - r + 14, cx + r - 14, 8)
+    .map((x) => ionicColumn(x, BASE_Y, drumCapY))
+    .join("");
+  const ribs = evenlySpaced(cx - r + 16, cx + r - 16, 7)
+    .map((x) => {
+      const t = (x - cx) / r;
+      const y = domeBaseY - Math.sqrt(Math.max(0, 1 - t * t)) * ry;
+      return `<line x1="${x}" y1="${domeBaseY}" x2="${x}" y2="${y.toFixed(1)}" />`;
+    })
+    .join("");
+  return `
+    <path d="M ${cx - r} ${domeBaseY} A ${r} ${ry} 0 0 1 ${cx + r} ${domeBaseY}" />
+    <path d="M ${cx - r + 8} ${domeBaseY} A ${r - 8} ${ry - 5} 0 0 1 ${cx + r - 8} ${domeBaseY}" />
+    ${ribs}
+    <line x1="${cx}" y1="${apexY}" x2="${cx}" y2="${apexY - 12}" />
+    <circle cx="${cx}" cy="${apexY - 15}" r="3" />
+    <line x1="${cx - r - 4}" y1="${domeBaseY + 3}" x2="${cx + r + 4}" y2="${domeBaseY + 3}" />
+    <line x1="${cx - r - 4}" y1="${domeBaseY + 7}" x2="${cx + r + 4}" y2="${domeBaseY + 7}" />
+    ${columns}
+  `;
+}
+
+// The grand Corinthian main library: dentillated entablature, a
+// pediment with raking cornices, a tympanum rosette, and akroteria
+// finials at the apex and both corners.
+function mainTemple(xStart: number, xEnd: number, columnCount: number): string {
+  const capY = 176;
+  const center = (xStart + xEnd) / 2;
+  const entablatureBase = capY - 16;
+  const pedimentBaseY = entablatureBase - 12;
+  const pedimentHalfWidth = (xEnd - xStart) / 2 - 10;
+  const apexY = pedimentBaseY - pedimentHalfWidth * 0.4;
+  const columns = evenlySpaced(xStart + 24, xEnd - 24, columnCount)
+    .map((cx) => corinthianColumn(cx, BASE_Y, capY))
+    .join("");
+  return `
+    ${ionicEntablature(xStart - 14, xEnd + 14, entablatureBase)}
+    <path d="M ${center - pedimentHalfWidth} ${pedimentBaseY} L ${center} ${apexY} L ${center + pedimentHalfWidth} ${pedimentBaseY}" />
+    <path d="M ${center - pedimentHalfWidth - 8} ${pedimentBaseY + 5} L ${center} ${apexY - 7} L ${center + pedimentHalfWidth + 8} ${pedimentBaseY + 5}" />
+    <circle cx="${center}" cy="${(pedimentBaseY + apexY) / 2 + 6}" r="8" />
+    <line x1="${center}" y1="${apexY - 7}" x2="${center}" y2="${apexY - 18}" />
+    <circle cx="${center}" cy="${apexY - 20}" r="2" />
+    <line x1="${center - pedimentHalfWidth - 8}" y1="${pedimentBaseY + 5}" x2="${center - pedimentHalfWidth - 8}" y2="${pedimentBaseY - 8}" />
+    <line x1="${center + pedimentHalfWidth + 8}" y1="${pedimentBaseY + 5}" x2="${center + pedimentHalfWidth + 8}" y2="${pedimentBaseY - 8}" />
+    <line x1="${xStart - 18}" y1="${BASE_Y - 4}" x2="${xEnd + 18}" y2="${BASE_Y - 4}" />
+    <line x1="${xStart - 24}" y1="${BASE_Y}" x2="${xEnd + 24}" y2="${BASE_Y}" />
+    ${columns}
+  `;
+}
+
+// Freestanding honorific column, capped with a simple draped statue.
+function monumentColumn(cx: number): string {
+  const capY = 132;
+  return `
+    ${doricColumn(cx, BASE_Y, capY)}
+    <path d="M ${cx - 5} ${capY - 10} L ${cx - 5} ${capY - 24} Q ${cx} ${capY - 32} ${cx + 5} ${capY - 24} L ${cx + 5} ${capY - 10}" />
+    <line x1="${cx}" y1="${capY - 32}" x2="${cx}" y2="${capY - 38}" />
+  `;
+}
+
+const footerArtInner = [
+  `<line x1="0" y1="${BASE_Y}" x2="${ART_WIDTH}" y2="${BASE_Y}" />`,
+  `<line x1="10" y1="${BASE_Y + 5}" x2="${ART_WIDTH - 10}" y2="${BASE_Y + 5}" />`,
+  `<line x1="25" y1="${BASE_Y + 10}" x2="${ART_WIDTH - 25}" y2="${BASE_Y + 10}" />`,
+  stoaWing(20, 260, 5, "doric"),
+  cypress(290, BASE_Y, 55),
+  rotunda(440, 100),
+  cypress(575, BASE_Y, 55),
+  mainTemple(610, 1050, 9),
+  cypress(1075, BASE_Y, 55),
+  stoaWing(1100, 1400, 6, "ionic"),
+  monumentColumn(1430),
+  stoaWing(1460, 1580, 3, "doric"),
+].join("\n");
 ---
 
 <!doctype html>
@@ -51,13 +295,13 @@ const allTags = [...new Set(cards.map((c) => c.tag).filter((t): t is string => B
     <title>Atrium · Humayun Rashid</title>
     <meta
       name="description"
-      content="A growing library of books, long-form articles, and sites worth your time."
+      content="A curated collection of books, long form articles, and sites worth your time."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Sorts+Mill+Goudy:ital@0;1&family=Inter:wght@400;500;600&display=swap"
     />
     <style is:global>
       /* Atrium's own fixed identity - a warm parchment reading room,
@@ -72,8 +316,10 @@ const allTags = [...new Set(cards.map((c) => c.tag).filter((t): t is string => B
         --atrium-border: #ddccac;
         --atrium-accent: #a6402d;
         --atrium-gold: #a9822f;
-        --atrium-font-display: "Playfair Display", Georgia, serif;
-        --atrium-font-body: "Source Serif 4", Georgia, serif;
+        --atrium-font-display: "Sorts Mill Goudy", Georgia, serif;
+        --atrium-font-body: "Inter", -apple-system, sans-serif;
+        --atrium-font-wordmark: "Cormorant Garamond", Georgia, serif;
+        --atrium-wordmark-color: #5c3a2e;
       }
 
       * {
@@ -106,29 +352,16 @@ const allTags = [...new Set(cards.map((c) => c.tag).filter((t): t is string => B
       .atrium-header {
         display: flex;
         align-items: center;
-        justify-content: space-between;
+        justify-content: flex-end;
         padding: 1.5rem 0;
       }
 
-      .atrium-back {
-        text-decoration: none;
-        font-size: 0.85rem;
-        color: var(--atrium-label);
-        display: flex;
-        align-items: center;
-        gap: 0.4rem;
-      }
-
-      .atrium-back:hover {
-        color: var(--atrium-ink);
-      }
-
       .atrium-wordmark {
-        font-family: var(--atrium-font-display);
+        font-family: var(--atrium-font-wordmark);
         font-weight: 700;
-        font-size: 1.3rem;
-        letter-spacing: 0.01em;
-        color: var(--atrium-accent);
+        font-size: 2rem;
+        letter-spacing: -0.01em;
+        color: var(--atrium-wordmark-color);
       }
 
       .atrium-hero {
@@ -145,15 +378,18 @@ const allTags = [...new Set(cards.map((c) => c.tag).filter((t): t is string => B
 
       .atrium-hero h1 {
         font-family: var(--atrium-font-display);
-        font-weight: 600;
+        font-weight: 500;
         font-size: 1.1rem;
         line-height: 1.4;
         margin: 0;
-        white-space: nowrap;
+        max-width: 32em;
       }
 
-      /* --- Sticky filter bar - hidden until the user scrolls past
-         the hero, then fixed to the top. --- */
+      /* --- Fixed filter bar - hidden until the user scrolls past the
+         header, which carries its own copy of the same dropdown. That
+         header is always reachable (just scroll to top), so a short
+         or filtered result set can never strand the user without a
+         way to change the filter back, even while this stays hidden. */
       .atrium-stickybar {
         position: fixed;
         top: 0;
@@ -170,19 +406,32 @@ const allTags = [...new Set(cards.map((c) => c.tag).filter((t): t is string => B
         transform: translateY(0);
       }
 
+      .atrium-hero-sentinel {
+        height: 1px;
+      }
+
       .stickybar-inner {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 0.85rem 0;
+        padding-top: 0.85rem;
+        padding-bottom: 0.85rem;
       }
 
-      .atrium-filters {
+      /* --- Combined filter dropdown ---
+         One custom control (not a native <select>, which can't be
+         styled once open) covering both dimensions - the four types
+         and every genre/category tag - rather than two separate
+         controls. Same trigger/menu/option structure as rendr's own
+         dropdown, restyled with Atrium's own tokens. */
+      .atrium-select {
+        position: relative;
+      }
+
+      .atrium-select-trigger {
         display: flex;
+        align-items: center;
         gap: 0.5rem;
-      }
-
-      .atrium-filters button {
         font-family: var(--atrium-font-body);
         font-size: 0.78rem;
         padding: 0.35rem 0.85rem;
@@ -191,40 +440,68 @@ const allTags = [...new Set(cards.map((c) => c.tag).filter((t): t is string => B
         background: none;
         color: var(--atrium-label);
         cursor: pointer;
-        transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+        transition: border-color 0.15s ease, color 0.15s ease;
       }
 
-      .atrium-filters button:hover {
+      .atrium-select-trigger:hover {
         border-color: var(--atrium-ink);
         color: var(--atrium-ink);
       }
 
-      .atrium-filters button.is-active {
-        background: var(--atrium-ink);
-        color: var(--atrium-bg);
+      .atrium-select.is-open .atrium-select-trigger {
         border-color: var(--atrium-ink);
+        color: var(--atrium-ink);
       }
 
-      /* A plain native select - simplest possible control for
-         narrowing by genre/category, rather than clicking pills
-         scattered across the grid. Scales fine once the tag list
-         itself gets long. */
-      .atrium-tag-select {
-        font-family: var(--atrium-font-body);
-        font-size: 0.78rem;
-        padding: 0.35rem 1.8rem 0.35rem 0.85rem;
+      .atrium-select-caret {
+        width: 8px;
+        height: 8px;
+        transition: transform 0.15s ease;
+      }
+
+      .atrium-select.is-open .atrium-select-caret {
+        transform: rotate(180deg);
+      }
+
+      .atrium-select-menu {
+        position: absolute;
+        top: calc(100% + 6px);
+        left: 0;
+        min-width: 180px;
+        max-height: 320px;
+        overflow-y: auto;
+        background: var(--atrium-bg);
         border: 1px solid var(--atrium-border);
-        border-radius: 999px;
-        background: var(--atrium-bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238a7a63' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
-          no-repeat right 0.75rem center;
-        color: var(--atrium-label);
-        cursor: pointer;
-        appearance: none;
+        border-radius: 8px;
+        box-shadow: 0 12px 28px rgba(43, 36, 32, 0.2);
+        padding: 0.4rem;
+        z-index: 20;
       }
 
-      .atrium-tag-select:hover {
-        border-color: var(--atrium-ink);
+      .atrium-select-option {
+        display: block;
+        font-family: var(--atrium-font-body);
+        font-size: 0.82rem;
+        padding: 0.45rem 0.6rem;
+        border-radius: 4px;
         color: var(--atrium-ink);
+        cursor: pointer;
+        white-space: nowrap;
+      }
+
+      .atrium-select-option:hover {
+        background: var(--atrium-surface);
+      }
+
+      .atrium-select-option.is-selected {
+        color: var(--atrium-accent);
+        font-weight: 600;
+      }
+
+      .atrium-select-divider {
+        height: 1px;
+        background: var(--atrium-border);
+        margin: 0.4rem 0.2rem;
       }
 
       /* --- Grid --- */
@@ -274,9 +551,14 @@ const allTags = [...new Set(cards.map((c) => c.tag).filter((t): t is string => B
 
       /* Flat 2D cover for every type - a real image when available,
          a subtle drop shadow for depth, and a hover lift + shadow
-         bump for a little vibrancy rather than a static rectangle. */
+         bump for a little vibrancy rather than a static rectangle. A
+         shared fixed height (width varies by type instead) keeps the
+         text below - kicker, title, tag, blurb - starting at the same
+         line across a row, whether the card next to it is a tall
+         portrait book or a short wide article/site image. */
       .atrium-cover {
-        width: 58%;
+        height: 210px;
+        width: 46%;
         border-radius: 2px;
         display: flex;
         align-items: flex-end;
@@ -293,6 +575,7 @@ const allTags = [...new Set(cards.map((c) => c.tag).filter((t): t is string => B
 
       .atrium-cover.is-wide {
         width: 100%;
+        padding: 1.25rem;
       }
 
       .atrium-cover .cover-title {
@@ -420,45 +703,93 @@ const allTags = [...new Set(cards.map((c) => c.tag).filter((t): t is string => B
         border-right: 1px solid var(--atrium-border);
         border-bottom: 1px solid var(--atrium-border);
       }
+
+      /* --- Footer architecture --- */
+      /* A schematic colonnade that draws itself in (stroke-dashoffset
+         animated via JS, since it needs each line/path's real length)
+         once the user actually scrolls this far - a small reward for
+         reaching the end, not just static decoration. */
+      .atrium-footer-art {
+        width: 100%;
+        height: 160px;
+        margin-top: -2rem;
+      }
+
+      .atrium-footer-art svg {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+
+      .atrium-footer-art svg line,
+      .atrium-footer-art svg path {
+        fill: none;
+        stroke: var(--atrium-ink);
+        stroke-width: 1;
+        opacity: 0.4;
+        vector-effect: non-scaling-stroke;
+      }
     </style>
   </head>
   <body>
-    <div class="atrium-stickybar" id="stickyBar">
-      <div class="atrium-col stickybar-inner">
+    <div class="atrium-col">
+      <div class="atrium-header">
         <span class="atrium-wordmark">Atrium</span>
-        <div class="atrium-filters" id="atriumFilters">
-          <button type="button" data-filter="all" class="is-active">All</button>
-          <button type="button" data-filter="book">Books</button>
-          <button type="button" data-filter="article">Articles</button>
-          <button type="button" data-filter="site">Sites</button>
-          <select class="atrium-tag-select" id="atriumTagSelect">
-            <option value="">All tags</option>
-            {allTags.map((t) => <option value={t}>{t}</option>)}
-          </select>
-        </div>
+      </div>
+
+      <div class="atrium-hero">
+        <p class="kicker">A reading list, in progress</p>
+        <h1>A curated collection of books, long form articles, and sites worth your time.</h1>
       </div>
     </div>
 
-    <div class="atrium-col">
-      <div class="atrium-header">
-        <a class="atrium-back" href="/apps/">← humrashid.com</a>
-        <span class="atrium-wordmark">Atrium</span>
-      </div>
+    <div class="atrium-hero-sentinel" id="atriumHeroSentinel"></div>
 
-      <div class="atrium-hero" id="atriumHeroSentinel">
-        <p class="kicker">A reading list, in progress</p>
-        <h1>Books, articles, and sites worth your time.</h1>
+    <!-- Fixed filter bar - hidden until the user scrolls past the
+         header above, so it never doubles up with it; a duplicate of
+         the same dropdown + wordmark, kept in sync with it. -->
+    <div class="atrium-stickybar" id="stickyBar">
+      <div class="atrium-col stickybar-inner">
+        <div class="atrium-select" id="atriumSelectFixed" data-select>
+          <button type="button" class="atrium-select-trigger" data-select-trigger aria-haspopup="listbox">
+            <span data-select-label>All</span>
+            <svg class="atrium-select-caret" viewBox="0 0 10 6" fill="none" aria-hidden="true">
+              <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </button>
+          <div class="atrium-select-menu" data-select-menu role="listbox" hidden>
+            <div class="atrium-select-option is-selected" role="option" data-kind="filter" data-value="all">
+              All
+            </div>
+            <div class="atrium-select-option" role="option" data-kind="filter" data-value="book">
+              Books
+            </div>
+            <div class="atrium-select-option" role="option" data-kind="filter" data-value="article">
+              Articles
+            </div>
+            <div class="atrium-select-option" role="option" data-kind="filter" data-value="site">
+              Sites
+            </div>
+            {allTags.length > 0 && <div class="atrium-select-divider" />}
+            {allTags.map((t) => (
+              <div class="atrium-select-option" role="option" data-kind="tag" data-value={t}>
+                {t}
+              </div>
+            ))}
+          </div>
+        </div>
+        <span class="atrium-wordmark">Atrium</span>
       </div>
     </div>
 
     <div class="atrium-grid" id="atriumGrid">
       {
-        cards.map(({ entry, metaLine, facts, tag, coverStyle, aspect }) => (
+        cards.map(({ entry, metaLine, facts, tag, coverStyle }) => (
           <div class="atrium-card" data-reveal data-type={entry.data.type} data-tag={tag ?? ""}>
             <a class="atrium-card-link" href={`/apps/atrium/${entry.id}/`}>
               <div
                 class={`atrium-cover${entry.data.type !== "book" ? " is-wide" : ""}`}
-                style={{ background: coverStyle, aspectRatio: aspect }}
+                style={{ background: coverStyle }}
               >
                 {!entry.data.coverImage && <span class="cover-title">{entry.data.title}</span>}
               </div>
@@ -491,6 +822,10 @@ const allTags = [...new Set(cards.map((c) => c.tag).filter((t): t is string => B
       ))}
     </div>
     <div class="atrium-sentinel" id="atriumSentinel"></div>
+
+    <div class="atrium-footer-art" id="atriumFooterArt">
+      <svg viewBox={`0 0 ${ART_WIDTH} ${ART_HEIGHT}`} preserveAspectRatio="none" aria-hidden="true" set:html={footerArtInner} />
+    </div>
 
     <script>
       // Cards beyond the first batch start hidden and fade in as the
@@ -547,31 +882,79 @@ const allTags = [...new Set(cards.map((c) => c.tag).filter((t): t is string => B
         observer.observe(sentinel);
       }
 
-      // --- Type filters ---
-      const filterButtons = document.querySelectorAll<HTMLButtonElement>("#atriumFilters button");
-      filterButtons.forEach((btn) => {
-        btn.addEventListener("click", () => {
-          currentFilter = btn.dataset.filter ?? "all";
-          filterButtons.forEach((b) => b.classList.toggle("is-active", b === btn));
-          applyVisibility();
+      // --- Combined filter dropdown (type + tag, one control) ---
+      // Two copies exist in the DOM (the always-visible header, and
+      // the fixed bar that appears once scrolled past it) so wire up
+      // every [data-select] instance the same way and keep their
+      // selected option + label in sync with each other.
+      const selectInstances = Array.from(document.querySelectorAll<HTMLElement>("[data-select]")).map((select) => ({
+        select,
+        trigger: select.querySelector<HTMLElement>("[data-select-trigger]")!,
+        menu: select.querySelector<HTMLElement>("[data-select-menu]")!,
+        label: select.querySelector<HTMLElement>("[data-select-label]")!,
+        options: Array.from(select.querySelectorAll<HTMLElement>(".atrium-select-option")),
+      }));
+
+      function closeSelect(instance: (typeof selectInstances)[number]) {
+        instance.menu.hidden = true;
+        instance.select.classList.remove("is-open");
+      }
+      function closeAllSelects() {
+        selectInstances.forEach(closeSelect);
+      }
+      function openSelect(instance: (typeof selectInstances)[number]) {
+        closeAllSelects();
+        instance.menu.hidden = false;
+        instance.select.classList.add("is-open");
+      }
+
+      document.addEventListener("click", (e) => {
+        selectInstances.forEach((instance) => {
+          if (!instance.menu.hidden && !instance.select.contains(e.target as Node)) closeSelect(instance);
+        });
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeAllSelects();
+      });
+
+      function selectValue(kind: string | undefined, value: string, label: string) {
+        if (kind === "tag") {
+          currentTag = value;
+          currentFilter = "all";
+        } else {
+          currentFilter = value;
+          currentTag = "";
+        }
+        selectInstances.forEach((instance) => {
+          instance.options.forEach((o) => o.classList.toggle("is-selected", o.dataset.kind === kind && (o.dataset.value ?? "all") === value));
+          instance.label.textContent = label;
+        });
+        closeAllSelects();
+        applyVisibility();
+      }
+
+      selectInstances.forEach((instance) => {
+        instance.trigger.addEventListener("click", (e) => {
+          e.stopPropagation();
+          if (instance.menu.hidden) openSelect(instance);
+          else closeSelect(instance);
+        });
+        instance.options.forEach((opt) => {
+          opt.addEventListener("click", () => {
+            selectValue(opt.dataset.kind, opt.dataset.value ?? "all", opt.textContent!.trim());
+          });
         });
       });
 
-      // --- Genre / category tag filter (dropdown) ---
-      const tagSelect = document.getElementById("atriumTagSelect") as HTMLSelectElement | null;
-      tagSelect?.addEventListener("change", () => {
-        currentTag = tagSelect.value;
-        applyVisibility();
-      });
-
-      // --- Sticky bar reveal ---
-      const stickyBar = document.getElementById("stickyBar");
+      // --- Fixed bar reveal ---
+      // Hidden until the always-visible header (tracked by this
+      // sentinel just below it) scrolls out of view.
       const heroSentinel = document.getElementById("atriumHeroSentinel");
-      if (stickyBar && heroSentinel) {
-        const barObserver = new IntersectionObserver(
-          ([e]) => stickyBar.classList.toggle("is-visible", !e.isIntersecting),
-          { rootMargin: "-1px 0px 0px 0px" }
-        );
+      const stickyBar = document.getElementById("stickyBar");
+      if (heroSentinel && stickyBar) {
+        const barObserver = new IntersectionObserver(([entry]) => {
+          stickyBar.classList.toggle("is-visible", !entry.isIntersecting);
+        });
         barObserver.observe(heroSentinel);
       }
     </script>
