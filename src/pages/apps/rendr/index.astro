@@ -234,6 +234,14 @@
         gap: 0.5rem;
       }
 
+      /* Gradient list specifically (not the texture grid) scrolls once
+         it grows past 3 rows (9 thumbnails) rather than pushing the
+         rest of the panel down indefinitely. */
+      #bgSwatches {
+        max-height: calc(56px * 3 + 0.5rem * 2);
+        overflow-y: auto;
+      }
+
       .swatch {
         width: 100%;
         height: 100%;
@@ -277,54 +285,127 @@
         margin-top: 0.75rem;
       }
 
-      .color-row {
+      .color-picker {
         display: flex;
-        gap: 0.5rem;
-        align-items: stretch;
+        flex-direction: column;
+        gap: 0.6rem;
       }
 
-      .swatch-color-input {
-        flex: 1;
-        min-width: 0;
-        height: 56px;
+      .color-sv {
+        position: relative;
+        width: 100%;
+        height: 130px;
         border-radius: 8px;
-        border: 1px solid var(--app-border);
-        cursor: pointer;
-        padding: 0;
-        background: none;
-        appearance: none;
         overflow: hidden;
+        border: 1px solid var(--app-border);
+        cursor: crosshair;
+        touch-action: none;
       }
 
-      .hex-input {
-        flex: none;
-        width: 6.4rem;
+      .color-sv canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+
+      .color-sv-thumb {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 13px;
+        height: 13px;
+        border-radius: 50%;
+        border: 2px solid #fff;
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.5);
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+      }
+
+      /* Rows below the SV square - a labeled card per control (Hue,
+         Opacity, Hex), matching the app's own .scrub card language
+         instead of DialKit's bare unlabeled sliders. */
+      .color-field {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
         background: var(--app-hover);
         border: 1px solid var(--app-border);
         border-radius: 8px;
-        padding: 0 0.6rem;
+        padding: 0.5rem 0.65rem;
+      }
+
+      .color-field-label {
+        flex: none;
+        width: 3.4rem;
+        font-size: 0.78rem;
+        color: var(--app-label);
+      }
+
+      .color-field:has(.hex-input:focus) {
+        border-color: var(--app-accent);
+      }
+
+      .color-track {
+        position: relative;
+        flex: 1;
+        height: 10px;
+        border-radius: 5px;
+        cursor: pointer;
+        touch-action: none;
+      }
+
+      /* A slim protruding "leveler" cap rather than a circular puck -
+         matches DialKit's fader-style thumb. */
+      .color-track-thumb {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        width: 6px;
+        height: 20px;
+        border-radius: 3px;
+        background: #fff;
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.5);
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+      }
+
+      .hue-track {
+        background: linear-gradient(
+          to right,
+          hsl(0, 100%, 50%),
+          hsl(60, 100%, 50%),
+          hsl(120, 100%, 50%),
+          hsl(180, 100%, 50%),
+          hsl(240, 100%, 50%),
+          hsl(300, 100%, 50%),
+          hsl(360, 100%, 50%)
+        );
+      }
+
+      .opacity-track {
+        --opacity-track-color: #fff;
+        background-image: linear-gradient(to right, transparent, var(--opacity-track-color)),
+          repeating-conic-gradient(#3a3a3c 0% 25%, #232325 0% 50%);
+        background-size:
+          100% 100%,
+          10px 10px;
+      }
+
+      .hex-input {
+        flex: 1;
+        min-width: 0;
+        background: none;
+        border: none;
+        padding: 0;
         font-family: ui-monospace, "SF Mono", Menlo, monospace;
         font-size: 0.85rem;
         color: var(--app-text);
         text-transform: uppercase;
         outline: none;
-        transition: border-color 0.15s ease;
       }
 
-      .hex-input:focus {
-        border-color: var(--app-accent);
-      }
-
-      .swatch-color-input::-webkit-color-swatch-wrapper {
-        padding: 0;
-      }
-
-      .swatch-color-input::-webkit-color-swatch {
-        border: none;
-        border-radius: 7px;
-      }
-
-      .upload-bg-btn {
+      .upload-bg-btn,
+      .remove-bg-btn {
         width: 100%;
         display: flex;
         align-items: center;
@@ -341,12 +422,27 @@
         transition: border-color 0.15s ease, color 0.15s ease;
       }
 
-      .upload-bg-btn:hover {
+      .remove-bg-btn {
+        margin-top: 0.6rem;
+      }
+
+      .remove-bg-btn[hidden] {
+        display: none;
+      }
+
+      .upload-bg-btn:hover,
+      .remove-bg-btn:hover:not(:disabled) {
         border-color: var(--app-label);
         color: var(--app-text);
       }
 
-      .upload-bg-btn svg {
+      .remove-bg-btn:disabled {
+        opacity: 0.55;
+        cursor: default;
+      }
+
+      .upload-bg-btn svg,
+      .remove-bg-btn svg {
         width: 14px;
         height: 14px;
         flex: none;
@@ -800,6 +896,13 @@
                 <p class="filename" id="filename" hidden></p>
               </div>
               <input type="file" id="fileInput" accept="image/*" hidden />
+              <button type="button" class="remove-bg-btn" id="removeBgBtn" hidden>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M9 3H5a2 2 0 0 0-2 2v4M15 3h4a2 2 0 0 1 2 2v4M9 21H5a2 2 0 0 1-2-2v-4M15 21h4a2 2 0 0 0 2-2v-4" />
+                  <circle cx="12" cy="12" r="3.5" />
+                </svg>
+                <span id="removeBgBtnLabel">Remove background</span>
+              </button>
             </div>
 
             <div class="panel-section">
@@ -816,9 +919,27 @@
               </div>
 
               <div class="bg-pane" id="bgPaneColor" hidden>
-                <div class="color-row">
-                  <input type="color" class="swatch-color-input" id="bgColorInput" value="#e5e0d5" />
-                  <input type="text" class="hex-input" id="bgHexInput" value="#E5E0D5" spellcheck="false" maxlength="7" />
+                <div class="color-picker">
+                  <div class="color-sv" id="colorSV">
+                    <canvas id="colorSVCanvas" width="480" height="260"></canvas>
+                    <div class="color-sv-thumb" id="colorSVThumb"></div>
+                  </div>
+                  <div class="color-field">
+                    <span class="color-field-label">Hue</span>
+                    <div class="color-track hue-track" id="hueTrack">
+                      <div class="color-track-thumb" id="hueThumb"></div>
+                    </div>
+                  </div>
+                  <div class="color-field">
+                    <span class="color-field-label">Opacity</span>
+                    <div class="color-track opacity-track" id="opacityTrack">
+                      <div class="color-track-thumb" id="opacityThumb"></div>
+                    </div>
+                  </div>
+                  <div class="color-field">
+                    <span class="color-field-label">Hex</span>
+                    <input type="text" class="hex-input" id="bgHexInput" value="#E5E0D5" spellcheck="false" maxlength="7" />
+                  </div>
                 </div>
               </div>
 
@@ -908,6 +1029,8 @@
     </div>
 
     <script>
+      import { removeBackground } from "@imgly/background-removal";
+
       // ---------- Presets ----------
       type GradientBlob = { x: number; y: number; r: number; color: string };
       type GradientPreset = { id: string; label: string; base: string; blobs: GradientBlob[] };
@@ -975,6 +1098,93 @@
           blobs: [
             { x: 0.2, y: 0.2, r: 0.75, color: "#2b2c30" },
             { x: 0.8, y: 0.8, r: 0.75, color: "#1c1e22" },
+          ],
+        },
+        // The following eight are each modeled on one specific gradient
+        // from a reference "Gradient Slide Deck Pack" the user shared
+        // (screenshots, in deck order 1-8) - approximated through this
+        // renderer's own blob+blur+grain engine rather than pixel-
+        // copied, since it can't reproduce a photographic image
+        // directly, but each is built to match its source's specific
+        // composition rather than merged with any other.
+        {
+          id: "nova",
+          label: "Nova",
+          base: "#050814",
+          blobs: [
+            { x: 0.12, y: 0.12, r: 0.7, color: "#e2445c" },
+            { x: 0.55, y: 0.42, r: 0.75, color: "#f2efe6" },
+            { x: 0.92, y: 0.35, r: 0.72, color: "#2f52d6" },
+          ],
+        },
+        {
+          id: "wave",
+          label: "Wave",
+          base: "#0a1330",
+          blobs: [
+            { x: 0.28, y: 0.42, r: 0.85, color: "#f5f2ea" },
+            { x: 0.72, y: 0.55, r: 0.68, color: "#e8735a" },
+            { x: 0.08, y: 0.85, r: 0.6, color: "#2f52d6" },
+          ],
+        },
+        {
+          id: "blaze",
+          label: "Blaze",
+          base: "#170406",
+          blobs: [
+            { x: 0.5, y: 0.5, r: 0.6, color: "#e8402f" },
+            { x: 0.15, y: 0.18, r: 0.7, color: "#e84fa0" },
+            { x: 0.9, y: 0.25, r: 0.55, color: "#f2846a" },
+          ],
+        },
+        {
+          id: "streak",
+          label: "Streak",
+          base: "#08090b",
+          blobs: [
+            { x: 0.85, y: 0.12, r: 0.7, color: "#f2c9c2" },
+            { x: 0.55, y: 0.42, r: 0.65, color: "#4a6fd8" },
+            { x: 0.25, y: 0.75, r: 0.55, color: "#8a9ac0" },
+          ],
+        },
+        {
+          id: "meadow",
+          label: "Meadow",
+          base: "#052e2a",
+          blobs: [
+            { x: 0.1, y: 0.85, r: 0.75, color: "#4fd8c4" },
+            { x: 0.5, y: 0.45, r: 0.7, color: "#a8e85a" },
+            { x: 0.9, y: 0.15, r: 0.75, color: "#f2a83a" },
+          ],
+        },
+        {
+          id: "nebula",
+          label: "Nebula",
+          base: "#0d0a20",
+          blobs: [
+            { x: 0.2, y: 0.25, r: 0.75, color: "#7a5fe0" },
+            { x: 0.62, y: 0.5, r: 0.5, color: "#3fd8d8" },
+            { x: 0.85, y: 0.85, r: 0.7, color: "#c0203a" },
+          ],
+        },
+        {
+          id: "aurora",
+          label: "Aurora",
+          base: "#0a0612",
+          blobs: [
+            { x: 0.1, y: 0.15, r: 0.7, color: "#c0203a" },
+            { x: 0.55, y: 0.45, r: 0.8, color: "#f2eee6" },
+            { x: 0.85, y: 0.7, r: 0.5, color: "#3fd8d8" },
+          ],
+        },
+        {
+          id: "ripple",
+          label: "Ripple",
+          base: "#0a0a0a",
+          blobs: [
+            { x: 0.5, y: 0.42, r: 0.9, color: "#e6e6e6" },
+            { x: 0.3, y: 0.78, r: 0.55, color: "#8a8a8a" },
+            { x: 0.78, y: 0.2, r: 0.5, color: "#3d3d3d" },
           ],
         },
       ];
@@ -1292,11 +1502,13 @@
       type BgState =
         | { type: "none" }
         | { type: "gradient"; preset: GradientPreset }
-        | { type: "color"; value: string }
+        | { type: "color"; value: string; alpha: number }
         | { type: "image"; img: HTMLImageElement };
 
       const state = {
         assetImg: null as HTMLImageElement | null,
+        assetImgOriginal: null as HTMLImageElement | null,
+        bgRemoved: false,
         background: { type: "gradient", preset: GRADIENT_PRESETS[0] } as BgState,
         container: "none" as "none" | "card" | "browser",
         size: SIZE_PRESETS[2],
@@ -1318,8 +1530,17 @@
       const fileInput = document.getElementById("fileInput") as HTMLInputElement;
       const filenameEl = document.getElementById("filename") as HTMLElement;
       const bgSwatchesEl = document.getElementById("bgSwatches") as HTMLElement;
-      const bgColorInput = document.getElementById("bgColorInput") as HTMLInputElement;
       const bgHexInput = document.getElementById("bgHexInput") as HTMLInputElement;
+      const colorSVEl = document.getElementById("colorSV") as HTMLElement;
+      const colorSVCanvas = document.getElementById("colorSVCanvas") as HTMLCanvasElement;
+      const colorSVCtx = colorSVCanvas.getContext("2d")!;
+      const colorSVThumb = document.getElementById("colorSVThumb") as HTMLElement;
+      const hueTrack = document.getElementById("hueTrack") as HTMLElement;
+      const hueThumb = document.getElementById("hueThumb") as HTMLElement;
+      const opacityTrack = document.getElementById("opacityTrack") as HTMLElement;
+      const opacityThumb = document.getElementById("opacityThumb") as HTMLElement;
+      const removeBgBtn = document.getElementById("removeBgBtn") as HTMLButtonElement;
+      const removeBgBtnLabel = document.getElementById("removeBgBtnLabel") as HTMLElement;
       const bgUploadBtn = document.getElementById("bgUploadBtn") as HTMLButtonElement;
       const bgFileInput = document.getElementById("bgFileInput") as HTMLInputElement;
       const textureSwatchesEl = document.getElementById("textureSwatches") as HTMLElement;
@@ -1416,7 +1637,7 @@
         if (state.background.type === "gradient") {
           drawGradientPreset(c, W, H, state.background.preset);
         } else if (state.background.type === "color") {
-          c.fillStyle = state.background.value;
+          c.fillStyle = hexToRgba(state.background.value, state.background.alpha);
           c.fillRect(0, 0, W, H);
         } else if (state.background.type === "image") {
           if (state.bgBlur > 0) {
@@ -1651,6 +1872,8 @@
         const img = new Image();
         img.onload = () => {
           state.assetImg = img;
+          state.assetImgOriginal = img;
+          state.bgRemoved = false;
           state.zoom = 1;
           state.offsetX = 0;
           state.offsetY = 0;
@@ -1661,6 +1884,9 @@
           exportBtn.disabled = false;
           exportCaretBtn.disabled = false;
           updateExportInfo();
+          removeBgBtn.hidden = false;
+          removeBgBtn.disabled = false;
+          removeBgBtnLabel.textContent = "Remove background";
 
           // The real default: a gradient generated from the image's
           // own colors, not a generic preset - applied automatically
@@ -1678,6 +1904,42 @@
         };
         img.src = url;
       }
+
+      // Runs a real segmentation model fully client-side (WASM/ONNX,
+      // fetched on first use) - no server involved, so this still
+      // works on a static site. Keeps the original asset around so
+      // the button doubles as an undo rather than a one-way edit.
+      removeBgBtn.addEventListener("click", async () => {
+        if (!state.assetImgOriginal) return;
+
+        if (state.bgRemoved) {
+          state.assetImg = state.assetImgOriginal;
+          state.bgRemoved = false;
+          removeBgBtnLabel.textContent = "Remove background";
+          renderPreview();
+          return;
+        }
+
+        removeBgBtn.disabled = true;
+        removeBgBtnLabel.textContent = "Removing background…";
+        try {
+          const resultBlob = await removeBackground(state.assetImgOriginal.src);
+          const resultUrl = URL.createObjectURL(resultBlob);
+          const resultImg = new Image();
+          resultImg.onload = () => {
+            state.assetImg = resultImg;
+            state.bgRemoved = true;
+            removeBgBtn.disabled = false;
+            removeBgBtnLabel.textContent = "Restore original";
+            renderPreview();
+          };
+          resultImg.src = resultUrl;
+        } catch (err) {
+          console.error("Background removal failed:", err);
+          removeBgBtn.disabled = false;
+          removeBgBtnLabel.textContent = "Remove background";
+        }
+      });
 
       dropzone.addEventListener("click", () => fileInput.click());
       fileInput.addEventListener("change", () => {
@@ -1852,12 +2114,157 @@
         bgSwatchesEl.appendChild(btn);
       });
 
-      bgColorInput.addEventListener("input", () => {
-        bgHexInput.value = bgColorInput.value.toUpperCase();
-        state.background = { type: "color", value: bgColorInput.value };
+      // ---------- Color picker (HSV square + hue/opacity tracks) ----------
+      // DialKit 2's picker: a 2D saturation/value square, a hue strip,
+      // and an opacity strip, all synced to a plain hex readout (no
+      // alpha suffix on the hex itself - opacity is tracked separately
+      // in state, same split DialKit's own field shows).
+      function hexToRgb(hex: string): { r: number; g: number; b: number } {
+        const h = hex.replace("#", "");
+        return { r: parseInt(h.slice(0, 2), 16), g: parseInt(h.slice(2, 4), 16), b: parseInt(h.slice(4, 6), 16) };
+      }
+
+      function rgbToHex(r: number, g: number, b: number): string {
+        return (
+          "#" +
+          [r, g, b]
+            .map((v) => Math.round(Math.min(255, Math.max(0, v))).toString(16).padStart(2, "0"))
+            .join("")
+            .toUpperCase()
+        );
+      }
+
+      function hexToRgba(hex: string, alpha: number): string {
+        const { r, g, b } = hexToRgb(hex);
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+      }
+
+      function rgbToHsv(r: number, g: number, b: number): { h: number; s: number; v: number } {
+        (r /= 255), (g /= 255), (b /= 255);
+        const max = Math.max(r, g, b),
+          min = Math.min(r, g, b),
+          d = max - min;
+        let h = 0;
+        if (d !== 0) {
+          if (max === r) h = ((g - b) / d) % 6;
+          else if (max === g) h = (b - r) / d + 2;
+          else h = (r - g) / d + 4;
+          h *= 60;
+          if (h < 0) h += 360;
+        }
+        return { h, s: max === 0 ? 0 : d / max, v: max };
+      }
+
+      function hsvToRgb(h: number, s: number, v: number): { r: number; g: number; b: number } {
+        const c = v * s;
+        const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+        const m = v - c;
+        let r = 0,
+          g = 0,
+          b = 0;
+        if (h < 60) [r, g, b] = [c, x, 0];
+        else if (h < 120) [r, g, b] = [x, c, 0];
+        else if (h < 180) [r, g, b] = [0, c, x];
+        else if (h < 240) [r, g, b] = [0, x, c];
+        else if (h < 300) [r, g, b] = [x, 0, c];
+        else [r, g, b] = [c, 0, x];
+        return { r: (r + m) * 255, g: (g + m) * 255, b: (b + m) * 255 };
+      }
+
+      const colorPickerState = { h: 0, s: 0, v: 0, a: 1 };
+
+      function drawSVCanvas() {
+        const w = colorSVCanvas.width,
+          h = colorSVCanvas.height;
+        const hueRgb = hsvToRgb(colorPickerState.h, 1, 1);
+        colorSVCtx.fillStyle = `rgb(${hueRgb.r}, ${hueRgb.g}, ${hueRgb.b})`;
+        colorSVCtx.fillRect(0, 0, w, h);
+        const whiteGrad = colorSVCtx.createLinearGradient(0, 0, w, 0);
+        whiteGrad.addColorStop(0, "rgba(255,255,255,1)");
+        whiteGrad.addColorStop(1, "rgba(255,255,255,0)");
+        colorSVCtx.fillStyle = whiteGrad;
+        colorSVCtx.fillRect(0, 0, w, h);
+        const blackGrad = colorSVCtx.createLinearGradient(0, 0, 0, h);
+        blackGrad.addColorStop(0, "rgba(0,0,0,0)");
+        blackGrad.addColorStop(1, "rgba(0,0,0,1)");
+        colorSVCtx.fillStyle = blackGrad;
+        colorSVCtx.fillRect(0, 0, w, h);
+      }
+
+      function updateColorThumbPositions() {
+        colorSVThumb.style.left = `${colorPickerState.s * 100}%`;
+        colorSVThumb.style.top = `${(1 - colorPickerState.v) * 100}%`;
+        hueThumb.style.left = `${(colorPickerState.h / 360) * 100}%`;
+        opacityThumb.style.left = `${colorPickerState.a * 100}%`;
+      }
+
+      function updateOpacityTrackColor() {
+        const rgb = hsvToRgb(colorPickerState.h, colorPickerState.s, colorPickerState.v);
+        opacityTrack.style.setProperty("--opacity-track-color", `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`);
+      }
+
+      function applyColorPickerState() {
+        const rgb = hsvToRgb(colorPickerState.h, colorPickerState.s, colorPickerState.v);
+        const hex = rgbToHex(rgb.r, rgb.g, rgb.b);
+        bgHexInput.value = hex;
+        updateOpacityTrackColor();
+        updateColorThumbPositions();
+        state.background = { type: "color", value: hex, alpha: colorPickerState.a };
         bgSwatchesEl.querySelectorAll(".swatch").forEach((el) => el.classList.remove("is-active"));
         renderPreview();
+      }
+
+      function setColorPickerFromHex(hex: string, alpha: number) {
+        const rgb = hexToRgb(hex);
+        const hsv = rgbToHsv(rgb.r, rgb.g, rgb.b);
+        colorPickerState.h = hsv.h;
+        colorPickerState.s = hsv.s;
+        colorPickerState.v = hsv.v;
+        colorPickerState.a = alpha;
+        drawSVCanvas();
+        updateOpacityTrackColor();
+        updateColorThumbPositions();
+      }
+
+      function attachPointerTrack(el: HTMLElement, onMove: (px: number, py: number) => void) {
+        function handle(e: PointerEvent) {
+          const rect = el.getBoundingClientRect();
+          const px = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
+          const py = Math.min(1, Math.max(0, (e.clientY - rect.top) / rect.height));
+          onMove(px, py);
+        }
+        el.addEventListener("pointerdown", (e) => {
+          e.preventDefault();
+          el.setPointerCapture(e.pointerId);
+          handle(e);
+          const onPointerMove = (ev: PointerEvent) => handle(ev);
+          const onPointerUp = () => {
+            window.removeEventListener("pointermove", onPointerMove);
+            window.removeEventListener("pointerup", onPointerUp);
+          };
+          window.addEventListener("pointermove", onPointerMove);
+          window.addEventListener("pointerup", onPointerUp);
+        });
+      }
+
+      attachPointerTrack(colorSVEl, (px, py) => {
+        colorPickerState.s = px;
+        colorPickerState.v = 1 - py;
+        applyColorPickerState();
       });
+
+      attachPointerTrack(hueTrack, (px) => {
+        colorPickerState.h = px * 360;
+        drawSVCanvas();
+        applyColorPickerState();
+      });
+
+      attachPointerTrack(opacityTrack, (px) => {
+        colorPickerState.a = px;
+        applyColorPickerState();
+      });
+
+      setColorPickerFromHex(bgHexInput.value, 1);
 
       const HEX_RE = /^#([0-9a-f]{6})$/i;
 
@@ -1865,12 +2272,13 @@
         let value = bgHexInput.value.trim();
         if (value && !value.startsWith("#")) value = `#${value}`;
         if (!HEX_RE.test(value)) {
-          bgHexInput.value = bgColorInput.value.toUpperCase();
+          const current = hsvToRgb(colorPickerState.h, colorPickerState.s, colorPickerState.v);
+          bgHexInput.value = rgbToHex(current.r, current.g, current.b);
           return;
         }
-        bgColorInput.value = value;
         bgHexInput.value = value.toUpperCase();
-        state.background = { type: "color", value };
+        setColorPickerFromHex(value, colorPickerState.a);
+        state.background = { type: "color", value: value.toUpperCase(), alpha: colorPickerState.a };
         bgSwatchesEl.querySelectorAll(".swatch").forEach((el) => el.classList.remove("is-active"));
         renderPreview();
       }
@@ -1923,7 +2331,7 @@
           }
           renderPreview();
         } else if (mode === "color") {
-          state.background = { type: "color", value: bgColorInput.value };
+          state.background = { type: "color", value: bgHexInput.value, alpha: colorPickerState.a };
           renderPreview();
         } else if (mode === "image" && uploadedBgImage) {
           state.background = { type: "image", img: uploadedBgImage };
@@ -1940,6 +2348,16 @@
       // canvas run through the same draw function) rather than a
       // static icon, so what you pick is exactly what you get.
       const TEXTURE_SWATCH_SIZE = 56;
+      // Rendered at 2x beyond the display's own devicePixelRatio, then
+      // scaled back down via CSS - the browser's downsample acts as a
+      // free anti-alias pass, so fine pattern linework (topo, rings,
+      // hexgrid) reads as crisp rather than jagged at this small size.
+      const TEXTURE_SWATCH_SUPERSAMPLE = 2;
+      // A smaller tile size than the real default (16) so each swatch
+      // shows several repeats of the pattern zoomed out, rather than
+      // one or two tiles blown up - reads as the actual texture rather
+      // than an abstract close-up crop of it.
+      const TEXTURE_SWATCH_TILE_SIZE = 10;
       TEXTURE_PRESETS.forEach((preset, i) => {
         const btn = document.createElement("button");
         btn.type = "button";
@@ -1947,10 +2365,7 @@
         btn.title = preset.label;
         btn.style.background = "#1c1c1e";
         if (preset.id !== "none") {
-          // Same devicePixelRatio fix as the main preview canvas -
-          // without it these tiny swatches look soft/blurry on any
-          // Retina-class display.
-          const dpr = window.devicePixelRatio || 1;
+          const dpr = (window.devicePixelRatio || 1) * TEXTURE_SWATCH_SUPERSAMPLE;
           const mini = document.createElement("canvas");
           mini.width = TEXTURE_SWATCH_SIZE * dpr;
           mini.height = TEXTURE_SWATCH_SIZE * dpr;
@@ -1958,7 +2373,7 @@
           mini.style.height = "100%";
           mini.style.display = "block";
           const mctx = mini.getContext("2d")!;
-          drawTexture(mctx, TEXTURE_SWATCH_SIZE * dpr, TEXTURE_SWATCH_SIZE * dpr, preset.id, 16 * dpr);
+          drawTexture(mctx, TEXTURE_SWATCH_SIZE * dpr, TEXTURE_SWATCH_SIZE * dpr, preset.id, TEXTURE_SWATCH_TILE_SIZE * dpr);
           btn.appendChild(mini);
         }
         btn.addEventListener("click", () => {
@@ -2246,6 +2661,20 @@
       const FORMAT_EXT: Record<string, string> = { png: "png", jpeg: "jpg", webp: "webp" };
       const EXPORT_QUALITY = 0.92;
 
+      // Most platforms (X, LinkedIn, Instagram) cap uploads somewhere
+      // around 5-8MB - stay comfortably under the tightest of those.
+      // Compression only ever kicks in if an export would exceed this;
+      // anything already under it ships at exactly the quality/scale
+      // you picked, untouched.
+      const MAX_EXPORT_BYTES = 5 * 1024 * 1024;
+      // Only applies to jpeg/webp, which support a quality dial - png
+      // is lossless, so its only lever is export scale (below).
+      const QUALITY_FALLBACK_STEPS = [0.92, 0.82, 0.7, 0.58, 0.45];
+
+      function canvasToBlob(canvas: HTMLCanvasElement, mime: string, quality?: number): Promise<Blob | null> {
+        return new Promise((resolve) => canvas.toBlob(resolve, mime, quality));
+      }
+
       function updateExportInfo() {
         const formatLabel = FORMAT_LABELS[state.exportFormat];
         exportBtn.textContent = `Download ${formatLabel}`;
@@ -2305,30 +2734,66 @@
         });
       });
 
-      exportBtn.addEventListener("click", () => {
+      exportBtn.addEventListener("click", async () => {
         if (!state.assetImg) return;
-        const out = document.createElement("canvas");
-        out.width = state.size.w * state.exportScale;
-        out.height = state.size.h * state.exportScale;
-        const outCtx = out.getContext("2d")!;
-        render(outCtx, out.width, out.height);
+        const originalLabel = exportBtn.textContent;
+        exportBtn.disabled = true;
+
         const mime = FORMAT_MIME[state.exportFormat];
-        const quality = state.exportFormat === "png" ? undefined : EXPORT_QUALITY;
-        out.toBlob(
-          (blob) => {
-            if (!blob) return;
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = `rendr-${state.size.id}.${FORMAT_EXT[state.exportFormat]}`;
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            URL.revokeObjectURL(url);
-          },
-          mime,
-          quality
-        );
+        let scale = state.exportScale;
+        let blob: Blob | null = null;
+        let compressed = false;
+
+        while (scale >= 1) {
+          const out = document.createElement("canvas");
+          out.width = state.size.w * scale;
+          out.height = state.size.h * scale;
+          const outCtx = out.getContext("2d")!;
+          render(outCtx, out.width, out.height);
+
+          if (state.exportFormat === "png") {
+            // Lossless - the only lever is a smaller render.
+            blob = await canvasToBlob(out, mime, undefined);
+            if (!blob || blob.size <= MAX_EXPORT_BYTES || scale === 1) break;
+            compressed = true;
+            scale -= 1;
+            continue;
+          }
+
+          let fitAtThisScale = false;
+          for (const q of QUALITY_FALLBACK_STEPS) {
+            exportBtn.textContent = q === QUALITY_FALLBACK_STEPS[0] ? "Preparing…" : "Compressing…";
+            blob = await canvasToBlob(out, mime, q);
+            if (!blob) continue;
+            if (blob.size <= MAX_EXPORT_BYTES) {
+              if (q !== QUALITY_FALLBACK_STEPS[0]) compressed = true;
+              fitAtThisScale = true;
+              break;
+            }
+          }
+          if (fitAtThisScale || scale === 1) break;
+          compressed = true;
+          scale -= 1;
+        }
+
+        if (blob) {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `rendr-${state.size.id}.${FORMAT_EXT[state.exportFormat]}`;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          URL.revokeObjectURL(url);
+        }
+
+        exportBtn.disabled = false;
+        exportBtn.textContent = originalLabel;
+        if (compressed) {
+          const sizeLabel = blob ? `${(blob.size / (1024 * 1024)).toFixed(1)}MB` : "";
+          exportHint.textContent = `Compressed to fit under 5MB${sizeLabel ? ` · ${sizeLabel}` : ""}`;
+          setTimeout(updateExportInfo, 2500);
+        }
       });
 
       // ---------- Init ----------
