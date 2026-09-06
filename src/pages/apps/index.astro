@@ -83,6 +83,23 @@ import Footer from "../../components/Footer.astro";
         transition: background 0.3s ease, color 0.3s ease;
       }
 
+      /* Sticky footer: with only two cards, content is shorter than
+         the viewport, so without this the footer sits mid-page with a
+         dead gap of background beneath it instead of anchoring to the
+         bottom edge. .col (the main content) takes the flexible share
+         of a full-height column; the footer keeps its natural height
+         and lands at the bottom whenever content is short, while
+         still flowing after longer content normally. */
+      body {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      body > .col {
+        flex: 1;
+      }
+
       a {
         color: inherit;
       }
@@ -219,9 +236,8 @@ import Footer from "../../components/Footer.astro";
         width: 36%;
         display: flex;
         flex-direction: column;
-        justify-content: center;
         gap: 0.5rem;
-        padding: 0 0.7rem;
+        padding: 0.6rem 0.7rem;
         background: rgba(255, 255, 255, 0.04);
         border-right: 1px solid rgba(255, 255, 255, 0.1);
       }
@@ -258,6 +274,38 @@ import Footer from "../../components/Footer.astro";
         height: 11px;
         border-radius: 50%;
         border: 1px solid rgba(255, 255, 255, 0.18);
+      }
+
+      /* Mirrors the real panel's dashed upload dropzone, shrunk down -
+         same shape/border treatment, just an icon instead of copy. */
+      .rendr-mock-dropzone {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 26px;
+        border: 1px dashed rgba(255, 255, 255, 0.22);
+        border-radius: 6px;
+        margin-bottom: 0.15rem;
+      }
+
+      .rendr-mock-dropzone svg {
+        width: 11px;
+        height: 11px;
+        color: rgba(247, 248, 248, 0.4);
+      }
+
+      .rendr-mock-export {
+        margin-top: auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 20px;
+        border-radius: 5px;
+        background: #ff5a1f;
+        font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+        font-size: 0.55rem;
+        font-weight: 600;
+        color: #1a0d05;
       }
 
       .rendr-mock-canvas {
@@ -431,6 +479,13 @@ import Footer from "../../components/Footer.astro";
           <div class="app-preview">
             <div class="rendr-mock">
               <div class="rendr-mock-panel">
+                <div class="rendr-mock-dropzone">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M12 15V4" />
+                    <path d="M7.5 8.5 12 4l4.5 4.5" />
+                    <path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" />
+                  </svg>
+                </div>
                 <div class="rendr-mock-label">Radius</div>
                 <div class="rendr-mock-track"><div class="rendr-mock-fill" /></div>
                 <div class="rendr-mock-label">Background</div>
@@ -439,6 +494,7 @@ import Footer from "../../components/Footer.astro";
                   <span style="background: #8c6fd6;" />
                   <span style="background: #2f8f6e;" />
                 </div>
+                <div class="rendr-mock-export">Export</div>
               </div>
               <div class="rendr-mock-canvas">
                 <div class="rendr-mock-image">
