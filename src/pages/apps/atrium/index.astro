@@ -1183,6 +1183,14 @@ const footerArtInner = [
         text-align: left;
       }
 
+      /* Non-book covers (articles, sites) use the full-width .is-wide
+         cover above - the credit line needs to match that width too,
+         or it sits narrower and centered, reading as misaligned
+         against the image's own left edge. */
+      .atrium-cover.is-wide + .atrium-art-credit {
+        width: 100%;
+      }
+
       .atrium-art-credit .art-credit-line {
         display: block;
         font-weight: 500;
