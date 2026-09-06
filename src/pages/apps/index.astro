@@ -100,6 +100,15 @@ import Footer from "../../components/Footer.astro";
         flex: 1;
       }
 
+      /* As a direct flex child of body, the footer's own centering
+         (max-width + margin: 0 auto) shrinks to fit its content
+         instead of filling out to that max-width - a flexbox quirk
+         with auto margins on a stretched item. width: 100% forces it
+         back to the same 718px column every other page uses. */
+      body > .site-footer {
+        width: 100%;
+      }
+
       a {
         color: inherit;
       }
