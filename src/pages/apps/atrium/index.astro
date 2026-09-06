@@ -1026,6 +1026,30 @@ const footerArtInner = [
         }
       }
 
+      /* --- Initial-load loader --- */
+      /* Same ring as the scroll loader above, just centered in a much
+         taller space so it reads as the page's first-visit loading
+         moment rather than a small inline aside. Visible by default
+         (no JS needed to show it); JS collapses it away - same
+         height/opacity transition as the scroll loader - once the
+         grid is ready to reveal. */
+      .atrium-initial-loader {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 46vh;
+        min-height: 320px;
+        overflow: hidden;
+        opacity: 1;
+        transition: opacity 0.25s ease, height 0.35s ease;
+      }
+
+      .atrium-initial-loader.is-hidden {
+        height: 0;
+        min-height: 0;
+        opacity: 0;
+      }
+
       /* --- Card entrance --- */
       /* Cards fade/slide in left-to-right across a row (staggered via
          transition-delay set in JS, per the row's live column count),
@@ -1410,6 +1434,15 @@ const footerArtInner = [
       <p>We can't find what you're looking for. Try another search.</p>
     </div>
 
+    {/* Visible from first paint (no JS needed to show it) - the header
+        and hero copy above render immediately, but the grid itself
+        stays behind this until JS deliberately reveals it a beat
+        later, so the very first visit gets the same loading moment as
+        a scroll-triggered batch, just centered and taller. */}
+    <div class="atrium-initial-loader" id="atriumInitialLoader" aria-hidden="true">
+      <span class="atrium-loader-ring"></span>
+    </div>
+
     <div class="atrium-grid" id="atriumGrid">
       {
         cards.map(({ entry, metaLine, facts, tag, coverStyle, externalUrl }) => (
@@ -1684,7 +1717,15 @@ const footerArtInner = [
       }
 
       applyVisibility();
-      revealCardsWithStagger(cards.filter((c) => c.style.display !== "none"));
+
+      // First-visit loading moment: hold the grid behind the centered
+      // loader briefly, then collapse it away and reveal the initial
+      // batch with the same stagger every later batch gets.
+      const initialLoader = document.getElementById("atriumInitialLoader");
+      window.setTimeout(() => {
+        initialLoader?.classList.add("is-hidden");
+        revealCardsWithStagger(cards.filter((c) => c.style.display !== "none"));
+      }, 500);
 
       let resizeTimer: ReturnType<typeof setTimeout>;
       window.addEventListener("resize", () => {
