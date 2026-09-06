@@ -91,6 +91,9 @@ import Footer from "../components/Footer.astro";
         --selection-bg: #1f3d2e;
         --selection-text: #f8f8f6;
         --photo-shadow: 0 16px 40px rgba(0, 0, 0, 0.16), 0 2px 8px rgba(0, 0, 0, 0.08);
+        /* Drives the footer's sun/moon icon crossfade (see
+           Footer.astro) - 1 in light mode, 0 in dark. */
+        --theme-progress: 1;
       }
 
       :root[data-theme="dark"] {
@@ -112,6 +115,7 @@ import Footer from "../components/Footer.astro";
            instead of a darker shadow to give the card the same sense
            of lift. */
         --photo-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.06);
+        --theme-progress: 0;
       }
 
       * {

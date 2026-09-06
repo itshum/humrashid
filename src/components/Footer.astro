@@ -7,6 +7,15 @@
     <span class="copyright">© 2026</span>
   </span>
   <span class="tz">
+    <span class="sun-moon" aria-hidden="true">
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="4" />
+        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+      </svg>
+    </span>
     <span>NYC</span>
     <span id="nyc-time">—:— —</span>
   </span>
@@ -122,6 +131,36 @@
     display: flex;
     align-items: baseline;
     gap: 0.4rem;
+  }
+
+  /* Crossfades with the same --theme-progress the page background's
+     dawn/dusk sweep uses (see Topbar.astro), so the footer carries a
+     small, always-visible readout of the same transition rather than
+     just the clock ticking underneath it. Falls back to a static
+     light/dark swap (via :root[data-theme]) before that script runs,
+     or permanently under prefers-reduced-motion. */
+  .site-footer .sun-moon {
+    position: relative;
+    align-self: center;
+    width: 13px;
+    height: 13px;
+  }
+
+  .site-footer .sun-moon svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    color: var(--label, #8a8a8a);
+    transition: opacity 0.3s ease;
+  }
+
+  .site-footer .sun-moon .icon-sun {
+    opacity: var(--theme-progress, 1);
+  }
+
+  .site-footer .sun-moon .icon-moon {
+    opacity: calc(1 - var(--theme-progress, 1));
   }
 
   .site-footer .blink {
