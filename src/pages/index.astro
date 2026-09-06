@@ -92,6 +92,10 @@ import Footer from "../components/Footer.astro";
         --selection-text: #f8f8f6;
         --photo-shadow: 0 16px 40px rgba(0, 0, 0, 0.16), 0 2px 8px rgba(0, 0, 0, 0.08);
         --danger: #b3261e;
+        /* Static fallback for the footer's sun/moon crossfade, before
+           Topbar's gradual-transition script overrides it inline (or
+           permanently, under prefers-reduced-motion). */
+        --theme-progress: 1;
       }
 
       :root[data-theme="dark"] {
@@ -114,6 +118,7 @@ import Footer from "../components/Footer.astro";
            of lift. */
         --photo-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.06);
         --danger: #e2867a;
+        --theme-progress: 0;
       }
 
       * {
