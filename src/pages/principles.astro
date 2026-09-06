@@ -4,27 +4,27 @@ import Footer from "../components/Footer.astro";
 
 const principles = [
   {
-    num: "1",
+    num: "I.",
     title: "Show, don't tell.",
     body: "Ten years of shipping taught me decks convince nobody. A working prototype argues my case better than I ever could, so I build the real thing first and explain it second.",
   },
   {
-    num: "2",
+    num: "II.",
     title: "Simple is hard.",
-    body: "Cutting a feature takes more conviction than adding one. I've run this discipline on every product I've shipped, and the pattern always holds: what survives the cut is what mattered.",
+    body: "Cutting a feature takes more conviction than adding one, and the constraints behind it, time, headcount, scope, never hold still for long. What survives isn't just what mattered on day one, it's what still holds up.",
   },
   {
-    num: "3",
+    num: "III.",
     title: "Prototype from day one.",
     body: "Specs go stale the moment they're written. I've built this way for a decade: a rough, clickable version in week one beats a polished document in month three, every time.",
   },
   {
-    num: "4",
+    num: "IV.",
     title: "Bring every stakeholder along.",
     body: "Every product I've shipped had a narrative, and every person touching it needed to hear the same one. I retell it until engineering, sales, and leadership are solving the same problem.",
   },
   {
-    num: "5",
+    num: "V.",
     title: "Talk to users as early and as often as possible.",
     body: "I've never regretted a user conversation. I've regretted plenty of assumptions. This is the one step I don't skip, no matter how confident the room feels.",
   },
@@ -146,18 +146,31 @@ const principles = [
         padding: 4.2rem 0 3.5rem;
       }
 
+      /* var(--label) reads at 3.97:1 against the light-mode --bg here,
+         under the 4.5:1 minimum for normal-size text (dark mode is
+         fine at 6.2:1) - #6b6b6b (already in the palette as
+         --icon-hover) clears 4.5:1 in light mode, so this uses it
+         directly and only falls back to --label once dark mode's own
+         value is already safe. */
       .hero .eyebrow {
-        font-size: 0.8rem;
-        color: var(--label);
+        font-size: 0.75rem;
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #6b6b6b;
         margin: 0 0 1.25rem;
       }
 
+      :root[data-theme="dark"] .hero .eyebrow {
+        color: var(--label);
+      }
+
       .hero h1 {
-        font-size: 1.15rem;
+        font-size: 1rem;
         font-weight: 400;
         color: var(--text-secondary);
         letter-spacing: normal;
-        line-height: 1.6;
+        line-height: 1.5;
         max-width: 46ch;
         margin: 0 auto;
         text-wrap: balance;
@@ -184,7 +197,7 @@ const principles = [
         width: 1.85rem;
         font-family: "Instrument Serif", Georgia, serif;
         font-style: italic;
-        font-size: 2rem;
+        font-size: 1.6rem;
         line-height: 1;
         color: var(--year);
       }
@@ -204,7 +217,7 @@ const principles = [
 
       .principle p {
         font-size: 1.05rem;
-        line-height: 1.65;
+        line-height: 1.5;
         color: var(--text-secondary);
         margin: 0;
       }
@@ -216,7 +229,7 @@ const principles = [
 
         .principle-num {
           width: 1.5rem;
-          font-size: 1.6rem;
+          font-size: 1.3rem;
         }
 
         .principle h2 {
