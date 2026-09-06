@@ -249,6 +249,160 @@ const { showBack = false, showNav = false } = Astro.props;
   applyTheme();
   setInterval(applyTheme, 60000);
 
+  // --- Gradual dawn/dusk transition ---
+  // Layered on top of the discrete flip above (which still drives
+  // data-theme/themechange for the logo mark, etc.) - this instead
+  // continuously interpolates every color token across a ~22-minute
+  // window centered on the same 6am/7pm NYC boundaries, so the site
+  // never hard-cuts between light and dark. The background gets the
+  // signature effect: rather than a flat color fade, it renders as a
+  // radial gradient growing from the bottom-center of the page, so
+  // the incoming theme visually "rises" (dawn) or "sets" (dusk)
+  // rather than just swapping in place. Skipped entirely under
+  // prefers-reduced-motion, leaving the plain instant flip above as
+  // the only behavior.
+  const TOKENS: Record<string, [light: string, dark: string]> = {
+    "--bg": ["#f6f6f3", "#16171c"],
+    "--text": ["#262626", "#eeede8"],
+    "--text-secondary": ["#2b2b2b", "#d6d5d0"],
+    "--label": ["#7a7a7a", "#a1a09a"],
+    "--label-cool": ["#76787d", "#8f9093"],
+    "--hover-bg": ["#e8e7e2", "#1d1d1b"],
+    "--title": ["#262626", "#eeede8"],
+    "--year": ["#8a8984", "#696862"],
+    "--icon": ["#c9c7c0", "#474641"],
+    "--icon-hover": ["#6b6b6b", "#b5b4ad"],
+    "--border": ["#e0ded7", "#252423"],
+    "--danger": ["#b3261e", "#e2867a"],
+    "--selection-bg": ["#1f3d2e", "#4fae82"],
+    "--selection-text": ["#f8f8f6", "#171715"],
+  };
+
+  // Blue-grey twilight tone the sweep passes through partway between
+  // light and dark, so the two never blend directly into each other -
+  // there's always a dusky middle ground riding through the gradient.
+  const DUSK_HUE = "#454b58";
+
+  const DAWN_CENTER_MIN = 6 * 60;
+  const DUSK_CENTER_MIN = 19 * 60;
+  const HALF_WINDOW_MIN = 25; // ~50 minutes total, centered on each boundary - broad enough to read as unhurried
+
+  // Eases both ends of the ramp so change is nearly imperceptible right
+  // at the edges of the window and gentle even through the middle,
+  // instead of a linear (and so visually abrupt) ramp.
+  function easeInOutCubic(t: number): number {
+    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  }
+
+  function nyMinutesNow(): number {
+    const parts = new Intl.DateTimeFormat("en-US", {
+      timeZone: "America/New_York",
+      hour: "numeric",
+      minute: "numeric",
+      second: "numeric",
+      hour12: false,
+    }).formatToParts(new Date());
+    const get = (type: string) => Number(parts.find((p) => p.type === type)?.value ?? 0);
+    return get("hour") * 60 + get("minute") + get("second") / 60;
+  }
+
+  // 0 = fully night, 1 = fully day; ramps smoothly (eased) through each
+  // transition window in between.
+  function sunProgress(nowMin: number): number {
+    let raw: number;
+    if (nowMin >= DAWN_CENTER_MIN - HALF_WINDOW_MIN && nowMin <= DAWN_CENTER_MIN + HALF_WINDOW_MIN) {
+      raw = (nowMin - (DAWN_CENTER_MIN - HALF_WINDOW_MIN)) / (HALF_WINDOW_MIN * 2);
+    } else if (nowMin >= DUSK_CENTER_MIN - HALF_WINDOW_MIN && nowMin <= DUSK_CENTER_MIN + HALF_WINDOW_MIN) {
+      raw = 1 - (nowMin - (DUSK_CENTER_MIN - HALF_WINDOW_MIN)) / (HALF_WINDOW_MIN * 2);
+    } else {
+      raw = nowMin > DAWN_CENTER_MIN + HALF_WINDOW_MIN && nowMin < DUSK_CENTER_MIN - HALF_WINDOW_MIN ? 1 : 0;
+    }
+    return easeInOutCubic(raw);
+  }
+
+  function hexToRgb(hex: string): [number, number, number] {
+    const n = parseInt(hex.slice(1), 16);
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  }
+
+  function lerpColor(hexA: string, hexB: string, t: number): string {
+    const a = hexToRgb(hexA);
+    const b = hexToRgb(hexB);
+    const r = Math.round(a[0] + (b[0] - a[0]) * t);
+    const g = Math.round(a[1] + (b[1] - a[1]) * t);
+    const bl = Math.round(a[2] + (b[2] - a[2]) * t);
+    return `rgb(${r}, ${g}, ${bl})`;
+  }
+
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function updateGradualTheme() {
+    const nowMin = nyMinutesNow();
+    const progress = sunProgress(nowMin);
+    // The background's own wash is deliberately slow and subtle (see
+    // below), but text/borders/etc. can't blend through a lerped
+    // mid-grey without wrecking legibility - any smooth curve through
+    // that exact midpoint is, by definition, a 50/50 blend AT that
+    // instant, no matter how steep. So foreground tokens hard-switch
+    // to their full-contrast value at the same instant the discrete
+    // day/night flip above already happens (the window is centered on
+    // that same boundary), while only the background keeps easing
+    // continuously on both sides of it.
+    const textProgress = progress >= 0.5 ? 1 : 0;
+    const root = document.documentElement.style;
+
+    for (const [name, [light, dark]] of Object.entries(TOKENS)) {
+      if (name === "--bg") continue;
+      root.setProperty(name, lerpColor(dark, light, textProgress));
+    }
+    root.setProperty("--theme-progress", progress.toFixed(4));
+
+    const [bgLight, bgDark] = TOKENS["--bg"];
+    const inDawn = nowMin >= DAWN_CENTER_MIN - HALF_WINDOW_MIN && nowMin <= DAWN_CENTER_MIN + HALF_WINDOW_MIN;
+    const inDusk = nowMin >= DUSK_CENTER_MIN - HALF_WINDOW_MIN && nowMin <= DUSK_CENTER_MIN + HALF_WINDOW_MIN;
+
+    if (inDawn || inDusk) {
+      // localT always runs 0 -> 1 across the active window (already
+      // eased, via `progress`), in the direction the incoming theme is
+      // growing. The growing patch's own COLOR eases in from the
+      // outgoing shade toward the incoming one - by way of the
+      // blue-grey twilight tone - at the same rate its radius grows,
+      // so the first minutes of the window are a barely-there tint
+      // rather than a hard-edged patch of the full target color. A
+      // wide (~75pt) soft band between the peak and the outgoing color
+      // means the edge itself never reads as a stark line.
+      const localT = inDawn ? progress : 1 - progress;
+      const incoming = inDawn ? bgLight : bgDark;
+      const outgoing = inDawn ? bgDark : bgLight;
+      // The RADIUS grows slowly across the whole window (that's the
+      // subtle, gradual sweep). But the COLOR mixed into that growing
+      // patch must NOT drift slowly through a medium, ambiguous grey
+      // for a long stretch - that's exactly what left text unreadable
+      // (a large area already medium-dark while text/nav/labels/logo
+      // hadn't flipped yet). So the color mix uses the same steep,
+      // narrow crossfade as the text/foreground flip above (synced to
+      // the same progress=0.5 instant): mostly untouched for most of
+      // the window, snapping through its own full range only in the
+      // few minutes right around the flip.
+      const colorT = Math.min(1, Math.max(0, (localT - 0.5) * 6 + 0.5));
+      const peak = lerpColor(outgoing, incoming, colorT);
+      const mid = lerpColor(outgoing, DUSK_HUE, Math.min(colorT * 1.4, 1));
+      const radius = (localT * 70).toFixed(1);
+      const softEdge = (Number(radius) + 75).toFixed(1);
+      root.setProperty(
+        "--bg",
+        `radial-gradient(circle at 50% 100%, ${peak} 0%, ${mid} ${radius}%, ${outgoing} ${softEdge}%)`
+      );
+    } else {
+      root.setProperty("--bg", lerpColor(bgDark, bgLight, progress));
+    }
+  }
+
+  if (!reduceMotion) {
+    updateGradualTheme();
+    setInterval(updateGradualTheme, 5000);
+  }
+
   // Touch devices have no real hover, so the back link's ghost-button
   // state (transparent until hover) never gets a visible boundary on
   // mobile - it just reads as plain text. Once scrolled down into the
