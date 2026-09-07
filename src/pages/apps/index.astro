@@ -267,10 +267,26 @@ import Footer from "../../components/Footer.astro";
         overflow: hidden;
       }
 
+      /* Ambient, looping detail animation - like iteration.design's
+         tiny UI icons that quietly cycle on their own rather than
+         sitting static - gives the impression of someone actually
+         adjusting the tool, not a frozen screenshot. Subtle and slow
+         on purpose, and switched off entirely under reduced motion. */
       .rendr-mock-fill {
         width: 55%;
         height: 100%;
         background: #ff5a1f;
+        animation: rendr-mock-fill-shift 5s ease-in-out infinite;
+      }
+
+      @keyframes rendr-mock-fill-shift {
+        0%,
+        100% {
+          width: 40%;
+        }
+        50% {
+          width: 68%;
+        }
       }
 
       .rendr-mock-swatches {
@@ -283,6 +299,33 @@ import Footer from "../../components/Footer.astro";
         height: 11px;
         border-radius: 50%;
         border: 1px solid rgba(255, 255, 255, 0.18);
+        animation: rendr-mock-swatch-pulse 4.5s ease-in-out infinite;
+      }
+
+      .rendr-mock-swatches span:nth-child(2) {
+        animation-delay: 1.5s;
+      }
+
+      .rendr-mock-swatches span:nth-child(3) {
+        animation-delay: 3s;
+      }
+
+      @keyframes rendr-mock-swatch-pulse {
+        0%,
+        28% {
+          box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.55);
+        }
+        34%,
+        100% {
+          box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .rendr-mock-fill,
+        .rendr-mock-swatches span {
+          animation: none;
+        }
       }
 
       /* Mirrors the real panel's dashed upload dropzone, shrunk down -
@@ -428,6 +471,10 @@ import Footer from "../../components/Footer.astro";
         background-size: cover;
         background-position: center;
         box-shadow: 0 6px 14px rgba(43, 36, 32, 0.25);
+        /* Same "quietly alive" ambient loop as rendr's mock - a soft
+           lift drifts across the three covers in sequence, echoing
+           the real grid's own hover-lift instead of holding still. */
+        animation: atrium-mock-cover-lift 6s ease-in-out infinite;
         display: flex;
         align-items: flex-end;
         padding: 0.3rem;
@@ -464,6 +511,32 @@ import Footer from "../../components/Footer.astro";
       .atrium-mock-line-sub {
         width: 55%;
         background: rgba(92, 58, 46, 0.18);
+      }
+
+      .atrium-mock-card:nth-child(2) .atrium-mock-cover {
+        animation-delay: 2s;
+      }
+
+      .atrium-mock-card:nth-child(3) .atrium-mock-cover {
+        animation-delay: 4s;
+      }
+
+      @keyframes atrium-mock-cover-lift {
+        0%,
+        100% {
+          transform: translateY(0);
+          box-shadow: 0 6px 14px rgba(43, 36, 32, 0.25);
+        }
+        50% {
+          transform: translateY(-3px);
+          box-shadow: 0 10px 20px rgba(43, 36, 32, 0.3);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .atrium-mock-cover {
+          animation: none;
+        }
       }
 
       .app-preview-atrium .brand-mark {
