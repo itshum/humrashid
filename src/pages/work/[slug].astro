@@ -136,6 +136,25 @@ const paragraphs = (text: string) =>
 
       html {
         scroll-behavior: smooth;
+        /* On-brand scrollbar in place of the stock OS one - color
+           only, no custom width, so it never forces the browser out
+           of overlay mode into a reserved-gutter one (that switch
+           shifts page content and was a real regression the last time
+           this was tried elsewhere on the site). */
+        scrollbar-color: var(--border) var(--bg);
+      }
+
+      html::-webkit-scrollbar-track {
+        background: var(--bg);
+      }
+
+      html::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 8px;
+      }
+
+      html::-webkit-scrollbar-thumb:hover {
+        background: var(--label);
       }
 
       html,
