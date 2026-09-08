@@ -43,6 +43,24 @@ const { showBack = false, showNav = false } = Astro.props;
     position: sticky;
     top: 0;
     z-index: 40;
+    /* Same duration/easing as the rest of the page's day/night crossfade
+       (html/body below) - without this the bar's background would snap
+       instantly instead of fading in step with everything else. */
+    transition: background 0.3s ease;
+  }
+
+  /* Mobile and tablet - now that nav links can share the bar with the
+     logo (and back-link, on case study pages), give the whole sticky
+     bar its own opaque backing rather than patching each element
+     individually the way .logo-mark used to on its own. Desktop has
+     enough surrounding whitespace that scrolled content passing
+     "through" the bar was never an issue there. Matches the same
+     601-1000px tablet ceiling .logo-mark itself already uses below. */
+  @media (max-width: 1000px) {
+    .topbar {
+      background: var(--bg, #f8f8f6);
+      padding-bottom: 0.75rem;
+    }
   }
 
   .logo-mark {
