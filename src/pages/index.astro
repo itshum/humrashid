@@ -1270,13 +1270,15 @@ import Analytics from "@vercel/analytics/astro";
       const workPreviewImg = document.getElementById("workPreviewImg") as HTMLImageElement | null;
       const previewRows = document.querySelectorAll<HTMLAnchorElement>("[data-preview-img]");
 
-      // All three rows this applies to have short one-line
-      // descriptions, so the base position is anchored to where that
-      // text actually ends (not the row's full width) plus a clear
-      // gap - the image starts right after the copy instead of
-      // floating at a fixed offset from the row's edge or overlapping
-      // it.
-      const PREVIEW_TEXT_GAP = 48;
+      // Anchored to each row's own meta column (the year + arrow),
+      // not to where the description text happens to end - the row
+      // itself is capped at .col's width, so this keeps the preview
+      // in the same fixed spot relative to the row, overlapping the
+      // date, no matter how wide the browser window is. (Anchoring to
+      // the text's own end previously let the preview drift out into
+      // the open margin on wide viewports, landing far from the row
+      // near the browser's edge instead of over the date.)
+      const PREVIEW_OVERLAP_LEAD = 28;
       const PREVIEW_WIDTH = 387;
       const PREVIEW_EDGE_MARGIN = 64;
       const PREVIEW_FOLLOW_RANGE_Y = 22;
@@ -1295,19 +1297,17 @@ import Analytics from "@vercel/analytics/astro";
 
       function positionPreview(row: HTMLAnchorElement) {
         if (!workPreview || !workList) return;
-        const descEl = row.querySelector<HTMLElement>(".desc");
-        const anchorRect = (descEl ?? row).getBoundingClientRect();
+        const metaEl = row.querySelector<HTMLElement>(".meta");
+        const anchorRect = (metaEl ?? row).getBoundingClientRect();
         const rowRect = row.getBoundingClientRect();
         const listRect = workList.getBoundingClientRect();
         const previewHeight = workPreview.offsetHeight || (PREVIEW_WIDTH * 26) / 43;
         previewBaseTop = rowRect.top - listRect.top + rowRect.height / 2 - previewHeight / 2;
-        // Clamped against the viewport, not just the text - on a wide
-        // enough screen the "start after the text" anchor plus the
-        // fixed preview width can run past the right edge of the
-        // window (short descriptions end early, but the window isn't
-        // proportionally wider), which would otherwise clip or sit
-        // flush against the browser's own edge.
-        const desiredLeft = anchorRect.right - listRect.left + PREVIEW_TEXT_GAP;
+        const desiredLeft = anchorRect.left - listRect.left - PREVIEW_OVERLAP_LEAD;
+        // Still clamped against the viewport as a safety net (e.g. a
+        // browser window narrower than .col's own max-width), even
+        // though anchoring to the row's meta column keeps this from
+        // being the normal case.
         const maxLeft = window.innerWidth - listRect.left - PREVIEW_WIDTH - PREVIEW_EDGE_MARGIN;
         workPreview.style.left = `${Math.min(desiredLeft, maxLeft)}px`;
         workPreview.style.top = `${previewBaseTop}px`;
@@ -1351,27 +1351,58 @@ import Analytics from "@vercel/analytics/astro";
         ensurePreviewLoop();
       }
 
-      function showPreview(row: HTMLAnchorElement) {
-        if (!workPreview || !workPreviewImg) return;
-        activePreviewRow = row;
-        workPreviewImg.src = row.dataset.previewImg ?? "";
-        workPreviewImg.alt = row.dataset.previewAlt ?? "";
-        workPreview.href = row.getAttribute("href") ?? "#";
-        positionPreview(row);
-        previewEntranceT = prefersReducedMotion ? 1 : 0;
-        workPreview.classList.add("is-visible");
-        ensurePreviewLoop();
-        workPreviewImg.onload = () => {
-          if (activePreviewRow === row) positionPreview(row);
-        };
+      // The preview sits taller than a single row, so it visually
+      // overlaps the row above/below the one it's previewing - moving
+      // the cursor off the row's own text and onto the image itself
+      // (or across the gap between them) used to fire the row's
+      // mouseleave before the image could claim the hover, hiding the
+      // preview mid-reach and restarting its entrance animation on
+      // the way back in (the reported stutter/glimmer). A short grace
+      // timer plus listeners on the preview itself keep it alive
+      // across that gap, and re-hovering the same row no longer
+      // replays the entrance.
+      let previewHideTimer: number | null = null;
+
+      function cancelPreviewHide() {
+        if (previewHideTimer != null) {
+          window.clearTimeout(previewHideTimer);
+          previewHideTimer = null;
+        }
       }
 
-      function hidePreview() {
+      function hidePreviewNow() {
         activePreviewRow = null;
         workPreview?.classList.remove("is-visible");
         previewTargetX = 0;
         previewTargetY = 0;
         ensurePreviewLoop();
+      }
+
+      function schedulePreviewHide() {
+        cancelPreviewHide();
+        previewHideTimer = window.setTimeout(() => {
+          previewHideTimer = null;
+          hidePreviewNow();
+        }, 120);
+      }
+
+      function showPreview(row: HTMLAnchorElement) {
+        if (!workPreview || !workPreviewImg) return;
+        cancelPreviewHide();
+        const alreadyShowingRow = activePreviewRow === row && workPreview.classList.contains("is-visible");
+        activePreviewRow = row;
+        workPreviewImg.src = row.dataset.previewImg ?? "";
+        workPreviewImg.alt = row.dataset.previewAlt ?? "";
+        workPreview.href = row.getAttribute("href") ?? "#";
+        positionPreview(row);
+        if (!alreadyShowingRow) {
+          previewEntranceT = prefersReducedMotion ? 1 : 0;
+        }
+        workPreview.classList.add("is-visible");
+        ensurePreviewLoop();
+        workPreviewImg.onload = () => {
+          if (activePreviewRow === row) positionPreview(row);
+        };
       }
 
       if (!window.matchMedia("(hover: none)").matches) {
@@ -1382,8 +1413,18 @@ import Analytics from "@vercel/analytics/astro";
               updatePreviewFollowTarget(event.clientX, event.clientY);
             });
           }
-          row.addEventListener("mouseleave", hidePreview);
+          row.addEventListener("mouseleave", schedulePreviewHide);
         });
+
+        if (workPreview) {
+          workPreview.addEventListener("mouseenter", cancelPreviewHide);
+          workPreview.addEventListener("mouseleave", schedulePreviewHide);
+          if (!prefersReducedMotion) {
+            workPreview.addEventListener("mousemove", (event) => {
+              updatePreviewFollowTarget(event.clientX, event.clientY);
+            });
+          }
+        }
 
         window.addEventListener("resize", () => {
           if (activePreviewRow) positionPreview(activePreviewRow);
