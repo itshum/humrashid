@@ -1,0 +1,2262 @@
+---
+import { getCollection, render } from "astro:content";
+
+const entries = (await getCollection("atrium", ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.dateAdded.valueOf() - a.data.dateAdded.valueOf()
+);
+
+const yearFormatter = new Intl.DateTimeFormat("en-US", { year: "numeric", timeZone: "UTC" });
+const monthYearFormatter = new Intl.DateTimeFormat("en-US", { month: "short", year: "numeric", timeZone: "UTC" });
+
+// Keeps the byline to a single line - past three names (a comma-
+// separated list, e.g. multiple book authors) it cuts off with an
+// ellipsis instead of wrapping to a second line.
+function truncateNames(names: string): string {
+  const parts = names.split(", ");
+  return parts.length <= 3 ? names : `${parts.slice(0, 3).join(", ")}…`;
+}
+
+// Everything a card needs for both the grid tile and its modal is
+// computed once here, including the rendered markdown body - there's
+// no separate detail page/route anymore, so this is the only place
+// `render(entry)` gets called.
+const cards = await Promise.all(
+  entries.map(async (entry) => {
+    const d = entry.data;
+
+    let metaLine = "";
+    let facts = "";
+    let tag: string | null = null;
+    let externalUrl: string | null = null;
+    let ctaLabel = "";
+
+    if (d.type === "book") {
+      // The book/article/site "kind" is already implied by the cover
+      // shape, page count, or URL below - no need to spell it out
+      // again, so the kicker is just the byline.
+      metaLine = truncateNames(d.author);
+      facts = [d.pageCount ? `${d.pageCount} pages` : null, d.publishDate ? yearFormatter.format(d.publishDate) : null].filter(Boolean).join(" · ");
+      tag = d.genre ?? null;
+      externalUrl = d.purchaseUrl ?? null;
+      ctaLabel = d.purchaseStore ? `Buy at ${d.purchaseStore}` : "Where to buy";
+    } else if (d.type === "article") {
+      metaLine = d.sourceName;
+      facts = [d.articleAuthor, d.datePublished ? monthYearFormatter.format(d.datePublished) : null, d.readTime].filter(Boolean).join(" · ");
+      externalUrl = d.articleUrl;
+      ctaLabel = "Read the article";
+    } else {
+      metaLine = d.siteName;
+      tag = d.category;
+      externalUrl = d.siteUrl;
+      ctaLabel = "Visit the site";
+    }
+
+    // Every cover fills its box (no letterboxing, no dead space) at a
+    // shared fixed height (see .atrium-cover) - books get a narrower
+    // box since they read best in portrait; articles/sites get a wide
+    // box since they're sourced from landscape web imagery. Same height
+    // either way, so the text below always starts on the same line.
+    const coverStyle = d.coverImage
+      ? `${d.coverColor} url(${d.coverImage}) center/cover no-repeat`
+      : d.coverColor;
+
+    const { Content } = await render(entry);
+
+    return { entry, metaLine, facts, tag, coverStyle, externalUrl, ctaLabel, Content };
+  })
+);
+
+const allTags = [...new Set(cards.map((c) => c.tag).filter((t): t is string => Boolean(t)))].sort();
+
+// Footer architecture illustration - a whole library-compound
+// skyline, not one repeating motif: a Doric stoa wing on each end, a
+// domed rotunda, a grand Corinthian main library at the center, an
+// Ionic annex, a freestanding monument column, and a few cypresses
+// for rhythm between buildings. Built from small helper functions
+// (one per element type: fluted shafts, order-specific capitals and
+// bases, triglyph/metope and dentil entablatures, a coffered dome)
+// rather than hand-placed coordinates, so the composition stays
+// legible and each building type is reusable at higher fidelity.
+const ART_WIDTH = 1600;
+const ART_HEIGHT = 260;
+const BASE_Y = 230;
+
+function evenlySpaced(start: number, end: number, count: number): number[] {
+  const step = (end - start) / (count - 1);
+  return Array.from({ length: count }, (_, i) => start + i * step);
+}
+
+function fluteLines(cx: number, top: number, bottom: number, halfWidth: number, count: number): string {
+  return evenlySpaced(cx - halfWidth + 1.5, cx + halfWidth - 1.5, count)
+    .map((x) => `<line x1="${x}" y1="${top}" x2="${x}" y2="${bottom}" />`)
+    .join("");
+}
+
+// Doric: plain echinus + abacus capital, no base moulding, fluted shaft.
+function doricColumn(cx: number, baseY: number, capY: number): string {
+  const hw = 7;
+  const shaftTop = capY + 7;
+  const baseTop = baseY - 4;
+  return `
+    <line x1="${cx - hw - 4}" y1="${capY - 7}" x2="${cx + hw + 4}" y2="${capY - 7}" />
+    <line x1="${cx - hw - 4}" y1="${capY - 7}" x2="${cx - hw - 4}" y2="${capY - 3}" />
+    <line x1="${cx + hw + 4}" y1="${capY - 7}" x2="${cx + hw + 4}" y2="${capY - 3}" />
+    <line x1="${cx - hw - 4}" y1="${capY - 3}" x2="${cx + hw + 4}" y2="${capY - 3}" />
+    <path d="M ${cx - hw - 4} ${capY - 3} Q ${cx - hw - 1} ${capY + 2} ${cx - hw} ${shaftTop}" />
+    <path d="M ${cx + hw + 4} ${capY - 3} Q ${cx + hw + 1} ${capY + 2} ${cx + hw} ${shaftTop}" />
+    <line x1="${cx - hw}" y1="${shaftTop}" x2="${cx - hw}" y2="${baseTop}" />
+    <line x1="${cx + hw}" y1="${shaftTop}" x2="${cx + hw}" y2="${baseTop}" />
+    ${fluteLines(cx, shaftTop, baseTop, hw, 3)}
+    <line x1="${cx - hw - 2}" y1="${baseTop}" x2="${cx + hw + 2}" y2="${baseTop}" />
+    <line x1="${cx - hw - 3}" y1="${baseY}" x2="${cx + hw + 3}" y2="${baseY}" />
+    <line x1="${cx - hw - 3}" y1="${baseTop}" x2="${cx - hw - 3}" y2="${baseY}" />
+    <line x1="${cx + hw + 3}" y1="${baseTop}" x2="${cx + hw + 3}" y2="${baseY}" />
+  `;
+}
+
+// Ionic: scroll-volute capital (two spirals), Attic base with a
+// double torus, fluted shaft.
+function ionicColumn(cx: number, baseY: number, capY: number): string {
+  const hw = 6;
+  const shaftTop = capY + 6;
+  const baseTop = baseY - 5;
+  return `
+    <line x1="${cx - hw - 6}" y1="${capY - 4}" x2="${cx + hw + 6}" y2="${capY - 4}" />
+    <path d="M ${cx - hw - 6} ${capY - 4} Q ${cx - hw - 9} ${capY} ${cx - hw - 5} ${capY + 3} Q ${cx - hw - 2} ${capY + 5} ${cx - hw} ${capY + 2}" />
+    <circle cx="${cx - hw - 5}" cy="${capY + 1}" r="2.2" />
+    <path d="M ${cx + hw + 6} ${capY - 4} Q ${cx + hw + 9} ${capY} ${cx + hw + 5} ${capY + 3} Q ${cx + hw + 2} ${capY + 5} ${cx + hw} ${capY + 2}" />
+    <circle cx="${cx + hw + 5}" cy="${capY + 1}" r="2.2" />
+    <line x1="${cx - hw}" y1="${capY + 2}" x2="${cx - hw}" y2="${shaftTop}" />
+    <line x1="${cx + hw}" y1="${capY + 2}" x2="${cx + hw}" y2="${shaftTop}" />
+    ${fluteLines(cx, shaftTop, baseTop, hw, 3)}
+    <line x1="${cx - hw}" y1="${shaftTop}" x2="${cx - hw}" y2="${baseTop}" />
+    <line x1="${cx + hw}" y1="${shaftTop}" x2="${cx + hw}" y2="${baseTop}" />
+    <line x1="${cx - hw - 2}" y1="${baseTop}" x2="${cx + hw + 2}" y2="${baseTop}" />
+    <line x1="${cx - hw - 3}" y1="${baseTop + 3}" x2="${cx + hw + 3}" y2="${baseTop + 3}" />
+    <line x1="${cx - hw - 3}" y1="${baseY}" x2="${cx + hw + 3}" y2="${baseY}" />
+    <line x1="${cx - hw - 3}" y1="${baseTop + 3}" x2="${cx - hw - 3}" y2="${baseY}" />
+    <line x1="${cx + hw + 3}" y1="${baseTop + 3}" x2="${cx + hw + 3}" y2="${baseY}" />
+  `;
+}
+
+// Corinthian: flaring acanthus-leaf bell capital, Attic base, fluted shaft.
+function corinthianColumn(cx: number, baseY: number, capY: number): string {
+  const hw = 6;
+  const shaftTop = capY + 14;
+  const baseTop = baseY - 5;
+  return `
+    <line x1="${cx - hw - 7}" y1="${capY - 14}" x2="${cx + hw + 7}" y2="${capY - 14}" />
+    <path d="M ${cx - hw - 7} ${capY - 14} L ${cx - hw - 3} ${capY - 2} L ${cx - hw} ${shaftTop}" />
+    <path d="M ${cx + hw + 7} ${capY - 14} L ${cx + hw + 3} ${capY - 2} L ${cx + hw} ${shaftTop}" />
+    <path d="M ${cx - hw - 5} ${capY - 9} L ${cx - hw - 1} ${capY - 4}" />
+    <path d="M ${cx + hw + 5} ${capY - 9} L ${cx + hw + 1} ${capY - 4}" />
+    <path d="M ${cx - hw - 2} ${capY - 12} L ${cx - 2} ${capY - 3}" />
+    <path d="M ${cx + hw + 2} ${capY - 12} L ${cx + 2} ${capY - 3}" />
+    <line x1="${cx}" y1="${capY - 14}" x2="${cx}" y2="${capY - 16}" />
+    <line x1="${cx - hw}" y1="${shaftTop}" x2="${cx - hw}" y2="${baseTop}" />
+    <line x1="${cx + hw}" y1="${shaftTop}" x2="${cx + hw}" y2="${baseTop}" />
+    ${fluteLines(cx, shaftTop, baseTop, hw, 3)}
+    <line x1="${cx - hw - 2}" y1="${baseTop}" x2="${cx + hw + 2}" y2="${baseTop}" />
+    <line x1="${cx - hw - 3}" y1="${baseTop + 3}" x2="${cx + hw + 3}" y2="${baseTop + 3}" />
+    <line x1="${cx - hw - 3}" y1="${baseY}" x2="${cx + hw + 3}" y2="${baseY}" />
+    <line x1="${cx - hw - 3}" y1="${baseTop + 3}" x2="${cx - hw - 3}" y2="${baseY}" />
+    <line x1="${cx + hw + 3}" y1="${baseTop + 3}" x2="${cx + hw + 3}" y2="${baseY}" />
+  `;
+}
+
+// Doric entablature: plain architrave band + triglyph/metope frieze
+// (with guttae, the small drip pegs beneath each triglyph) + cornice.
+function doricEntablature(xStart: number, xEnd: number, baseLineY: number): string {
+  const friezeBottom = baseLineY;
+  const friezeTop = baseLineY - 9;
+  const cornice = friezeTop - 4;
+  const count = Math.max(4, Math.round((xEnd - xStart) / 34));
+  const triglyphs = evenlySpaced(xStart + 10, xEnd - 10, count)
+    .map((x) => {
+      const guttae = [-2, -0.7, 0.7, 2]
+        .map((d) => `<line x1="${x + d * 1.6}" y1="${friezeBottom}" x2="${x + d * 1.6}" y2="${friezeBottom + 2}" />`)
+        .join("");
+      return `
+      <line x1="${x - 2.5}" y1="${friezeTop}" x2="${x - 2.5}" y2="${friezeBottom}" />
+      <line x1="${x}" y1="${friezeTop}" x2="${x}" y2="${friezeBottom}" />
+      <line x1="${x + 2.5}" y1="${friezeTop}" x2="${x + 2.5}" y2="${friezeBottom}" />
+      ${guttae}
+    `;
+    })
+    .join("");
+  return `
+    <line x1="${xStart}" y1="${friezeBottom}" x2="${xEnd}" y2="${friezeBottom}" />
+    <line x1="${xStart}" y1="${friezeTop}" x2="${xEnd}" y2="${friezeTop}" />
+    <line x1="${xStart}" y1="${cornice}" x2="${xEnd}" y2="${cornice}" />
+    ${triglyphs}
+  `;
+}
+
+// Ionic/Corinthian entablature: plain architrave + dentillated cornice.
+function ionicEntablature(xStart: number, xEnd: number, baseLineY: number): string {
+  const archTop = baseLineY - 7;
+  const dentilTop = archTop - 5;
+  const cornice = dentilTop - 3;
+  const count = Math.max(8, Math.round((xEnd - xStart) / 9));
+  const dentils = evenlySpaced(xStart + 5, xEnd - 5, count)
+    .map((x) => `<line x1="${x}" y1="${archTop}" x2="${x}" y2="${dentilTop}" />`)
+    .join("");
+  return `
+    <line x1="${xStart}" y1="${baseLineY}" x2="${xEnd}" y2="${baseLineY}" />
+    <line x1="${xStart}" y1="${archTop}" x2="${xEnd}" y2="${archTop}" />
+    <line x1="${xStart}" y1="${dentilTop}" x2="${xEnd}" y2="${dentilTop}" />
+    <line x1="${xStart}" y1="${cornice}" x2="${xEnd}" y2="${cornice}" />
+    ${dentils}
+  `;
+}
+
+function cypress(cx: number, baseY: number, height: number): string {
+  const topY = baseY - height;
+  return `
+    <path d="M ${cx} ${topY} L ${cx - 5} ${baseY} L ${cx + 5} ${baseY} Z" />
+    <line x1="${cx - 2.5}" y1="${topY + height * 0.2}" x2="${cx + 2.5}" y2="${topY + height * 0.2}" />
+    <line x1="${cx - 3.2}" y1="${topY + height * 0.45}" x2="${cx + 3.2}" y2="${topY + height * 0.45}" />
+    <line x1="${cx - 4}" y1="${topY + height * 0.7}" x2="${cx + 4}" y2="${topY + height * 0.7}" />
+  `;
+}
+
+function stoaWing(xStart: number, xEnd: number, columnCount: number, order: "doric" | "ionic"): string {
+  const capY = 202;
+  const columnFn = order === "doric" ? doricColumn : ionicColumn;
+  const entablatureFn = order === "doric" ? doricEntablature : ionicEntablature;
+  const columns = evenlySpaced(xStart + 20, xEnd - 20, columnCount)
+    .map((cx) => columnFn(cx, BASE_Y, capY))
+    .join("");
+  return `
+    ${entablatureFn(xStart - 6, xEnd + 6, capY - 6)}
+    <line x1="${xStart - 10}" y1="${BASE_Y - 4}" x2="${xEnd + 10}" y2="${BASE_Y - 4}" />
+    ${columns}
+  `;
+}
+
+// A tholos: coffered dome with radial ribs meeting the dome's own
+// outline (never a second, independent arc - that's what was crossing
+// the ribs and reading as messy before), an oculus finial, and an
+// Ionic colonnade ringing the drum below it.
+function rotunda(cx: number, r: number): string {
+  const domeBaseY = 190;
+  const ry = r * 0.58;
+  const apexY = domeBaseY - ry;
+  const drumCapY = domeBaseY - 6;
+  const columns = evenlySpaced(cx - r + 14, cx + r - 14, 8)
+    .map((x) => ionicColumn(x, BASE_Y, drumCapY))
+    .join("");
+  // Each rib is drawn to its own point ON the dome's ellipse, so it
+  // can never cross the dome outline - a true meridian, not a second
+  // silhouette.
+  const ribXs = evenlySpaced(cx - r + 14, cx + r - 14, 9);
+  const ribs = ribXs
+    .map((x) => {
+      const t = (x - cx) / r;
+      const y = domeBaseY - Math.sqrt(Math.max(0, 1 - t * t)) * ry;
+      return `<line x1="${x}" y1="${domeBaseY}" x2="${x}" y2="${y.toFixed(1)}" />`;
+    })
+    .join("");
+  // One low horizontal coffer band, height-scaled per rib so it
+  // traces a true ellipse segment inside the dome rather than a
+  // straight line that would poke outside the silhouette.
+  const bandFrac = 0.4;
+  const bandPoints = ribXs
+    .map((x) => {
+      const t = (x - cx) / r;
+      const outerY = domeBaseY - Math.sqrt(Math.max(0, 1 - t * t)) * ry;
+      const y = domeBaseY - (domeBaseY - outerY) * bandFrac;
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    })
+    .join(" ");
+  return `
+    <path d="M ${cx - r} ${domeBaseY} A ${r} ${ry} 0 0 1 ${cx + r} ${domeBaseY}" />
+    ${ribs}
+    <polyline points="${bandPoints}" />
+    <line x1="${cx}" y1="${apexY}" x2="${cx}" y2="${apexY - 12}" />
+    <circle cx="${cx}" cy="${apexY - 15}" r="3" />
+    <line x1="${cx - r - 4}" y1="${domeBaseY + 3}" x2="${cx + r + 4}" y2="${domeBaseY + 3}" />
+    <line x1="${cx - r - 4}" y1="${domeBaseY + 7}" x2="${cx + r + 4}" y2="${domeBaseY + 7}" />
+    ${columns}
+  `;
+}
+
+// The grand Corinthian main library: dentillated entablature, a
+// pediment with raking cornices, a tympanum rosette, and akroteria
+// finials at the apex and both corners.
+function mainTemple(xStart: number, xEnd: number, columnCount: number): string {
+  const capY = 176;
+  const center = (xStart + xEnd) / 2;
+  const entablatureBase = capY - 16;
+  const pedimentBaseY = entablatureBase - 12;
+  const pedimentHalfWidth = (xEnd - xStart) / 2 - 10;
+  const apexY = pedimentBaseY - pedimentHalfWidth * 0.4;
+  const columns = evenlySpaced(xStart + 24, xEnd - 24, columnCount)
+    .map((cx) => corinthianColumn(cx, BASE_Y, capY))
+    .join("");
+  return `
+    ${ionicEntablature(xStart - 14, xEnd + 14, entablatureBase)}
+    <path d="M ${center - pedimentHalfWidth} ${pedimentBaseY} L ${center} ${apexY} L ${center + pedimentHalfWidth} ${pedimentBaseY}" />
+    <path d="M ${center - pedimentHalfWidth - 8} ${pedimentBaseY + 5} L ${center} ${apexY - 7} L ${center + pedimentHalfWidth + 8} ${pedimentBaseY + 5}" />
+    <circle cx="${center}" cy="${(pedimentBaseY + apexY) / 2 + 6}" r="8" />
+    <line x1="${center}" y1="${apexY - 7}" x2="${center}" y2="${apexY - 18}" />
+    <circle cx="${center}" cy="${apexY - 20}" r="2" />
+    <line x1="${center - pedimentHalfWidth - 8}" y1="${pedimentBaseY + 5}" x2="${center - pedimentHalfWidth - 8}" y2="${pedimentBaseY - 8}" />
+    <line x1="${center + pedimentHalfWidth + 8}" y1="${pedimentBaseY + 5}" x2="${center + pedimentHalfWidth + 8}" y2="${pedimentBaseY - 8}" />
+    <line x1="${xStart - 18}" y1="${BASE_Y - 4}" x2="${xEnd + 18}" y2="${BASE_Y - 4}" />
+    <line x1="${xStart - 24}" y1="${BASE_Y}" x2="${xEnd + 24}" y2="${BASE_Y}" />
+    <line x1="${center - 22}" y1="${entablatureBase}" x2="${center - 22}" y2="${BASE_Y}" />
+    <line x1="${center + 22}" y1="${entablatureBase}" x2="${center + 22}" y2="${BASE_Y}" />
+    <line x1="${center - 22}" y1="${entablatureBase}" x2="${center + 22}" y2="${entablatureBase}" />
+    ${columns}
+  `;
+}
+
+// Freestanding honorific column, capped with a simple draped statue.
+function monumentColumn(cx: number): string {
+  const capY = 132;
+  return `
+    ${doricColumn(cx, BASE_Y, capY)}
+    <path d="M ${cx - 5} ${capY - 10} L ${cx - 5} ${capY - 24} Q ${cx} ${capY - 32} ${cx + 5} ${capY - 24} L ${cx + 5} ${capY - 10}" />
+    <line x1="${cx}" y1="${capY - 32}" x2="${cx}" y2="${capY - 38}" />
+  `;
+}
+
+const footerArtInner = [
+  `<line x1="0" y1="${BASE_Y}" x2="${ART_WIDTH}" y2="${BASE_Y}" />`,
+  `<line x1="10" y1="${BASE_Y + 5}" x2="${ART_WIDTH - 10}" y2="${BASE_Y + 5}" />`,
+  `<line x1="25" y1="${BASE_Y + 10}" x2="${ART_WIDTH - 25}" y2="${BASE_Y + 10}" />`,
+  stoaWing(20, 260, 5, "doric"),
+  cypress(290, BASE_Y, 55),
+  rotunda(440, 100),
+  cypress(575, BASE_Y, 55),
+  mainTemple(610, 1050, 9),
+  cypress(1075, BASE_Y, 55),
+  stoaWing(1100, 1400, 6, "ionic"),
+  monumentColumn(1430),
+  stoaWing(1460, 1580, 3, "doric"),
+].join("\n");
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="canonical" href="https://www.humrashid.com/apps/atrium/" />
+    <title>Atrium · Humayun Rashid</title>
+    <meta
+      name="description"
+      content="A curated collection of books, long form articles, and sites worth your time."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Sorts+Mill+Goudy:ital@0;1&family=Inter:wght@400;500;600&display=swap"
+    />
+    <style is:global>
+      /* Atrium's own fixed identity - a warm parchment reading room,
+         independent of the main site's time-based light/dark theme.
+         Same move as rendr's own permanent dark shell: this is its own
+         small experience, not another portfolio page. */
+      :root {
+        --atrium-bg: #f3ead9;
+        --atrium-surface: #ece0c8;
+        --atrium-ink: #2b2420;
+        --atrium-label: #8a7a63;
+        --atrium-border: #ddccac;
+        --atrium-accent: #a6402d;
+        --atrium-gold: #a9822f;
+        --atrium-font-display: "Sorts Mill Goudy", Georgia, serif;
+        --atrium-font-body: "Inter", -apple-system, sans-serif;
+        --atrium-font-wordmark: "Cormorant Garamond", Georgia, serif;
+        --atrium-wordmark-color: #5c3a2e;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        background: var(--atrium-bg);
+        color: var(--atrium-ink);
+        font-family: var(--atrium-font-body);
+        /* Standards-track color-only property (no width, so it can't
+           force a reserved gutter the way a custom-width
+           ::-webkit-scrollbar rule does) - covers browsers where the
+           -webkit- pseudo-elements below don't apply to the root
+           document scrollbar. */
+        scrollbar-color: var(--atrium-border) var(--atrium-bg);
+      }
+
+      /* Whether the scrollbar reserves its own space or floats as an
+         overlay is the browser/OS's call (macOS: System Settings ->
+         Appearance -> Show scroll bars), not something this page can
+         override - but recoloring the track it CAN control, so a
+         reserved gutter reads as part of the page instead of a stark
+         white strip. Deliberately doesn't set a custom width here,
+         since that's what previously pushed Chrome out of its default
+         overlay behavior and reserved a gutter that wasn't there
+         before. */
+      html::-webkit-scrollbar-track {
+        background: var(--atrium-bg);
+      }
+
+      html::-webkit-scrollbar-thumb {
+        background: var(--atrium-border);
+        border: 3px solid var(--atrium-bg);
+        border-radius: 8px;
+      }
+
+      html::-webkit-scrollbar-thumb:hover {
+        background: var(--atrium-label);
+      }
+
+      a {
+        color: inherit;
+      }
+
+      ::selection {
+        background: var(--atrium-accent);
+        color: var(--atrium-bg);
+      }
+
+      .atrium-col {
+        max-width: 1240px;
+        margin: 0 auto;
+        padding: 0 2rem;
+      }
+
+      .atrium-header {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding: 1.5rem 0;
+      }
+
+      .atrium-wordmark {
+        font-family: var(--atrium-font-wordmark);
+        font-weight: 700;
+        font-size: 2rem;
+        letter-spacing: -0.01em;
+        color: var(--atrium-wordmark-color);
+      }
+
+      .atrium-hero {
+        padding: 2rem 0 2rem;
+      }
+
+      .atrium-hero .kicker {
+        font-size: 0.75rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--atrium-label);
+        margin: 0 0 0.5rem;
+      }
+
+      .atrium-hero h1 {
+        font-family: var(--atrium-font-display);
+        font-weight: 500;
+        font-size: 1.1rem;
+        line-height: 1.4;
+        margin: 0;
+        max-width: 32em;
+      }
+
+      /* --- Fixed filter bar - hidden until the user scrolls past the
+         header, which carries its own copy of the same dropdown. That
+         header is always reachable (just scroll to top), so a short
+         or filtered result set can never strand the user without a
+         way to change the filter back, even while this stays hidden. */
+      /* The plain 1px hairline (same color as the grid's own row
+         dividers) all but disappeared here - a grid divider has card
+         content differing on either side to set it off, but this bar
+         floats over a uniform, continuous background with nothing to
+         contrast against. A touch more border weight/opacity plus a
+         soft shadow gives it the "elevated above the content
+         scrolling underneath" separation the hairline alone couldn't. */
+      .atrium-stickybar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        background: var(--atrium-bg);
+        border-bottom: 1px solid var(--atrium-ink);
+        border-bottom-color: rgba(43, 36, 32, 0.18);
+        box-shadow: 0 4px 12px rgba(43, 36, 32, 0.06);
+        transform: translateY(-100%);
+        transition: transform 0.25s ease;
+        z-index: 10;
+      }
+
+      .atrium-stickybar.is-visible {
+        transform: translateY(0);
+      }
+
+      .atrium-hero-sentinel {
+        height: 1px;
+      }
+
+      .stickybar-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: 0.85rem;
+        padding-bottom: 0.85rem;
+      }
+
+      /* --- Combined filter dropdown ---
+         One custom control (not a native <select>, which can't be
+         styled once open) covering both dimensions - the four types
+         and every genre/category tag - rather than two separate
+         controls. Same trigger/menu/option structure as rendr's own
+         dropdown, restyled with Atrium's own tokens. */
+      .atrium-filter-group {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+      }
+
+      .atrium-select {
+        position: relative;
+      }
+
+      .atrium-select-trigger {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-family: var(--atrium-font-body);
+        font-size: 0.78rem;
+        padding: 0.35rem 0.85rem;
+        border: 1px solid var(--atrium-border);
+        border-radius: 999px;
+        background: none;
+        color: var(--atrium-label);
+        cursor: pointer;
+        transition: border-color 0.15s ease, color 0.15s ease;
+      }
+
+      .atrium-select-trigger:hover {
+        border-color: var(--atrium-accent);
+        color: var(--atrium-accent);
+      }
+
+      .atrium-select.is-open .atrium-select-trigger {
+        border-color: var(--atrium-accent);
+        color: var(--atrium-accent);
+      }
+
+      .atrium-select-caret {
+        width: 8px;
+        height: 8px;
+        transition: transform 0.15s ease;
+      }
+
+      .atrium-select.is-open .atrium-select-caret {
+        transform: rotate(180deg);
+      }
+
+      .atrium-select-menu {
+        position: absolute;
+        top: calc(100% + 6px);
+        left: 0;
+        min-width: 180px;
+        max-height: 320px;
+        overflow-y: auto;
+        background: var(--atrium-bg);
+        border: 1px solid var(--atrium-border);
+        border-radius: 8px;
+        box-shadow: 0 12px 28px rgba(43, 36, 32, 0.2);
+        padding: 0.4rem;
+        z-index: 20;
+        /* Thin, on-brand scrollbar in place of the default OS one -
+           still scrollable, just not a chunky grey bar over a card
+           this small. */
+        scrollbar-width: thin;
+        scrollbar-color: var(--atrium-border) transparent;
+      }
+
+      .atrium-select-menu::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      .atrium-select-menu::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      .atrium-select-menu::-webkit-scrollbar-thumb {
+        background: var(--atrium-border);
+        border-radius: 3px;
+      }
+
+      .atrium-select-menu::-webkit-scrollbar-thumb:hover {
+        background: var(--atrium-label);
+      }
+
+      .atrium-select-option {
+        display: block;
+        font-family: var(--atrium-font-body);
+        font-size: 0.82rem;
+        padding: 0.45rem 0.6rem;
+        border-radius: 4px;
+        color: var(--atrium-ink);
+        cursor: pointer;
+        white-space: nowrap;
+      }
+
+      .atrium-select-option:hover {
+        background: var(--atrium-surface);
+      }
+
+      .atrium-select-option.is-selected {
+        color: var(--atrium-accent);
+        font-weight: 600;
+      }
+
+      .atrium-select-divider {
+        height: 1px;
+        background: var(--atrium-border);
+        margin: 0.4rem 0.2rem;
+      }
+
+      /* --- Search --- */
+      /* Collapsed to an icon-only circle (same border/hover language
+         as the dropdown trigger and the card's expand button); clicking
+         it grows a pill-shaped text field matching the dropdown's own
+         border, radius, and type, rather than a plain browser input. */
+      .atrium-search {
+        display: flex;
+        align-items: center;
+        position: relative;
+      }
+
+      .atrium-search-toggle {
+        flex-shrink: 0;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        background: none;
+        border: 1px solid var(--atrium-border);
+        border-radius: 999px;
+        color: var(--atrium-label);
+        cursor: pointer;
+        transition: border-color 0.15s ease, color 0.15s ease;
+      }
+
+      .atrium-search-toggle:hover,
+      .atrium-search.is-open .atrium-search-toggle {
+        border-color: var(--atrium-accent);
+        color: var(--atrium-accent);
+      }
+
+      .atrium-search-toggle svg {
+        width: 14px;
+        height: 14px;
+      }
+
+      .atrium-search-input {
+        width: 0;
+        min-width: 0;
+        margin-left: 0;
+        padding: 0.35rem 0;
+        border: 1px solid transparent;
+        border-radius: 999px;
+        background: none;
+        font-family: var(--atrium-font-body);
+        font-size: 0.78rem;
+        color: var(--atrium-ink);
+        opacity: 0;
+        transition: width 0.2s ease, opacity 0.15s ease, padding 0.2s ease, margin-left 0.2s ease, border-color 0.15s ease;
+      }
+
+      .atrium-search-input::placeholder {
+        color: var(--atrium-label);
+      }
+
+      .atrium-search-input:focus {
+        outline: none;
+      }
+
+      .atrium-search.is-open .atrium-search-input {
+        width: 190px;
+        margin-left: 0.5rem;
+        padding: 0.35rem 1.8rem 0.35rem 0.85rem;
+        opacity: 1;
+        background: #fbf7ee;
+        border-color: var(--atrium-border);
+      }
+
+      .atrium-search-clear {
+        position: absolute;
+        right: 6px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 20px;
+        height: 20px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--atrium-surface);
+        border: none;
+        border-radius: 50%;
+        color: var(--atrium-label);
+        cursor: pointer;
+        transition: color 0.15s ease;
+      }
+
+      /* Same author-vs-UA [hidden] specificity tie as the grid and
+         no-results block - this class sets its own `display`, so it
+         needs its own override or the button stays visible (and
+         overlapping the collapsed search icon) even when `hidden`. */
+      .atrium-search-clear[hidden] {
+        display: none;
+      }
+
+      .atrium-search-clear:hover {
+        color: var(--atrium-accent);
+      }
+
+      .atrium-search-clear svg {
+        width: 12px;
+        height: 12px;
+      }
+
+      .atrium-search.is-open .atrium-search-input:focus {
+        border-color: var(--atrium-accent);
+      }
+
+      /* At phone width the filter dropdown + expanded search input
+         (up to 190px) plus the wordmark no longer fit on one row -
+         .atrium-wordmark can't shrink below its own text, so the two
+         previously just overlapped. Pin the wordmark out of flex flow
+         to the row's right edge (guaranteeing it never gets crowded)
+         and shrink it, then let the filter group claim the freed
+         space on the left and cap the search input's growth so it has
+         somewhere to expand into instead of past the edge. */
+      @media (max-width: 640px) {
+        .atrium-header,
+        .stickybar-inner {
+          position: relative;
+        }
+
+        .atrium-wordmark {
+          font-size: 1.6rem;
+        }
+
+        .stickybar-inner {
+          /* Edge-to-edge on both sides, matching .atrium-grid below
+             (also full-bleed, not inset inside .atrium-col) - the
+             dropdown/search and the wordmark align with the grid's
+             own left/right edges instead of sitting inset from them.
+             The right padding still reserves room for the
+             absolutely-positioned wordmark - its `right` offset is
+             measured against this padding box's outer edge, not its
+             content edge, so this padding is the only thing standing
+             between the filter group and it. */
+          padding-left: 0;
+          padding-right: 6rem;
+        }
+
+        .stickybar-inner .atrium-wordmark {
+          position: absolute;
+          top: 50%;
+          right: 0;
+          transform: translateY(-50%);
+        }
+
+        .atrium-filter-group {
+          flex: 1 1 auto;
+          min-width: 0;
+        }
+
+        .atrium-search {
+          min-width: 0;
+        }
+
+        .atrium-search.is-open .atrium-search-input {
+          /* Both sides freed up room since the dropdown moved flush
+             left and the wordmark moved flush right - wide enough now
+             to read the placeholder instead of truncating it. */
+          width: min(190px, 43vw);
+        }
+      }
+
+      .atrium-no-results {
+        max-width: 1240px;
+        margin: 0 auto;
+        min-height: 60vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        border-bottom: 1px solid var(--atrium-border);
+        text-align: center;
+      }
+
+      /* Same author-vs-UA specificity tie as .atrium-grid[hidden] -
+         an explicit `display` rule on this class needs its own
+         explicit override for the `hidden` attribute to actually win. */
+      .atrium-no-results[hidden] {
+        display: none;
+      }
+
+      .atrium-no-results p {
+        font-family: var(--atrium-font-display);
+        font-style: italic;
+        font-size: 1.1rem;
+        color: var(--atrium-label);
+      }
+
+      /* --- Grid --- */
+      /* Full-bleed, edge-to-edge - not inside .atrium-col. A true
+         ruled grid - shared 1px hairlines between every cell, formed
+         from each cell's own right/bottom border plus a top/left
+         border on the container, rather than a gap between floating
+         cards. */
+      .atrium-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        border-top: 1px solid var(--atrium-border);
+        border-left: 1px solid var(--atrium-border);
+        margin-bottom: 8rem;
+      }
+
+      /* An author `display` rule and the UA [hidden] rule tie on
+         specificity, and the author rule wins the tie - without this,
+         hiding the grid via the `hidden` attribute silently fails and
+         leaves its top/left border rendering on an empty box. */
+      .atrium-grid[hidden] {
+        display: none;
+      }
+
+      /* The grid's own top/left border is part of the container box,
+         not the individual (opacity: 0) cards - so it was rendering
+         as a stray line during the initial loader above, before any
+         card was actually visible. Transparent until JS reveals the
+         first batch. */
+      .atrium-grid.is-priming {
+        border-color: transparent;
+      }
+
+      @media (max-width: 1300px) {
+        .atrium-grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+
+      @media (max-width: 980px) {
+        .atrium-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      @media (max-width: 560px) {
+        .atrium-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .atrium-card {
+        position: relative;
+        border-right: 1px solid var(--atrium-border);
+        border-bottom: 1px solid var(--atrium-border);
+        transition: background-color 0.15s ease;
+      }
+
+      .atrium-card:not(.atrium-filler):hover {
+        background-color: rgba(255, 255, 255, 0.12);
+      }
+
+      /* Padding lives on this wrapper (not the two hit-area anchors
+         below) so the top and bottom can differ - more room to
+         breathe under the cover, less dead space under the blurb. */
+      .atrium-card-inner {
+        padding: 1.75rem 1.5rem 1.25rem;
+      }
+
+      .atrium-card-hit {
+        display: block;
+        width: 100%;
+        text-decoration: none;
+        color: inherit;
+        background: none;
+        border: none;
+        padding: 0;
+        margin: 0;
+        font: inherit;
+        text-align: left;
+        cursor: pointer;
+      }
+
+      /* Flat 2D cover for every type - a real image when available,
+         a subtle drop shadow for depth, and a hover lift + shadow
+         bump for a little vibrancy rather than a static rectangle. A
+         shared fixed height (width varies by type instead) keeps the
+         text below - kicker, title, tag, blurb - starting at the same
+         line across a row, whether the card next to it is a tall
+         portrait book or a short wide article/site image. */
+      .atrium-cover {
+        position: relative;
+        height: 235px;
+        width: 46%;
+        border-radius: 2px;
+        display: flex;
+        align-items: flex-end;
+        padding: 1rem;
+        margin: 0 auto 2rem;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.6s ease;
+        box-shadow: 0 6px 16px rgba(43, 36, 32, 0.22);
+      }
+
+      /* A decorative background (e.g. a painting standing in for a
+         real cover) needs a scrim behind the title for contrast that
+         a flat coverColor never required. */
+      .atrium-cover.has-title-scrim::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        background: linear-gradient(to top, rgba(20, 14, 10, 0.8), rgba(20, 14, 10, 0) 60%);
+      }
+
+      .atrium-card:hover .atrium-cover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px rgba(43, 36, 32, 0.3);
+      }
+
+      .atrium-cover.is-wide {
+        width: 100%;
+        padding: 1.25rem;
+      }
+
+      .atrium-cover .cover-title {
+        position: relative;
+        z-index: 1;
+        font-family: var(--atrium-font-display);
+        font-weight: 600;
+        font-size: 1.05rem;
+        line-height: 1.25;
+        color: rgba(255, 255, 255, 0.94);
+      }
+
+      .atrium-kicker {
+        font-size: 0.68rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--atrium-label);
+        margin: 0 0 0.3rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      /* The title is its own link (straight out to the external
+         listing/article/site when there is one) rather than part of
+         the surrounding hit area, so the underline-on-hover + icon
+         read as "this text specifically is the external link". */
+      .atrium-title-link {
+        display: block;
+        width: 100%;
+        text-decoration: none;
+        color: inherit;
+        margin: 0 0 0.6rem;
+        background: none;
+        border: none;
+        padding: 0;
+        font: inherit;
+        text-align: left;
+        cursor: pointer;
+      }
+
+      .atrium-title-link:hover .atrium-title {
+        text-decoration: underline;
+      }
+
+      .atrium-title-link:hover .atrium-title-external {
+        opacity: 1;
+      }
+
+      /* Plain inline (not flex) on purpose - a flex box moves as one
+         unit when it doesn't fit, stranding the icon on its own line
+         after a long, wrapped title. Inline lets the icon flow right
+         after the last word like normal text, only dropping itself
+         (not the whole title) if there's no room left. */
+      .atrium-title {
+        font-family: var(--atrium-font-display);
+        font-weight: 600;
+        font-size: 1rem;
+        line-height: 1.3;
+      }
+
+      .atrium-title-external {
+        display: inline-block;
+        vertical-align: middle;
+        margin-left: 0.3rem;
+        width: 11px;
+        height: 11px;
+        opacity: 0;
+        transition: opacity 0.15s ease;
+        transform: translateY(-1px);
+      }
+
+      /* --- Tag + rating meta line --- */
+      /* The genre/category pill and star rating share one line with
+         padding between them, instead of stacking on separate lines -
+         both are compact at-a-glance metadata, not full-width content. */
+      .atrium-meta-line {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        margin: 0 0 0.5rem;
+      }
+
+      /* A distinct tag treatment, separate from plain text metadata,
+         so it's easy to spot at a glance - a plain display badge, not
+         a click target. Filtering by tag happens via the dropdown in
+         the sticky bar instead, which scales better once there are
+         many distinct tags to choose from. */
+      .atrium-tag {
+        display: inline-block;
+        font-size: 0.68rem;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        padding: 0.25rem 0.6rem;
+        border-radius: 999px;
+        background: var(--atrium-surface);
+        color: var(--atrium-label);
+      }
+
+      .atrium-stars {
+        display: block;
+        font-size: 0.75rem;
+        color: var(--atrium-border);
+        letter-spacing: 0.1em;
+      }
+
+      .atrium-stars .filled {
+        color: var(--atrium-gold);
+      }
+
+      .atrium-facts {
+        font-size: 0.72rem;
+        letter-spacing: 0.04em;
+        color: var(--atrium-label);
+        margin: 0 0 1rem;
+      }
+
+      .atrium-url {
+        font-size: 0.72rem;
+        letter-spacing: 0.02em;
+        color: var(--atrium-label);
+        margin: 0 0 1rem;
+        word-break: break-all;
+      }
+
+      /* Description reads last and is capped at three lines, so a
+         long blurb can never throw off the row's shared height. */
+      /* A full three-line mini-review, written to fit rather than
+         clamped/ellipsized - the modal's markdown body is where the
+         longer, paragraph-length analysis lives. */
+      .atrium-blurb {
+        font-size: 0.82rem;
+        line-height: 1.5;
+        color: var(--atrium-ink);
+        opacity: 0.8;
+        margin: 0;
+      }
+
+      /* --- Expand button --- */
+      /* A small affordance that only appears on hover, opening the
+         entry's modal - not a hover-triggered panel. */
+      .atrium-expand-btn {
+        position: absolute;
+        top: 0.75rem;
+        right: 0.75rem;
+        width: 30px;
+        height: 30px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--atrium-bg);
+        border: 1px solid var(--atrium-border);
+        border-radius: 50%;
+        color: var(--atrium-label);
+        cursor: pointer;
+        opacity: 0;
+        transform: scale(0.9);
+        transition: opacity 0.15s ease, transform 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+        z-index: 7;
+      }
+
+      .atrium-card:hover .atrium-expand-btn {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      .atrium-expand-btn:hover {
+        border-color: var(--atrium-accent);
+        color: var(--atrium-accent);
+      }
+
+      .atrium-expand-btn svg {
+        width: 13px;
+        height: 13px;
+      }
+
+      .atrium-sentinel {
+        height: 1px;
+      }
+
+      /* --- Loader (scroll-triggered "loading more") --- */
+      /* Floats in the gap directly above the footer illustration
+         (inside .atrium-footer-art, pulled up out of its box the same
+         way .atrium-footer-meta is) rather than taking up its own
+         layout height - so a batch loading never pushes the
+         illustration down and back up, the way an in-flow height
+         change would. Same idea as a native app's own "loading more"
+         spinner floating over content instead of resizing it. */
+      .atrium-loader {
+        position: absolute;
+        top: -2rem;
+        left: 0;
+        right: 0;
+        height: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
+      }
+
+      .atrium-loader.is-visible {
+        opacity: 1;
+      }
+
+      .atrium-loader-ring {
+        width: 26px;
+        height: 26px;
+        border: 2px solid var(--atrium-border);
+        border-top-color: var(--atrium-accent);
+        border-radius: 50%;
+        animation: atrium-spin 0.8s linear infinite;
+      }
+
+      @keyframes atrium-spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* --- Initial-load loader --- */
+      /* Same ring as the scroll loader above, just centered in a much
+         taller space so it reads as the page's first-visit loading
+         moment rather than a small inline aside. Visible by default
+         (no JS needed to show it); JS collapses it away - same
+         height/opacity transition as the scroll loader - once the
+         grid is ready to reveal. */
+      .atrium-initial-loader {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 46vh;
+        min-height: 320px;
+        overflow: hidden;
+        opacity: 1;
+        transition: opacity 0.25s ease, height 0.35s ease;
+      }
+
+      .atrium-initial-loader.is-hidden {
+        height: 0;
+        min-height: 0;
+        opacity: 0;
+      }
+
+      /* --- Card entrance --- */
+      /* Cards fade/slide in left-to-right across a row (staggered via
+         transition-delay set in JS, per the row's live column count),
+         with the cover image itself set to a slightly longer delay so
+         it's the last thing to settle in, subtly. Only newly-revealed
+         cards (initial load, or a scroll-triggered batch) animate -
+         switching filters shows/hides instantly. */
+      .atrium-card[data-reveal] {
+        opacity: 0;
+        transform: translateX(-8px);
+        transition: opacity 0.5s ease, transform 0.5s ease;
+      }
+
+      .atrium-card[data-reveal].is-shown {
+        opacity: 1;
+        transform: none;
+      }
+
+      .atrium-card[data-reveal] .atrium-cover {
+        opacity: 0;
+      }
+
+      .atrium-card[data-reveal].is-shown .atrium-cover {
+        opacity: 1;
+      }
+
+      /* Completes a short last row with blank ruled cells instead of
+         leaving bare, un-bordered background - matches the rest of
+         the grid's hairlines even when the row isn't full. */
+      .atrium-filler {
+        border-right: 1px solid var(--atrium-border);
+        border-bottom: 1px solid var(--atrium-border);
+      }
+
+      /* --- Entry modal --- */
+      /* One fixed-size overlay per entry (hidden until opened) instead
+         of a separate detail page - same rectangular size, image on
+         the left, content on the right, for every entry regardless of
+         type. Only the image column and the internal content scroll
+         differ in what they hold; the shell is identical throughout. */
+      .atrium-modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(43, 36, 32, 0.5);
+        z-index: 100;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+      }
+
+      .atrium-modal-overlay.is-open {
+        display: flex;
+      }
+
+      body.atrium-modal-lock {
+        overflow: hidden;
+      }
+
+      .atrium-modal {
+        position: relative;
+        width: min(940px, 100%);
+        max-height: 88vh;
+        background: var(--atrium-bg);
+        border-radius: 4px;
+        box-shadow: 0 24px 64px rgba(43, 36, 32, 0.4);
+        overflow: hidden;
+      }
+
+      .atrium-modal-close {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--atrium-bg);
+        border: 1px solid var(--atrium-border);
+        border-radius: 50%;
+        color: var(--atrium-label);
+        cursor: pointer;
+        transition: border-color 0.15s ease, color 0.15s ease;
+        z-index: 2;
+      }
+
+      .atrium-modal-close:hover {
+        border-color: var(--atrium-accent);
+        color: var(--atrium-accent);
+      }
+
+      .atrium-modal-close svg {
+        width: 14px;
+        height: 14px;
+      }
+
+      .atrium-modal-layout {
+        display: grid;
+        grid-template-columns: 360px 1fr;
+        align-items: start;
+      }
+
+      /* Same interactive cover treatment as the grid card (drop
+         shadow, hover lift), scaled up to suit the much bigger modal
+         column - anchored to the top (not vertically centered) so it
+         reads as the start of the content, same as the panel. */
+      .atrium-modal-image-col {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 2.5rem 2rem;
+      }
+
+      /* Attribution for a decorative painting standing in as cover
+         art - small and muted on purpose, a footnote under the image
+         rather than something competing with the book's own details. */
+      .atrium-art-credit {
+        width: 78%;
+        margin-top: 0.75rem;
+        font-size: 0.68rem;
+        line-height: 1.4;
+        color: var(--atrium-label);
+        text-align: left;
+      }
+
+      /* Non-book covers (articles, sites) use the full-width .is-wide
+         cover above - the credit line needs to match that width too,
+         or it sits narrower and centered, reading as misaligned
+         against the image's own left edge. */
+      .atrium-cover.is-wide + .atrium-art-credit {
+        width: 100%;
+      }
+
+      .atrium-art-credit .art-credit-line {
+        display: block;
+        font-weight: 500;
+      }
+
+      .atrium-art-credit .art-credit-line b {
+        font-weight: 500;
+        font-style: italic;
+      }
+
+      .atrium-art-credit .art-credit-note {
+        display: block;
+        margin-top: 0.4rem;
+      }
+
+      .atrium-modal-image-col:hover .atrium-cover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px rgba(43, 36, 32, 0.3);
+      }
+
+      .atrium-modal-image-col .atrium-cover {
+        width: 78%;
+        height: 400px;
+        margin: 0;
+      }
+
+      .atrium-modal-image-col .atrium-cover.is-wide {
+        width: 100%;
+        height: 210px;
+      }
+
+      .atrium-modal-content {
+        padding: 2.5rem 3rem 2.5rem 3.5rem;
+        max-height: 88vh;
+        overflow-y: auto;
+        max-width: 600px;
+      }
+
+      .atrium-modal-content .atrium-kicker {
+        font-size: 0.78rem;
+        margin: 0 0 0.6rem;
+      }
+
+      .atrium-modal-title {
+        font-family: var(--atrium-font-display);
+        font-weight: 600;
+        font-size: 1.65rem;
+        line-height: 1.25;
+        margin: 0 0 1rem;
+      }
+
+      .atrium-modal-content .atrium-meta-line {
+        margin: 0 0 1.5rem;
+      }
+
+      .atrium-modal-content .atrium-tag {
+        font-size: 0.72rem;
+        padding: 0.28rem 0.7rem;
+      }
+
+      .atrium-modal-content .atrium-stars {
+        font-size: 1rem;
+      }
+
+      .atrium-modal-content .atrium-facts {
+        font-size: 0.82rem;
+        margin: 0 0 0.9rem;
+      }
+
+      .atrium-modal-content .atrium-url {
+        font-size: 0.82rem;
+        margin: 0 0 0.9rem;
+        word-break: break-all;
+      }
+
+      .atrium-modal-blurb {
+        font-family: var(--atrium-font-display);
+        font-style: italic;
+        font-size: 1.15rem;
+        line-height: 1.45;
+        color: var(--atrium-ink);
+        margin: 0 0 1.6rem;
+      }
+
+      .atrium-modal-body {
+        font-size: 1rem;
+        line-height: 1.55;
+      }
+
+      .atrium-modal-body p {
+        margin: 0 0 1.2em;
+      }
+
+      .atrium-modal-body p:first-child {
+        margin-top: 0;
+      }
+
+      .atrium-modal-body p:last-child {
+        margin-bottom: 0;
+      }
+
+      /* 760px only caught phones - tablet portrait widths (768-834px)
+         still hit the 360px/1fr split, squeezing the content column
+         down to an uncomfortably narrow measure. Widened so tablet
+         also stacks: image on top (already centered via
+         .atrium-modal-image-col's own flex column + align-items),
+         content below. Placed after the desktop rules above so it
+         wins the cascade at equal specificity - a media-gated rule
+         appearing BEFORE an unconditional rule of the same
+         specificity loses to it even inside its own breakpoint. */
+      @media (max-width: 900px) {
+        .atrium-modal-layout {
+          grid-template-columns: 1fr;
+        }
+
+        /* Smaller than the desktop 78% - at full-column width a book
+           cover that size reads oversized against the stacked layout.
+           Sized down so it reads as an accent above the text, not the
+           dominant element. */
+        .atrium-modal-image-col .atrium-cover {
+          width: 48%;
+          height: auto;
+          aspect-ratio: 2 / 3;
+        }
+
+        .atrium-modal-image-col .atrium-cover.is-wide {
+          width: 95%;
+          height: auto;
+          aspect-ratio: 16 / 10;
+        }
+
+        /* .atrium-modal-content's own independent scroll region only
+           made sense next to a same-height image column at desktop -
+           stacked, it left the image stranded above an inner text
+           scrollbar instead of scrolling as one piece. The modal
+           itself becomes the single scroll container instead. */
+        .atrium-modal {
+          overflow-x: hidden;
+          overflow-y: auto;
+        }
+
+        /* Close button is a direct child of the now-scrolling
+           .atrium-modal - sticky keeps it pinned to the top-right
+           corner as the content scrolls underneath it, instead of
+           travelling away with the rest of the layout. `right` works
+           the same way under sticky as it does under fixed/absolute,
+           so this needs no float - a float was the earlier attempt
+           here, but it silently narrowed .atrium-modal-layout (a grid
+           container, which avoids overlapping floats for its whole
+           height, not just alongside the float itself), which is what
+           was reading as stray padding down the whole right edge. */
+        .atrium-modal-close {
+          position: sticky;
+          top: 1rem;
+          margin: 0 1rem 0 auto;
+        }
+
+        .atrium-modal-content {
+          max-height: none;
+          overflow-y: visible;
+          /* Desktop's 3.5rem/3rem side padding is sized for a much
+             wider column - stacked and narrow, it ate too much of the
+             available measure. */
+          padding: 0.5rem 1.25rem 2rem;
+          max-width: none;
+        }
+
+        .atrium-modal-image-col {
+          /* More room below the cover than above - it was sitting
+             almost flush against the meta line underneath it. */
+          padding: 1.5rem 1.25rem 1.25rem;
+        }
+
+        /* Desktop type scale is sized for the wide two-column
+           layout - stacked at phone/tablet width, the same sizes ran
+           too large for the narrower measure. */
+        .atrium-modal-content .atrium-kicker {
+          font-size: 0.7rem;
+          margin: 0 0 0.4rem;
+        }
+
+        .atrium-modal-title {
+          font-size: 1.3rem;
+          margin: 0 0 0.7rem;
+        }
+
+        .atrium-modal-content .atrium-meta-line {
+          margin: 0 0 1rem;
+        }
+
+        .atrium-modal-content .atrium-tag {
+          font-size: 0.66rem;
+          padding: 0.24rem 0.6rem;
+        }
+
+        .atrium-modal-content .atrium-stars {
+          font-size: 0.9rem;
+        }
+
+        .atrium-modal-content .atrium-facts,
+        .atrium-modal-content .atrium-url {
+          font-size: 0.76rem;
+          margin: 0 0 0.7rem;
+        }
+
+        .atrium-modal-blurb {
+          font-size: 1rem;
+          line-height: 1.4;
+          margin: 0 0 1.2rem;
+        }
+
+        .atrium-modal-body {
+          font-size: 0.92rem;
+          line-height: 1.5;
+        }
+      }
+
+      .atrium-cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        margin-top: 1.5rem;
+        padding: 0.5rem 0.9rem;
+        background: transparent;
+        color: var(--atrium-accent);
+        border: 1px solid var(--atrium-accent);
+        text-decoration: none;
+        font-size: 0.78rem;
+        font-weight: 500;
+        border-radius: 4px;
+        transition: background 0.15s ease, color 0.15s ease;
+      }
+
+      .atrium-cta:hover {
+        background: var(--atrium-accent);
+        color: var(--atrium-bg);
+      }
+
+      .atrium-cta svg {
+        width: 13px;
+        height: 13px;
+      }
+
+      /* --- Footer architecture --- */
+      /* A schematic colonnade that draws itself in (stroke-dashoffset
+         animated via JS, since it needs each line/path's real length)
+         once the user actually scrolls this far - a small reward for
+         reaching the end, not just static decoration. */
+      /* Illustration disabled for now (see the hidden <svg> below and
+         its generator functions, kept intact rather than deleted) -
+         footer collapsed to a short, plain credit bar instead. Come
+         back to this once the illustration direction is refined. */
+      .atrium-footer-art {
+        position: relative;
+        width: 100%;
+        /* .atrium-grid still carries its own 8rem margin-bottom
+           (sized for the old, tall illustration) - cancel most of it
+           here so the now-compact bar sits close to the divider
+           instead of leaving a large dead gap. Left at -5.25rem
+           rather than tighter - the "loading more" ring below is
+           absolutely positioned within this box and needs enough
+           headroom above it to clear the grid's own bottom border,
+           or the ring visually overlaps that border when it spins in. */
+        margin-top: -5.25rem;
+      }
+
+      .atrium-footer-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1.5rem 2rem;
+        font-family: var(--atrium-font-body);
+        font-size: 0.72rem;
+        color: var(--atrium-label);
+      }
+
+      .atrium-footer-meta .credit-lead {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+      }
+
+      /* "Project by" is plain text outside the link entirely - only
+         "Humayun Rashid" (+ arrow) is the actual <a>, so both the
+         clickable area and the hover color/underline are scoped to
+         the name, not the whole line. */
+      .atrium-footer-meta .credit-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        color: var(--atrium-label);
+        text-decoration: none;
+        text-underline-offset: 2px;
+        transition: color 0.15s ease;
+      }
+
+      .atrium-footer-meta .credit-link:hover {
+        color: var(--atrium-accent);
+        text-decoration: underline;
+      }
+
+      .atrium-footer-meta .credit-link svg {
+        width: 10px;
+        height: 10px;
+        transition: transform 0.15s ease;
+      }
+
+      .atrium-footer-meta .credit-link:hover svg {
+        transform: translate(1px, -1px);
+      }
+
+      @media (max-width: 600px) {
+        .atrium-footer-meta {
+          padding: 1.25rem;
+        }
+      }
+
+      /* No results to scroll through on the empty-search state, so
+         pin the illustration to the bottom of the viewport instead of
+         leaving it stranded just below a near-empty page. */
+      .atrium-footer-art.is-pinned {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        margin-top: 0;
+        z-index: 1;
+      }
+
+      .atrium-footer-art svg {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+
+      .atrium-footer-art svg line,
+      .atrium-footer-art svg path,
+      .atrium-footer-art svg polyline {
+        fill: none;
+        stroke: var(--atrium-ink);
+        stroke-width: 1;
+        opacity: 0.4;
+        vector-effect: non-scaling-stroke;
+      }
+
+      .atrium-footer-art svg circle {
+        fill: var(--atrium-ink);
+        opacity: 0.4;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="atrium-col">
+      <div class="atrium-header">
+        <span class="atrium-wordmark">Atrium</span>
+      </div>
+
+      <div class="atrium-hero">
+        <p class="kicker">A reading list, in progress</p>
+        <h1>A curated collection of books, long form articles, and sites worth your time.</h1>
+      </div>
+    </div>
+
+    <div class="atrium-hero-sentinel" id="atriumHeroSentinel"></div>
+
+    <!-- Fixed filter bar - hidden until the user scrolls past the
+         header above, so it never doubles up with it; a duplicate of
+         the same dropdown + wordmark, kept in sync with it. -->
+    <div class="atrium-stickybar" id="stickyBar">
+      <div class="atrium-col stickybar-inner">
+        <div class="atrium-filter-group">
+        <div class="atrium-select" id="atriumSelectFixed" data-select>
+          <button type="button" class="atrium-select-trigger" data-select-trigger aria-haspopup="listbox">
+            <span data-select-label>All</span>
+            <svg class="atrium-select-caret" viewBox="0 0 10 6" fill="none" aria-hidden="true">
+              <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </button>
+          <div class="atrium-select-menu" data-select-menu role="listbox" hidden>
+            <div class="atrium-select-option is-selected" role="option" data-kind="filter" data-value="all">
+              All
+            </div>
+            <div class="atrium-select-option" role="option" data-kind="filter" data-value="book">
+              Books
+            </div>
+            <div class="atrium-select-option" role="option" data-kind="filter" data-value="article">
+              Articles
+            </div>
+            <div class="atrium-select-option" role="option" data-kind="filter" data-value="site">
+              Sites
+            </div>
+            {allTags.length > 0 && <div class="atrium-select-divider" />}
+            {allTags.map((t) => (
+              <div class="atrium-select-option" role="option" data-kind="tag" data-value={t}>
+                {t}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div class="atrium-search" data-search>
+          <button type="button" class="atrium-search-toggle" data-search-toggle aria-label="Search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="11" cy="11" r="7" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+          </button>
+          <input
+            type="text"
+            class="atrium-search-input"
+            data-search-input
+            placeholder="Search titles, authors…"
+            aria-label="Search titles and authors"
+          />
+          <button type="button" class="atrium-search-clear" data-search-clear aria-label="Clear search" hidden>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        </div>
+
+        <span class="atrium-wordmark">Atrium</span>
+      </div>
+    </div>
+
+    <div class="atrium-no-results" id="atriumNoResults" hidden>
+      <p>We can't find what you're looking for. Try another search.</p>
+    </div>
+
+    {/* Visible from first paint (no JS needed to show it) - the header
+        and hero copy above render immediately, but the grid itself
+        stays behind this until JS deliberately reveals it a beat
+        later, so the very first visit gets the same loading moment as
+        a scroll-triggered batch, just centered and taller. */}
+    <div class="atrium-initial-loader" id="atriumInitialLoader" aria-hidden="true">
+      <span class="atrium-loader-ring"></span>
+    </div>
+
+    <div class="atrium-grid is-priming" id="atriumGrid">
+      {
+        cards.map(({ entry, metaLine, facts, tag, coverStyle, externalUrl }) => (
+          <div
+            class="atrium-card"
+            data-reveal
+            data-type={entry.data.type}
+            data-tag={tag ?? ""}
+            data-search={`${entry.data.title} ${metaLine}`.toLowerCase()}
+          >
+            <div class="atrium-card-inner">
+              <button type="button" class="atrium-card-hit" data-expand={entry.id}>
+                <div
+                  class={`atrium-cover${entry.data.type !== "book" ? " is-wide" : ""}${
+                    !entry.data.coverImage || entry.data.showTitleOverlay ? " has-title-scrim" : ""
+                  }`}
+                  style={{ background: coverStyle }}
+                >
+                  {(!entry.data.coverImage || entry.data.showTitleOverlay) && (
+                    <span class="cover-title">{entry.data.title}</span>
+                  )}
+                </div>
+                <p class="atrium-kicker">{metaLine}</p>
+              </button>
+
+              {/* The title itself links straight out to the external
+                  listing/article/site - no need to open the modal
+                  just to click through - falling back to opening the
+                  modal only when a book has no purchase link. */}
+              {externalUrl ? (
+                <a class="atrium-title-link" href={externalUrl} target="_blank" rel="noopener">
+                  <span class="atrium-title">{entry.data.title}</span>
+                  <svg
+                    class="atrium-title-external"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.75"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M7 17L17 7M7 7h10v10" />
+                  </svg>
+                </a>
+              ) : (
+                <button type="button" class="atrium-title-link" data-expand={entry.id}>
+                  <span class="atrium-title">{entry.data.title}</span>
+                </button>
+              )}
+
+              {facts && <p class="atrium-facts">{facts}</p>}
+              {entry.data.type === "site" && <p class="atrium-url">{entry.data.siteUrl.replace(/^https?:\/\//, "")}</p>}
+
+              <button type="button" class="atrium-card-hit" data-expand={entry.id}>
+                <div class="atrium-meta-line">
+                  {tag && <span class="atrium-tag">{tag}</span>}
+                  {entry.data.type !== "site" && (
+                    <span class="atrium-stars" aria-hidden="true">
+                      {[1, 2, 3, 4, 5].map((n) => (
+                        <span class={n <= entry.data.rating ? "filled" : ""}>★</span>
+                      ))}
+                    </span>
+                  )}
+                </div>
+                <p class="atrium-blurb">{entry.data.blurb}</p>
+              </button>
+            </div>
+
+            <button type="button" class="atrium-expand-btn" data-expand={entry.id} aria-label={`Open: ${entry.data.title}`}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+              </svg>
+            </button>
+          </div>
+        ))
+      }
+      {/* Up to 3 blank filler cells (the most ever needed, at 4 columns) to complete a short last row - shown/hidden at runtime based on the actual visible count and current column count. */}
+      {[0, 1, 2].map(() => (
+        <div class="atrium-card atrium-filler" data-filler hidden />
+      ))}
+    </div>
+    <div class="atrium-sentinel" id="atriumSentinel"></div>
+
+    <div class="atrium-footer-art" id="atriumFooterArt">
+      <div class="atrium-loader" id="atriumLoader" aria-hidden="true">
+        <span class="atrium-loader-ring"></span>
+      </div>
+      <div class="atrium-footer-meta">
+        <span class="credit-lead">
+          Project by
+          <a class="credit-link" href="https://www.humrashid.com" target="_blank" rel="noopener">
+            Humayun Rashid
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M7 17L17 7M17 7H8M17 7v9" />
+            </svg>
+          </a>
+        </span>
+        <span>Atrium © 2026</span>
+      </div>
+      {/* Illustration paused for now, not deleted - direction didn't
+          land, revisiting later. The generator functions below are
+          untouched; this is the only line standing between them and
+          being back on the page. */}
+      <svg
+        viewBox={`0 0 ${ART_WIDTH} ${ART_HEIGHT}`}
+        preserveAspectRatio="none"
+        aria-hidden="true"
+        set:html={footerArtInner}
+        style="display: none;"
+      />
+    </div>
+
+    {/* One modal per entry (all hidden until opened) rather than a
+        separate detail page/route - same fixed size and image-left,
+        content-right layout for every entry regardless of type. */}
+    {
+      cards.map(({ entry, metaLine, facts, tag, coverStyle, externalUrl, ctaLabel, Content }) => (
+        <div class="atrium-modal-overlay" id={`modal-${entry.id}`} data-modal>
+          <div class="atrium-modal" role="dialog" aria-modal="true" aria-label={entry.data.title}>
+            <button type="button" class="atrium-modal-close" data-modal-close aria-label="Close">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
+            </button>
+            <div class="atrium-modal-layout">
+              <div class="atrium-modal-image-col">
+                <div
+                  class={`atrium-cover${entry.data.type !== "book" ? " is-wide" : ""}${
+                    !entry.data.coverImage || entry.data.showTitleOverlay ? " has-title-scrim" : ""
+                  }`}
+                  style={{ background: coverStyle }}
+                >
+                  {(!entry.data.coverImage || entry.data.showTitleOverlay) && (
+                    <span class="cover-title">{entry.data.title}</span>
+                  )}
+                </div>
+                {entry.data.artCredit && (
+                  <p class="atrium-art-credit">
+                    <span class="art-credit-line">
+                      <b>{entry.data.artCredit.title}</b> - {entry.data.artCredit.artist}, {entry.data.artCredit.year}
+                    </span>
+                    {entry.data.artCredit.note && <span class="art-credit-note">{entry.data.artCredit.note}</span>}
+                  </p>
+                )}
+              </div>
+              <div class="atrium-modal-content">
+                <p class="atrium-kicker">{metaLine}</p>
+                <h2 class="atrium-modal-title">{entry.data.title}</h2>
+                {facts && <p class="atrium-facts">{facts}</p>}
+                {entry.data.type === "site" && <p class="atrium-url">{entry.data.siteUrl.replace(/^https?:\/\//, "")}</p>}
+                <div class="atrium-meta-line">
+                  {tag && <span class="atrium-tag">{tag}</span>}
+                  {entry.data.type !== "site" && (
+                    <span class="atrium-stars" aria-hidden="true">
+                      {[1, 2, 3, 4, 5].map((n) => (
+                        <span class={n <= entry.data.rating ? "filled" : ""}>★</span>
+                      ))}
+                    </span>
+                  )}
+                </div>
+                <p class="atrium-modal-blurb">{entry.data.blurb}</p>
+                <div class="atrium-modal-body">
+                  <Content />
+                </div>
+                {externalUrl && (
+                  <a class="atrium-cta" href={externalUrl} target="_blank" rel="noopener">
+                    {ctaLabel}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M7 17L17 7M7 7h10v10" />
+                    </svg>
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      ))
+    }
+
+    <script>
+      // Cards beyond the first batch start hidden and fade in as the
+      // sentinel at the bottom of the grid scrolls into view - a
+      // client-side "infinite scroll" that works against a fully
+      // static, build-time list rather than a real paginated API.
+      const BATCH_SIZE = 12;
+      const cards = Array.from(document.querySelectorAll<HTMLElement>("[data-reveal]"));
+      const fillers = Array.from(document.querySelectorAll<HTMLElement>("[data-filler]"));
+      const grid = document.getElementById("atriumGrid") as HTMLElement;
+      let revealed = Math.min(BATCH_SIZE, cards.length);
+      let currentFilter = "all";
+      let currentTag = "";
+      let searchQuery = "";
+      const noResults = document.getElementById("atriumNoResults") as HTMLElement | null;
+      const footerArtEl = document.getElementById("atriumFooterArt");
+      const heroEl = document.querySelector<HTMLElement>(".atrium-hero");
+
+      // --- Fixed bar reveal ---
+      // Normally hidden until the always-visible header (tracked by
+      // the sentinel just below it) scrolls out of view - but a short
+      // or empty search result must never strand the user without a
+      // way back to the full library, so a search in progress forces
+      // it visible regardless of scroll position.
+      const heroSentinel = document.getElementById("atriumHeroSentinel");
+      const stickyBar = document.getElementById("stickyBar");
+      let heroSentinelHidden = false;
+      function updateStickyBarVisibility() {
+        const narrowed = currentFilter !== "all" || currentTag !== "" || searchQuery !== "";
+        stickyBar?.classList.toggle("is-visible", heroSentinelHidden || narrowed);
+      }
+      if (heroSentinel) {
+        const barObserver = new IntersectionObserver(([entry]) => {
+          heroSentinelHidden = !entry.isIntersecting;
+          updateStickyBarVisibility();
+        });
+        barObserver.observe(heroSentinel);
+      }
+
+      // A short last row still gets ruled/bordered cells rather than
+      // bare background - figure out the live column count (it's
+      // responsive) and fill in exactly as many blanks as needed.
+      function updateFillers() {
+        const columnCount = getComputedStyle(grid).gridTemplateColumns.split(" ").length;
+        const visibleCount = cards.filter((c) => c.style.display !== "none").length;
+        const remainder = visibleCount % columnCount;
+        const neededFillers = remainder === 0 ? 0 : columnCount - remainder;
+        fillers.forEach((el, i) => (el.hidden = i >= neededFillers));
+      }
+
+      function applyVisibility() {
+        let visibleCount = 0;
+        cards.forEach((card, i) => {
+          const matchesFilter = currentFilter === "all" || card.dataset.type === currentFilter;
+          const matchesTag = !currentTag || card.dataset.tag === currentTag;
+          const matchesSearch = !searchQuery || (card.dataset.search ?? "").includes(searchQuery);
+          // Batching only applies to the fully unfiltered, unsearched
+          // view - picking a specific type, tag, or search query is a
+          // deliberate request to see every match at once.
+          const withinBatch = currentFilter !== "all" || currentTag || searchQuery ? true : i < revealed;
+          const visible = matchesFilter && matchesTag && matchesSearch && withinBatch;
+          card.style.display = visible ? "" : "none";
+          if (visible) visibleCount++;
+        });
+        updateFillers();
+        const isEmpty = visibleCount === 0;
+        if (noResults) noResults.hidden = !isEmpty;
+        if (grid) grid.hidden = isEmpty;
+        // The hero copy is redundant (and just adds dead space above
+        // it) once the page is only showing the no-results message.
+        if (heroEl) heroEl.hidden = isEmpty;
+        // Nothing to scroll through on the empty state, so pin the
+        // footer illustration to the bottom of the screen instead of
+        // leaving it stranded below a mostly-empty page.
+        footerArtEl?.classList.toggle("is-pinned", isEmpty);
+        updateStickyBarVisibility();
+      }
+
+      // A filter/tag change can reveal cards that were never part of
+      // a batch reveal (so never got their entrance animation) - show
+      // those instantly rather than leaving them invisible forever.
+      function catchUpVisibleCards() {
+        cards.forEach((card) => {
+          if (card.style.display !== "none" && !card.classList.contains("is-shown")) {
+            card.style.transitionDelay = "0ms";
+            card.classList.add("is-shown");
+          }
+        });
+      }
+
+      // --- Card entrance animation ---
+      // Fades/slides each newly-revealed card in left-to-right across
+      // its row (a per-card transition-delay based on live column
+      // count), with its cover image set to settle in a bit after the
+      // rest of the card - a subtle "loads last" touch, not a second
+      // reveal. Cards already marked .is-shown (already seen once)
+      // reappear instantly - only genuinely new ones animate.
+      function revealCardsWithStagger(cardsToReveal: HTMLElement[]) {
+        if (cardsToReveal.length === 0) return;
+        const columnCount = getComputedStyle(grid).gridTemplateColumns.split(" ").length;
+        cardsToReveal.forEach((card, i) => {
+          if (card.classList.contains("is-shown")) return;
+          const delay = (i % columnCount) * 70;
+          card.style.transitionDelay = `${delay}ms`;
+          const cover = card.querySelector<HTMLElement>(".atrium-cover");
+          if (cover) cover.style.transitionDelay = `${delay + 220}ms`;
+        });
+        // Force a reflow so the delay above is committed before the
+        // class flips - otherwise the browser can coalesce both style
+        // changes into one paint and skip the transition entirely.
+        void grid.offsetHeight;
+        requestAnimationFrame(() => {
+          cardsToReveal.forEach((card) => card.classList.add("is-shown"));
+        });
+      }
+
+      applyVisibility();
+
+      // First-visit loading moment: hold the grid behind the centered
+      // loader briefly, then collapse it away and reveal the initial
+      // batch with the same stagger every later batch gets.
+      const initialLoader = document.getElementById("atriumInitialLoader");
+      window.setTimeout(() => {
+        initialLoader?.classList.add("is-hidden");
+        grid.classList.remove("is-priming");
+        revealCardsWithStagger(cards.filter((c) => c.style.display !== "none"));
+      }, 500);
+
+      let resizeTimer: ReturnType<typeof setTimeout>;
+      window.addEventListener("resize", () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(updateFillers, 150);
+      });
+
+      const sentinel = document.getElementById("atriumSentinel");
+      const loader = document.getElementById("atriumLoader");
+      let isLoadingMore = false;
+
+      if (sentinel) {
+        const observer = new IntersectionObserver((entries) => {
+          if (
+            !entries[0].isIntersecting ||
+            isLoadingMore ||
+            revealed >= cards.length ||
+            currentFilter !== "all" ||
+            currentTag ||
+            searchQuery
+          ) {
+            return;
+          }
+          isLoadingMore = true;
+          loader?.classList.add("is-visible");
+          window.setTimeout(() => {
+            const previouslyRevealed = revealed;
+            revealed = Math.min(revealed + BATCH_SIZE, cards.length);
+            applyVisibility();
+            loader?.classList.remove("is-visible");
+            revealCardsWithStagger(cards.slice(previouslyRevealed, revealed).filter((c) => c.style.display !== "none"));
+            isLoadingMore = false;
+            if (revealed >= cards.length) observer.disconnect();
+          }, 500);
+        });
+        observer.observe(sentinel);
+      }
+
+      // --- Combined filter dropdown (type + tag, one control) ---
+      // Two copies exist in the DOM (the always-visible header, and
+      // the fixed bar that appears once scrolled past it) so wire up
+      // every [data-select] instance the same way and keep their
+      // selected option + label in sync with each other.
+      const selectInstances = Array.from(document.querySelectorAll<HTMLElement>("[data-select]")).map((select) => ({
+        select,
+        trigger: select.querySelector<HTMLElement>("[data-select-trigger]")!,
+        menu: select.querySelector<HTMLElement>("[data-select-menu]")!,
+        label: select.querySelector<HTMLElement>("[data-select-label]")!,
+        options: Array.from(select.querySelectorAll<HTMLElement>(".atrium-select-option")),
+      }));
+
+      function closeSelect(instance: (typeof selectInstances)[number]) {
+        instance.menu.hidden = true;
+        instance.select.classList.remove("is-open");
+      }
+      function closeAllSelects() {
+        selectInstances.forEach(closeSelect);
+      }
+      function openSelect(instance: (typeof selectInstances)[number]) {
+        closeAllSelects();
+        instance.menu.hidden = false;
+        instance.select.classList.add("is-open");
+      }
+
+      document.addEventListener("click", (e) => {
+        selectInstances.forEach((instance) => {
+          if (!instance.menu.hidden && !instance.select.contains(e.target as Node)) closeSelect(instance);
+        });
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeAllSelects();
+      });
+
+      // --- Search (title/author only, combined with the dropdown's
+      // type/tag filter rather than replacing it) ---
+      const searchWidget = document.querySelector<HTMLElement>("[data-search]");
+      const searchToggle = searchWidget?.querySelector<HTMLElement>("[data-search-toggle]");
+      const searchInput = searchWidget?.querySelector<HTMLInputElement>("[data-search-input]");
+      const searchClear = searchWidget?.querySelector<HTMLElement>("[data-search-clear]");
+
+      function openSearch() {
+        searchWidget?.classList.add("is-open");
+        searchInput?.focus();
+      }
+      function closeSearch() {
+        if (!searchInput?.value) searchWidget?.classList.remove("is-open");
+      }
+      function clearSearch() {
+        if (searchInput) searchInput.value = "";
+        if (searchClear) searchClear.hidden = true;
+        searchQuery = "";
+        applyVisibility();
+        catchUpVisibleCards();
+      }
+
+      searchToggle?.addEventListener("click", () => {
+        if (searchWidget?.classList.contains("is-open")) closeSearch();
+        else openSearch();
+      });
+
+      searchClear?.addEventListener("click", () => {
+        clearSearch();
+        searchInput?.focus();
+      });
+
+      // The clear "x" only shows once there's something typed - it
+      // doesn't trigger a search itself, just tracks whether there's
+      // text to clear.
+      searchInput?.addEventListener("input", () => {
+        if (searchClear) searchClear.hidden = searchInput.value.length === 0;
+      });
+
+      // Only searches on Enter, not as the user types - avoids
+      // re-filtering (and re-triggering the entrance animation) on
+      // every keystroke.
+      searchInput?.addEventListener("keydown", (e) => {
+        if (e.key !== "Enter") return;
+        searchQuery = searchInput.value.trim().toLowerCase();
+        applyVisibility();
+        catchUpVisibleCards();
+      });
+
+      document.addEventListener("click", (e) => {
+        if (searchWidget && !searchWidget.contains(e.target as Node)) closeSearch();
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && searchWidget?.classList.contains("is-open")) {
+          clearSearch();
+          closeSearch();
+        }
+      });
+
+      function selectValue(kind: string | undefined, value: string, label: string) {
+        if (kind === "tag") {
+          currentTag = value;
+          currentFilter = "all";
+        } else {
+          currentFilter = value;
+          currentTag = "";
+        }
+        selectInstances.forEach((instance) => {
+          instance.options.forEach((o) => o.classList.toggle("is-selected", o.dataset.kind === kind && (o.dataset.value ?? "all") === value));
+          instance.label.textContent = label;
+        });
+        closeAllSelects();
+        applyVisibility();
+        catchUpVisibleCards();
+      }
+
+      selectInstances.forEach((instance) => {
+        instance.trigger.addEventListener("click", (e) => {
+          e.stopPropagation();
+          if (instance.menu.hidden) openSelect(instance);
+          else closeSelect(instance);
+        });
+        instance.options.forEach((opt) => {
+          opt.addEventListener("click", () => {
+            selectValue(opt.dataset.kind, opt.dataset.value ?? "all", opt.textContent!.trim());
+          });
+        });
+      });
+
+      // --- Entry modal ---
+      // Every card's cover, title (when it has no external link), and
+      // meta/blurb area - plus the corner expand button - all open the
+      // same per-entry modal instead of navigating to a detail page.
+      let openModal: HTMLElement | null = null;
+
+      function closeModal() {
+        if (!openModal) return;
+        openModal.classList.remove("is-open");
+        openModal = null;
+        document.body.classList.remove("atrium-modal-lock");
+      }
+
+      document.querySelectorAll<HTMLElement>("[data-expand]").forEach((trigger) => {
+        trigger.addEventListener("click", () => {
+          const modal = document.getElementById(`modal-${trigger.dataset.expand}`);
+          if (!modal) return;
+          modal.classList.add("is-open");
+          openModal = modal;
+          document.body.classList.add("atrium-modal-lock");
+        });
+      });
+
+      document.querySelectorAll<HTMLElement>("[data-modal]").forEach((overlay) => {
+        overlay.addEventListener("click", (e) => {
+          if (e.target === overlay) closeModal();
+        });
+        overlay.querySelector("[data-modal-close]")?.addEventListener("click", closeModal);
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeModal();
+      });
+    </script>
+  </body>
+</html>

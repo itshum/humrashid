@@ -185,4 +185,82 @@ const caseStudies = defineCollection({
   }),
 });
 
-export const collections = { caseStudies };
+// Atrium - a growing library of books, long-form articles, and site
+// resources (see src/pages/apps/atrium/). Discriminated on `type`
+// since each kind needs different metadata (a book's author/purchase
+// link vs. an article's source/URL) but shares the same rating,
+// cover, and markdown-body-as-synopsis structure.
+const atriumShared = {
+  title: z.string(),
+  dateAdded: z.coerce.date(),
+  // A short 1-2 sentence teaser shown on the grid card - distinct from
+  // the markdown body, which is the longer synopsis/take shown on the
+  // detail page.
+  blurb: z.string(),
+  // A flat hex color the placeholder cover is generated from until
+  // real cover art is added.
+  coverColor: z.string(),
+  // Real cover art (an external URL or a path under public/), used in
+  // place of the procedural placeholder once available. Optional so
+  // entries can be added before art exists.
+  coverImage: z.string().optional(),
+  // When an entry has no real cover art, `coverImage` can instead hold
+  // a decorative background (e.g. a Greco-Roman painting, picked at
+  // random from public/atrium-art/) - this flags that case so the
+  // title still renders on top, scrimmed for legibility, the same way
+  // it would over a flat coverColor.
+  showTitleOverlay: z.boolean().optional(),
+  // Attribution for a decorative painting standing in as coverImage -
+  // rendered as a small caption under the cover in the modal only
+  // (the grid card stays clean/small). Unrelated to authorship of the
+  // book/article/site itself.
+  artCredit: z
+    .object({
+      title: z.string(),
+      artist: z.string(),
+      year: z.string(),
+      note: z.string().optional(),
+    })
+    .optional(),
+  draft: z.boolean().default(true),
+};
+
+const atrium = defineCollection({
+  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/atrium" }),
+  schema: z.discriminatedUnion("type", [
+    z.object({
+      type: z.literal("book"),
+      ...atriumShared,
+      rating: z.number().min(0).max(5),
+      author: z.string(),
+      publishDate: z.coerce.date().optional(),
+      pageCount: z.number().optional(),
+      genre: z.string().optional(),
+      // NYC independent bookstores only - never Amazon.
+      purchaseUrl: z.string().url().optional(),
+      purchaseStore: z.string().optional(),
+    }),
+    z.object({
+      type: z.literal("article"),
+      ...atriumShared,
+      rating: z.number().min(0).max(5),
+      sourceName: z.string(),
+      articleUrl: z.string().url(),
+      readTime: z.string().optional(),
+      articleAuthor: z.string().optional(),
+      datePublished: z.coerce.date().optional(),
+    }),
+    z.object({
+      type: z.literal("site"),
+      ...atriumShared,
+      // No rating for sites - a category tag instead, for browsing/
+      // filtering as the library grows.
+      category: z.string(),
+      siteName: z.string(),
+      siteUrl: z.string().url(),
+      tagline: z.string().optional(),
+    }),
+  ]),
+});
+
+export const collections = { caseStudies, atrium };
