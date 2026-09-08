@@ -901,15 +901,19 @@ const footerArtInner = [
 
       /* Flat 2D cover for every type - a real image when available,
          a subtle drop shadow for depth, and a hover lift + shadow
-         bump for a little vibrancy rather than a static rectangle. A
-         shared fixed height (width varies by type instead) keeps the
-         text below - kicker, title, tag, blurb - starting at the same
-         line across a row, whether the card next to it is a tall
-         portrait book or a short wide article/site image. */
+         bump for a little vibrancy rather than a static rectangle.
+         Sized by aspect-ratio, not a fixed pixel height - the old
+         fixed-height/percent-width combination let the box's own
+         proportions drift with the viewport (height locked, width
+         following the card), so the same cover art got a different
+         crop at every window size, cutting off more or less of the
+         image depending on how wide the browser happened to be.
+         aspect-ratio keeps the crop framing identical at any size;
+         only the whole box scales up or down together. */
       .atrium-cover {
         position: relative;
-        height: 235px;
         width: 46%;
+        aspect-ratio: 2 / 3;
         border-radius: 2px;
         display: flex;
         align-items: flex-end;
@@ -937,6 +941,7 @@ const footerArtInner = [
 
       .atrium-cover.is-wide {
         width: 100%;
+        aspect-ratio: 16 / 10;
         padding: 1.25rem;
       }
 
