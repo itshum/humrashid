@@ -385,6 +385,35 @@ const footerArtInner = [
         background: var(--atrium-bg);
         color: var(--atrium-ink);
         font-family: var(--atrium-font-body);
+        /* Standards-track color-only property (no width, so it can't
+           force a reserved gutter the way a custom-width
+           ::-webkit-scrollbar rule does) - covers browsers where the
+           -webkit- pseudo-elements below don't apply to the root
+           document scrollbar. */
+        scrollbar-color: var(--atrium-border) var(--atrium-bg);
+      }
+
+      /* Whether the scrollbar reserves its own space or floats as an
+         overlay is the browser/OS's call (macOS: System Settings ->
+         Appearance -> Show scroll bars), not something this page can
+         override - but recoloring the track it CAN control, so a
+         reserved gutter reads as part of the page instead of a stark
+         white strip. Deliberately doesn't set a custom width here,
+         since that's what previously pushed Chrome out of its default
+         overlay behavior and reserved a gutter that wasn't there
+         before. */
+      html::-webkit-scrollbar-track {
+        background: var(--atrium-bg);
+      }
+
+      html::-webkit-scrollbar-thumb {
+        background: var(--atrium-border);
+        border: 3px solid var(--atrium-bg);
+        border-radius: 8px;
+      }
+
+      html::-webkit-scrollbar-thumb:hover {
+        background: var(--atrium-label);
       }
 
       a {
@@ -443,13 +472,22 @@ const footerArtInner = [
          header is always reachable (just scroll to top), so a short
          or filtered result set can never strand the user without a
          way to change the filter back, even while this stays hidden. */
+      /* The plain 1px hairline (same color as the grid's own row
+         dividers) all but disappeared here - a grid divider has card
+         content differing on either side to set it off, but this bar
+         floats over a uniform, continuous background with nothing to
+         contrast against. A touch more border weight/opacity plus a
+         soft shadow gives it the "elevated above the content
+         scrolling underneath" separation the hairline alone couldn't. */
       .atrium-stickybar {
         position: fixed;
         top: 0;
         left: 0;
         right: 0;
         background: var(--atrium-bg);
-        border-bottom: 1px solid var(--atrium-border);
+        border-bottom: 1px solid var(--atrium-ink);
+        border-bottom-color: rgba(43, 36, 32, 0.18);
+        box-shadow: 0 4px 12px rgba(43, 36, 32, 0.06);
         transform: translateY(-100%);
         transition: transform 0.25s ease;
         z-index: 10;
@@ -693,6 +731,62 @@ const footerArtInner = [
 
       .atrium-search.is-open .atrium-search-input:focus {
         border-color: var(--atrium-accent);
+      }
+
+      /* At phone width the filter dropdown + expanded search input
+         (up to 190px) plus the wordmark no longer fit on one row -
+         .atrium-wordmark can't shrink below its own text, so the two
+         previously just overlapped. Pin the wordmark out of flex flow
+         to the row's right edge (guaranteeing it never gets crowded)
+         and shrink it, then let the filter group claim the freed
+         space on the left and cap the search input's growth so it has
+         somewhere to expand into instead of past the edge. */
+      @media (max-width: 640px) {
+        .atrium-header,
+        .stickybar-inner {
+          position: relative;
+        }
+
+        .atrium-wordmark {
+          font-size: 1.6rem;
+        }
+
+        .stickybar-inner {
+          /* Edge-to-edge on both sides, matching .atrium-grid below
+             (also full-bleed, not inset inside .atrium-col) - the
+             dropdown/search and the wordmark align with the grid's
+             own left/right edges instead of sitting inset from them.
+             The right padding still reserves room for the
+             absolutely-positioned wordmark - its `right` offset is
+             measured against this padding box's outer edge, not its
+             content edge, so this padding is the only thing standing
+             between the filter group and it. */
+          padding-left: 0;
+          padding-right: 6rem;
+        }
+
+        .stickybar-inner .atrium-wordmark {
+          position: absolute;
+          top: 50%;
+          right: 0;
+          transform: translateY(-50%);
+        }
+
+        .atrium-filter-group {
+          flex: 1 1 auto;
+          min-width: 0;
+        }
+
+        .atrium-search {
+          min-width: 0;
+        }
+
+        .atrium-search.is-open .atrium-search-input {
+          /* Both sides freed up room since the dropdown moved flush
+             left and the wordmark moved flush right - wide enough now
+             to read the placeholder instead of truncating it. */
+          width: min(190px, 43vw);
+        }
       }
 
       .atrium-no-results {
@@ -1033,10 +1127,10 @@ const footerArtInner = [
          spinner floating over content instead of resizing it. */
       .atrium-loader {
         position: absolute;
-        top: -3.5rem;
+        top: -2rem;
         left: 0;
         right: 0;
-        height: 3.5rem;
+        height: 2rem;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -1192,12 +1286,6 @@ const footerArtInner = [
         align-items: start;
       }
 
-      @media (max-width: 760px) {
-        .atrium-modal-layout {
-          grid-template-columns: 1fr;
-        }
-      }
-
       /* Same interactive cover treatment as the grid card (drop
          shadow, hover lift), scaled up to suit the much bigger modal
          column - anchored to the top (not vertically centered) so it
@@ -1330,6 +1418,122 @@ const footerArtInner = [
         margin-bottom: 0;
       }
 
+      /* 760px only caught phones - tablet portrait widths (768-834px)
+         still hit the 360px/1fr split, squeezing the content column
+         down to an uncomfortably narrow measure. Widened so tablet
+         also stacks: image on top (already centered via
+         .atrium-modal-image-col's own flex column + align-items),
+         content below. Placed after the desktop rules above so it
+         wins the cascade at equal specificity - a media-gated rule
+         appearing BEFORE an unconditional rule of the same
+         specificity loses to it even inside its own breakpoint. */
+      @media (max-width: 900px) {
+        .atrium-modal-layout {
+          grid-template-columns: 1fr;
+        }
+
+        /* Smaller than the desktop 78% - at full-column width a book
+           cover that size reads oversized against the stacked layout.
+           Sized down so it reads as an accent above the text, not the
+           dominant element. */
+        .atrium-modal-image-col .atrium-cover {
+          width: 48%;
+          height: auto;
+          aspect-ratio: 2 / 3;
+        }
+
+        .atrium-modal-image-col .atrium-cover.is-wide {
+          width: 95%;
+          height: auto;
+          aspect-ratio: 16 / 10;
+        }
+
+        /* .atrium-modal-content's own independent scroll region only
+           made sense next to a same-height image column at desktop -
+           stacked, it left the image stranded above an inner text
+           scrollbar instead of scrolling as one piece. The modal
+           itself becomes the single scroll container instead. */
+        .atrium-modal {
+          overflow-x: hidden;
+          overflow-y: auto;
+        }
+
+        /* Close button is a direct child of the now-scrolling
+           .atrium-modal - sticky keeps it pinned to the top-right
+           corner as the content scrolls underneath it, instead of
+           travelling away with the rest of the layout. `right` works
+           the same way under sticky as it does under fixed/absolute,
+           so this needs no float - a float was the earlier attempt
+           here, but it silently narrowed .atrium-modal-layout (a grid
+           container, which avoids overlapping floats for its whole
+           height, not just alongside the float itself), which is what
+           was reading as stray padding down the whole right edge. */
+        .atrium-modal-close {
+          position: sticky;
+          top: 1rem;
+          margin: 0 1rem 0 auto;
+        }
+
+        .atrium-modal-content {
+          max-height: none;
+          overflow-y: visible;
+          /* Desktop's 3.5rem/3rem side padding is sized for a much
+             wider column - stacked and narrow, it ate too much of the
+             available measure. */
+          padding: 0.5rem 1.25rem 2rem;
+          max-width: none;
+        }
+
+        .atrium-modal-image-col {
+          /* More room below the cover than above - it was sitting
+             almost flush against the meta line underneath it. */
+          padding: 1.5rem 1.25rem 1.25rem;
+        }
+
+        /* Desktop type scale is sized for the wide two-column
+           layout - stacked at phone/tablet width, the same sizes ran
+           too large for the narrower measure. */
+        .atrium-modal-content .atrium-kicker {
+          font-size: 0.7rem;
+          margin: 0 0 0.4rem;
+        }
+
+        .atrium-modal-title {
+          font-size: 1.3rem;
+          margin: 0 0 0.7rem;
+        }
+
+        .atrium-modal-content .atrium-meta-line {
+          margin: 0 0 1rem;
+        }
+
+        .atrium-modal-content .atrium-tag {
+          font-size: 0.66rem;
+          padding: 0.24rem 0.6rem;
+        }
+
+        .atrium-modal-content .atrium-stars {
+          font-size: 0.9rem;
+        }
+
+        .atrium-modal-content .atrium-facts,
+        .atrium-modal-content .atrium-url {
+          font-size: 0.76rem;
+          margin: 0 0 0.7rem;
+        }
+
+        .atrium-modal-blurb {
+          font-size: 1rem;
+          line-height: 1.4;
+          margin: 0 0 1.2rem;
+        }
+
+        .atrium-modal-body {
+          font-size: 0.92rem;
+          line-height: 1.5;
+        }
+      }
+
       .atrium-cta {
         display: inline-flex;
         align-items: center;
@@ -1361,29 +1565,29 @@ const footerArtInner = [
          animated via JS, since it needs each line/path's real length)
          once the user actually scrolls this far - a small reward for
          reaching the end, not just static decoration. */
+      /* Illustration disabled for now (see the hidden <svg> below and
+         its generator functions, kept intact rather than deleted) -
+         footer collapsed to a short, plain credit bar instead. Come
+         back to this once the illustration direction is refined. */
       .atrium-footer-art {
         position: relative;
         width: 100%;
-        height: 160px;
-        margin-top: -2rem;
+        /* .atrium-grid still carries its own 8rem margin-bottom
+           (sized for the old, tall illustration) - cancel most of it
+           here so the now-compact bar sits close to the divider
+           instead of leaving a large dead gap. Left at -5.25rem
+           rather than tighter - the "loading more" ring below is
+           absolutely positioned within this box and needs enough
+           headroom above it to clear the grid's own bottom border,
+           or the ring visually overlaps that border when it spins in. */
+        margin-top: -5.25rem;
       }
 
-      /* A small credit line resting near the grid's divider, above
-         the illustration itself - keeps the illustration's own
-         position/height untouched. .atrium-grid's 8rem margin-bottom
-         collapses with this box's -2rem margin-top into a 6rem gap
-         above the box, so top pulls the text up out of the box by
-         4.5rem of that gap, leaving 1.5rem of padding under the
-         divider rather than sitting flush against it. */
       .atrium-footer-meta {
-        position: absolute;
-        top: -4.5rem;
-        left: 2rem;
-        right: 2rem;
-        z-index: 1;
         display: flex;
         align-items: center;
         justify-content: space-between;
+        padding: 1.5rem 2rem;
         font-family: var(--atrium-font-body);
         font-size: 0.72rem;
         color: var(--atrium-label);
@@ -1426,8 +1630,7 @@ const footerArtInner = [
 
       @media (max-width: 600px) {
         .atrium-footer-meta {
-          left: 1.25rem;
-          right: 1.25rem;
+          padding: 1.25rem;
         }
       }
 
@@ -1653,7 +1856,17 @@ const footerArtInner = [
         </span>
         <span>Atrium © 2026</span>
       </div>
-      <svg viewBox={`0 0 ${ART_WIDTH} ${ART_HEIGHT}`} preserveAspectRatio="none" aria-hidden="true" set:html={footerArtInner} />
+      {/* Illustration paused for now, not deleted - direction didn't
+          land, revisiting later. The generator functions below are
+          untouched; this is the only line standing between them and
+          being back on the page. */}
+      <svg
+        viewBox={`0 0 ${ART_WIDTH} ${ART_HEIGHT}`}
+        preserveAspectRatio="none"
+        aria-hidden="true"
+        set:html={footerArtInner}
+        style="display: none;"
+      />
     </div>
 
     {/* One modal per entry (all hidden until opened) rather than a

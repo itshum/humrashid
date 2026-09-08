@@ -11,7 +11,7 @@ blurb: "Nero's tutor on grief, wealth, power, and religion, one letter at a time
 coverColor: "#7a5c3d"
 coverImage: "https://covers.openlibrary.org/b/id/103759-L.jpg"
 purchaseStore: "Three Lives & Company"
-purchaseUrl: "https://threelives.com/"
+purchaseUrl: "http://threelives.com/"
 draft: false
 ---
 

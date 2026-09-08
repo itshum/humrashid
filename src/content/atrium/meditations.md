@@ -17,7 +17,7 @@ draft: false
 
 A Roman emperor's private notebook, never meant to be published, which
 is exactly why it holds up. No system to sell, no audience to perform
-for — just a man reminding himself, page after page, to do the work in
+for. Just a man reminding himself, page after page, to do the work in
 front of him and let go of what he can't control.
 
 I come back to this one every couple of years. It reads differently

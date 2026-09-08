@@ -11,7 +11,7 @@ blurb: "An undefeated swordsman's short treatise on strategy, timing, and knowin
 coverColor: "#1f1f1f"
 coverImage: "https://covers.openlibrary.org/b/id/6621293-L.jpg"
 purchaseStore: "Three Lives & Company"
-purchaseUrl: "https://threelives.com/"
+purchaseUrl: "http://threelives.com/"
 draft: false
 ---
 

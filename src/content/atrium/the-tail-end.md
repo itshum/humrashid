@@ -15,7 +15,7 @@ draft: false
 ---
 
 Lays out how few times you actually have left to do the things you
-assume you'll always have time for — visits with your parents,
-seasons with your closest friends — once you count them out on a
-calendar instead of feeling them out. Genuinely changed how I plan a
-year.
+assume you'll always have time for. Visits with your parents, seasons
+with your closest friends, all of it looks different once you count
+them out on a calendar instead of feeling them out. Genuinely changed
+how I plan a year.

@@ -11,7 +11,7 @@ blurb: "On finding your life's task and putting in the unglamorous years it take
 coverColor: "#3a2e1f"
 coverImage: "https://covers.openlibrary.org/b/id/7561012-L.jpg"
 purchaseStore: "Three Lives & Company"
-purchaseUrl: "https://threelives.com/"
+purchaseUrl: "http://threelives.com/"
 draft: false
 ---
 
