@@ -752,23 +752,24 @@ const footerArtInner = [
         }
 
         .stickybar-inner {
-          /* Edge-to-edge on both sides, matching .atrium-grid below
-             (also full-bleed, not inset inside .atrium-col) - the
-             dropdown/search and the wordmark align with the grid's
-             own left/right edges instead of sitting inset from them.
-             The right padding still reserves room for the
+          /* Near edge-to-edge, matching .atrium-grid below (also
+             full-bleed, not inset inside .atrium-col) - but a true 0
+             margin reads as glued to the actual device edge in a real
+             mobile browser (Safari, not just a desktop viewport
+             emulation), so a touch of breathing room stays on both
+             sides. The right padding still reserves room for the
              absolutely-positioned wordmark - its `right` offset is
              measured against this padding box's outer edge, not its
              content edge, so this padding is the only thing standing
              between the filter group and it. */
-          padding-left: 0;
-          padding-right: 6rem;
+          padding-left: 1rem;
+          padding-right: 7rem;
         }
 
         .stickybar-inner .atrium-wordmark {
           position: absolute;
           top: 50%;
-          right: 0;
+          right: 1rem;
           transform: translateY(-50%);
         }
 
