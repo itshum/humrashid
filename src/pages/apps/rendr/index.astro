@@ -132,6 +132,14 @@
         .app-body {
           flex-direction: column;
         }
+
+        /* Stacked, the preview is the thing worth seeing first - the
+           controls (DOM-first, for a sensible desktop tab order where
+           the sidebar sits left of the stage) would otherwise push it
+           below a full screen of settings before showing any result. */
+        .stage {
+          order: -1;
+        }
       }
 
       /* --- Sidebar / control panel --- */
