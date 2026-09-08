@@ -441,6 +441,55 @@ import Analytics from "@vercel/analytics/astro";
 
       .work-list {
         margin: 0 -0.9rem;
+        position: relative;
+      }
+
+      /* Upstatement-style hover preview (same cursor-follow technique
+         as .name-photo above, reused for the work list) - one shared
+         image, repositioned/re-sourced per row instead of one image
+         per row, positioned in the negative space after each row's
+         own (short) description text rather than parked far in the
+         margin or overlapping the copy; only its y position drifts
+         with the cursor. Landscape, never taller than wide (500x350),
+         with object-fit: cover to crop in on the actual product
+         screen each cover photo shows, instead of the whole lifestyle
+         shot (hand, background) at its native proportions. */
+      .work-preview {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 387px;
+        aspect-ratio: 43 / 26;
+        border-radius: 4px;
+        overflow: hidden;
+        display: block;
+        opacity: 0;
+        pointer-events: none;
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.22);
+        z-index: 5;
+        transition: opacity 0.2s ease;
+      }
+
+      .work-preview.is-visible {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .work-preview-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      /* The preview sits in the margin outside .col, so it only fits
+         at wider viewports - narrower than that there isn't room for
+         it beside the row without overlapping the text, and touch
+         devices have no cursor to drive the follow effect anyway. */
+      @media (max-width: 1100px), (hover: none) {
+        .work-preview {
+          display: none;
+        }
       }
 
       /* Hover highlight bleeds past the text measure on both sides, which is
@@ -660,7 +709,13 @@ import Analytics from "@vercel/analytics/astro";
             <span class="desc">Founder &amp; Design Director of product design studio for early-stage startups.</span>
           </div>
 
-          <a class="work-row" data-load-reveal href="/work/pack">
+          <a
+            class="work-row"
+            data-load-reveal
+            data-preview-img="/case-studies/pack/01-hero-a.webp"
+            data-preview-alt="Pack platform interface"
+            href="/work/pack"
+          >
             <span class="row-top">
               <span class="title">Pack Platform</span>
               <span class="meta">
@@ -671,7 +726,13 @@ import Analytics from "@vercel/analytics/astro";
             <span class="desc">Platform redesign for headless commerce software.</span>
           </a>
 
-          <a class="work-row" data-load-reveal href="/work/ppvp">
+          <a
+            class="work-row"
+            data-load-reveal
+            data-preview-img="/case-studies/ppvp/01-hero-desktop.webp"
+            data-preview-alt="PPVP investment app home screen shown on a phone, held in hand"
+            href="/work/ppvp"
+          >
             <span class="row-top">
               <span class="title">PPVP</span>
               <span class="meta">
@@ -682,7 +743,13 @@ import Analytics from "@vercel/analytics/astro";
             <span class="desc">Mobile app design for investment platform for early-stage funding.</span>
           </a>
 
-          <a class="work-row" data-load-reveal href="/work/inveterate">
+          <a
+            class="work-row"
+            data-load-reveal
+            data-preview-img="/case-studies/inveterate/01-hero-desktop.webp"
+            data-preview-alt="Inveterate membership dashboard on a laptop"
+            href="/work/inveterate"
+          >
             <span class="row-top">
               <span class="title">Inveterate</span>
               <span class="meta">
@@ -702,6 +769,10 @@ import Analytics from "@vercel/analytics/astro";
               </span>
             </span>
             <span class="desc">Product strategy and design for donation enablement platform.</span>
+          </a>
+
+          <a class="work-preview" id="workPreview" href="/work/pack" tabindex="-1" aria-hidden="true">
+            <img class="work-preview-img" id="workPreviewImg" src="" alt="" />
           </a>
         </div>
       </section>
@@ -875,6 +946,176 @@ import Analytics from "@vercel/analytics/astro";
       window.addEventListener("resize", () => {
         if (namePhoto?.classList.contains("is-visible")) positionPhoto();
       });
+
+      // --- Work-list hover preview ---
+      // Same Upstatement-style cursor-follow as .name-photo above, on
+      // three specific rows (Pack, PPVP, Inveterate - set via
+      // data-preview-img on the row itself). One shared image element
+      // instead of one per row: on enter, it's repositioned to that
+      // row's own rect and re-sourced; while hovered, only its y
+      // drifts with the cursor as it moves within the row.
+      const workList = document.querySelector<HTMLElement>(".work-list");
+      const workPreview = document.getElementById("workPreview") as HTMLAnchorElement | null;
+      const workPreviewImg = document.getElementById("workPreviewImg") as HTMLImageElement | null;
+      const previewRows = document.querySelectorAll<HTMLAnchorElement>("[data-preview-img]");
+
+      // Anchored to each row's own meta column (the year + arrow),
+      // not to where the description text happens to end - the row
+      // itself is capped at .col's width, so this keeps the preview
+      // in the same fixed spot relative to the row, overlapping the
+      // date, no matter how wide the browser window is.
+      const PREVIEW_OVERLAP_LEAD = 28;
+      const PREVIEW_WIDTH = 387;
+      const PREVIEW_EDGE_MARGIN = 64;
+      const PREVIEW_FOLLOW_RANGE_Y = 22;
+      const PREVIEW_FOLLOW_RANGE_X = 14;
+      const PREVIEW_FOLLOW_LERP = 0.16;
+      const PREVIEW_ENTRANCE_LERP = 0.22;
+
+      let previewTargetX = 0;
+      let previewTargetY = 0;
+      let previewFollowX = 0;
+      let previewFollowY = 0;
+      let previewEntranceT = 0;
+      let previewRafId: number | null = null;
+      let activePreviewRow: HTMLAnchorElement | null = null;
+      let previewBaseTop = 0;
+
+      function positionPreview(row: HTMLAnchorElement) {
+        if (!workPreview || !workList) return;
+        const metaEl = row.querySelector<HTMLElement>(".meta");
+        const anchorRect = (metaEl ?? row).getBoundingClientRect();
+        const rowRect = row.getBoundingClientRect();
+        const listRect = workList.getBoundingClientRect();
+        const previewHeight = workPreview.offsetHeight || (PREVIEW_WIDTH * 26) / 43;
+        previewBaseTop = rowRect.top - listRect.top + rowRect.height / 2 - previewHeight / 2;
+        const desiredLeft = anchorRect.left - listRect.left - PREVIEW_OVERLAP_LEAD;
+        // Still clamped against the viewport as a safety net (e.g. a
+        // browser window narrower than .col's own max-width), even
+        // though anchoring to the row's meta column keeps this from
+        // being the normal case.
+        const maxLeft = window.innerWidth - listRect.left - PREVIEW_WIDTH - PREVIEW_EDGE_MARGIN;
+        workPreview.style.left = `${Math.min(desiredLeft, maxLeft)}px`;
+        workPreview.style.top = `${previewBaseTop}px`;
+      }
+
+      function previewTick() {
+        previewFollowX += (previewTargetX - previewFollowX) * PREVIEW_FOLLOW_LERP;
+        previewFollowY += (previewTargetY - previewFollowY) * PREVIEW_FOLLOW_LERP;
+        previewEntranceT += (1 - previewEntranceT) * PREVIEW_ENTRANCE_LERP;
+
+        const scale = 0.97 + 0.03 * previewEntranceT;
+        const entranceY = -8 * (1 - previewEntranceT);
+
+        if (workPreview) {
+          workPreview.style.transform = `translate(${previewFollowX.toFixed(2)}px, ${(previewFollowY + entranceY).toFixed(2)}px) scale(${scale.toFixed(4)})`;
+        }
+
+        const settled =
+          Math.abs(previewTargetX - previewFollowX) < 0.05 &&
+          Math.abs(previewTargetY - previewFollowY) < 0.05 &&
+          previewEntranceT > 0.999;
+
+        if (!settled) {
+          previewRafId = requestAnimationFrame(previewTick);
+        } else {
+          previewRafId = null;
+        }
+      }
+
+      function ensurePreviewLoop() {
+        if (previewRafId == null) previewRafId = requestAnimationFrame(previewTick);
+      }
+
+      function updatePreviewFollowTarget(clientX: number, clientY: number) {
+        if (!activePreviewRow) return;
+        const rect = activePreviewRow.getBoundingClientRect();
+        const relX = (clientX - rect.left) / rect.width;
+        const relY = (clientY - rect.top) / rect.height;
+        previewTargetX = (Math.min(1, Math.max(0, relX)) - 0.5) * 2 * PREVIEW_FOLLOW_RANGE_X;
+        previewTargetY = (Math.min(1, Math.max(0, relY)) - 0.5) * 2 * PREVIEW_FOLLOW_RANGE_Y;
+        ensurePreviewLoop();
+      }
+
+      // The preview sits taller than a single row, so it visually
+      // overlaps the row above/below the one it's previewing - moving
+      // the cursor off the row's own text and onto the image itself
+      // (or across the gap between them) used to fire the row's
+      // mouseleave before the image could claim the hover, hiding the
+      // preview mid-reach and restarting its entrance animation on
+      // the way back in (a stutter/glimmer). A short grace timer plus
+      // listeners on the preview itself keep it alive across that
+      // gap, and re-hovering the same row no longer replays the
+      // entrance.
+      let previewHideTimer: number | null = null;
+
+      function cancelPreviewHide() {
+        if (previewHideTimer != null) {
+          window.clearTimeout(previewHideTimer);
+          previewHideTimer = null;
+        }
+      }
+
+      function hidePreviewNow() {
+        activePreviewRow = null;
+        workPreview?.classList.remove("is-visible");
+        previewTargetX = 0;
+        previewTargetY = 0;
+        ensurePreviewLoop();
+      }
+
+      function schedulePreviewHide() {
+        cancelPreviewHide();
+        previewHideTimer = window.setTimeout(() => {
+          previewHideTimer = null;
+          hidePreviewNow();
+        }, 120);
+      }
+
+      function showPreview(row: HTMLAnchorElement) {
+        if (!workPreview || !workPreviewImg) return;
+        cancelPreviewHide();
+        const alreadyShowingRow = activePreviewRow === row && workPreview.classList.contains("is-visible");
+        activePreviewRow = row;
+        workPreviewImg.src = row.dataset.previewImg ?? "";
+        workPreviewImg.alt = row.dataset.previewAlt ?? "";
+        workPreview.href = row.getAttribute("href") ?? "#";
+        positionPreview(row);
+        if (!alreadyShowingRow) {
+          previewEntranceT = prefersReducedMotion ? 1 : 0;
+        }
+        workPreview.classList.add("is-visible");
+        ensurePreviewLoop();
+        workPreviewImg.onload = () => {
+          if (activePreviewRow === row) positionPreview(row);
+        };
+      }
+
+      if (!window.matchMedia("(hover: none)").matches) {
+        previewRows.forEach((row) => {
+          row.addEventListener("mouseenter", () => showPreview(row));
+          if (!prefersReducedMotion) {
+            row.addEventListener("mousemove", (event) => {
+              updatePreviewFollowTarget(event.clientX, event.clientY);
+            });
+          }
+          row.addEventListener("mouseleave", schedulePreviewHide);
+        });
+
+        if (workPreview) {
+          workPreview.addEventListener("mouseenter", cancelPreviewHide);
+          workPreview.addEventListener("mouseleave", schedulePreviewHide);
+          if (!prefersReducedMotion) {
+            workPreview.addEventListener("mousemove", (event) => {
+              updatePreviewFollowTarget(event.clientX, event.clientY);
+            });
+          }
+        }
+
+        window.addEventListener("resize", () => {
+          if (activePreviewRow) positionPreview(activePreviewRow);
+        });
+      }
     </script>
   </body>
 </html>
