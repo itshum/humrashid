@@ -61,6 +61,27 @@ const principles = [
         document.documentElement.dataset.theme = hour >= 19 || hour < 6 ? "dark" : "light";
       })();
     </script>
+    <style is:inline>
+      /* Critical, inline copy of the two colors the theme rule above
+         needs to paint correctly on the very first frame - the full
+         palette lives in an externally-linked stylesheet below, which
+         needs a network round trip before the browser can apply it.
+         Without this, the page paints with the browser's own default
+         (white) background for however long that fetch takes, then
+         snaps to the real color once it arrives - a flash that was
+         apparently small enough to miss on the old host, but is
+         plainly visible on this one. Same specificity/selector as the
+         real rule in the linked stylesheet, so that one silently
+         takes over once it's ready - no visible handoff. */
+      html[data-theme="dark"] {
+        background: #0d0d0c;
+        color: #eeede8;
+      }
+      html:not([data-theme="dark"]) {
+        background: #f6f6f3;
+        color: #262626;
+      }
+    </style>
     <title>Principles · Humayun Rashid</title>
     <meta
       name="description"
