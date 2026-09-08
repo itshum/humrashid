@@ -1,0 +1,310 @@
+---
+import Topbar from "../components/Topbar.astro";
+import Footer from "../components/Footer.astro";
+import Analytics from "@vercel/analytics/astro";
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <Analytics />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="canonical" href="https://www.humrashid.com/about" />
+    <script is:inline>
+      // Set before first paint so there's no light-mode flash before
+      // Topbar's script confirms/re-checks the same NYC-time rule.
+      (function () {
+        var parts = new Intl.DateTimeFormat("en-US", {
+          timeZone: "America/New_York",
+          hour: "numeric",
+          hour12: false,
+        }).formatToParts(new Date());
+        var hour = Number(
+          (parts.filter(function (p) {
+            return p.type === "hour";
+          })[0] || {}).value || 12
+        );
+        document.documentElement.dataset.theme = hour >= 19 || hour < 6 ? "dark" : "light";
+      })();
+    </script>
+    <style is:inline>
+      /* Critical, inline copy of the two colors the theme rule above
+         needs to paint correctly on the very first frame - the full
+         palette lives in an externally-linked stylesheet below, which
+         needs a network round trip before the browser can apply it.
+         Without this, the page paints with the browser's own default
+         (white) background for however long that fetch takes, then
+         snaps to the real color once it arrives - a flash that was
+         apparently small enough to miss on the old host, but is
+         plainly visible on this one. Same specificity/selector as the
+         real rule in the linked stylesheet, so that one silently
+         takes over once it's ready - no visible handoff. */
+      html[data-theme="dark"] {
+        background: #0d0d0c;
+        color: #eeede8;
+      }
+      html:not([data-theme="dark"]) {
+        background: #f6f6f3;
+        color: #262626;
+      }
+    </style>
+    <title>About · Humayun Rashid</title>
+    <meta
+      name="description"
+      content="Humayun Rashid is a product designer and founder based in New York City with a decade of experience building products that solve real problems."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap"
+    />
+    <style is:global>
+      :root {
+        --bg: #f6f6f3;
+        --text: #262626;
+        --text-secondary: #2b2b2b;
+        --label: #7a7a7a;
+        --hover-bg: #e8e7e2;
+        --title: #262626;
+        --year: #8a8984;
+        --icon: #c9c7c0;
+        --icon-hover: #6b6b6b;
+        --border: #e0ded7;
+        --selection-bg: #1f3d2e;
+        --selection-text: #f8f8f6;
+        --photo-shadow: 0 16px 40px rgba(0, 0, 0, 0.16), 0 2px 8px rgba(0, 0, 0, 0.08);
+        --theme-progress: 1;
+      }
+
+      :root[data-theme="dark"] {
+        --bg: #0d0d0c;
+        --text: #eeede8;
+        --text-secondary: #d6d5d0;
+        --label: #93928c;
+        --hover-bg: #1d1d1b;
+        --title: #eeede8;
+        --year: #696862;
+        --icon: #474641;
+        --icon-hover: #b5b4ad;
+        --border: #252423;
+        --selection-bg: #4fae82;
+        --selection-text: #171715;
+        --photo-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.06);
+        --theme-progress: 0;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      html,
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+        transition: background 0.3s ease, color 0.3s ease;
+      }
+
+      /* On-brand scrollbar in place of the stock OS one - color only,
+         no custom width, so it never forces the browser out of
+         overlay mode into a reserved-gutter one (that switch shifts
+         page content and was a real regression the last time this was
+         tried elsewhere on the site). */
+      html {
+        scrollbar-color: var(--border) var(--bg);
+      }
+
+      html::-webkit-scrollbar-track {
+        background: var(--bg);
+      }
+
+      html::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 8px;
+      }
+
+      html::-webkit-scrollbar-thumb:hover {
+        background: var(--label);
+      }
+
+      a {
+        color: inherit;
+      }
+
+      ::selection {
+        background: var(--selection-bg);
+        color: var(--selection-text);
+      }
+
+      .col {
+        max-width: 700px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+      }
+
+      @media (max-width: 600px) {
+        .col {
+          padding: 0 2rem;
+        }
+      }
+
+      .hero {
+        padding: 4.2rem 0 0;
+      }
+
+      /* var(--label) reads at 3.97:1 against the light-mode --bg here,
+         under the 4.5:1 minimum for normal-size text (dark mode is
+         fine at 6.2:1) - #6b6b6b (already in the palette as
+         --icon-hover) clears 4.5:1 in light mode, so this uses it
+         directly and only falls back to --label once dark mode's own
+         value is already safe. */
+      .hero .eyebrow {
+        font-size: 0.75rem;
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #6b6b6b;
+        margin: 0 0 1.25rem;
+      }
+
+      :root[data-theme="dark"] .hero .eyebrow {
+        color: var(--label);
+      }
+
+      .hero h1 {
+        font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+        font-size: 2rem;
+        font-weight: 500;
+        letter-spacing: -0.015em;
+        line-height: 1.25;
+        color: var(--title);
+        max-width: 20ch;
+        margin: 0;
+        text-wrap: balance;
+      }
+
+      /* Placeholder for now - a single portrait until more photos are
+         in (Hum's sending additional ones to round this section out).
+         Sized generously since this is the page meant to slow down
+         and look, unlike the small hover-triggered version on the
+         homepage. */
+      .about-photo {
+        margin: 2.5rem 0 3rem;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: var(--photo-shadow);
+      }
+
+      .about-photo img {
+        display: block;
+        width: 100%;
+        height: auto;
+        aspect-ratio: 4 / 3;
+        object-fit: cover;
+      }
+
+      .about-body {
+        padding-bottom: 8rem;
+      }
+
+      .about-body p {
+        font-size: 1.05rem;
+        line-height: 1.6;
+        color: var(--text-secondary);
+        margin: 0 0 1.5rem;
+      }
+
+      .about-body p:last-child {
+        margin-bottom: 0;
+      }
+
+      /* Subtle fade-up on scroll, same feel as the case study
+         template and the Principles page. Fires once. */
+      [data-reveal] {
+        opacity: 0;
+        transform: translateY(24px);
+        transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      [data-reveal].is-revealed {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        [data-reveal] {
+          opacity: 1;
+          transform: none;
+          transition: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <Topbar showBack />
+
+    <div class="col">
+      <div class="hero" data-reveal>
+        <p class="eyebrow">About</p>
+        <h1>Humayun Rashid is a designer &amp; founder in New York City.</h1>
+      </div>
+
+      <div class="about-photo" data-reveal style="transition-delay: 90ms">
+        <img src="/headshot.jpg" alt="Portrait of Humayun Rashid" />
+      </div>
+
+      <div class="about-body" data-reveal style="transition-delay: 180ms">
+        <p>
+          I've spent over a decade designing and building products across B2B SaaS and eCommerce.
+          Most recently, I was on the early design team at Sublime Security, the fastest-growing
+          cybersecurity email startup in the US. I led design on crucial launches like
+          quarantine digests and dynamic phishing simulations. Before that, I founded and led
+          Nessa Labs, a studio where I advised founders and designed digital products for
+          early-stage startups.
+        </p>
+        <p>
+          I care about what never makes it onto the screen: the onboarding flow nobody notices,
+          the empty state that quietly loses the user, the setting that should've been the
+          default all along. Getting those subtle details right starts with talking to users
+          first, understanding where they get stuck before assuming you know the fix. That's
+          where the real work happens, and where most teams give up.
+        </p>
+      </div>
+    </div>
+
+    <Footer />
+
+    <script>
+      const revealEls = document.querySelectorAll<HTMLElement>("[data-reveal]");
+      if (revealEls.length > 0) {
+        if ("IntersectionObserver" in window) {
+          const revealObserver = new IntersectionObserver(
+            (entries) => {
+              entries.forEach((entry) => {
+                if (!entry.isIntersecting) return;
+                entry.target.classList.add("is-revealed");
+                revealObserver.unobserve(entry.target);
+              });
+            },
+            { threshold: 0.25, rootMargin: "0px 0px -15% 0px" }
+          );
+          revealEls.forEach((el) => revealObserver.observe(el));
+        } else {
+          revealEls.forEach((el) => el.classList.add("is-revealed"));
+        }
+      }
+    </script>
+  </body>
+</html>
