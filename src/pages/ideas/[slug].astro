@@ -122,6 +122,34 @@ const formattedDate = new Intl.DateTimeFormat("en-US", {
         transition: background 0.3s ease, color 0.3s ease;
       }
 
+      /* Sticky footer: a short post is shorter than the viewport, so
+         without this the footer sits mid-page with a dead gap of
+         background beneath it instead of anchoring to the bottom
+         edge. Only the last of the two .col sections (the post body)
+         takes the flexible share of a full-height column - giving it
+         to both would split any leftover space evenly and shove the
+         body away from the hero above it. The footer keeps its
+         natural height and lands at the bottom whenever content is
+         short, while still flowing after longer content normally. */
+      body {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      body > .col:last-of-type {
+        flex: 1;
+      }
+
+      /* As a direct flex child of body, the footer's own centering
+         (max-width + margin: 0 auto) shrinks to fit its content
+         instead of filling out to that max-width - a flexbox quirk
+         with auto margins on a stretched item. width: 100% forces it
+         back to the same column width every other page uses. */
+      body > .site-footer {
+        width: 100%;
+      }
+
       /* On-brand scrollbar in place of the stock OS one - color only,
          no custom width, so it never forces the browser out of
          overlay mode into a reserved-gutter one (that switch shifts
