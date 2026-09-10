@@ -1,4 +1,4 @@
-import { CloudIcon, Code2Icon, LockIcon, MailIcon, ShieldIcon } from "lucide-react";
+import { CloudIcon, Code2Icon, HashIcon, LockIcon, MailIcon, ShieldIcon } from "lucide-react";
 import type { Source } from "./data";
 
 const sourceIcon: Record<Source, React.ComponentType<{ className?: string }>> = {
@@ -7,6 +7,7 @@ const sourceIcon: Record<Source, React.ComponentType<{ className?: string }>> = 
   crowdstrike: ShieldIcon,
   github: Code2Icon,
   email: MailIcon,
+  slack: HashIcon,
 };
 
 export function SourceIcons({ sources }: { sources: Source[] }) {

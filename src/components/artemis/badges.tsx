@@ -9,17 +9,15 @@ const severityLabel: Record<Severity, string> = {
   low: "low",
 };
 
-// Placeholder variant mapping only, real severity colors come in the
-// polish pass per the design spec's color table.
-const severityVariant: Record<Severity, "destructive" | "default" | "secondary" | "outline"> = {
-  critical: "destructive",
-  high: "default",
-  medium: "secondary",
-  low: "outline",
+const severityClass: Record<Severity, string> = {
+  critical: "border-transparent bg-[var(--severity-critical-bg)] text-[var(--severity-critical-text)]",
+  high: "border-transparent bg-[var(--severity-high-bg)] text-[var(--severity-high-text)]",
+  medium: "border-[var(--severity-medium-border)] bg-[var(--severity-medium-bg)] text-[var(--severity-medium-text)]",
+  low: "border-[var(--severity-low-border)] bg-[var(--severity-low-bg)] text-[var(--severity-low-text)]",
 };
 
 export function SeverityChip({ severity }: { severity: Severity }) {
-  return <Badge variant={severityVariant[severity]}>{severityLabel[severity]}</Badge>;
+  return <Badge className={severityClass[severity]}>{severityLabel[severity]}</Badge>;
 }
 
 const verdictLabel: Record<Verdict, string> = {
