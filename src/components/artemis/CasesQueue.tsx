@@ -35,6 +35,7 @@ import { SourceIcons, sourceLabel } from "./SourceIcons";
 import { AssigneeAvatar } from "./AssigneeAvatar";
 import { FilterDropdown } from "./FilterDropdown";
 import { QuickActionPanel } from "./QuickActionPanel";
+import { BulkActionBar } from "./BulkActionBar";
 import { Tip } from "./Tip";
 
 const statusLabel: Record<Case["status"], string> = {
@@ -82,6 +83,7 @@ export function CasesQueue({ onOpenFullCase }: { onOpenFullCase: (c: Case) => vo
   const [assigneeFilter, setAssigneeFilter] = useState<Set<string>>(new Set());
   const [page, setPage] = useState(1);
   const [openPanelId, setOpenPanelId] = useState<string | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const rows = useMemo(() => {
     const filtered = cases.filter((c) => {
@@ -114,6 +116,31 @@ export function CasesQueue({ onOpenFullCase }: { onOpenFullCase: (c: Case) => vo
     };
   }
 
+  function toggleRow(id: string) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  const allPageSelected = pageRows.length > 0 && pageRows.every((c) => selectedIds.has(c.id));
+
+  function toggleAllOnPage() {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (allPageSelected) {
+        pageRows.forEach((c) => next.delete(c.id));
+      } else {
+        pageRows.forEach((c) => next.add(c.id));
+      }
+      return next;
+    });
+  }
+
+  const selectedCases = cases.filter((c) => selectedIds.has(c.id));
+
   return (
     <div className="flex h-full flex-col overflow-hidden rounded-lg border bg-card">
       {/* Primary filter row: severity toggle pills */}
@@ -140,22 +167,40 @@ export function CasesQueue({ onOpenFullCase }: { onOpenFullCase: (c: Case) => vo
         ))}
       </div>
 
-      {/* Secondary filter row: lower-weight dropdown filters */}
-      <div className="flex flex-wrap items-center gap-2 border-b p-2 px-3">
-        <FilterDropdown label="Verdict" options={verdictOptions} selected={verdictFilter} onChange={withReset(setVerdictFilter)} />
-        <FilterDropdown label="Status" options={statusOptions} selected={statusFilter} onChange={withReset(setStatusFilter)} />
-        <FilterDropdown label="Source" options={sourceOptions} selected={sourceFilter} onChange={withReset(setSourceFilter)} />
-        <FilterDropdown label="Assignee" options={assigneeOptions} selected={assigneeFilter} onChange={withReset(setAssigneeFilter)} />
-        <span className="ml-auto text-[11px] text-muted-foreground">
-          sorted by severity, then needs review, then recency
-        </span>
-      </div>
+      {/* Secondary row: bulk action bar takes over when rows are selected, otherwise the lower-weight filters */}
+      {selectedCases.length > 0 ? (
+        <BulkActionBar
+          selectedCases={selectedCases}
+          onResolve={() => setSelectedIds(new Set())}
+          onAssignToMe={() => setSelectedIds(new Set())}
+          onClear={() => setSelectedIds(new Set())}
+        />
+      ) : (
+        <div className="flex flex-wrap items-center gap-2 border-b p-2 px-3">
+          <FilterDropdown label="Verdict" options={verdictOptions} selected={verdictFilter} onChange={withReset(setVerdictFilter)} />
+          <FilterDropdown label="Status" options={statusOptions} selected={statusFilter} onChange={withReset(setStatusFilter)} />
+          <FilterDropdown label="Source" options={sourceOptions} selected={sourceFilter} onChange={withReset(setSourceFilter)} />
+          <FilterDropdown label="Assignee" options={assigneeOptions} selected={assigneeFilter} onChange={withReset(setAssigneeFilter)} />
+          <span className="ml-auto text-[11px] text-muted-foreground">
+            sorted by severity, then needs review, then recency
+          </span>
+        </div>
+      )}
 
       <div className="flex-1 overflow-y-auto">
         <Table>
           <TableHeader className="sticky top-0 z-10 bg-muted">
             <TableRow className="hover:bg-transparent">
-              <TableHead className="w-8"></TableHead>
+              <TableHead className="w-8">
+                <Tip label="Select all on page">
+                  <input
+                    type="checkbox"
+                    aria-label="Select all on page"
+                    checked={allPageSelected}
+                    onChange={toggleAllOnPage}
+                  />
+                </Tip>
+              </TableHead>
               {(["Signal", "Case", "Entity", "Sources", "Status", "Updated"] as const).map(
                 (col) => (
                   <TableHead key={col} className={col === "Case" ? undefined : "w-24"}>
@@ -171,10 +216,15 @@ export function CasesQueue({ onOpenFullCase }: { onOpenFullCase: (c: Case) => vo
           </TableHeader>
           <TableBody>
             {pageRows.map((c) => (
-              <TableRow key={c.id}>
+              <TableRow key={c.id} className="group" data-selected={selectedIds.has(c.id)}>
                 <TableCell>
                   <Tip label="Select case">
-                    <input type="checkbox" aria-label={`Select ${c.id}`} />
+                    <input
+                      type="checkbox"
+                      aria-label={`Select ${c.id}`}
+                      checked={selectedIds.has(c.id)}
+                      onChange={() => toggleRow(c.id)}
+                    />
                   </Tip>
                 </TableCell>
                 <TableCell>
@@ -197,7 +247,16 @@ export function CasesQueue({ onOpenFullCase }: { onOpenFullCase: (c: Case) => vo
                   >
                     <Tip label="Quick actions">
                       <PopoverTrigger asChild>
-                        <Button variant="ghost" size="icon-sm" aria-label={`Quick actions for ${c.id}`}>
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          aria-label={`Quick actions for ${c.id}`}
+                          className={
+                            openPanelId === c.id
+                              ? "opacity-100"
+                              : "opacity-0 focus-visible:opacity-100 group-hover:opacity-100"
+                          }
+                        >
                           <ChevronRightIcon className="size-4" />
                         </Button>
                       </PopoverTrigger>
