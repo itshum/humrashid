@@ -1,7 +1,9 @@
+import { useState } from "react";
 import {
   BinocularsIcon,
   BoxesIcon,
   CableIcon,
+  ChevronDownIcon,
   FileSearchIcon,
   LayoutGridIcon,
   RadarIcon,
@@ -64,6 +66,8 @@ export function AppShell({
   severityFilter: Severity | "all";
   onSelectSeverity: (s: Severity | "all") => void;
 }) {
+  const [casesExpanded, setCasesExpanded] = useState(true);
+
   return (
     <TooltipProvider delayDuration={200}>
     <SidebarProvider className="h-full min-h-0">
@@ -91,27 +95,37 @@ export function AppShell({
                   <SidebarMenuButton
                     isActive={severityFilter === "all"}
                     tooltip="Cases"
+                    className="pr-1.5"
                     onClick={() => onSelectSeverity("all")}
                   >
                     <ShieldAlertIcon />
-                    <span>Cases</span>
+                    <span className="flex-1">Cases</span>
+                    <ChevronDownIcon
+                      className={`size-3.5 shrink-0 text-sidebar-foreground/50 transition-transform ${casesExpanded ? "" : "-rotate-90"}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setCasesExpanded((v) => !v);
+                      }}
+                    />
                   </SidebarMenuButton>
-                  <SidebarMenuSub>
-                    {severityFilterOptions.map((s) => (
-                      <SidebarMenuSubItem key={s}>
-                        <SidebarMenuSubButton
-                          isActive={severityFilter === s}
-                          onClick={() => onSelectSeverity(s)}
-                          className="cursor-pointer justify-between"
-                        >
-                          <span>{severityFilterLabel[s]}</span>
-                          <span className="text-xs text-sidebar-foreground/50">
-                            {(s === "all" ? severityCounts.all : severityCounts[s]).toLocaleString()}
-                          </span>
-                        </SidebarMenuSubButton>
-                      </SidebarMenuSubItem>
-                    ))}
-                  </SidebarMenuSub>
+                  {casesExpanded && (
+                    <SidebarMenuSub>
+                      {severityFilterOptions.map((s) => (
+                        <SidebarMenuSubItem key={s}>
+                          <SidebarMenuSubButton
+                            isActive={severityFilter === s}
+                            onClick={() => onSelectSeverity(s)}
+                            className="cursor-pointer justify-between"
+                          >
+                            <span>{severityFilterLabel[s]}</span>
+                            <span className="text-xs text-sidebar-foreground/50">
+                              {(s === "all" ? severityCounts.all : severityCounts[s]).toLocaleString()}
+                            </span>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      ))}
+                    </SidebarMenuSub>
+                  )}
                 </SidebarMenuItem>
                 {restNav.map((item) => (
                   <SidebarMenuItem key={item.label}>

@@ -1,6 +1,5 @@
 import { BotIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -21,14 +20,30 @@ const mitreLabel: Record<string, string> = {
   "T1070.002": "Indicator removal: clear cloud logs",
 };
 
-function Section({ label, children }: { label: string; children: React.ReactNode }) {
+// Every block of information lives inside the same 1px light-grey
+// border / 2px radius container, with a bold sentence-case header
+// separated by a hairline - modeled on Sublime's MDV layout, where
+// every panel is clearly labeled rather than relying on faint muted
+// caption text to carry the hierarchy.
+function Section({
+  label,
+  action,
+  children,
+  className,
+}: {
+  label: string;
+  action?: React.ReactNode;
+  children: React.ReactNode;
+  className?: string;
+}) {
   return (
-    <Card>
-      <CardContent className="flex flex-col gap-2">
-        <div className="text-[11px] text-muted-foreground">{label}</div>
-        {children}
-      </CardContent>
-    </Card>
+    <div className={`rounded-[2px] border border-border bg-card ${className ?? ""}`}>
+      <div className="flex items-center justify-between border-b px-3 py-2">
+        <span className="text-xs font-semibold text-foreground">{label}</span>
+        {action}
+      </div>
+      <div className="p-3">{children}</div>
+    </div>
   );
 }
 
@@ -36,12 +51,12 @@ export function CaseDetail({ caseItem, onBack }: { caseItem: Case; onBack: () =>
   const hasDetail = Boolean(caseItem.summary);
 
   return (
-    <div className="mx-auto max-w-4xl p-6">
+    <div className="mx-auto w-full max-w-[1400px] p-6">
       <Button variant="ghost" size="sm" className="mb-3" onClick={onBack}>
-        ← back to queue
+        ← Back To Queue
       </Button>
 
-      <div className="overflow-hidden rounded-lg border">
+      <div className="overflow-hidden rounded-[2px] border border-border">
         {/* Banner - severity color mapping deferred to the polish pass */}
         <div className="border-b bg-muted/40 p-4">
           <div className="mb-1.5 flex items-center gap-2">
@@ -54,15 +69,16 @@ export function CaseDetail({ caseItem, onBack }: { caseItem: Case; onBack: () =>
           <div className="text-base font-medium">{caseItem.title}</div>
         </div>
 
-        <div className="flex flex-col gap-3 bg-muted/10 p-4 md:flex-row">
-          {/* Main column */}
+        <div className="flex flex-col gap-3 bg-muted/10 p-4 lg:flex-row">
+          {/* Main column - ordered by what the analyst needs to judge
+              first (what happened, do I believe it, what's the
+              evidence) before purely record-keeping content (timeline,
+              activity) at the bottom. */}
           <div className="flex min-w-0 flex-1 flex-col gap-3">
             {!hasDetail && (
-              <Card>
-                <CardContent className="text-xs text-muted-foreground">
-                  This prototype only has full investigation detail seeded for case-8841.
-                </CardContent>
-              </Card>
+              <div className="rounded-[2px] border border-border bg-card p-3 text-xs text-muted-foreground">
+                This prototype only has full investigation detail seeded for case-8841.
+              </div>
             )}
 
             <Section label="Summary">
@@ -71,8 +87,8 @@ export function CaseDetail({ caseItem, onBack }: { caseItem: Case; onBack: () =>
               </p>
             </Section>
 
-            <Card>
-              <CardContent className="flex flex-col gap-2">
+            <Section label="Severity And Verdict Reasoning">
+              <div className="flex flex-col gap-2">
                 <div>
                   <span className="text-[11px] text-muted-foreground">Why this severity </span>
                   <span className="text-xs leading-relaxed text-muted-foreground">
@@ -86,10 +102,10 @@ export function CaseDetail({ caseItem, onBack }: { caseItem: Case; onBack: () =>
                     {caseItem.whyVerdict ?? "—"}
                   </span>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </Section>
 
-            <Section label={`Findings · ${caseItem.findings?.length ?? 0}`}>
+            <Section label="Findings" action={<Badge variant="secondary">{caseItem.findings?.length ?? 0}</Badge>}>
               <div className="flex flex-col gap-1.5">
                 {caseItem.findings?.map((f, i) => (
                   <div key={i} className="flex items-start gap-2 text-xs">
@@ -130,7 +146,7 @@ export function CaseDetail({ caseItem, onBack }: { caseItem: Case; onBack: () =>
               </div>
             </div>
 
-            <Section label="Sources, MITRE ATT&CK">
+            <Section label="Sources And MITRE ATT&CK">
               <div className="flex flex-wrap gap-1.5">
                 {caseItem.sources.map((s) => (
                   <Tip key={s} label={sourceLabel[s]}>
@@ -187,32 +203,48 @@ export function CaseDetail({ caseItem, onBack }: { caseItem: Case; onBack: () =>
             </Section>
           </div>
 
-          {/* Sidebar */}
-          <div className="flex w-full flex-col gap-3 md:w-48 md:flex-none">
-            <Section label="Verdict">
-              <div className="flex flex-col gap-1.5">
-                <Button size="sm">Confirm</Button>
-                <Button size="sm" variant="outline">
-                  Override
-                </Button>
+          {/* Sidebar - a single, clearly-headed "Actions" panel leads
+              (verdict decision + workflow context), then the
+              higher-stakes response guidance gets its own emphasized
+              panel below, with metadata last and most muted. Modeled
+              on Sublime MDV's "Review Status" panel: one bold header,
+              the decision controls, then supporting context grouped
+              underneath it rather than scattered across equal-weight
+              cards. */}
+          <div className="flex w-full flex-col gap-3 lg:w-64 lg:flex-none">
+            <div className="overflow-hidden rounded-[2px] border border-primary/30">
+              <div className="border-b border-primary/30 bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground">
+                Actions
               </div>
-            </Section>
-
-            <Card>
-              <CardContent className="flex flex-col gap-2">
+              <div className="flex flex-col gap-3 p-3">
                 <div>
-                  <div className="text-[11px] text-muted-foreground">Status</div>
-                  <div className="text-xs">{statusLabel[caseItem.status]}</div>
+                  <div className="mb-1.5 text-[11px] text-muted-foreground">Verdict</div>
+                  <div className="flex flex-col gap-1.5">
+                    <Button size="sm">Confirm</Button>
+                    <Button size="sm" variant="outline">
+                      Override
+                    </Button>
+                  </div>
                 </div>
-                <div>
-                  <div className="text-[11px] text-muted-foreground">Assignee</div>
-                  <div className="text-xs">{caseItem.assignee?.name ?? "Unassigned"}</div>
+                <Separator />
+                <div className="flex gap-4">
+                  <div className="flex-1">
+                    <div className="text-[11px] text-muted-foreground">Status</div>
+                    <div className="text-xs font-medium">{statusLabel[caseItem.status]}</div>
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-[11px] text-muted-foreground">Assignee</div>
+                    <div className="text-xs font-medium">{caseItem.assignee?.name ?? "Unassigned"}</div>
+                  </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
-            <Section label="Response Guidance">
-              <div className="flex flex-col gap-2">
+            <div className="overflow-hidden rounded-[2px] border border-destructive/40">
+              <div className="border-b border-destructive/40 bg-destructive/10 px-3 py-2 text-xs font-semibold text-destructive">
+                Response Guidance
+              </div>
+              <div className="flex flex-col gap-2 p-3">
                 {caseItem.responseGuidance?.length ? (
                   caseItem.responseGuidance.map((r, i) => (
                     <div key={i}>
@@ -226,15 +258,15 @@ export function CaseDetail({ caseItem, onBack }: { caseItem: Case; onBack: () =>
                   <span className="text-xs text-muted-foreground">No actions recommended</span>
                 )}
               </div>
-            </Section>
+            </div>
 
-            <Card>
-              <CardContent className="flex flex-col gap-1 text-[11px] text-muted-foreground">
+            <div className="rounded-[2px] border border-border bg-card p-3">
+              <div className="flex flex-col gap-1 text-[11px] text-muted-foreground">
                 <div>Created {caseItem.created ?? "—"}</div>
                 <div>Updated {caseItem.updated}</div>
                 <div>Closed {caseItem.closed ?? "—"}</div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
         </div>
       </div>
