@@ -75,8 +75,15 @@ const assigneeOptions = [
 
 const PAGE_SIZE = 15;
 
-export function CasesQueue({ onOpenFullCase }: { onOpenFullCase: (c: Case) => void }) {
-  const [severityFilter, setSeverityFilter] = useState<Severity | "all">("all");
+export function CasesQueue({
+  severityFilter,
+  onSeverityFilterChange,
+  onOpenFullCase,
+}: {
+  severityFilter: Severity | "all";
+  onSeverityFilterChange: (next: Severity | "all") => void;
+  onOpenFullCase: (c: Case) => void;
+}) {
   const [verdictFilter, setVerdictFilter] = useState<Set<Verdict>>(new Set());
   const [statusFilter, setStatusFilter] = useState<Set<Status>>(new Set());
   const [sourceFilter, setSourceFilter] = useState<Set<Source>>(new Set());
@@ -105,7 +112,7 @@ export function CasesQueue({ onOpenFullCase }: { onOpenFullCase: (c: Case) => vo
   const pageRows = rows.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   function selectSeverity(next: Severity | "all") {
-    setSeverityFilter(next);
+    onSeverityFilterChange(next);
     setPage(1);
   }
 

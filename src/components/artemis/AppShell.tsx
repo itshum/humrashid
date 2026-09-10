@@ -21,6 +21,9 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
   SidebarProvider,
   SidebarRail,
   SidebarTrigger,
@@ -28,13 +31,22 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Tip } from "./Tip";
+import { severityCounts, severityOrder, type Severity } from "./data";
 
-const primaryNav = [
-  { label: "Cases", icon: ShieldAlertIcon, active: true, badge: "12" },
+const restNav = [
   { label: "Investigate", icon: FileSearchIcon },
   { label: "Threat hunting", icon: BinocularsIcon },
   { label: "Detections", icon: RadarIcon },
 ];
+
+const severityFilterOptions: (Severity | "all")[] = ["all", ...severityOrder];
+const severityFilterLabel: Record<Severity | "all", string> = {
+  all: "All",
+  critical: "Critical",
+  high: "High",
+  medium: "Medium",
+  low: "Low",
+};
 
 const platformNav = [
   { label: "Environment", icon: LayoutGridIcon },
@@ -43,7 +55,15 @@ const platformNav = [
   { label: "Sources", icon: BoxesIcon },
 ];
 
-export function AppShell({ children }: { children: React.ReactNode }) {
+export function AppShell({
+  children,
+  severityFilter,
+  onSelectSeverity,
+}: {
+  children: React.ReactNode;
+  severityFilter: Severity | "all";
+  onSelectSeverity: (s: Severity | "all") => void;
+}) {
   return (
     <TooltipProvider delayDuration={200}>
     <SidebarProvider className="h-full min-h-0">
@@ -67,9 +87,35 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <SidebarGroupLabel>Detect &amp; respond</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {primaryNav.map((item) => (
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    isActive={severityFilter === "all"}
+                    tooltip="Cases"
+                    onClick={() => onSelectSeverity("all")}
+                  >
+                    <ShieldAlertIcon />
+                    <span>Cases</span>
+                  </SidebarMenuButton>
+                  <SidebarMenuSub>
+                    {severityFilterOptions.map((s) => (
+                      <SidebarMenuSubItem key={s}>
+                        <SidebarMenuSubButton
+                          isActive={severityFilter === s}
+                          onClick={() => onSelectSeverity(s)}
+                          className="cursor-pointer justify-between"
+                        >
+                          <span>{severityFilterLabel[s]}</span>
+                          <span className="text-xs text-sidebar-foreground/50">
+                            {(s === "all" ? severityCounts.all : severityCounts[s]).toLocaleString()}
+                          </span>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuSubItem>
+                    ))}
+                  </SidebarMenuSub>
+                </SidebarMenuItem>
+                {restNav.map((item) => (
                   <SidebarMenuItem key={item.label}>
-                    <SidebarMenuButton isActive={item.active} tooltip={item.label}>
+                    <SidebarMenuButton tooltip={item.label}>
                       <item.icon />
                       <span>{item.label}</span>
                     </SidebarMenuButton>
