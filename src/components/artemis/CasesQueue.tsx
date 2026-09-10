@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { ChevronRightIcon } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -8,6 +9,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Pagination,
   PaginationContent,
@@ -28,9 +31,11 @@ import {
   type Source,
 } from "./data";
 import { SeverityChip, VerdictBadge, verdictLabel } from "./badges";
-import { SourceIcons } from "./SourceIcons";
+import { SourceIcons, sourceLabel } from "./SourceIcons";
 import { AssigneeAvatar } from "./AssigneeAvatar";
 import { FilterDropdown } from "./FilterDropdown";
+import { QuickActionPanel } from "./QuickActionPanel";
+import { Tip } from "./Tip";
 
 const statusLabel: Record<Case["status"], string> = {
   open: "open",
@@ -39,13 +44,13 @@ const statusLabel: Record<Case["status"], string> = {
   false_positive: "false positive",
 };
 
-const sourceLabel: Record<Source, string> = {
-  aws: "AWS",
-  okta: "Okta",
-  crowdstrike: "CrowdStrike",
-  github: "GitHub",
-  email: "Email",
-  slack: "Slack",
+const columnHelp: Record<string, string> = {
+  Signal: "AI-assessed severity, with the verdict below it",
+  Case: "AI-generated case title",
+  Entity: "Primary user, host, or service account involved",
+  Sources: "Connected systems the evidence came from",
+  Status: "Case workflow status",
+  Updated: "Time since the case last changed",
 };
 
 const verdictOptions = Object.entries(verdictLabel).map(([value, label]) => ({
@@ -69,13 +74,14 @@ const assigneeOptions = [
 
 const PAGE_SIZE = 8;
 
-export function CasesQueue({ onSelectCase }: { onSelectCase: (c: Case) => void }) {
+export function CasesQueue({ onOpenFullCase }: { onOpenFullCase: (c: Case) => void }) {
   const [severityFilter, setSeverityFilter] = useState<Severity | "all">("all");
   const [verdictFilter, setVerdictFilter] = useState<Set<Verdict>>(new Set());
   const [statusFilter, setStatusFilter] = useState<Set<Status>>(new Set());
   const [sourceFilter, setSourceFilter] = useState<Set<Source>>(new Set());
   const [assigneeFilter, setAssigneeFilter] = useState<Set<string>>(new Set());
   const [page, setPage] = useState(1);
+  const [openPanelId, setOpenPanelId] = useState<string | null>(null);
 
   const rows = useMemo(() => {
     const filtered = cases.filter((c) => {
@@ -150,20 +156,26 @@ export function CasesQueue({ onSelectCase }: { onSelectCase: (c: Case) => void }
           <TableHeader className="sticky top-0 z-10 bg-muted">
             <TableRow className="hover:bg-transparent">
               <TableHead className="w-8"></TableHead>
-              <TableHead className="w-28">Signal</TableHead>
-              <TableHead>Case</TableHead>
-              <TableHead className="w-40">Entity</TableHead>
-              <TableHead className="w-16">Sources</TableHead>
-              <TableHead className="w-24">Status</TableHead>
-              <TableHead className="w-16">Updated</TableHead>
+              {(["Signal", "Case", "Entity", "Sources", "Status", "Updated"] as const).map(
+                (col) => (
+                  <TableHead key={col} className={col === "Case" ? undefined : "w-24"}>
+                    <Tip label={columnHelp[col]}>
+                      <span className="cursor-default">{col}</span>
+                    </Tip>
+                  </TableHead>
+                )
+              )}
               <TableHead className="w-10"></TableHead>
+              <TableHead className="w-8"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {pageRows.map((c) => (
-              <TableRow key={c.id} className="cursor-pointer" onClick={() => onSelectCase(c)}>
-                <TableCell onClick={(e) => e.stopPropagation()}>
-                  <input type="checkbox" aria-label={`Select ${c.id}`} />
+              <TableRow key={c.id}>
+                <TableCell>
+                  <Tip label="Select case">
+                    <input type="checkbox" aria-label={`Select ${c.id}`} />
+                  </Tip>
                 </TableCell>
                 <TableCell>
                   <div className="flex flex-col items-start gap-1">
@@ -181,11 +193,34 @@ export function CasesQueue({ onSelectCase }: { onSelectCase: (c: Case) => void }
                 <TableCell>
                   <AssigneeAvatar assignee={c.assignee} />
                 </TableCell>
+                <TableCell>
+                  <Popover
+                    open={openPanelId === c.id}
+                    onOpenChange={(open) => setOpenPanelId(open ? c.id : null)}
+                  >
+                    <Tip label="Quick actions">
+                      <PopoverTrigger asChild>
+                        <Button variant="ghost" size="icon-sm" aria-label={`Quick actions for ${c.id}`}>
+                          <ChevronRightIcon className="size-4" />
+                        </Button>
+                      </PopoverTrigger>
+                    </Tip>
+                    <PopoverContent side="left" align="start" className="w-80">
+                      <QuickActionPanel
+                        caseItem={c}
+                        onOpenFullCase={(caseItem) => {
+                          setOpenPanelId(null);
+                          onOpenFullCase(caseItem);
+                        }}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </TableCell>
               </TableRow>
             ))}
             {pageRows.length === 0 && (
               <TableRow>
-                <TableCell colSpan={8} className="h-24 text-center text-sm text-muted-foreground">
+                <TableCell colSpan={9} className="h-24 text-center text-sm text-muted-foreground">
                   No cases match these filters
                 </TableCell>
               </TableRow>

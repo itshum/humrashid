@@ -1,4 +1,3 @@
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { SeverityChip, VerdictBadge, isQuickActionable } from "./badges";
@@ -15,60 +14,56 @@ function reasoningLine(c: Case): string {
   return "AI investigation is still gathering evidence for this case.";
 }
 
+// Content only - no drawer/overlay chrome. Rendered inside a Popover
+// anchored to the row's chevron trigger (see CasesQueue), so it reads
+// as a small card that appears from the row rather than a slide-out
+// panel taking over the screen.
 export function QuickActionPanel({
   caseItem,
-  onOpenChange,
   onOpenFullCase,
 }: {
-  caseItem: Case | null;
-  onOpenChange: (open: boolean) => void;
+  caseItem: Case;
   onOpenFullCase: (c: Case) => void;
 }) {
-  const open = caseItem !== null;
-  const actionable = caseItem ? isQuickActionable(caseItem.verdict) : false;
+  const actionable = isQuickActionable(caseItem.verdict);
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent>
-        {caseItem && (
-          <>
-            <SheetHeader>
-              <div className="flex items-center gap-1.5">
-                <SeverityChip severity={caseItem.severity} />
-                <VerdictBadge verdict={caseItem.verdict} />
-              </div>
-              <SheetTitle>{caseItem.title}</SheetTitle>
-              <p className="text-xs text-muted-foreground">
-                {caseItem.entity} · {caseItem.sources.join(", ")}
-              </p>
-            </SheetHeader>
+    <div className="flex flex-col gap-3">
+      <div>
+        <div className="mb-2 flex items-center gap-1.5">
+          <SeverityChip severity={caseItem.severity} />
+          <VerdictBadge verdict={caseItem.verdict} />
+        </div>
+        <div className="text-sm font-medium leading-snug">{caseItem.title}</div>
+        <p className="mt-0.5 text-xs text-muted-foreground">
+          {caseItem.entity} · {caseItem.sources.join(", ")}
+        </p>
+      </div>
 
-            <div className="px-4">
-              <div className="rounded-md bg-muted p-3 text-xs leading-relaxed text-muted-foreground">
-                {reasoningLine(caseItem)}
-              </div>
-            </div>
+      <div className="rounded-md bg-muted p-3 text-xs leading-relaxed text-muted-foreground">
+        {reasoningLine(caseItem)}
+      </div>
 
-            {actionable && (
-              <div className="flex flex-col gap-2 px-4">
-                <Button>Resolve</Button>
-                <Button variant="outline">Assign to me</Button>
-              </div>
-            )}
+      {actionable && (
+        <div className="flex flex-col gap-2">
+          <Button size="sm">Resolve</Button>
+          <Button size="sm" variant="outline">
+            Assign to me
+          </Button>
+        </div>
+      )}
 
-            <div className="mt-auto px-4 pb-4">
-              <Separator className="mb-3" />
-              <Button
-                variant={actionable ? "ghost" : "default"}
-                className="w-full"
-                onClick={() => onOpenFullCase(caseItem)}
-              >
-                Open full case
-              </Button>
-            </div>
-          </>
-        )}
-      </SheetContent>
-    </Sheet>
+      <div>
+        <Separator className="mb-3" />
+        <Button
+          size="sm"
+          variant={actionable ? "ghost" : "default"}
+          className="w-full"
+          onClick={() => onOpenFullCase(caseItem)}
+        >
+          Open full case
+        </Button>
+      </div>
+    </div>
   );
 }

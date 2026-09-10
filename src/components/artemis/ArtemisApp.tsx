@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { AppShell } from "./AppShell";
 import { CasesQueue } from "./CasesQueue";
-import { QuickActionPanel } from "./QuickActionPanel";
 import { CaseDetail } from "./CaseDetail";
 import type { Case } from "./data";
 import "./theme.css";
@@ -10,7 +9,6 @@ type View = { name: "queue" } | { name: "detail"; caseItem: Case };
 
 export function ArtemisApp() {
   const [view, setView] = useState<View>({ name: "queue" });
-  const [panelCase, setPanelCase] = useState<Case | null>(null);
 
   return (
     <div className="artemis-shell h-svh w-full overflow-hidden bg-background text-foreground">
@@ -24,20 +22,10 @@ export function ArtemisApp() {
             <div className="flex items-center justify-between">
               <h1 className="text-lg font-semibold">Cases</h1>
             </div>
-            <CasesQueue onSelectCase={setPanelCase} />
+            <CasesQueue onOpenFullCase={(c) => setView({ name: "detail", caseItem: c })} />
           </div>
         )}
       </AppShell>
-      <QuickActionPanel
-        caseItem={panelCase}
-        onOpenChange={(open) => {
-          if (!open) setPanelCase(null);
-        }}
-        onOpenFullCase={(c) => {
-          setPanelCase(null);
-          setView({ name: "detail", caseItem: c });
-        }}
-      />
     </div>
   );
 }

@@ -5,14 +5,20 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { SeverityChip, VerdictBadge } from "./badges";
-import { SourceIcon } from "./SourceIcons";
+import { SourceIcon, sourceLabel } from "./SourceIcons";
 import type { Case } from "./data";
+import { Tip } from "./Tip";
 
 const statusLabel: Record<Case["status"], string> = {
   open: "open",
   in_progress: "in progress",
   resolved: "resolved",
   false_positive: "false positive",
+};
+
+const mitreLabel: Record<string, string> = {
+  "T1562.008": "Impair defenses: disable or modify cloud logs",
+  "T1070.002": "Indicator removal: clear cloud logs",
 };
 
 function Section({ label, children }: { label: string; children: React.ReactNode }) {
@@ -127,15 +133,17 @@ export function CaseDetail({ caseItem, onBack }: { caseItem: Case; onBack: () =>
             <Section label="sources, mitre att&ck">
               <div className="flex flex-wrap gap-1.5">
                 {caseItem.sources.map((s) => (
-                  <Badge key={s} variant="outline" className="gap-1">
-                    <SourceIcon source={s} />
-                    {s}
-                  </Badge>
+                  <Tip key={s} label={sourceLabel[s]}>
+                    <Badge variant="outline" className="gap-1">
+                      <SourceIcon source={s} />
+                      {s}
+                    </Badge>
+                  </Tip>
                 ))}
                 {caseItem.mitre?.map((m) => (
-                  <Badge key={m} variant="outline">
-                    {m}
-                  </Badge>
+                  <Tip key={m} label={mitreLabel[m] ?? "MITRE ATT&CK technique"}>
+                    <Badge variant="outline">{m}</Badge>
+                  </Tip>
                 ))}
               </div>
             </Section>
@@ -155,16 +163,20 @@ export function CaseDetail({ caseItem, onBack }: { caseItem: Case; onBack: () =>
                 {caseItem.activity?.map((a, i) => (
                   <div key={i} className="flex items-start gap-2">
                     {a.isAgent ? (
-                      <BotIcon className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
+                      <Tip label="AI agent">
+                        <BotIcon className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
+                      </Tip>
                     ) : (
-                      <Avatar className="size-4 shrink-0">
-                        <AvatarFallback className="text-[8px]">
-                          {a.actor
-                            .split(" ")
-                            .map((p) => p[0])
-                            .join("")}
-                        </AvatarFallback>
-                      </Avatar>
+                      <Tip label={a.actor}>
+                        <Avatar className="size-4 shrink-0">
+                          <AvatarFallback className="text-[8px]">
+                            {a.actor
+                              .split(" ")
+                              .map((p) => p[0])
+                              .join("")}
+                          </AvatarFallback>
+                        </Avatar>
+                      </Tip>
                     )}
                     <span>
                       {a.text} <span className="text-muted-foreground">· {a.time}</span>
