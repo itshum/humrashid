@@ -20,7 +20,7 @@ export function SeverityChip({ severity }: { severity: Severity }) {
   return <Badge className={severityClass[severity]}>{severityLabel[severity]}</Badge>;
 }
 
-const verdictLabel: Record<Verdict, string> = {
+export const verdictLabel: Record<Verdict, string> = {
   needs_review: "needs review",
   true_positive: "true positive",
   false_positive: "false positive",

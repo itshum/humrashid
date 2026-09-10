@@ -16,10 +16,21 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { cases, severityCounts, severityOrder, sortCases, type Case, type Severity } from "./data";
-import { SeverityChip, VerdictBadge } from "./badges";
+import {
+  cases,
+  severityCounts,
+  severityOrder,
+  sortCases,
+  type Case,
+  type Severity,
+  type Verdict,
+  type Status,
+  type Source,
+} from "./data";
+import { SeverityChip, VerdictBadge, verdictLabel } from "./badges";
 import { SourceIcons } from "./SourceIcons";
 import { AssigneeAvatar } from "./AssigneeAvatar";
+import { FilterDropdown } from "./FilterDropdown";
 
 const statusLabel: Record<Case["status"], string> = {
   open: "open",
@@ -28,19 +39,58 @@ const statusLabel: Record<Case["status"], string> = {
   false_positive: "false positive",
 };
 
-const secondaryFilters = ["verdict", "status", "source", "assignee"] as const;
+const sourceLabel: Record<Source, string> = {
+  aws: "AWS",
+  okta: "Okta",
+  crowdstrike: "CrowdStrike",
+  github: "GitHub",
+  email: "Email",
+  slack: "Slack",
+};
+
+const verdictOptions = Object.entries(verdictLabel).map(([value, label]) => ({
+  value: value as Verdict,
+  label,
+}));
+const statusOptions = Object.entries(statusLabel).map(([value, label]) => ({
+  value: value as Status,
+  label,
+}));
+const sourceOptions = Object.entries(sourceLabel).map(([value, label]) => ({
+  value: value as Source,
+  label,
+}));
+const assigneeOptions = [
+  { value: "unassigned", label: "Unassigned" },
+  ...Array.from(new Set(cases.filter((c) => c.assignee).map((c) => c.assignee!.name))).map(
+    (name) => ({ value: name, label: name })
+  ),
+];
 
 const PAGE_SIZE = 8;
 
 export function CasesQueue({ onSelectCase }: { onSelectCase: (c: Case) => void }) {
   const [severityFilter, setSeverityFilter] = useState<Severity | "all">("all");
+  const [verdictFilter, setVerdictFilter] = useState<Set<Verdict>>(new Set());
+  const [statusFilter, setStatusFilter] = useState<Set<Status>>(new Set());
+  const [sourceFilter, setSourceFilter] = useState<Set<Source>>(new Set());
+  const [assigneeFilter, setAssigneeFilter] = useState<Set<string>>(new Set());
   const [page, setPage] = useState(1);
 
   const rows = useMemo(() => {
-    const filtered =
-      severityFilter === "all" ? cases : cases.filter((c) => c.severity === severityFilter);
+    const filtered = cases.filter((c) => {
+      if (severityFilter !== "all" && c.severity !== severityFilter) return false;
+      if (verdictFilter.size > 0 && !verdictFilter.has(c.verdict)) return false;
+      if (statusFilter.size > 0 && !statusFilter.has(c.status)) return false;
+      if (sourceFilter.size > 0 && !c.sources.some((s) => sourceFilter.has(s))) return false;
+      if (assigneeFilter.size > 0) {
+        const key = c.assignee ? c.assignee.name : "unassigned";
+        if (!assigneeFilter.has(key)) return false;
+      }
+      return true;
+    });
     return sortCases(filtered);
-  }, [severityFilter]);
+  }, [severityFilter, verdictFilter, statusFilter, sourceFilter, assigneeFilter]);
 
   const pageCount = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
   const currentPage = Math.min(page, pageCount);
@@ -49,6 +99,13 @@ export function CasesQueue({ onSelectCase }: { onSelectCase: (c: Case) => void }
   function selectSeverity(next: Severity | "all") {
     setSeverityFilter(next);
     setPage(1);
+  }
+
+  function withReset<T>(setter: (v: Set<T>) => void) {
+    return (v: Set<T>) => {
+      setter(v);
+      setPage(1);
+    };
   }
 
   return (
@@ -79,15 +136,10 @@ export function CasesQueue({ onSelectCase }: { onSelectCase: (c: Case) => void }
 
       {/* Secondary filter row: lower-weight dropdown filters */}
       <div className="flex flex-wrap items-center gap-2 border-b p-2 px-3">
-        {secondaryFilters.map((filter) => (
-          <button
-            key={filter}
-            type="button"
-            className="rounded-md border px-2.5 py-1 text-[11px] text-muted-foreground hover:bg-muted focus-visible:outline-none"
-          >
-            {filter} ▾
-          </button>
-        ))}
+        <FilterDropdown label="Verdict" options={verdictOptions} selected={verdictFilter} onChange={withReset(setVerdictFilter)} />
+        <FilterDropdown label="Status" options={statusOptions} selected={statusFilter} onChange={withReset(setStatusFilter)} />
+        <FilterDropdown label="Source" options={sourceOptions} selected={sourceFilter} onChange={withReset(setSourceFilter)} />
+        <FilterDropdown label="Assignee" options={assigneeOptions} selected={assigneeFilter} onChange={withReset(setAssigneeFilter)} />
         <span className="ml-auto text-[11px] text-muted-foreground">
           sorted by severity, then needs review, then recency
         </span>
@@ -95,15 +147,15 @@ export function CasesQueue({ onSelectCase }: { onSelectCase: (c: Case) => void }
 
       <div className="flex-1 overflow-y-auto">
         <Table>
-          <TableHeader className="sticky top-0 z-10 bg-card">
-            <TableRow>
+          <TableHeader className="sticky top-0 z-10 bg-muted">
+            <TableRow className="hover:bg-transparent">
               <TableHead className="w-8"></TableHead>
-              <TableHead className="w-28">signal</TableHead>
-              <TableHead>case</TableHead>
-              <TableHead className="w-40">entity</TableHead>
-              <TableHead className="w-16">sources</TableHead>
-              <TableHead className="w-24">status</TableHead>
-              <TableHead className="w-16">updated</TableHead>
+              <TableHead className="w-28">Signal</TableHead>
+              <TableHead>Case</TableHead>
+              <TableHead className="w-40">Entity</TableHead>
+              <TableHead className="w-16">Sources</TableHead>
+              <TableHead className="w-24">Status</TableHead>
+              <TableHead className="w-16">Updated</TableHead>
               <TableHead className="w-10"></TableHead>
             </TableRow>
           </TableHeader>
@@ -131,6 +183,13 @@ export function CasesQueue({ onSelectCase }: { onSelectCase: (c: Case) => void }
                 </TableCell>
               </TableRow>
             ))}
+            {pageRows.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={8} className="h-24 text-center text-sm text-muted-foreground">
+                  No cases match these filters
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </div>
