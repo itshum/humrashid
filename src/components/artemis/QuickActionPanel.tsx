@@ -30,14 +30,21 @@ export function QuickActionPanel({
   return (
     <div className="flex flex-col gap-3">
       <div>
-        <div className="mb-2 flex items-center gap-1.5">
+        <div className="mb-2">
           <SeverityChip severity={caseItem.severity} />
-          <VerdictBadge verdict={caseItem.verdict} />
         </div>
         <div className="text-sm font-medium leading-snug">{caseItem.title}</div>
         <p className="mt-0.5 text-xs text-muted-foreground">
           {caseItem.entity} · {caseItem.sources.join(", ")}
         </p>
+      </div>
+
+      {/* Verdict detail lives here, not on the queue row - it's
+          information the analyst asks for by opening the panel, not
+          something that needs to compete for attention at row level. */}
+      <div>
+        <div className="mb-1 text-[11px] text-muted-foreground">Verdict</div>
+        <VerdictBadge verdict={caseItem.verdict} />
       </div>
 
       <div className="rounded-md bg-muted p-3 text-xs leading-relaxed text-muted-foreground">

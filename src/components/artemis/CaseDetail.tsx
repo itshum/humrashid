@@ -10,10 +10,10 @@ import type { Case } from "./data";
 import { Tip } from "./Tip";
 
 const statusLabel: Record<Case["status"], string> = {
-  open: "open",
-  in_progress: "in progress",
-  resolved: "resolved",
-  false_positive: "false positive",
+  open: "Open",
+  in_progress: "In Progress",
+  resolved: "Resolved",
+  false_positive: "False Positive",
 };
 
 const mitreLabel: Record<string, string> = {
@@ -41,7 +41,7 @@ export function CaseDetail({ caseItem, onBack }: { caseItem: Case; onBack: () =>
         ← back to queue
       </Button>
 
-      <div className="overflow-hidden rounded-xl border">
+      <div className="overflow-hidden rounded-lg border">
         {/* Banner - severity color mapping deferred to the polish pass */}
         <div className="border-b bg-muted/40 p-4">
           <div className="mb-1.5 flex items-center gap-2">
@@ -65,7 +65,7 @@ export function CaseDetail({ caseItem, onBack }: { caseItem: Case; onBack: () =>
               </Card>
             )}
 
-            <Section label="summary">
+            <Section label="Summary">
               <p className="text-sm leading-relaxed">
                 {caseItem.summary ?? "No AI summary available for this case in the prototype."}
               </p>
@@ -74,14 +74,14 @@ export function CaseDetail({ caseItem, onBack }: { caseItem: Case; onBack: () =>
             <Card>
               <CardContent className="flex flex-col gap-2">
                 <div>
-                  <span className="text-[11px] text-muted-foreground">why this severity </span>
+                  <span className="text-[11px] text-muted-foreground">Why this severity </span>
                   <span className="text-xs leading-relaxed text-muted-foreground">
                     {caseItem.whySeverity ?? "—"}
                   </span>
                 </div>
                 <Separator />
                 <div>
-                  <span className="text-[11px] text-muted-foreground">why this verdict </span>
+                  <span className="text-[11px] text-muted-foreground">Why this verdict </span>
                   <span className="text-xs leading-relaxed text-muted-foreground">
                     {caseItem.whyVerdict ?? "—"}
                   </span>
@@ -89,7 +89,7 @@ export function CaseDetail({ caseItem, onBack }: { caseItem: Case; onBack: () =>
               </CardContent>
             </Card>
 
-            <Section label={`findings · ${caseItem.findings?.length ?? 0}`}>
+            <Section label={`Findings · ${caseItem.findings?.length ?? 0}`}>
               <div className="flex flex-col gap-1.5">
                 {caseItem.findings?.map((f, i) => (
                   <div key={i} className="flex items-start gap-2 text-xs">
@@ -106,7 +106,7 @@ export function CaseDetail({ caseItem, onBack }: { caseItem: Case; onBack: () =>
 
             <div className="flex flex-col gap-3 sm:flex-row">
               <div className="flex-1">
-                <Section label="entities">
+                <Section label="Entities">
                   <div className="flex flex-col gap-1.5 text-xs">
                     {caseItem.entities?.map((e) => (
                       <div key={e.name} className="flex items-center justify-between">
@@ -118,7 +118,7 @@ export function CaseDetail({ caseItem, onBack }: { caseItem: Case; onBack: () =>
                 </Section>
               </div>
               <div className="flex-1">
-                <Section label="observables">
+                <Section label="Observables">
                   <div className="flex flex-col gap-1.5 text-xs">
                     {caseItem.observables?.map((o) => (
                       <div key={o.value}>
@@ -130,7 +130,7 @@ export function CaseDetail({ caseItem, onBack }: { caseItem: Case; onBack: () =>
               </div>
             </div>
 
-            <Section label="sources, mitre att&ck">
+            <Section label="Sources, MITRE ATT&CK">
               <div className="flex flex-wrap gap-1.5">
                 {caseItem.sources.map((s) => (
                   <Tip key={s} label={sourceLabel[s]}>
@@ -148,7 +148,7 @@ export function CaseDetail({ caseItem, onBack }: { caseItem: Case; onBack: () =>
               </div>
             </Section>
 
-            <Section label="timeline">
+            <Section label="Timeline">
               <div className="flex flex-col gap-1.5 text-xs">
                 {caseItem.timeline?.map((t, i) => (
                   <div key={i}>
@@ -158,7 +158,7 @@ export function CaseDetail({ caseItem, onBack }: { caseItem: Case; onBack: () =>
               </div>
             </Section>
 
-            <Section label="activity">
+            <Section label="Activity">
               <div className="flex flex-col gap-2 text-xs">
                 {caseItem.activity?.map((a, i) => (
                   <div key={i} className="flex items-start gap-2">
@@ -189,7 +189,7 @@ export function CaseDetail({ caseItem, onBack }: { caseItem: Case; onBack: () =>
 
           {/* Sidebar */}
           <div className="flex w-full flex-col gap-3 md:w-48 md:flex-none">
-            <Section label="verdict">
+            <Section label="Verdict">
               <div className="flex flex-col gap-1.5">
                 <Button size="sm">Confirm</Button>
                 <Button size="sm" variant="outline">
@@ -201,17 +201,17 @@ export function CaseDetail({ caseItem, onBack }: { caseItem: Case; onBack: () =>
             <Card>
               <CardContent className="flex flex-col gap-2">
                 <div>
-                  <div className="text-[11px] text-muted-foreground">status</div>
+                  <div className="text-[11px] text-muted-foreground">Status</div>
                   <div className="text-xs">{statusLabel[caseItem.status]}</div>
                 </div>
                 <div>
-                  <div className="text-[11px] text-muted-foreground">assignee</div>
+                  <div className="text-[11px] text-muted-foreground">Assignee</div>
                   <div className="text-xs">{caseItem.assignee?.name ?? "Unassigned"}</div>
                 </div>
               </CardContent>
             </Card>
 
-            <Section label="response guidance">
+            <Section label="Response Guidance">
               <div className="flex flex-col gap-2">
                 {caseItem.responseGuidance?.length ? (
                   caseItem.responseGuidance.map((r, i) => (
@@ -230,9 +230,9 @@ export function CaseDetail({ caseItem, onBack }: { caseItem: Case; onBack: () =>
 
             <Card>
               <CardContent className="flex flex-col gap-1 text-[11px] text-muted-foreground">
-                <div>created {caseItem.created ?? "—"}</div>
-                <div>updated {caseItem.updated}</div>
-                <div>closed {caseItem.closed ?? "—"}</div>
+                <div>Created {caseItem.created ?? "—"}</div>
+                <div>Updated {caseItem.updated}</div>
+                <div>Closed {caseItem.closed ?? "—"}</div>
               </CardContent>
             </Card>
           </div>

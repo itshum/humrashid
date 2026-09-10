@@ -30,7 +30,7 @@ import {
   type Status,
   type Source,
 } from "./data";
-import { SeverityChip, VerdictBadge, verdictLabel } from "./badges";
+import { SeverityChip, verdictLabel } from "./badges";
 import { SourceIcons, sourceLabel } from "./SourceIcons";
 import { AssigneeAvatar } from "./AssigneeAvatar";
 import { FilterDropdown } from "./FilterDropdown";
@@ -38,14 +38,14 @@ import { QuickActionPanel } from "./QuickActionPanel";
 import { Tip } from "./Tip";
 
 const statusLabel: Record<Case["status"], string> = {
-  open: "open",
-  in_progress: "in progress",
-  resolved: "resolved",
-  false_positive: "false positive",
+  open: "Open",
+  in_progress: "In Progress",
+  resolved: "Resolved",
+  false_positive: "False Positive",
 };
 
 const columnHelp: Record<string, string> = {
-  Signal: "AI-assessed severity, with the verdict below it",
+  Signal: "AI-assessed severity — open the row for the verdict and more detail",
   Case: "AI-generated case title",
   Entity: "Primary user, host, or service account involved",
   Sources: "Connected systems the evidence came from",
@@ -72,7 +72,7 @@ const assigneeOptions = [
   ),
 ];
 
-const PAGE_SIZE = 8;
+const PAGE_SIZE = 15;
 
 export function CasesQueue({ onOpenFullCase }: { onOpenFullCase: (c: Case) => void }) {
   const [severityFilter, setSeverityFilter] = useState<Severity | "all">("all");
@@ -115,12 +115,12 @@ export function CasesQueue({ onOpenFullCase }: { onOpenFullCase: (c: Case) => vo
   }
 
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded-xl border bg-card">
+    <div className="flex h-full flex-col overflow-hidden rounded-lg border bg-card">
       {/* Primary filter row: severity toggle pills */}
       <div className="flex flex-wrap items-center gap-2 border-b p-3">
         <button type="button" onClick={() => selectSeverity("all")} className="focus-visible:outline-none">
           <Badge variant={severityFilter === "all" ? "default" : "outline"} className="cursor-pointer px-3.5 py-1">
-            all · {severityCounts.all.toLocaleString()}
+            All · {severityCounts.all.toLocaleString()}
           </Badge>
         </button>
         {severityOrder.map((severity) => (
@@ -134,7 +134,7 @@ export function CasesQueue({ onOpenFullCase }: { onOpenFullCase: (c: Case) => vo
               variant={severityFilter === severity ? "default" : "outline"}
               className="cursor-pointer px-3.5 py-1"
             >
-              {severity} · {severityCounts[severity].toLocaleString()}
+              {severity[0].toUpperCase() + severity.slice(1)} · {severityCounts[severity].toLocaleString()}
             </Badge>
           </button>
         ))}
@@ -178,10 +178,7 @@ export function CasesQueue({ onOpenFullCase }: { onOpenFullCase: (c: Case) => vo
                   </Tip>
                 </TableCell>
                 <TableCell>
-                  <div className="flex flex-col items-start gap-1">
-                    <SeverityChip severity={c.severity} />
-                    <VerdictBadge verdict={c.verdict} />
-                  </div>
+                  <SeverityChip severity={c.severity} />
                 </TableCell>
                 <TableCell className="max-w-0 truncate font-medium">{c.title}</TableCell>
                 <TableCell className="max-w-0 truncate text-muted-foreground">{c.entity}</TableCell>

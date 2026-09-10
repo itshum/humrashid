@@ -11,8 +11,17 @@
 
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 
-:root {
+/* `html:root` (specificity 0,1,1) rather than plain `:root` (0,1,0) -
+   guarantees this wins over the site's own global.css :root block
+   regardless of which stylesheet happens to be injected later in
+   <head> (Vite's dev-mode CSS injection order isn't something this
+   page should depend on for correctness). */
+html:root {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  /* Tighter corners than shadcn's default (0.625rem/10px) - reads as
+     a denser, more tool-like product rather than a marketing surface. */
+  --radius: 0.25rem;
 
   --background: oklch(0.985 0.002 264);
   --foreground: oklch(0.18 0.02 264);

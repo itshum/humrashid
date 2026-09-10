@@ -22,9 +22,11 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarProvider,
+  SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { Tip } from "./Tip";
 
 const primaryNav = [
   { label: "Cases", icon: ShieldAlertIcon, active: true, badge: "12" },
@@ -102,6 +104,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </Sidebar>
       <SidebarInset className="min-h-0">
         <header className="flex h-14 shrink-0 items-center gap-3 border-b px-4">
+          <Tip label="Toggle sidebar">
+            <SidebarTrigger />
+          </Tip>
           <div className="relative flex-1 max-w-md">
             <SearchIcon className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <input

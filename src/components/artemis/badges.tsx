@@ -1,12 +1,20 @@
-import { CheckIcon, HelpCircleIcon, XIcon } from "lucide-react";
+import {
+  CheckIcon,
+  CircleAlertIcon,
+  CircleIcon,
+  HelpCircleIcon,
+  OctagonAlertIcon,
+  TriangleAlertIcon,
+  XIcon,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import type { Severity, Verdict } from "./data";
 
-const severityLabel: Record<Severity, string> = {
-  critical: "critical",
-  high: "high",
-  medium: "medium",
-  low: "low",
+export const severityLabel: Record<Severity, string> = {
+  critical: "Critical",
+  high: "High",
+  medium: "Medium",
+  low: "Low",
 };
 
 const severityClass: Record<Severity, string> = {
@@ -16,15 +24,28 @@ const severityClass: Record<Severity, string> = {
   low: "border-[var(--severity-low-border)] bg-[var(--severity-low-bg)] text-[var(--severity-low-text)]",
 };
 
+const severityIcon: Record<Severity, React.ComponentType<{ className?: string }>> = {
+  critical: OctagonAlertIcon,
+  high: TriangleAlertIcon,
+  medium: CircleAlertIcon,
+  low: CircleIcon,
+};
+
 export function SeverityChip({ severity }: { severity: Severity }) {
-  return <Badge className={severityClass[severity]}>{severityLabel[severity]}</Badge>;
+  const Icon = severityIcon[severity];
+  return (
+    <Badge className={`gap-1 ${severityClass[severity]}`}>
+      <Icon className="size-3" />
+      {severityLabel[severity]}
+    </Badge>
+  );
 }
 
 export const verdictLabel: Record<Verdict, string> = {
-  needs_review: "needs review",
-  true_positive: "true positive",
-  false_positive: "false positive",
-  benign: "benign",
+  needs_review: "Needs Review",
+  true_positive: "True Positive",
+  false_positive: "False Positive",
+  benign: "Benign",
 };
 
 const verdictIcon: Record<Verdict, React.ComponentType<{ className?: string }>> = {
