@@ -32,16 +32,23 @@ const mitreLabel: Record<string, string> = {
 
 const severityOrder: Severity[] = ["critical", "high", "medium", "low"];
 
-// Banner background/border/text per severity, built from the same
+// Banner background/border per severity, built from the same
 // semantic tokens the queue's severity chips use, so the two stay
-// visually consistent.
+// visually consistent. Deliberately subtle - a light tint rather than
+// a saturated fill - with a solid accent bar doing the job of a loud
+// background at a glance.
 const bannerClass: Record<Severity, string> = {
-  critical:
-    "bg-[var(--severity-critical-bg)] border-[var(--severity-critical-border)] text-[var(--severity-critical-text)]",
-  high: "bg-[var(--severity-high-bg)] border-[var(--severity-high-border)] text-[var(--severity-high-text)]",
-  medium:
-    "bg-[var(--severity-medium-bg)] border-[var(--severity-medium-border)] text-[var(--severity-medium-text)]",
-  low: "bg-[var(--severity-low-bg)] border-[var(--severity-low-border)] text-[var(--severity-low-text)]",
+  critical: "bg-[var(--severity-critical-bg)] border-[var(--severity-critical-border)]",
+  high: "bg-[var(--severity-high-bg)] border-[var(--severity-high-border)]",
+  medium: "bg-[var(--severity-medium-bg)] border-[var(--severity-medium-border)]",
+  low: "bg-[var(--severity-low-bg)] border-[var(--severity-low-border)]",
+};
+
+const accentBarClass: Record<Severity, string> = {
+  critical: "bg-[var(--severity-critical-text)]",
+  high: "bg-[var(--severity-high-text)]",
+  medium: "bg-[var(--severity-medium-text)]",
+  low: "bg-[var(--severity-low-text)]",
 };
 
 const sectionHelp: Record<string, string> = {
@@ -57,9 +64,13 @@ const sectionHelp: Record<string, string> = {
   "Response Guidance": "Recommended response actions. Each requires an explicit approve or reject.",
 };
 
+// Shaded header bar (not just a bottom hairline) so each section reads
+// as its own distinct block at a glance - the layout refinement pulled
+// from Sublime's MDV, where "Sender Details" / "Authentication" etc.
+// each get a full-width light-grey label bar.
 function SectionHeader({ label, action }: { label: string; action?: React.ReactNode }) {
   return (
-    <div className="flex items-center justify-between border-b px-3 py-2">
+    <div className="flex items-center justify-between border-b bg-muted/60 px-3 py-2">
       <span className="text-xs font-semibold text-foreground">{label}</span>
       <div className="flex items-center gap-1.5">
         {action}
@@ -221,18 +232,25 @@ export function CaseDetail({ caseItem, onBack }: { caseItem: Case; onBack: () =>
         ← Back To Queue
       </Button>
 
-      {/* Header detached from the content below it, colored to match
-          the case's severity so the banner itself carries the signal
-          rather than relying only on the chip inside it. */}
-      <div className={`mb-3 rounded-[2px] border p-4 ${bannerClass[caseItem.severity]}`}>
-        <div className="mb-1.5 flex items-center gap-2">
-          <SeverityChip severity={caseItem.severity} />
-          <VerdictBadge verdict={caseItem.verdict} />
-          <span className="ml-auto text-xs opacity-70">
-            {caseItem.id} · {statusLabel[caseItem.status]}
-          </span>
+      {/* Header detached from the content below it, tinted to match
+          the case's severity. Kept subtle - a light wash plus a solid
+          accent bar carry the signal, rather than a saturated fill -
+          and the title leads with the chips underneath it, matching
+          Sublime MDV's banner order. */}
+      <div className={`relative mb-3 overflow-hidden rounded-[2px] border pl-4 ${bannerClass[caseItem.severity]}`}>
+        <span className={`absolute inset-y-0 left-0 w-1 ${accentBarClass[caseItem.severity]}`} />
+        <div className="p-4 pl-2">
+          <div className="flex items-start justify-between gap-3">
+            <div className="text-lg font-semibold text-foreground">{caseItem.title}</div>
+            <span className="shrink-0 pt-0.5 text-xs text-muted-foreground">
+              {caseItem.id} · {statusLabel[caseItem.status]}
+            </span>
+          </div>
+          <div className="mt-2 flex items-center gap-1.5">
+            <SeverityChip severity={caseItem.severity} />
+            <VerdictBadge verdict={caseItem.verdict} />
+          </div>
         </div>
-        <div className="text-lg font-medium">{caseItem.title}</div>
       </div>
 
       <div className="flex flex-col gap-3 lg:flex-row">
@@ -540,10 +558,19 @@ export function CaseDetail({ caseItem, onBack }: { caseItem: Case; onBack: () =>
           </div>
 
           <div className="rounded-[2px] border border-border bg-card p-3">
-            <div className="flex flex-col gap-1 text-[11px] text-muted-foreground">
-              <div>Created {caseItem.created ?? "—"}</div>
-              <div>Updated {caseItem.updated}</div>
-              <div>Closed {caseItem.closed ?? "—"}</div>
+            <div className="grid grid-cols-3 gap-2 text-[11px]">
+              <div>
+                <div className="text-muted-foreground">Created</div>
+                <div className="mt-0.5 text-foreground/70">{caseItem.created ?? "—"}</div>
+              </div>
+              <div>
+                <div className="text-muted-foreground">Updated</div>
+                <div className="mt-0.5 text-foreground/70">{caseItem.updated}</div>
+              </div>
+              <div>
+                <div className="text-muted-foreground">Closed</div>
+                <div className="mt-0.5 text-foreground/70">{caseItem.closed ?? "—"}</div>
+              </div>
             </div>
           </div>
         </div>

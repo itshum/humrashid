@@ -81,9 +81,6 @@ export function AppShell({
               <span className="font-semibold">Artemis</span>
               <span className="text-xs text-sidebar-foreground/60">Cursor</span>
             </div>
-            <Tip label="Toggle sidebar">
-              <SidebarTrigger className="shrink-0 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:hidden" />
-            </Tip>
           </div>
         </SidebarHeader>
         <SidebarContent>
@@ -169,6 +166,9 @@ export function AppShell({
       </Sidebar>
       <SidebarInset className="min-h-0">
         <header className="flex h-14 shrink-0 items-center gap-3 border-b px-4">
+          <Tip label="Toggle sidebar">
+            <SidebarTrigger className="shrink-0" />
+          </Tip>
           <div className="relative flex-1 max-w-md">
             <SearchIcon className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <input
