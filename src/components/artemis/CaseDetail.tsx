@@ -205,8 +205,6 @@ type VerdictAction = "idle" | "overriding" | "confirmed" | "overridden";
 type GuidanceStatus = "pending" | "approved" | "rejected";
 
 export function CaseDetail({ caseItem, onBack }: { caseItem: Case; onBack: () => void }) {
-  const hasDetail = Boolean(caseItem.summary);
-
   const [verdictAction, setVerdictAction] = useState<VerdictAction>("idle");
   const [overrideSeverity, setOverrideSeverity] = useState<Severity>(caseItem.severity);
   const [overrideReason, setOverrideReason] = useState("");
@@ -259,12 +257,6 @@ export function CaseDetail({ caseItem, onBack }: { caseItem: Case; onBack: () =>
             evidence) before purely record-keeping content (timeline,
             activity) at the bottom. */}
         <div className="flex min-w-0 flex-1 flex-col gap-3">
-          {!hasDetail && (
-            <div className="rounded-[2px] border border-border bg-card p-3 text-xs text-muted-foreground">
-              This prototype only has full investigation detail seeded for case-8841.
-            </div>
-          )}
-
           <Section label="Summary">
             {caseItem.summary ? (
               <HighlightedSummary text={caseItem.summary} entities={caseItem.entities} />
