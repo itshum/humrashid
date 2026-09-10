@@ -9,8 +9,8 @@ type View = { name: "queue" } | { name: "detail"; caseItem: Case };
 
 export function ArtemisApp() {
   const [view, setView] = useState<View>({ name: "queue" });
-  // Lifted above CasesQueue so the sidebar's Cases sub-nav and the
-  // queue's own severity pills stay in sync - either one can drive it.
+  // Lifted above CasesQueue so the sidebar's Cases sub-nav can drive
+  // which severity the queue shows.
   const [severityFilter, setSeverityFilter] = useState<Severity | "all">("all");
 
   function goToQueue(severity: Severity | "all") {
@@ -32,7 +32,6 @@ export function ArtemisApp() {
             </div>
             <CasesQueue
               severityFilter={severityFilter}
-              onSeverityFilterChange={setSeverityFilter}
               onOpenFullCase={(c) => setView({ name: "detail", caseItem: c })}
             />
           </div>

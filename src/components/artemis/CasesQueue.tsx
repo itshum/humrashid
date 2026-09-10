@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ChevronRightIcon } from "lucide-react";
 import {
   Table,
@@ -8,7 +8,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
@@ -21,8 +20,6 @@ import {
 } from "@/components/ui/pagination";
 import {
   cases,
-  severityCounts,
-  severityOrder,
   sortCases,
   type Case,
   type Severity,
@@ -77,11 +74,9 @@ const PAGE_SIZE = 15;
 
 export function CasesQueue({
   severityFilter,
-  onSeverityFilterChange,
   onOpenFullCase,
 }: {
   severityFilter: Severity | "all";
-  onSeverityFilterChange: (next: Severity | "all") => void;
   onOpenFullCase: (c: Case) => void;
 }) {
   const [verdictFilter, setVerdictFilter] = useState<Set<Verdict>>(new Set());
@@ -111,10 +106,12 @@ export function CasesQueue({
   const currentPage = Math.min(page, pageCount);
   const pageRows = rows.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
-  function selectSeverity(next: Severity | "all") {
-    onSeverityFilterChange(next);
+  // Severity is now selected from the sidebar, outside this
+  // component, so reset pagination whenever it changes rather than
+  // only when a local handler drives it.
+  useEffect(() => {
     setPage(1);
-  }
+  }, [severityFilter]);
 
   function withReset<T>(setter: (v: Set<T>) => void) {
     return (v: Set<T>) => {
@@ -150,31 +147,9 @@ export function CasesQueue({
 
   return (
     <div className="flex h-full flex-col overflow-hidden rounded-lg border bg-card">
-      {/* Primary filter row: severity toggle pills */}
-      <div className="flex flex-wrap items-center gap-2 border-b p-3">
-        <button type="button" onClick={() => selectSeverity("all")} className="focus-visible:outline-none">
-          <Badge variant={severityFilter === "all" ? "default" : "outline"} className="cursor-pointer px-3.5 py-1">
-            All · {severityCounts.all.toLocaleString()}
-          </Badge>
-        </button>
-        {severityOrder.map((severity) => (
-          <button
-            key={severity}
-            type="button"
-            onClick={() => selectSeverity(severity)}
-            className="focus-visible:outline-none"
-          >
-            <Badge
-              variant={severityFilter === severity ? "default" : "outline"}
-              className="cursor-pointer px-3.5 py-1"
-            >
-              {severity[0].toUpperCase() + severity.slice(1)} · {severityCounts[severity].toLocaleString()}
-            </Badge>
-          </button>
-        ))}
-      </div>
-
-      {/* Secondary row: bulk action bar takes over when rows are selected, otherwise the lower-weight filters */}
+      {/* Severity is filtered from the Cases sub-nav in the sidebar
+          now, so this row is just the lower-weight filters (or the
+          bulk action bar when rows are selected), flush at the top. */}
       {selectedCases.length > 0 ? (
         <BulkActionBar
           selectedCases={selectedCases}
@@ -223,8 +198,13 @@ export function CasesQueue({
           </TableHeader>
           <TableBody>
             {pageRows.map((c) => (
-              <TableRow key={c.id} className="group" data-selected={selectedIds.has(c.id)}>
-                <TableCell>
+              <TableRow
+                key={c.id}
+                className="group cursor-pointer"
+                data-selected={selectedIds.has(c.id)}
+                onClick={() => onOpenFullCase(c)}
+              >
+                <TableCell onClick={(e) => e.stopPropagation()}>
                   <Tip label="Select case">
                     <input
                       type="checkbox"
@@ -247,7 +227,7 @@ export function CasesQueue({
                 <TableCell>
                   <AssigneeAvatar assignee={c.assignee} />
                 </TableCell>
-                <TableCell>
+                <TableCell onClick={(e) => e.stopPropagation()}>
                   <Popover
                     open={openPanelId === c.id}
                     onOpenChange={(open) => setOpenPanelId(open ? c.id : null)}
