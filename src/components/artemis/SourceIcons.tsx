@@ -1,14 +1,17 @@
-import { CloudIcon, Code2Icon, HashIcon, LockIcon, MailIcon, ShieldIcon } from "lucide-react";
+import { ShieldIcon } from "lucide-react";
 import type { Source } from "./data";
 import { Tip } from "./Tip";
+import { AwsMark, GithubMark, GoogleMark, OktaMark, SlackMark } from "./BrandIcons";
 
+// CrowdStrike has no accurate public mark available to embed here, so
+// it keeps a generic shield rather than a faked logo.
 const sourceIcon: Record<Source, React.ComponentType<{ className?: string }>> = {
-  aws: CloudIcon,
-  okta: LockIcon,
+  aws: AwsMark,
+  okta: OktaMark,
   crowdstrike: ShieldIcon,
-  github: Code2Icon,
-  email: MailIcon,
-  slack: HashIcon,
+  github: GithubMark,
+  email: GoogleMark,
+  slack: SlackMark,
 };
 
 export const sourceLabel: Record<Source, string> = {
@@ -16,7 +19,7 @@ export const sourceLabel: Record<Source, string> = {
   okta: "Okta",
   crowdstrike: "CrowdStrike",
   github: "GitHub",
-  email: "Email",
+  email: "Google Workspace",
   slack: "Slack",
 };
 
