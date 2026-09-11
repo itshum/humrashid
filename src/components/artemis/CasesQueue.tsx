@@ -27,20 +27,13 @@ import {
   type Status,
   type Source,
 } from "./data";
-import { SeverityChip, verdictLabel } from "./badges";
+import { SeverityChip, StatusPill, statusLabel, verdictLabel } from "./badges";
 import { SourceIcons, sourceLabel } from "./SourceIcons";
 import { AssigneeAvatar } from "./AssigneeAvatar";
 import { FilterDropdown } from "./FilterDropdown";
 import { QuickActionPanel } from "./QuickActionPanel";
 import { BulkActionBar } from "./BulkActionBar";
 import { Tip } from "./Tip";
-
-const statusLabel: Record<Case["status"], string> = {
-  open: "Open",
-  in_progress: "In Progress",
-  resolved: "Resolved",
-  false_positive: "False Positive",
-};
 
 const columnHelp: Record<string, string> = {
   Signal: "AI-assessed severity — open the row for the verdict and more detail",
@@ -222,7 +215,9 @@ export function CasesQueue({
                 <TableCell>
                   <SourceIcons sources={c.sources} />
                 </TableCell>
-                <TableCell className="text-muted-foreground">{statusLabel[c.status]}</TableCell>
+                <TableCell>
+                  <StatusPill status={c.status} />
+                </TableCell>
                 <TableCell className="text-muted-foreground">{c.updated}</TableCell>
                 <TableCell>
                   <AssigneeAvatar assignee={c.assignee} />

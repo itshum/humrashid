@@ -13,17 +13,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
-import { SeverityChip, VerdictBadge, severityLabel } from "./badges";
+import { SeverityChip, StatusPill, VerdictBadge, severityLabel, statusLabel } from "./badges";
 import { SourceIcon, sourceLabel } from "./SourceIcons";
 import type { Case, Severity } from "./data";
 import { Tip } from "./Tip";
-
-const statusLabel: Record<Case["status"], string> = {
-  open: "Open",
-  in_progress: "In Progress",
-  resolved: "Resolved",
-  false_positive: "False Positive",
-};
 
 const mitreLabel: Record<string, string> = {
   "T1562.008": "Impair defenses: disable or modify cloud logs",
@@ -483,8 +476,8 @@ export function CaseDetail({ caseItem, onBack }: { caseItem: Case; onBack: () =>
               <Separator />
               <div className="flex gap-4">
                 <div className="flex-1">
-                  <div className="text-[11px] text-muted-foreground">Status</div>
-                  <div className="text-xs font-medium">{statusLabel[caseItem.status]}</div>
+                  <div className="mb-1 text-[11px] text-muted-foreground">Status</div>
+                  <StatusPill status={caseItem.status} />
                 </div>
                 <div className="flex-1">
                   <div className="text-[11px] text-muted-foreground">Assignee</div>

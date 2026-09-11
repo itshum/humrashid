@@ -8,7 +8,7 @@ import {
   XIcon,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import type { Severity, Verdict } from "./data";
+import type { Severity, Status, Verdict } from "./data";
 
 export const severityLabel: Record<Severity, string> = {
   critical: "Critical",
@@ -67,4 +67,29 @@ export function VerdictBadge({ verdict }: { verdict: Verdict }) {
 
 export function isQuickActionable(verdict: Verdict) {
   return verdict === "false_positive" || verdict === "benign";
+}
+
+export const statusLabel: Record<Status, string> = {
+  open: "Open",
+  in_progress: "In Progress",
+  resolved: "Resolved",
+  false_positive: "False Positive",
+};
+
+// Deliberately a plainer, lighter-weight style than the severity chip
+// (no fill, no icon) - status is workflow bookkeeping, not signal, and
+// shouldn't compete visually with severity/verdict for attention.
+const statusClass: Record<Status, string> = {
+  open: "border-sky-300 text-sky-700 dark:border-sky-800 dark:text-sky-400",
+  in_progress: "border-amber-300 text-amber-700 dark:border-amber-800 dark:text-amber-400",
+  resolved: "border-emerald-300 text-emerald-700 dark:border-emerald-800 dark:text-emerald-400",
+  false_positive: "border-border text-muted-foreground",
+};
+
+export function StatusPill({ status }: { status: Status }) {
+  return (
+    <Badge variant="outline" className={statusClass[status]}>
+      {statusLabel[status]}
+    </Badge>
+  );
 }
