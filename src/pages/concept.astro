@@ -555,13 +555,13 @@
 			}
 
 			// ---- true spherical placement -----------------------------------------
-			// Tighter spacing than before — the point is for neighboring panels
-			// to visibly peek in at the top/bottom/left/right edges of the
-			// viewport at rest, so it reads as "there's more this way" rather
-			// than an empty field around one centered panel.
-			const SPHERE_R = 1150; // px
-			const DEG_PER_COL = 20; // longitude degrees between adjacent panel centers
-			const DEG_PER_ROW = 16; // latitude degrees between adjacent panel centers
+			// One panel centered at rest, with just its edge — not its bulk —
+			// showing on each side as a "there's more this way" affordance.
+			// Too tight and panels collide into a jumbled mess; too loose and
+			// neighbors disappear entirely. This is the middle ground.
+			const SPHERE_R = 1600; // px
+			const DEG_PER_COL = 23; // longitude degrees between adjacent panel centers
+			const DEG_PER_ROW = 19; // latitude degrees between adjacent panel centers
 
 			function sphereTransform(lonDeg: number, latDeg: number, extra = ''): string {
 				const lon = (clamp(lonDeg, -85, 85) * Math.PI) / 180;
