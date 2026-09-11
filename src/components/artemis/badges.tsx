@@ -31,10 +31,10 @@ const severityIcon: Record<Severity, React.ComponentType<{ className?: string }>
   low: CircleIcon,
 };
 
-export function SeverityChip({ severity }: { severity: Severity }) {
+export function SeverityChip({ severity, className }: { severity: Severity; className?: string }) {
   const Icon = severityIcon[severity];
   return (
-    <Badge className={`gap-1 ${severityClass[severity]}`}>
+    <Badge className={`gap-1 ${severityClass[severity]} ${className ?? ""}`}>
       <Icon className="size-3" />
       {severityLabel[severity]}
     </Badge>
@@ -55,10 +55,10 @@ const verdictIcon: Record<Verdict, React.ComponentType<{ className?: string }>> 
   benign: CheckIcon,
 };
 
-export function VerdictBadge({ verdict }: { verdict: Verdict }) {
+export function VerdictBadge({ verdict, className }: { verdict: Verdict; className?: string }) {
   const Icon = verdictIcon[verdict];
   return (
-    <Badge variant="outline" className="gap-1">
+    <Badge variant="outline" className={`gap-1 ${className ?? ""}`}>
       <Icon className="size-3" />
       {verdictLabel[verdict]}
     </Badge>

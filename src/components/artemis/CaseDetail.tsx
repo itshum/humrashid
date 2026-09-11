@@ -248,9 +248,13 @@ export function CaseDetail({ caseItem, onBack }: { caseItem: Case; onBack: () =>
               {caseItem.id} · {statusLabel[caseItem.status]}
             </span>
           </div>
+          {/* Solid white pills instead of the components' default
+              (often-tinted or transparent) background - on top of a
+              colored banner those blend in almost entirely, so this
+              context needs its own higher-contrast treatment. */}
           <div className="mt-2 flex items-center gap-1.5">
-            <SeverityChip severity={caseItem.severity} />
-            <VerdictBadge verdict={caseItem.verdict} />
+            <SeverityChip severity={caseItem.severity} className="border-transparent bg-white shadow-sm dark:bg-black/30" />
+            <VerdictBadge verdict={caseItem.verdict} className="border-foreground/15 bg-white shadow-sm dark:bg-black/30" />
           </div>
         </div>
       </div>
