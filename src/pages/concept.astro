@@ -1,0 +1,541 @@
+---
+// Low-fidelity prototype: sphere/orbit navigation mechanic.
+// Wireframe only — no visual design. Goal is to prove the interaction
+// model (drag/scroll/keys pan a field of panels, center = "front-facing"
+// panel, horizontal wraps infinitely, vertical is bounded).
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>concept — orbit nav</title>
+		<meta name="robots" content="noindex" />
+		<style is:global>
+			* {
+				box-sizing: border-box;
+			}
+			html,
+			body {
+				margin: 0;
+				height: 100%;
+				overflow: hidden;
+				background: #fff;
+				font-family: system-ui, -apple-system, sans-serif;
+				color: #111;
+				touch-action: none;
+			}
+
+			#stage {
+				position: fixed;
+				inset: 0;
+				perspective: 1400px;
+				perspective-origin: 50% 50%;
+				cursor: grab;
+			}
+			#stage.grabbing {
+				cursor: grabbing;
+			}
+
+			#field {
+				position: absolute;
+				inset: 0;
+				transform-style: preserve-3d;
+				transition: transform 120ms ease-out;
+			}
+
+			.panel {
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				width: 46vw;
+				max-width: 560px;
+				height: 60vh;
+				max-height: 420px;
+				margin-left: calc(-23vw);
+				margin-top: calc(-30vh);
+				border: 1.5px dashed #bbb;
+				background: #f6f6f6;
+				border-radius: 10px;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				gap: 8px;
+				text-align: center;
+				padding: 24px;
+				will-change: transform, opacity;
+				pointer-events: none;
+			}
+			.panel.home {
+				background: #fff;
+				border-style: solid;
+				border-color: #ddd;
+			}
+			.panel .type {
+				font-size: 11px;
+				letter-spacing: 0.08em;
+				text-transform: uppercase;
+				color: #999;
+			}
+			.panel .label {
+				font-size: 18px;
+				color: #444;
+				max-width: 80%;
+			}
+			.panel.home .label {
+				font-size: clamp(22px, 3vw, 34px);
+				color: #111;
+				font-weight: 500;
+				line-height: 1.25;
+			}
+			.panel .coord {
+				position: absolute;
+				bottom: 8px;
+				right: 10px;
+				font-size: 10px;
+				color: #ccc;
+			}
+
+			/* edge affordance arrows */
+			.edge-arrow {
+				position: fixed;
+				z-index: 30;
+				background: none;
+				border: none;
+				cursor: pointer;
+				color: #999;
+				padding: 14px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				transition: opacity 150ms;
+			}
+			.edge-arrow:hover {
+				color: #111;
+			}
+			.edge-arrow svg {
+				width: 22px;
+				height: 22px;
+			}
+			#arrow-up {
+				top: 18px;
+				left: 50%;
+				transform: translateX(-50%);
+			}
+			#arrow-down {
+				bottom: 96px;
+				left: 50%;
+				transform: translateX(-50%);
+			}
+			#arrow-left {
+				left: 18px;
+				top: 50%;
+				transform: translateY(-50%);
+			}
+			#arrow-right {
+				right: 18px;
+				top: 50%;
+				transform: translateY(-50%);
+			}
+			.edge-arrow[data-hidden='true'] {
+				opacity: 0;
+				pointer-events: none;
+			}
+
+			/* floating nav pill, Mobbin-style, fixed bottom center */
+			#nav {
+				position: fixed;
+				bottom: 28px;
+				left: 50%;
+				transform: translateX(-50%);
+				z-index: 40;
+				display: flex;
+				align-items: center;
+				gap: 4px;
+				padding: 8px;
+				background: rgba(255, 255, 255, 0.85);
+				backdrop-filter: blur(12px);
+				border: 1px solid #e5e5e5;
+				border-radius: 999px;
+				box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+			}
+			#nav button.dot {
+				width: 34px;
+				height: 34px;
+				border-radius: 999px;
+				border: none;
+				background: #f0f0f0;
+				cursor: pointer;
+				font-size: 12px;
+				color: #666;
+			}
+			#nav a {
+				padding: 8px 16px;
+				border-radius: 999px;
+				text-decoration: none;
+				color: #333;
+				font-size: 14px;
+				transition: background 120ms;
+			}
+			#nav a:hover {
+				background: #f0f0f0;
+			}
+			#nav a.flash {
+				background: #111;
+				color: #fff;
+			}
+
+			#hint {
+				position: fixed;
+				top: 18px;
+				left: 18px;
+				font-size: 11px;
+				color: #bbb;
+				z-index: 30;
+				max-width: 220px;
+				line-height: 1.5;
+			}
+
+			#minimap {
+				position: fixed;
+				bottom: 96px;
+				right: 24px;
+				z-index: 30;
+				display: grid;
+				grid-template-columns: repeat(6, 6px);
+				grid-auto-rows: 6px;
+				gap: 4px;
+			}
+			#minimap .cell {
+				width: 6px;
+				height: 6px;
+				border-radius: 999px;
+				background: #e5e5e5;
+			}
+			#minimap .cell.active {
+				background: #111;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="hint">
+			drag / scroll / swipe to look around · arrow keys work too<br />
+			horizontal loops forever · vertical stops at the poles
+		</div>
+
+		<div id="stage">
+			<div id="field"></div>
+		</div>
+
+		<button class="edge-arrow" id="arrow-up" aria-label="pan up">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+				><path d="M12 19V5M5 12l7-7 7 7" /></svg
+			>
+		</button>
+		<button class="edge-arrow" id="arrow-down" aria-label="pan down">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+				><path d="M12 5v14M5 12l7 7 7-7" /></svg
+			>
+		</button>
+		<button class="edge-arrow" id="arrow-left" aria-label="pan left">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+				><path d="M19 12H5M12 5l-7 7 7 7" /></svg
+			>
+		</button>
+		<button class="edge-arrow" id="arrow-right" aria-label="pan right">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+				><path d="M5 12h14M12 5l7 7-7 7" /></svg
+			>
+		</button>
+
+		<div id="minimap"></div>
+
+		<nav id="nav">
+			<button class="dot" id="nav-home" title="recenter">◎</button>
+			<a href="#" data-stub="/work">Work</a>
+			<a href="#" data-stub="/ideas">Ideas</a>
+			<a href="#" data-stub="/about">About</a>
+		</nav>
+
+		<script>
+			// ---- content model -------------------------------------------------
+			// Horizontal wraps infinitely (longitude). Vertical is bounded to
+			// [-1, 1] (latitude, with poles). Column 0 / row 0 is "home".
+			const COLS = 6;
+			type Panel = { type: string; label: string };
+
+			const row0: Panel[] = [
+				{ type: 'home', label: 'Humayun Rashid is a designer & founder in NYC.' },
+				{ type: 'case study', label: 'Sublime Security' },
+				{ type: 'link', label: 'rendr.app ↗' },
+				{ type: 'image', label: 'Untitled study, 03' },
+				{ type: 'case study', label: 'Atrium' },
+				{ type: 'video', label: 'Reel — process' },
+			];
+			const rowUp: Panel[] = [
+				{ type: 'image', label: 'Sketch, pass 1' },
+				{ type: 'experiment', label: 'Pack hover takeover' },
+				{ type: 'image', label: 'Type test' },
+				{ type: 'video', label: 'Motion study' },
+				{ type: 'link', label: 'dribbble ↗' },
+				{ type: 'image', label: 'Color study' },
+			];
+			const rowDown: Panel[] = [
+				{ type: 'about', label: 'About — the longer version' },
+				{ type: 'ideas', label: 'Ideas — writing & notes' },
+				{ type: 'work', label: 'Work — full index' },
+				{ type: 'image', label: 'Desk, 2026' },
+				{ type: 'video', label: 'Talk — five users' },
+				{ type: 'case study', label: 'Principles' },
+			];
+			const rows: Record<number, Panel[]> = { [-1]: rowUp, 0: row0, 1: rowDown };
+
+			function mod(n: number, m: number) {
+				return ((n % m) + m) % m;
+			}
+			function contentAt(col: number, row: number): Panel {
+				return rows[row][mod(col, COLS)];
+			}
+
+			// ---- state -----------------------------------------------------------
+			let panCol = 0; // continuous, unbounded (wraps on read)
+			let panRow = 0; // continuous, clamped to [-1, 1]
+			// last *settled* target — stepMove/snap build on this, not the live
+			// (possibly mid-animation) panCol/panRow, so rapid inputs (key repeat,
+			// fast successive swipes) accumulate correctly instead of drifting
+			let targetCol = 0;
+			let targetRow = 0;
+			let dragging = false;
+			let startX = 0,
+				startY = 0,
+				startPanCol = 0,
+				startPanRow = 0;
+			let velX = 0,
+				velY = 0,
+				lastMoveT = 0,
+				lastDx = 0,
+				lastDy = 0;
+			let snapTimeout: number | undefined;
+			let animRAF: number | undefined;
+
+			const SPACING_X = 620; // px per column at scale 1
+			const SPACING_Y = 480; // px per row at scale 1
+			const DRAG_SENSITIVITY = 1 / 420;
+			const WHEEL_SENSITIVITY = 1 / 900;
+
+			const field = document.getElementById('field') as HTMLDivElement;
+			const stage = document.getElementById('stage') as HTMLDivElement;
+
+			// pool of slot elements, reused and repositioned each render
+			const WINDOW_COLS = 4; // render +/- this many columns from center
+			type Slot = { el: HTMLDivElement; key: string };
+			const slots: Slot[] = [];
+			for (let r = -1; r <= 1; r++) {
+				for (let c = -WINDOW_COLS; c <= WINDOW_COLS; c++) {
+					const el = document.createElement('div');
+					el.className = 'panel';
+					el.innerHTML = `<div class="type"></div><div class="label"></div><div class="coord"></div>`;
+					field.appendChild(el);
+					slots.push({ el, key: '' });
+				}
+			}
+
+			function clamp(v: number, lo: number, hi: number) {
+				return Math.min(hi, Math.max(lo, v));
+			}
+
+			function render() {
+				const centerColInt = Math.round(panCol);
+				let i = 0;
+				for (let r = -1; r <= 1; r++) {
+					for (let c = centerColInt - WINDOW_COLS; c <= centerColInt + WINDOW_COLS; c++) {
+						const slot = slots[i++];
+						const key = `${c},${r}`;
+						if (slot.key !== key) {
+							const content = contentAt(c, r);
+							slot.el.classList.toggle('home', content.type === 'home');
+							slot.el.querySelector('.type')!.textContent = content.type;
+							slot.el.querySelector('.label')!.textContent = content.label;
+							slot.el.querySelector('.coord')!.textContent = `${c},${r}`;
+							slot.key = key;
+						}
+						const dxUnits = c - panCol;
+						const dyUnits = r - panRow;
+						const dist = Math.sqrt(dxUnits * dxUnits + dyUnits * dyUnits);
+						const scale = clamp(1 - dist * 0.16, 0.35, 1);
+						const opacity = clamp(1 - dist * 0.32, 0, 1);
+						const x = dxUnits * SPACING_X;
+						const y = dyUnits * SPACING_Y;
+						const z = -dist * 220;
+						slot.el.style.transform = `translate3d(${x}px, ${y}px, ${z}px) scale(${scale})`;
+						slot.el.style.opacity = String(opacity);
+						slot.el.style.zIndex = String(Math.round(1000 - dist * 10));
+					}
+				}
+				// edge arrows: hide up/down at poles, always show left/right (infinite)
+				(document.getElementById('arrow-up') as HTMLElement).dataset.hidden = String(panRow <= -1 + 0.02);
+				(document.getElementById('arrow-down') as HTMLElement).dataset.hidden = String(panRow >= 1 - 0.02);
+				renderMinimap(centerColInt);
+			}
+
+			function renderMinimap(centerColInt: number) {
+				const mm = document.getElementById('minimap')!;
+				mm.innerHTML = '';
+				for (let r = -1; r <= 1; r++) {
+					for (let c = 0; c < COLS; c++) {
+						const cell = document.createElement('div');
+						cell.className = 'cell';
+						if (r === Math.round(panRow) && mod(c, COLS) === mod(centerColInt, COLS)) {
+							cell.classList.add('active');
+						}
+						mm.appendChild(cell);
+					}
+				}
+			}
+
+			// ---- input: drag (mouse + touch via pointer events) -----------------
+			stage.addEventListener('pointerdown', (e) => {
+				dragging = true;
+				stage.classList.add('grabbing');
+				stage.setPointerCapture(e.pointerId);
+				startX = e.clientX;
+				startY = e.clientY;
+				startPanCol = panCol;
+				startPanRow = panRow;
+				velX = velY = 0;
+				lastMoveT = performance.now();
+				cancelAnim();
+				clearTimeout(snapTimeout);
+			});
+
+			stage.addEventListener('pointermove', (e) => {
+				if (!dragging) return;
+				const dx = e.clientX - startX;
+				const dy = e.clientY - startY;
+				const now = performance.now();
+				const dt = Math.max(16, now - lastMoveT);
+				velX = (dx - lastDx) / dt;
+				velY = (dy - lastDy) / dt;
+				lastDx = dx;
+				lastDy = dy;
+				lastMoveT = now;
+				panCol = startPanCol - dx * DRAG_SENSITIVITY;
+				panRow = clamp(startPanRow - dy * DRAG_SENSITIVITY, -1.3, 1.3); // slight rubber-band past poles
+				render();
+			});
+
+			function endDrag() {
+				if (!dragging) return;
+				dragging = false;
+				stage.classList.remove('grabbing');
+				// small momentum flick, then snap — clamp both velocity and the
+				// resulting offset so a very fast (or instantaneous, e.g.
+				// scripted) drag can't fling the field dozens of panels away
+				const vX = clamp(velX, -1.5, 1.5);
+				const vY = clamp(velY, -1.5, 1.5);
+				panCol -= clamp(vX * 40, -2, 2);
+				panRow = clamp(panRow - clamp(vY * 40, -2, 2), -1.3, 1.3);
+				targetCol = Math.round(panCol);
+				targetRow = clamp(Math.round(panRow), -1, 1);
+				snapToNearest();
+			}
+			stage.addEventListener('pointerup', endDrag);
+			stage.addEventListener('pointercancel', endDrag);
+			stage.addEventListener('pointerleave', () => {
+				if (dragging) endDrag();
+			});
+
+			// ---- input: wheel / trackpad -----------------------------------------
+			stage.addEventListener(
+				'wheel',
+				(e) => {
+					e.preventDefault();
+					cancelAnim();
+					panCol += e.deltaX * WHEEL_SENSITIVITY;
+					panRow = clamp(panRow + e.deltaY * WHEEL_SENSITIVITY, -1.15, 1.15);
+					render();
+					clearTimeout(snapTimeout);
+					snapTimeout = window.setTimeout(snapToNearest, 140);
+				},
+				{ passive: false }
+			);
+
+			// ---- input: keyboard ---------------------------------------------------
+			window.addEventListener('keydown', (e) => {
+				const step: Record<string, [number, number]> = {
+					ArrowLeft: [-1, 0],
+					ArrowRight: [1, 0],
+					ArrowUp: [0, -1],
+					ArrowDown: [0, 1],
+				};
+				if (step[e.key]) {
+					e.preventDefault();
+					stepMove(...step[e.key]);
+				}
+			});
+
+			// ---- edge arrow clicks ---------------------------------------------
+			document.getElementById('arrow-up')!.addEventListener('click', () => stepMove(0, -1));
+			document.getElementById('arrow-down')!.addEventListener('click', () => stepMove(0, 1));
+			document.getElementById('arrow-left')!.addEventListener('click', () => stepMove(-1, 0));
+			document.getElementById('arrow-right')!.addEventListener('click', () => stepMove(1, 0));
+			document.getElementById('nav-home')!.addEventListener('click', () => animateTo(0, 0));
+
+			function stepMove(dc: number, dr: number) {
+				const nextCol = targetCol + dc;
+				const nextRow = clamp(targetRow + dr, -1, 1);
+				animateTo(nextCol, nextRow);
+			}
+
+			// ---- snapping / easing animation -------------------------------------
+			function snapToNearest() {
+				animateTo(Math.round(panCol), clamp(Math.round(panRow), -1, 1));
+			}
+
+			function cancelAnim() {
+				if (animRAF) cancelAnimationFrame(animRAF);
+				animRAF = undefined;
+			}
+
+			function animateTo(nextCol: number, nextRow: number) {
+				cancelAnim();
+				targetCol = nextCol;
+				targetRow = nextRow;
+				const fromCol = panCol;
+				const fromRow = panRow;
+				const dCol = nextCol - fromCol;
+				const dRow = nextRow - fromRow;
+				const duration = 380;
+				const start = performance.now();
+				function tick(now: number) {
+					const t = clamp((now - start) / duration, 0, 1);
+					const eased = 1 - Math.pow(1 - t, 3); // ease-out cubic
+					panCol = fromCol + dCol * eased;
+					panRow = fromRow + dRow * eased;
+					render();
+					if (t < 1) {
+						animRAF = requestAnimationFrame(tick);
+					} else {
+						panCol = nextCol;
+						panRow = nextRow;
+						render();
+						animRAF = undefined;
+					}
+				}
+				animRAF = requestAnimationFrame(tick);
+			}
+
+			// ---- nav pill stub links --------------------------------------------
+			document.querySelectorAll('#nav a[data-stub]').forEach((a) => {
+				a.addEventListener('click', (e) => {
+					e.preventDefault();
+					a.classList.add('flash');
+					setTimeout(() => a.classList.remove('flash'), 250);
+					console.log(`stub nav → ${(a as HTMLElement).dataset.stub}`);
+				});
+			});
+
+			render();
+		</script>
+	</body>
+</html>
