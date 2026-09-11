@@ -84,11 +84,16 @@
 				border-radius: 0;
 			}
 			.k-home .home-label {
-				font-size: clamp(40px, 6vw, 92px);
+				font-size: clamp(28px, 4.2vw, 64px); /* 30% down from clamp(40,6vw,92) */
 				color: #111;
 				font-weight: 500;
 				line-height: 1.15;
 				letter-spacing: -0.01em;
+				display: inline-block; /* own box for the bottom-to-top reveal transform */
+			}
+			.nyc-word {
+				display: inline-block;
+				cursor: pointer;
 			}
 
 			/* ---- card: Mobbin-style — media block, then headline + subtext below ---- */
@@ -510,13 +515,20 @@
 			const CLIP_A = 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4';
 			const CLIP_B = 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/friday.mp4';
 
+			// NYC landmarks, standard emoji glyphs (renders as Apple's style on
+			// macOS/iOS automatically). No dedicated emoji exists yet for a
+			// pigeon specifically, the Empire State Building, a MetroCard, or
+			// the classic blue Greek diner cup — closest standard stand-ins used
+			// instead (generic bird, building, card, coffee cup).
+			const NYC_EMOJIS = ['🚕', '🍎', '🗽', '🌭', '🐦', '🏢', '☕', '🥯', '💳'];
+
 			function card(tag: string, title: string, subtitle: string, seed: string, size: Sized): CardItem {
 				return { kind: 'card', tag, title, subtitle, seed, ...size };
 			}
 
 			const rowsByIndex: Item[][] = [
 				[
-					{ kind: 'home', title: 'Humayun Rashid is a designer & founder in NYC.', ...HOME },
+					{ kind: 'home', title: 'Humayun Rashid is a designer & founder in NYC', ...HOME },
 					card('case study', 'Sublime Security', 'Quarantine digests & phishing simulations for the fastest-growing email security startup in the US.', 'sublime', MD),
 					{ kind: 'browser', url: 'https://rendr.app', display: 'rendr.app', ...BROWSER },
 					{ kind: 'photo', tone: '#d8d2c4', camera: 'Fujifilm X100V', meta: 'Brooklyn, NY · Sep 2024', ...PHOTO },
@@ -634,7 +646,11 @@
 
 			function buildSurface(item: Item): string {
 				if (item.kind === 'home') {
-					return `<div class="home-label">${item.title}</div>`;
+					// "NYC" gets its own span: it's the word the boot animation
+					// cycles through landmark emoji into, and the word that
+					// swaps to a random one of those emoji on hover.
+					const withNycSpan = item.title.replace(/NYC$/, '<span class="nyc-word">NYC</span>');
+					return `<div class="home-label">${withNycSpan}</div>`;
 				}
 				if (item.kind === 'card') {
 					const bg = `https://picsum.photos/seed/${encodeURIComponent(item.seed)}/${item.w * 2}/${Math.round((item.h - 90) * 2)}`;
@@ -711,6 +727,18 @@
 						slot.wrap.style.width = `${item.w}px`;
 						slot.wrap.style.height = `${item.h}px`;
 						slot.key = key;
+						// re-wire the NYC hover-swap every time home's markup is
+						// rebuilt (innerHTML replace drops old listeners) — covers
+						// both the first render and any later return to home
+						if (item.kind === 'home') {
+							const nycEl = slot.surface.querySelector<HTMLElement>('.nyc-word');
+							nycEl?.addEventListener('mouseenter', () => {
+								nycEl.textContent = NYC_EMOJIS[Math.floor(Math.random() * NYC_EMOJIS.length)];
+							});
+							nycEl?.addEventListener('mouseleave', () => {
+								nycEl.textContent = 'NYC';
+							});
+						}
 					}
 
 					const dCol = c - panCol;
@@ -962,7 +990,57 @@
 				requestAnimationFrame(frame);
 			}
 
-			fadeOpacity([homeSlot.surface], 900, () => {
+			// Home's own reveal: the surface itself is visible immediately (it
+			// has no box, nothing to hide), and the label rises up from below
+			// while fading in — slow, so it reads as a deliberate entrance, not
+			// a quick fade. The "NYC" word runs through a quick reel of NYC
+			// landmark emoji alongside it, landing on the real word right as
+			// the reveal finishes.
+			homeSlot.surface.style.opacity = '1';
+			const homeLabel = homeSlot.surface.querySelector<HTMLElement>('.home-label');
+			const nycWord = homeSlot.surface.querySelector<HTMLElement>('.nyc-word');
+			const REVEAL_MS = 1700;
+
+			function revealHomeLabel(onDone: () => void) {
+				if (!homeLabel) {
+					onDone();
+					return;
+				}
+				homeLabel.style.opacity = '0';
+				homeLabel.style.transform = 'translateY(44px)';
+				const start = performance.now();
+				function frame(now: number) {
+					const t = clamp((now - start) / REVEAL_MS, 0, 1);
+					const eased = 1 - Math.pow(1 - t, 3);
+					homeLabel!.style.opacity = String(eased);
+					homeLabel!.style.transform = `translateY(${(1 - eased) * 44}px)`;
+					if (t < 1) {
+						requestAnimationFrame(frame);
+					} else {
+						homeLabel!.style.opacity = '';
+						homeLabel!.style.transform = '';
+						onDone();
+					}
+				}
+				requestAnimationFrame(frame);
+			}
+
+			if (nycWord) {
+				const frameMs = Math.round((REVEAL_MS * 0.7) / NYC_EMOJIS.length);
+				let i = 0;
+				function cycle() {
+					if (i < NYC_EMOJIS.length) {
+						nycWord!.textContent = NYC_EMOJIS[i];
+						i++;
+						setTimeout(cycle, frameMs);
+					} else {
+						nycWord!.textContent = 'NYC';
+					}
+				}
+				cycle();
+			}
+
+			revealHomeLabel(() => {
 				fadeOpacity(
 					neighborSlots.map((s) => s.surface),
 					650
