@@ -1072,7 +1072,16 @@
 			// Listens on #stage, but panels are pointer-events:auto (so hover/
 			// click work on browser panels) — pointerdown on a panel still
 			// bubbles up to this handler since nothing stops propagation.
+			//
+			// Interactive controls (the case-study visit button, external
+			// browser-panel links) are excluded from starting a drag at all:
+			// setPointerCapture retargets the resulting click event to
+			// whichever element captured the pointer, which silently ate
+			// clicks on anything nested inside #stage — found by testing a
+			// real mouse click on the case-study arrow, which JS-triggered
+			// .click() calls during earlier testing had masked.
 			stage.addEventListener('pointerdown', (e) => {
+				if ((e.target as HTMLElement).closest('.card-visit, .browser-visit')) return;
 				dragging = true;
 				stage.classList.add('grabbing');
 				stage.setPointerCapture(e.pointerId);
