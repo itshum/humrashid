@@ -26,6 +26,8 @@
 				font-family: system-ui, -apple-system, sans-serif;
 				color: #111;
 				touch-action: none;
+				user-select: none;
+				-webkit-user-select: none;
 			}
 
 			#stage {
@@ -72,19 +74,21 @@
 				}
 			}
 
-			/* ---- home ---- */
+			/* ---- home: just the text, no card/box around it ---- */
 			.k-home .panel-surface {
 				display: flex;
 				align-items: center;
 				justify-content: center;
 				text-align: center;
 				padding: 24px;
+				border-radius: 0;
 			}
 			.k-home .home-label {
-				font-size: clamp(22px, 3vw, 34px);
+				font-size: clamp(40px, 6vw, 92px);
 				color: #111;
 				font-weight: 500;
-				line-height: 1.25;
+				line-height: 1.15;
+				letter-spacing: -0.01em;
 			}
 
 			/* ---- card: Mobbin-style — media block, then headline + subtext below ---- */
@@ -495,6 +499,7 @@
 			const SM: Sized = { w: 280, h: 220 };
 			const MD: Sized = { w: 380, h: 300 };
 			const LG: Sized = { w: 520, h: 380 };
+			const HOME: Sized = { w: 980, h: 460 }; // roomy — this text has no box, needs space
 			const BROWSER: Sized = { w: 784, h: 532 }; // 40% larger than the other kinds
 			const PHOTO: Sized = { w: 300, h: 400 };
 			const VIDEO: Sized = { w: 420, h: 320 };
@@ -511,7 +516,7 @@
 
 			const rowsByIndex: Item[][] = [
 				[
-					{ kind: 'home', title: 'Humayun Rashid is a designer & founder in NYC.', ...LG },
+					{ kind: 'home', title: 'Humayun Rashid is a designer & founder in NYC.', ...HOME },
 					card('case study', 'Sublime Security', 'Quarantine digests & phishing simulations for the fastest-growing email security startup in the US.', 'sublime', MD),
 					{ kind: 'browser', url: 'https://rendr.app', display: 'rendr.app', ...BROWSER },
 					{ kind: 'photo', tone: '#d8d2c4', camera: 'Fujifilm X100V', meta: 'Brooklyn, NY · Sep 2024', ...PHOTO },
@@ -559,9 +564,9 @@
 			// showing on each side as a "there's more this way" affordance.
 			// Too tight and panels collide into a jumbled mess; too loose and
 			// neighbors disappear entirely. This is the middle ground.
-			const SPHERE_R = 1600; // px
-			const DEG_PER_COL = 23; // longitude degrees between adjacent panel centers
-			const DEG_PER_ROW = 19; // latitude degrees between adjacent panel centers
+			const SPHERE_R = 1800; // px
+			const DEG_PER_COL = 25; // longitude degrees between adjacent panel centers
+			const DEG_PER_ROW = 21; // latitude degrees between adjacent panel centers
 
 			function sphereTransform(lonDeg: number, latDeg: number, extra = ''): string {
 				const lon = (clamp(lonDeg, -85, 85) * Math.PI) / 180;
@@ -699,8 +704,8 @@
 					const c = centerColInt + slot.dc;
 					const r = centerRowInt + slot.dr;
 					const key = `${c},${r}`;
+					const item = itemAt(c, r);
 					if (slot.key !== key) {
-						const item = itemAt(c, r);
 						slot.surface.innerHTML = buildSurface(item) + `<div class="coord">${c},${r}</div>`;
 						slot.wrap.className = `panel-wrap k-${item.kind}`;
 						slot.wrap.style.width = `${item.w}px`;
@@ -724,9 +729,14 @@
 
 					// floating depth: very subtle — a hint of lift, not a heavy
 					// drop shadow. The hover-to-visit affordance on browser
-					// panels is untouched.
-					const lift = clamp(1 - dist, 0, 1);
-					slot.surface.style.boxShadow = `0 ${5 * lift + 2}px ${16 * lift + 5}px rgba(0,0,0,${0.03 + 0.05 * lift})`;
+					// panels is untouched. Home is just bare text — no shadow,
+					// no implied box around it.
+					if (item.kind === 'home') {
+						slot.surface.style.boxShadow = 'none';
+					} else {
+						const lift = clamp(1 - dist, 0, 1);
+						slot.surface.style.boxShadow = `0 ${5 * lift + 2}px ${16 * lift + 5}px rgba(0,0,0,${0.03 + 0.05 * lift})`;
+					}
 				}
 				renderMinimap(centerColInt, centerRowInt);
 			}
@@ -916,7 +926,41 @@
 				});
 			});
 
+			// ---- boot sequence: blank -> home text fades in -> neighbors fade in ---
+			// A one-time reveal on first load, not something that replays every
+			// time you navigate back to home. Position everything immediately
+			// (so transforms/sizes are correct from frame one), but hold every
+			// panel's own surface at opacity 0 and fade them in on a timer —
+			// independent of the per-frame distance-based opacity that
+			// panel-wrap already handles, so dragging mid-intro can't conflict
+			// with it.
+			for (const slot of slots) slot.surface.style.opacity = '0';
 			render();
+
+			const homeSlot = slots.find((s) => s.dc === 0 && s.dr === 0)!;
+			const neighborSlots = slots.filter((s) => s !== homeSlot);
+
+			function fadeOpacity(els: HTMLDivElement[], duration: number, onDone?: () => void) {
+				const start = performance.now();
+				function frame(now: number) {
+					const t = clamp((now - start) / duration, 0, 1);
+					for (const el of els) el.style.opacity = String(t);
+					if (t < 1) {
+						requestAnimationFrame(frame);
+					} else {
+						for (const el of els) el.style.opacity = '';
+						onDone?.();
+					}
+				}
+				requestAnimationFrame(frame);
+			}
+
+			fadeOpacity([homeSlot.surface], 900, () => {
+				fadeOpacity(
+					neighborSlots.map((s) => s.surface),
+					650
+				);
+			});
 		</script>
 	</body>
 </html>
