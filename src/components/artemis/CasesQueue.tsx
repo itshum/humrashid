@@ -29,7 +29,6 @@ import {
 } from "./data";
 import { SeverityChip, StatusPill, statusLabel, verdictLabel } from "./badges";
 import { SourceIcons, sourceLabel } from "./SourceIcons";
-import { AssigneeAvatar } from "./AssigneeAvatar";
 import { FilterDropdown } from "./FilterDropdown";
 import { QuickActionPanel } from "./QuickActionPanel";
 import { BulkActionBar } from "./BulkActionBar";
@@ -163,7 +162,7 @@ export function CasesQueue({
       )}
 
       <div className="flex-1 overflow-y-auto">
-        <Table>
+        <Table className="table-fixed">
           <TableHeader className="sticky top-0 z-10 bg-muted">
             <TableRow className="hover:bg-transparent">
               <TableHead className="w-8">
@@ -176,16 +175,22 @@ export function CasesQueue({
                   />
                 </Tip>
               </TableHead>
-              {(["Signal", "Case", "Entity", "Sources", "Status", "Updated"] as const).map(
-                (col) => (
-                  <TableHead key={col} className={col === "Case" ? undefined : "w-24"}>
-                    <Tip label={columnHelp[col]}>
-                      <span className="cursor-default">{col}</span>
-                    </Tip>
-                  </TableHead>
-                )
-              )}
-              <TableHead className="w-10"></TableHead>
+              {(
+                [
+                  ["Signal", "w-28"],
+                  ["Case", "min-w-40"],
+                  ["Entity", "w-52"],
+                  ["Sources", "w-20"],
+                  ["Status", "w-28"],
+                  ["Updated", "w-16"],
+                ] as const
+              ).map(([col, width]) => (
+                <TableHead key={col} className={width}>
+                  <Tip label={columnHelp[col]}>
+                    <span className="cursor-default">{col}</span>
+                  </Tip>
+                </TableHead>
+              ))}
               <TableHead className="w-8"></TableHead>
             </TableRow>
           </TableHeader>
@@ -210,8 +215,8 @@ export function CasesQueue({
                 <TableCell>
                   <SeverityChip severity={c.severity} />
                 </TableCell>
-                <TableCell className="max-w-0 truncate font-medium">{c.title}</TableCell>
-                <TableCell className="max-w-0 truncate text-muted-foreground">{c.entity}</TableCell>
+                <TableCell className="truncate font-medium">{c.title}</TableCell>
+                <TableCell className="truncate text-muted-foreground">{c.entity}</TableCell>
                 <TableCell>
                   <SourceIcons sources={c.sources} />
                 </TableCell>
@@ -219,9 +224,6 @@ export function CasesQueue({
                   <StatusPill status={c.status} />
                 </TableCell>
                 <TableCell className="text-muted-foreground">{c.updated}</TableCell>
-                <TableCell>
-                  <AssigneeAvatar assignee={c.assignee} />
-                </TableCell>
                 <TableCell onClick={(e) => e.stopPropagation()}>
                   <Popover
                     open={openPanelId === c.id}
@@ -258,7 +260,7 @@ export function CasesQueue({
             ))}
             {pageRows.length === 0 && (
               <TableRow>
-                <TableCell colSpan={9} className="h-24 text-center text-sm text-muted-foreground">
+                <TableCell colSpan={8} className="h-24 text-center text-sm text-muted-foreground">
                   No cases match these filters
                 </TableCell>
               </TableRow>
