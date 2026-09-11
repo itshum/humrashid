@@ -427,11 +427,11 @@
 				box-shadow: 0 8px 32px rgba(0, 0, 0, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.6);
 			}
 			#nav button.dot {
-				width: 34px;
-				height: 34px;
+				width: 42px;
+				height: 42px;
 				border-radius: 999px;
 				border: none;
-				background: #f0f0f0;
+				background: none; /* the dots themselves form the circle now */
 				cursor: pointer;
 				display: flex;
 				align-items: center;
@@ -439,23 +439,40 @@
 				padding: 0;
 			}
 
-			/* logo mark: same idea as the real site's pixel-grid logo (4x4 cells
-			   encoding "Hr"), just circular here — a grid of dots inside the
-			   nav's round button instead of a square of squares */
+			/* logo mark: same idea as the real site's pixel-grid logo (a grid of
+			   cells encoding "Hr"), rebuilt as an actual filled disc of dots —
+			   a 5x5 grid with the 4 corners hidden (visibility, not display, so
+			   the grid tracks stay put) reads as a circle, not a clipped square */
 			.logo-mark {
 				display: grid;
-				grid-template-columns: repeat(4, 3.2px);
-				grid-template-rows: repeat(4, 3.2px);
-				gap: 2.6px;
+				grid-template-columns: repeat(5, 4.4px);
+				grid-template-rows: repeat(5, 4.4px);
+				gap: 2.2px;
 			}
 			.logo-mark .px {
-				width: 3.2px;
-				height: 3.2px;
+				width: 4.4px;
+				height: 4.4px;
 				border-radius: 999px;
 				background: #d5d5d1;
+				animation: dot-enter 480ms ease-out both;
+			}
+			.logo-mark .px.is-corner {
+				visibility: hidden;
 			}
 			.logo-mark .px.is-letter {
-				animation: dot-shimmer 5s linear infinite;
+				animation:
+					dot-enter 480ms ease-out both,
+					dot-shimmer 5s linear infinite;
+			}
+			@keyframes dot-enter {
+				from {
+					opacity: 0;
+					transform: scale(0.3);
+				}
+				to {
+					opacity: 1;
+					transform: scale(1);
+				}
 			}
 			@keyframes dot-shimmer {
 				0% {
@@ -621,10 +638,11 @@
 		<nav id="nav">
 			<button class="dot" id="nav-home" title="recenter">
 				<span class="logo-mark" aria-label="Humayun Rashid, home">
-					<span class="px is-letter"></span><span class="px"></span><span class="px is-letter"></span><span class="px is-letter"></span>
-					<span class="px is-letter"></span><span class="px"></span><span class="px is-letter"></span><span class="px"></span>
-					<span class="px is-letter"></span><span class="px is-letter"></span><span class="px is-letter"></span><span class="px"></span>
-					<span class="px is-letter"></span><span class="px"></span><span class="px is-letter"></span><span class="px"></span>
+					<span class="px is-corner" style="animation-delay:0ms"></span><span class="px is-letter" style="animation-delay:0ms"></span><span class="px" style="animation-delay:0ms"></span><span class="px is-letter" style="animation-delay:0ms"></span><span class="px is-corner" style="animation-delay:0ms"></span>
+					<span class="px is-letter" style="animation-delay:70ms"></span><span class="px" style="animation-delay:70ms"></span><span class="px is-letter" style="animation-delay:70ms"></span><span class="px" style="animation-delay:70ms"></span><span class="px is-letter" style="animation-delay:70ms"></span>
+					<span class="px" style="animation-delay:140ms"></span><span class="px is-letter" style="animation-delay:140ms"></span><span class="px" style="animation-delay:140ms"></span><span class="px is-letter" style="animation-delay:140ms"></span><span class="px" style="animation-delay:140ms"></span>
+					<span class="px is-letter" style="animation-delay:210ms"></span><span class="px" style="animation-delay:210ms"></span><span class="px is-letter" style="animation-delay:210ms"></span><span class="px" style="animation-delay:210ms"></span><span class="px is-letter" style="animation-delay:210ms"></span>
+					<span class="px is-corner" style="animation-delay:280ms"></span><span class="px is-letter" style="animation-delay:280ms"></span><span class="px" style="animation-delay:280ms"></span><span class="px is-letter" style="animation-delay:280ms"></span><span class="px is-corner" style="animation-delay:280ms"></span>
 				</span>
 			</button>
 			<a href="#" id="nav-work">Work</a>
@@ -1164,6 +1182,17 @@
 			document.getElementById('arrow-left')!.addEventListener('click', () => stepMove(-1, 0));
 			document.getElementById('arrow-right')!.addEventListener('click', () => stepMove(1, 0));
 			document.getElementById('nav-home')!.addEventListener('click', () => animateRawTo(0, 0));
+
+			// logo mark: same hover behavior as the real site's Topbar logo —
+			// cells randomly flip between the shimmer ("letter") state and
+			// plain gray on mousemove, at the same ~45% chance per cell
+			const LOGO_LETTER_CHANCE = 0.45;
+			const logoCells = document.querySelectorAll<HTMLElement>('.logo-mark .px:not(.is-corner)');
+			document.getElementById('nav-home')!.addEventListener('mousemove', () => {
+				logoCells.forEach((cell) => {
+					cell.classList.toggle('is-letter', Math.random() < LOGO_LETTER_CHANCE);
+				});
+			});
 
 			// ---- "Work" nav: jumble the visible panels, then rearrange into a
 			// work-only view (every case study + the other live sites). Clicking
