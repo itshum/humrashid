@@ -15,7 +15,7 @@ import {
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { SeverityChip, StatusPill, VerdictBadge, severityLabel, statusLabel } from "./badges";
 import { SourceIcon, sourceLabel } from "./SourceIcons";
-import type { Case, Severity } from "./data";
+import type { ActivityEntry, Case, Severity } from "./data";
 import { Tip } from "./Tip";
 
 const mitreLabel: Record<string, string> = {
@@ -195,13 +195,15 @@ function EntityMention({ email, entities }: { email: string; entities: Case["ent
 }
 
 type VerdictAction = "idle" | "overriding" | "confirmed" | "overridden";
-type GuidanceStatus = "pending" | "approved" | "rejected";
+type GuidanceStatus = "pending" | "rejecting" | "approved" | "rejected";
 
 export function CaseDetail({ caseItem, onBack }: { caseItem: Case; onBack: () => void }) {
   const [verdictAction, setVerdictAction] = useState<VerdictAction>("idle");
   const [overrideSeverity, setOverrideSeverity] = useState<Severity>(caseItem.severity);
   const [overrideReason, setOverrideReason] = useState("");
   const [guidanceStatus, setGuidanceStatus] = useState<Record<number, GuidanceStatus>>({});
+  const [guidanceReason, setGuidanceReason] = useState<Record<number, string>>({});
+  const [activityLog, setActivityLog] = useState<ActivityEntry[]>(caseItem.activity ?? []);
 
   // Reset the local review state whenever a different case is opened,
   // so leftover "confirmed" / "overriding" state doesn't leak across
@@ -211,10 +213,19 @@ export function CaseDetail({ caseItem, onBack }: { caseItem: Case; onBack: () =>
     setOverrideSeverity(caseItem.severity);
     setOverrideReason("");
     setGuidanceStatus({});
+    setGuidanceReason({});
+    setActivityLog(caseItem.activity ?? []);
   }, [caseItem.id]);
 
   function setGuidance(i: number, status: GuidanceStatus) {
     setGuidanceStatus((prev) => ({ ...prev, [i]: status }));
+  }
+
+  // Every approve/reject decision gets written to the case's own
+  // activity log, the same paper trail an analyst would scroll to see
+  // "what happened to this case" - not just a UI state change.
+  function logActivity(text: string) {
+    setActivityLog((prev) => [...prev, { actor: "Jordan Park", isAgent: false, text, time: "Just now" }]);
   }
 
   return (
@@ -352,7 +363,7 @@ export function CaseDetail({ caseItem, onBack }: { caseItem: Case; onBack: () =>
           <Section label="Activity">
             <TimelineList
               items={
-                caseItem.activity?.map((a, i) => ({
+                activityLog.map((a, i) => ({
                   key: `a-${i}`,
                   time: a.time,
                   content: a.text,
@@ -498,39 +509,82 @@ export function CaseDetail({ caseItem, onBack }: { caseItem: Case; onBack: () =>
               {caseItem.responseGuidance?.length ? (
                 caseItem.responseGuidance.map((r, i) => {
                   const status = guidanceStatus[i] ?? "pending";
+                  const reason = guidanceReason[i] ?? "";
                   return (
                     <div key={i}>
                       <div className="mb-1 text-xs">{r.text}</div>
+
+                      {/* Approve is the primary call to action; reject
+                          is a lighter-weight, secondary consideration -
+                          a plain text link rather than a competing
+                          button - so the default path stays obvious. */}
                       {status === "pending" && (
-                        <div className="flex gap-1.5">
+                        <div>
                           <Button
                             size="sm"
-                            variant="outline"
-                            className="flex-1"
-                            onClick={() => setGuidance(i, "approved")}
+                            className="w-full"
+                            onClick={() => {
+                              setGuidance(i, "approved");
+                              logActivity(`Approved response action: “${r.text}”`);
+                            }}
                           >
                             Approve
                           </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="flex-1 text-destructive hover:bg-destructive/10 hover:text-destructive"
-                            onClick={() => setGuidance(i, "rejected")}
+                          <button
+                            type="button"
+                            className="mt-1 w-full text-center text-[11px] text-muted-foreground hover:text-destructive hover:underline"
+                            onClick={() => setGuidance(i, "rejecting")}
                           >
-                            Reject
-                          </Button>
+                            Reject instead
+                          </button>
                         </div>
                       )}
+
+                      {status === "rejecting" && (
+                        <div className="flex flex-col gap-2 rounded-[2px] border border-border bg-muted/40 p-2.5">
+                          <div className="text-[11px] text-muted-foreground">Reason for rejecting</div>
+                          <Textarea
+                            value={reason}
+                            onChange={(e) =>
+                              setGuidanceReason((prev) => ({ ...prev, [i]: e.target.value }))
+                            }
+                            placeholder="Why shouldn't this action be taken?"
+                            className="min-h-14 bg-background text-xs"
+                          />
+                          <div className="flex gap-1.5">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="flex-1 border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                              disabled={!reason.trim()}
+                              onClick={() => {
+                                setGuidance(i, "rejected");
+                                logActivity(`Rejected response action: “${r.text}” — “${reason.trim()}”`);
+                              }}
+                            >
+                              Submit Rejection
+                            </Button>
+                            <Button size="sm" variant="ghost" onClick={() => setGuidance(i, "pending")}>
+                              Cancel
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+
                       {status === "approved" && (
                         <div className="flex items-center gap-1.5 rounded-[2px] border border-[var(--success-border)] bg-[var(--success-bg)] px-2 py-1 text-[11px] text-[var(--success-text)]">
                           <CheckIcon className="size-3 shrink-0" />
                           Approved
                         </div>
                       )}
+
                       {status === "rejected" && (
-                        <div className="flex items-center gap-1.5 rounded-[2px] border border-border bg-muted px-2 py-1 text-[11px] text-muted-foreground">
-                          <XIcon className="size-3 shrink-0" />
-                          Rejected
+                        <div className="flex flex-col gap-0.5 rounded-[2px] border border-border bg-muted px-2 py-1.5 text-[11px] text-muted-foreground">
+                          <div className="flex items-center gap-1.5">
+                            <XIcon className="size-3 shrink-0" />
+                            Rejected
+                          </div>
+                          {reason && <span className="pl-4.5 text-muted-foreground/80">“{reason}”</span>}
                         </div>
                       )}
                     </div>
