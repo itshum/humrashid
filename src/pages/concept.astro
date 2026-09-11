@@ -518,9 +518,13 @@
 			}
 
 			// ---- true spherical placement -----------------------------------------
-			const SPHERE_R = 1900; // px
-			const DEG_PER_COL = 30; // longitude degrees between adjacent panel centers
-			const DEG_PER_ROW = 24; // latitude degrees between adjacent panel centers
+			// Tighter spacing than before — the point is for neighboring panels
+			// to visibly peek in at the top/bottom/left/right edges of the
+			// viewport at rest, so it reads as "there's more this way" rather
+			// than an empty field around one centered panel.
+			const SPHERE_R = 1150; // px
+			const DEG_PER_COL = 20; // longitude degrees between adjacent panel centers
+			const DEG_PER_ROW = 16; // latitude degrees between adjacent panel centers
 
 			function sphereTransform(lonDeg: number, latDeg: number, extra = ''): string {
 				const lon = (clamp(lonDeg, -85, 85) * Math.PI) / 180;
@@ -659,8 +663,10 @@
 					const dCol = c - panCol;
 					const dRow = r - panRow;
 					const dist = Math.sqrt(dCol * dCol + dRow * dRow);
-					const scale = clamp(1.1 - dist * 0.42, 0.45, 1.1);
-					const opacity = clamp(1 - dist * 0.55, 0, 1);
+					// gentler falloff than before — neighbors should still read
+					// clearly as "there's more this way", not fade to near-nothing
+					const scale = clamp(1.08 - dist * 0.28, 0.62, 1.08);
+					const opacity = clamp(1 - dist * 0.32, 0.35, 1);
 					const lon = dCol * DEG_PER_COL;
 					const lat = dRow * DEG_PER_ROW;
 
@@ -668,10 +674,11 @@
 					slot.wrap.style.opacity = String(opacity);
 					slot.wrap.style.zIndex = String(Math.round(2000 - dist * 10));
 
-					// floating depth: the more centered a panel is, the more it
-					// looks lifted off the surface — bigger, softer shadow
+					// floating depth: very subtle — a hint of lift, not a heavy
+					// drop shadow. The hover-to-visit affordance on browser
+					// panels is untouched.
 					const lift = clamp(1 - dist, 0, 1);
-					slot.surface.style.boxShadow = `0 ${18 * lift + 4}px ${46 * lift + 10}px rgba(0,0,0,${0.05 + 0.16 * lift})`;
+					slot.surface.style.boxShadow = `0 ${5 * lift + 2}px ${16 * lift + 5}px rgba(0,0,0,${0.03 + 0.05 * lift})`;
 				}
 				renderMinimap(centerColInt, centerRowInt);
 			}
