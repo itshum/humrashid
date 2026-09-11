@@ -495,7 +495,14 @@
 
 			type Sized = { w: number; h: number };
 			type HomeItem = Sized & { kind: 'home'; title: string };
-			type CardItem = Sized & { kind: 'card'; tag: string; title: string; subtitle: string; seed: string };
+			type CardItem = Sized & {
+				kind: 'card';
+				tag: string;
+				title: string;
+				subtitle: string;
+				seed: string;
+				image?: string; // real asset path — overrides the Picsum placeholder
+			};
 			type BrowserItem = Sized & { kind: 'browser'; url: string; display: string };
 			type PhotoItem = Sized & { kind: 'photo'; tone: string; camera: string; meta: string };
 			type VideoItem = Sized & { kind: 'video'; title: string; subtitle: string };
@@ -522,8 +529,8 @@
 			// instead (generic bird, building, card, coffee cup).
 			const NYC_EMOJIS = ['🚕', '🍎', '🗽', '🌭', '🐦', '🏢', '☕', '🥯', '💳'];
 
-			function card(tag: string, title: string, subtitle: string, seed: string, size: Sized): CardItem {
-				return { kind: 'card', tag, title, subtitle, seed, ...size };
+			function card(tag: string, title: string, subtitle: string, seed: string, size: Sized, image?: string): CardItem {
+				return { kind: 'card', tag, title, subtitle, seed, image, ...size };
 			}
 
 			const rowsByIndex: Item[][] = [
@@ -545,7 +552,14 @@
 				],
 				[
 					{ kind: 'photo', tone: '#dcd6cf', camera: 'iPhone 15 Pro', meta: 'Lower Manhattan · Mar 2024', ...PHOTO },
-					card('experiment', 'Pack hover takeover', 'A hover state that takes over the whole viewport.', 'pack-hover', MD),
+					card(
+					'case study',
+					'Pack',
+					"Turning an agency's custom commerce builds into a scalable, merchant friendly SaaS platform.",
+					'pack',
+					MD,
+					'/case-studies/pack/01-hero-a.webp'
+				),
 					card('image', 'Type test', 'Testing a condensed grotesk at display sizes.', 'type-test', SM),
 					{ kind: 'browser', url: 'https://example.com', display: 'example.com', ...BROWSER },
 					card('link', 'dribbble ↗', 'Shots and works-in-progress.', 'dribbble', SM),
@@ -653,7 +667,7 @@
 					return `<div class="home-label">${withNycSpan}</div>`;
 				}
 				if (item.kind === 'card') {
-					const bg = `https://picsum.photos/seed/${encodeURIComponent(item.seed)}/${item.w * 2}/${Math.round((item.h - 90) * 2)}`;
+					const bg = item.image ?? `https://picsum.photos/seed/${encodeURIComponent(item.seed)}/${item.w * 2}/${Math.round((item.h - 90) * 2)}`;
 					return `
 						<div class="card-media" style="background-image:url('${bg}')"><span class="tag">${item.tag}</span></div>
 						<div class="card-text">
