@@ -98,15 +98,21 @@
 				flex: 1;
 				border-radius: 12px;
 				background: #ececec;
-				display: flex;
-				align-items: center;
-				justify-content: center;
+				background-size: cover;
+				background-position: center;
+				position: relative;
 			}
 			.card-media .tag {
-				font-size: 11px;
+				position: absolute;
+				top: 10px;
+				left: 10px;
+				background: rgba(0, 0, 0, 0.55);
+				color: #fff;
+				font-size: 10px;
 				letter-spacing: 0.08em;
 				text-transform: uppercase;
-				color: #aaa;
+				padding: 3px 9px;
+				border-radius: 999px;
 			}
 			.card-text {
 				padding: 0 2px;
@@ -205,6 +211,39 @@
 			}
 			.k-browser .panel-surface:hover .browser-visit-icon {
 				transform: scale(1);
+			}
+
+			/* ---- video: looping muted clip, same card shell as .k-card ---- */
+			.k-video .panel-surface {
+				display: flex;
+				flex-direction: column;
+				gap: 14px;
+				pointer-events: auto;
+			}
+			.video-media {
+				flex: 1;
+				border-radius: 12px;
+				overflow: hidden;
+				position: relative;
+				background: #000;
+			}
+			.video-media video {
+				width: 100%;
+				height: 100%;
+				object-fit: cover;
+				display: block;
+			}
+			.video-badge {
+				position: absolute;
+				top: 10px;
+				left: 10px;
+				background: rgba(0, 0, 0, 0.55);
+				color: #fff;
+				font-size: 10px;
+				letter-spacing: 0.08em;
+				text-transform: uppercase;
+				padding: 3px 9px;
+				border-radius: 999px;
 			}
 
 			/* ---- photo: polaroid-style frame + camera metadata caption ---- */
@@ -363,7 +402,7 @@
 	<body>
 		<div id="hint">
 			drag / scroll / swipe to look around · arrow keys work too<br />
-			loops forever both ways · panels lock into place, with a little give as you leave one
+			loops forever both ways · flows freely, with just a hint of resistance passing center
 		</div>
 
 		<div id="stage">
@@ -410,46 +449,63 @@
 
 			type Sized = { w: number; h: number };
 			type HomeItem = Sized & { kind: 'home'; title: string };
-			type CardItem = Sized & { kind: 'card'; tag: string; title: string; subtitle: string };
+			type CardItem = Sized & { kind: 'card'; tag: string; title: string; subtitle: string; seed: string };
 			type BrowserItem = Sized & { kind: 'browser'; url: string; display: string };
 			type PhotoItem = Sized & { kind: 'photo'; tone: string; camera: string; meta: string };
-			type Item = HomeItem | CardItem | BrowserItem | PhotoItem;
+			type VideoItem = Sized & { kind: 'video'; title: string; subtitle: string };
+			type Item = HomeItem | CardItem | BrowserItem | PhotoItem | VideoItem;
 
 			const SM: Sized = { w: 280, h: 220 };
 			const MD: Sized = { w: 380, h: 300 };
 			const LG: Sized = { w: 520, h: 380 };
 			const BROWSER: Sized = { w: 560, h: 380 };
 			const PHOTO: Sized = { w: 300, h: 400 };
+			const VIDEO: Sized = { w: 420, h: 320 };
+
+			// a couple of small, freely-embeddable public sample clips (CC0/MDN
+			// demo assets) — stand-ins to test the video-panel format, not final
+			// content
+			const CLIP_A = 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4';
+			const CLIP_B = 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/friday.mp4';
+
+			function card(tag: string, title: string, subtitle: string, seed: string, size: Sized): CardItem {
+				return { kind: 'card', tag, title, subtitle, seed, ...size };
+			}
 
 			const rowsByIndex: Item[][] = [
 				[
 					{ kind: 'home', title: 'Humayun Rashid is a designer & founder in NYC.', ...LG },
-					{ kind: 'card', tag: 'case study', title: 'Sublime Security', subtitle: 'Quarantine digests & phishing simulations for the fastest-growing email security startup in the US.', ...MD },
+					card('case study', 'Sublime Security', 'Quarantine digests & phishing simulations for the fastest-growing email security startup in the US.', 'sublime', MD),
 					{ kind: 'browser', url: 'https://rendr.app', display: 'rendr.app', ...BROWSER },
 					{ kind: 'photo', tone: '#d8d2c4', camera: 'Fujifilm X100V', meta: 'Brooklyn, NY · Sep 2024', ...PHOTO },
-					{ kind: 'card', tag: 'case study', title: 'Atrium', subtitle: 'A quiet home for books and articles worth remembering.', ...MD },
-					{ kind: 'card', tag: 'process', title: 'Reel — process', subtitle: 'A short cut of how the Sublime rebrand came together.', ...SM },
+					card('case study', 'Atrium', 'A quiet home for books and articles worth remembering.', 'atrium', MD),
+					{ kind: 'video', title: 'Reel — process', subtitle: 'A short cut of how the Sublime rebrand came together.', ...VIDEO },
 				],
 				[
-					{ kind: 'card', tag: 'about', title: 'About — the longer version', subtitle: 'A decade of B2B SaaS and eCommerce design, and what I care about now.', ...LG },
-					{ kind: 'card', tag: 'ideas', title: 'Ideas — writing & notes', subtitle: 'Short essays on onboarding, empty states, and saying no.', ...MD },
-					{ kind: 'card', tag: 'work', title: 'Work — full index', subtitle: 'Every case study and experiment in one place.', ...MD },
+					card('about', 'About — the longer version', 'A decade of B2B SaaS and eCommerce design, and what I care about now.', 'about-me', LG),
+					card('ideas', 'Ideas — writing & notes', 'Short essays on onboarding, empty states, and saying no.', 'ideas-notes', MD),
+					{ kind: 'video', title: 'Talk — five users', subtitle: 'A clip from a workshop on user interviews.', ...VIDEO },
 					{ kind: 'photo', tone: '#c9d0c6', camera: 'Kodak Gold 200', meta: 'Prospect Park · Jun 2024', ...PHOTO },
 					{ kind: 'browser', url: 'https://www.humrashid.com', display: 'humrashid.com', ...BROWSER },
-					{ kind: 'card', tag: 'writing', title: 'Principles', subtitle: 'A running list of rules I design by.', ...SM },
+					card('writing', 'Principles', 'A running list of rules I design by.', 'principles', SM),
 				],
 				[
 					{ kind: 'photo', tone: '#dcd6cf', camera: 'iPhone 15 Pro', meta: 'Lower Manhattan · Mar 2024', ...PHOTO },
-					{ kind: 'card', tag: 'experiment', title: 'Pack hover takeover', subtitle: 'A hover state that takes over the whole viewport.', ...MD },
-					{ kind: 'card', tag: 'image', title: 'Type test', subtitle: 'Testing a condensed grotesk at display sizes.', ...SM },
+					card('experiment', 'Pack hover takeover', 'A hover state that takes over the whole viewport.', 'pack-hover', MD),
+					card('image', 'Type test', 'Testing a condensed grotesk at display sizes.', 'type-test', SM),
 					{ kind: 'browser', url: 'https://example.com', display: 'example.com', ...BROWSER },
-					{ kind: 'card', tag: 'link', title: 'dribbble ↗', subtitle: 'Shots and works-in-progress.', ...SM },
-					{ kind: 'card', tag: 'image', title: 'Color study', subtitle: 'Palette exploration for the Atrium footer.', ...SM },
+					card('link', 'dribbble ↗', 'Shots and works-in-progress.', 'dribbble', SM),
+					card('image', 'Color study', 'Palette exploration for the Atrium footer.', 'color-study', SM),
 				],
 			];
 
 			function mod(n: number, m: number) {
 				return ((n % m) + m) % m;
+			}
+			function hashCode(s: string): number {
+				let h = 0;
+				for (let i = 0; i < s.length; i++) h = (h << 5) - h + s.charCodeAt(i);
+				return h;
 			}
 			function itemAt(col: number, row: number): Item {
 				return rowsByIndex[mod(row, ROWS)][mod(col, COLS)];
@@ -472,7 +528,11 @@
 				const x = SPHERE_R * Math.sin(lon) * Math.cos(lat);
 				const y = SPHERE_R * Math.sin(lat);
 				const z = SPHERE_R * (Math.cos(lon) * Math.cos(lat) - 1);
-				return `translate(-50%, -50%) translate3d(${x}px, ${y}px, ${z}px) rotateY(${-lonDeg}deg) rotateX(${latDeg}deg) ${extra}`;
+				// rotate so each panel's own surface normal points radially
+				// outward from the sphere's center — the surface bulges toward
+				// the viewer at the front pole and curves away at the edges,
+				// like the front half of a globe, not a bowl caving inward.
+				return `translate(-50%, -50%) translate3d(${x}px, ${y}px, ${z}px) rotateY(${lonDeg}deg) rotateX(${-latDeg}deg) ${extra}`;
 			}
 
 			// ---- state -----------------------------------------------------------
@@ -493,13 +553,19 @@
 			const DRAG_SENSITIVITY = 1 / 420;
 			const WHEEL_SENSITIVITY = 1 / 900;
 
+			// Only a light detent at each integer, not a hard lock — RESISTANCE_MIX
+			// close to 0 would be pure free-flowing linear motion; keep it low so
+			// you feel just the slightest hesitation passing a centered panel,
+			// then it's back to plain, direct tracking.
+			const RESISTANCE_MIX = 0.22;
 			function easeInOutCubic(t: number): number {
 				return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 			}
 			function applyResistance(raw: number): number {
 				const base = Math.floor(raw);
 				const frac = raw - base;
-				return base + easeInOutCubic(frac);
+				const eased = easeInOutCubic(frac);
+				return base + frac + (eased - frac) * RESISTANCE_MIX;
 			}
 
 			const field = document.getElementById('field') as HTMLDivElement;
@@ -525,8 +591,21 @@
 					return `<div class="home-label">${item.title}</div>`;
 				}
 				if (item.kind === 'card') {
+					const bg = `https://picsum.photos/seed/${encodeURIComponent(item.seed)}/${item.w * 2}/${Math.round((item.h - 90) * 2)}`;
 					return `
-						<div class="card-media"><span class="tag">${item.tag}</span></div>
+						<div class="card-media" style="background-image:url('${bg}')"><span class="tag">${item.tag}</span></div>
+						<div class="card-text">
+							<div class="card-title">${item.title}</div>
+							<div class="card-subtitle">${item.subtitle}</div>
+						</div>`;
+				}
+				if (item.kind === 'video') {
+					const src = Math.abs(hashCode(item.title)) % 2 === 0 ? CLIP_A : CLIP_B;
+					return `
+						<div class="video-media">
+							<video autoplay muted loop playsinline src="${src}"></video>
+							<span class="video-badge">video</span>
+						</div>
 						<div class="card-text">
 							<div class="card-title">${item.title}</div>
 							<div class="card-subtitle">${item.subtitle}</div>
@@ -652,7 +731,7 @@
 				stage.classList.remove('grabbing');
 				const vCol = -velX * DRAG_SENSITIVITY;
 				const vRow = -velY * DRAG_SENSITIVITY;
-				lockToNearest(vCol, vRow);
+				startCoast(vCol, vRow);
 			}
 			stage.addEventListener('pointerup', endDrag);
 			stage.addEventListener('pointercancel', endDrag);
@@ -661,7 +740,6 @@
 			});
 
 			// ---- input: wheel / trackpad -----------------------------------------
-			let wheelSettleTimeout: number | undefined;
 			stage.addEventListener(
 				'wheel',
 				(e) => {
@@ -670,21 +748,41 @@
 					rawCol = safe(rawCol + e.deltaX * WHEEL_SENSITIVITY);
 					rawRow = safe(rawRow + e.deltaY * WHEEL_SENSITIVITY);
 					render();
-					clearTimeout(wheelSettleTimeout);
-					wheelSettleTimeout = window.setTimeout(() => lockToNearest(0, 0), 110);
 				},
 				{ passive: false }
 			);
 
-			// ---- hard lock on release, with a fling override ----------------------
-			const FLING_MIN = 0.35;
-			const FLING_BIAS = 0.5;
-			function lockToNearest(vCol: number, vRow: number) {
-				const biasCol = Math.abs(vCol) > FLING_MIN ? clamp(vCol, -1, 1) * FLING_BIAS : 0;
-				const biasRow = Math.abs(vRow) > FLING_MIN ? clamp(vRow, -1, 1) * FLING_BIAS : 0;
-				const targetCol = Math.round(rawCol + biasCol);
-				const targetRow = Math.round(rawRow + biasRow);
-				animateRawTo(targetCol, targetRow);
+			// ---- free momentum coast on release — no forced snap ------------------
+			// Dragging is direct 1:1 tracking (through the light detent above);
+			// letting go just carries that motion on with friction until it
+			// naturally comes to rest, wherever that is — it is not pulled to
+			// the nearest panel. Keyboard/arrow controls still jump exactly one
+			// panel via animateRawTo, since those are deliberate discrete actions.
+			const FRICTION_PER_16MS = 0.9;
+			function startCoast(vCol: number, vRow: number) {
+				cancelAnim();
+				let vC = clamp(vCol, -2.5, 2.5);
+				let vR = clamp(vRow, -2.5, 2.5);
+				let lastT = performance.now();
+				function frame(now: number) {
+					const dt = Math.min(48, now - lastT);
+					lastT = now;
+					rawCol = safe(rawCol + vC * dt);
+					rawRow = safe(rawRow + vR * dt);
+					const decay = Math.pow(FRICTION_PER_16MS, dt / 16.67);
+					vC *= decay;
+					vR *= decay;
+					render();
+					if (Math.abs(vC) > 0.00005 || Math.abs(vR) > 0.00005) {
+						animRAF = requestAnimationFrame(frame);
+					} else {
+						targetCol = Math.round(rawCol);
+						targetRow = Math.round(rawRow);
+						stepChaining = true;
+						animRAF = undefined;
+					}
+				}
+				animRAF = requestAnimationFrame(frame);
 			}
 
 			// ---- input: keyboard ---------------------------------------------------
