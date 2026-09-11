@@ -1032,12 +1032,20 @@
 							<div class="portrait-stage">
 								<img class="portrait-img" src="${item.src}" alt="Humayun Rashid" />
 								<svg class="portrait-svg" viewBox="0 0 360 500" preserveAspectRatio="none">
-									<path class="crown" d="M118,72 L136,30 L156,66 L178,22 L200,66 L222,30 L240,72" />
-									<circle cx="151" cy="150" r="17" />
-									<line x1="168" y1="150" x2="151" y2="245" />
-									<path d="M108,214 Q100,232 112,250 Q120,238 112,222" />
-									<path d="M126,232 Q116,254 130,270 Q140,256 130,238" />
-									<path d="M148,244 Q140,266 154,280 Q164,266 154,248" />
+									<!-- crown, sat on the hairline, five jagged points with a
+									     banded base and small facet ticks for a more layered,
+									     scratchy Basquiat texture -->
+									<path class="crown" d="M135,112 L135,92 L150,65 L165,92 L178,60 L193,92 L208,60 L221,92 L236,65 L251,92 L251,112 Z" />
+									<path class="crown" d="M140,100 L246,100" />
+									<path class="crown" d="M160,80 L165,88" />
+									<path class="crown" d="M188,73 L193,85" />
+									<path class="crown" d="M216,80 L221,88" />
+									<!-- mustache -->
+									<path d="M165,216 Q178,209 193,215 Q208,209 221,216" />
+									<!-- beard: a smooth U tracing the jaw from ear to ear under
+									     the chin — a jagged stroke at this scale just scattered
+									     across the mouth instead of reading as an outline -->
+									<path d="M148,200 Q140,230 145,255 Q150,280 175,298 Q193,306 211,298 Q236,280 241,255 Q246,230 238,200" />
 								</svg>
 							</div>`;
 					}
