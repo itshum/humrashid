@@ -123,6 +123,40 @@
 				padding: 3px 9px;
 				border-radius: 999px;
 			}
+			/* hover-to-visit arrow, real case studies only (item.link set) —
+			   same treatment as the browser panel's visit affordance */
+			.card-visit {
+				position: absolute;
+				inset: 0;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				border-radius: 12px;
+				background: rgba(255, 255, 255, 0);
+				opacity: 0;
+				transition: opacity 200ms, background 200ms;
+				text-decoration: none;
+			}
+			.card-media:hover .card-visit {
+				opacity: 1;
+				background: rgba(255, 255, 255, 0.35);
+			}
+			.card-visit-icon {
+				width: 52px;
+				height: 52px;
+				border-radius: 999px;
+				background: #111;
+				color: #fff;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+				transform: scale(0.85);
+				transition: transform 200ms;
+			}
+			.card-media:hover .card-visit-icon {
+				transform: scale(1);
+			}
 			.card-text {
 				padding: 0 2px;
 			}
@@ -136,6 +170,15 @@
 				font-size: 13px;
 				color: #999;
 				line-height: 1.4;
+			}
+			/* case studies are bigger by default (CASE_STUDY size) — scale the
+			   text to match instead of leaving it at the generic-card size */
+			.card-text.is-case-study .card-title {
+				font-size: 23px;
+				margin-bottom: 6px;
+			}
+			.card-text.is-case-study .card-subtitle {
+				font-size: 16px;
 			}
 
 			/* ---- browser: Safari chrome + live iframe + hover-to-visit ---- */
@@ -502,6 +545,7 @@
 				subtitle: string;
 				seed: string;
 				image?: string; // real asset path — overrides the Picsum placeholder
+				link?: string; // real page URL — adds the hover-to-visit arrow
 			};
 			type BrowserItem = Sized & { kind: 'browser'; url: string; display: string };
 			type PhotoItem = Sized & { kind: 'photo'; tone: string; camera: string; meta: string };
@@ -511,6 +555,7 @@
 			const SM: Sized = { w: 280, h: 220 };
 			const MD: Sized = { w: 380, h: 300 };
 			const LG: Sized = { w: 520, h: 380 };
+			const CASE_STUDY: Sized = { w: 520, h: 410 }; // ~37% bigger than MD — default size for real case studies
 			const HOME: Sized = { w: 980, h: 460 }; // roomy — this text has no box, needs space
 			const BROWSER: Sized = { w: 784, h: 532 }; // 40% larger than the other kinds
 			const PHOTO: Sized = { w: 300, h: 400 };
@@ -533,9 +578,18 @@
 				return { kind: 'card', tag, title, subtitle, seed, image, ...size };
 			}
 
+			// Case studies always get the bigger CASE_STUDY size, real cover art,
+			// and a link to the actual page (hover reveals a visit arrow) — this
+			// is the default treatment for any real case study on the site.
+			function caseStudy(title: string, subtitle: string, seed: string, image: string, link: string): CardItem {
+				return { kind: 'card', tag: 'case study', title, subtitle, seed, image, link, ...CASE_STUDY };
+			}
+
 			const rowsByIndex: Item[][] = [
 				[
-					{ kind: 'home', title: 'Humayun Rashid is a designer & founder in NYC', ...HOME },
+					{ kind: 'home', title: 'Humayun Rashid is a designer<br/>and founder in NYC', ...HOME },
+					// no live page or cover art for this one yet — stays the
+					// generic placeholder treatment until both exist
 					card('case study', 'Sublime Security', 'Quarantine digests & phishing simulations for the fastest-growing email security startup in the US.', 'sublime', MD),
 					{ kind: 'browser', url: 'https://rendr.app', display: 'rendr.app', ...BROWSER },
 					{ kind: 'photo', tone: '#d8d2c4', camera: 'Fujifilm X100V', meta: 'Brooklyn, NY · Sep 2024', ...PHOTO },
@@ -552,18 +606,29 @@
 				],
 				[
 					{ kind: 'photo', tone: '#dcd6cf', camera: 'iPhone 15 Pro', meta: 'Lower Manhattan · Mar 2024', ...PHOTO },
-					card(
-					'case study',
-					'Pack',
-					"Turning an agency's custom commerce builds into a scalable, merchant friendly SaaS platform.",
-					'pack',
-					MD,
-					'/case-studies/pack/01-hero-a.webp'
-				),
-					card('image', 'Type test', 'Testing a condensed grotesk at display sizes.', 'type-test', SM),
+					caseStudy(
+						'Pack',
+						"Turning an agency's custom commerce builds into a scalable, merchant friendly SaaS platform.",
+						'pack',
+						'/case-studies/pack/01-hero-a.webp',
+						'/work/pack'
+					),
+					caseStudy(
+						'Inveterate',
+						'Taking a loyalty and membership platform from zero to one for eCommerce brands.',
+						'inveterate',
+						'/case-studies/inveterate/01-hero-desktop.webp',
+						'/work/inveterate'
+					),
 					{ kind: 'browser', url: 'https://example.com', display: 'example.com', ...BROWSER },
 					card('link', 'dribbble ↗', 'Shots and works-in-progress.', 'dribbble', SM),
-					card('image', 'Color study', 'Palette exploration for the Atrium footer.', 'color-study', SM),
+					caseStudy(
+						'PPVP',
+						'Designing an exclusive investment app for accredited investors.',
+						'ppvp',
+						'/case-studies/ppvp/01-hero-desktop.webp',
+						'/work/ppvp'
+					),
 				],
 			];
 
@@ -668,9 +733,22 @@
 				}
 				if (item.kind === 'card') {
 					const bg = item.image ?? `https://picsum.photos/seed/${encodeURIComponent(item.seed)}/${item.w * 2}/${Math.round((item.h - 90) * 2)}`;
+					const isCaseStudy = item.tag === 'case study' && !!item.image;
+					const visitArrow = item.link
+						? `<a class="card-visit" href="${item.link}">
+								<span class="card-visit-icon">
+									<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+										<path d="M7 17L17 7M17 7H9M17 7V15" />
+									</svg>
+								</span>
+							</a>`
+						: '';
 					return `
-						<div class="card-media" style="background-image:url('${bg}')"><span class="tag">${item.tag}</span></div>
-						<div class="card-text">
+						<div class="card-media" style="background-image:url('${bg}')">
+							<span class="tag">${item.tag}</span>
+							${visitArrow}
+						</div>
+						<div class="card-text${isCaseStudy ? ' is-case-study' : ''}">
 							<div class="card-title">${item.title}</div>
 							<div class="card-subtitle">${item.subtitle}</div>
 						</div>`;
