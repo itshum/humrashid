@@ -136,36 +136,64 @@
 				background: #fff;
 				border-radius: 12px;
 				overflow: hidden;
-				border: 1px solid #e2e2e2;
+				border: 1px solid #dcdcdc;
+				box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6);
 				pointer-events: auto;
 			}
 			.browser-chrome {
 				display: flex;
 				align-items: center;
-				gap: 10px;
-				padding: 10px 12px;
-				background: #f4f4f4;
-				border-bottom: 1px solid #e6e6e6;
+				gap: 14px;
+				padding: 12px 14px;
+				background: linear-gradient(#f8f8f8, #ececec);
+				border-bottom: 1px solid #d8d8d8;
 			}
 			.browser-dots {
 				display: flex;
-				gap: 6px;
+				gap: 8px;
+				flex-shrink: 0;
 			}
-			.browser-dots span {
-				width: 9px;
-				height: 9px;
-				border-radius: 999px;
-				background: #ddd;
+			.browser-dots svg {
+				width: 13px;
+				height: 13px;
+				display: block;
+			}
+			.browser-nav-icons {
+				display: flex;
+				gap: 10px;
+				flex-shrink: 0;
+				color: #b0b0b0;
+			}
+			.browser-nav-icons svg {
+				width: 15px;
+				height: 15px;
+				display: block;
 			}
 			.browser-url {
 				flex: 1;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				gap: 6px;
 				background: #fff;
-				border: 1px solid #e6e6e6;
-				border-radius: 6px;
-				padding: 3px 10px;
-				font-size: 11px;
-				color: #999;
-				text-align: center;
+				border: 1px solid #e2e2e2;
+				box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+				border-radius: 7px;
+				padding: 5px 10px;
+				font-size: 12px;
+				color: #6b6b6b;
+				min-width: 0;
+			}
+			.browser-url svg {
+				width: 11px;
+				height: 11px;
+				flex-shrink: 0;
+				color: #9a9a9a;
+			}
+			.browser-url span {
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
 			}
 			.browser-body {
 				position: relative;
@@ -400,6 +428,15 @@
 		</style>
 	</head>
 	<body>
+		<svg width="0" height="0" style="position: absolute">
+			<defs>
+				<radialGradient id="bgloss" cx="35%" cy="30%" r="75%">
+					<stop offset="0%" stop-color="#fff" stop-opacity="0.55" />
+					<stop offset="45%" stop-color="#fff" stop-opacity="0" />
+				</radialGradient>
+			</defs>
+		</svg>
+
 		<div id="hint">
 			drag / scroll / swipe to look around · arrow keys work too<br />
 			loops forever both ways · flows freely, with just a hint of resistance passing center
@@ -458,7 +495,7 @@
 			const SM: Sized = { w: 280, h: 220 };
 			const MD: Sized = { w: 380, h: 300 };
 			const LG: Sized = { w: 520, h: 380 };
-			const BROWSER: Sized = { w: 560, h: 380 };
+			const BROWSER: Sized = { w: 784, h: 532 }; // 40% larger than the other kinds
 			const PHOTO: Sized = { w: 300, h: 400 };
 			const VIDEO: Sized = { w: 420, h: 320 };
 
@@ -618,8 +655,19 @@
 				if (item.kind === 'browser') {
 					return `
 						<div class="browser-chrome">
-							<div class="browser-dots"><span></span><span></span><span></span></div>
-							<div class="browser-url">${item.display}</div>
+							<div class="browser-dots">
+								<svg viewBox="0 0 13 13"><circle cx="6.5" cy="6.5" r="6.5" fill="#ff5f57" /><circle cx="6.5" cy="6.5" r="6.5" fill="url(#bgloss)" /></svg>
+								<svg viewBox="0 0 13 13"><circle cx="6.5" cy="6.5" r="6.5" fill="#febc2e" /><circle cx="6.5" cy="6.5" r="6.5" fill="url(#bgloss)" /></svg>
+								<svg viewBox="0 0 13 13"><circle cx="6.5" cy="6.5" r="6.5" fill="#28c840" /><circle cx="6.5" cy="6.5" r="6.5" fill="url(#bgloss)" /></svg>
+							</div>
+							<div class="browser-nav-icons">
+								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 6l-6 6 6 6" /></svg>
+								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6" /></svg>
+							</div>
+							<div class="browser-url">
+								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" /></svg>
+								<span>${item.display}</span>
+							</div>
 						</div>
 						<div class="browser-body">
 							<iframe src="${item.url}" loading="lazy" referrerpolicy="no-referrer"></iframe>
