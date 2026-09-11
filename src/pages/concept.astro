@@ -1,10 +1,11 @@
 ---
 // Low-fidelity prototype: sphere/orbit navigation mechanic.
-// Wireframe only — no visual design. Goal is to prove the interaction
-// model: a field of panels sitting on true spherical coordinates (each
-// panel is a small mesh of tiles, not a rigid flat rectangle, so its own
-// edges visibly curve away), navigated with resistance-then-hard-lock
-// dragging. Both axes loop forever — no dead ends.
+// Testing real content formats now: a Safari-style browser panel (live
+// iframe + hover-to-visit), a Mobbin-style card (media block + headline +
+// subtext), and a Polaroid-style photo panel with camera metadata. Panels
+// vary in size by content kind. Positioning is still a true sphere
+// (longitude/latitude per panel), with resistance-then-hard-lock dragging
+// and an infinite loop on both axes.
 ---
 
 <html lang="en">
@@ -44,69 +45,202 @@
 				transform-style: preserve-3d;
 			}
 
-			.tile {
+			/* outer wrapper: JS-controlled sphere position/rotation/scale only */
+			.panel-wrap {
 				position: absolute;
 				top: 50%;
 				left: 50%;
-				background: #f2f2f2;
-				border: 1px solid #e2e2e2;
 				will-change: transform, opacity;
-				pointer-events: none;
-			}
-			.tile.home {
-				background: #fafafa;
-				border-color: #ececec;
 			}
 
-			.content {
-				position: absolute;
-				top: 50%;
-				left: 50%;
-				width: 50vw;
-				max-width: 720px;
-				height: 64vh;
-				max-height: 520px;
-				border: 1.5px dashed #bbb;
-				background: rgba(246, 246, 246, 0.35);
-				border-radius: 10px;
+			/* inner surface: carries the idle float + shadow, composes with the
+			   outer transform instead of fighting it for the same property */
+			.panel-surface {
+				width: 100%;
+				height: 100%;
+				border-radius: 14px;
+				animation: floaty 6s ease-in-out infinite;
+				transition: box-shadow 300ms ease;
+			}
+			@keyframes floaty {
+				0%,
+				100% {
+					transform: translateY(0);
+				}
+				50% {
+					transform: translateY(-8px);
+				}
+			}
+
+			/* ---- home ---- */
+			.k-home .panel-surface {
 				display: flex;
-				flex-direction: column;
 				align-items: center;
 				justify-content: center;
-				gap: 8px;
 				text-align: center;
 				padding: 24px;
-				will-change: transform, opacity;
-				pointer-events: none;
 			}
-			.content.home {
-				background: rgba(255, 255, 255, 0.6);
-				border-style: solid;
-				border-color: #ddd;
-			}
-			.content .type {
-				font-size: 11px;
-				letter-spacing: 0.08em;
-				text-transform: uppercase;
-				color: #999;
-			}
-			.content .label {
-				font-size: 18px;
-				color: #444;
-				max-width: 80%;
-			}
-			.content.home .label {
+			.k-home .home-label {
 				font-size: clamp(22px, 3vw, 34px);
 				color: #111;
 				font-weight: 500;
 				line-height: 1.25;
 			}
-			.content .coord {
+
+			/* ---- card: Mobbin-style — media block, then headline + subtext below ---- */
+			.k-card .panel-surface {
+				display: flex;
+				flex-direction: column;
+				gap: 14px;
+				pointer-events: auto;
+			}
+			.card-media {
+				flex: 1;
+				border-radius: 12px;
+				background: #ececec;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
+			.card-media .tag {
+				font-size: 11px;
+				letter-spacing: 0.08em;
+				text-transform: uppercase;
+				color: #aaa;
+			}
+			.card-text {
+				padding: 0 2px;
+			}
+			.card-title {
+				font-size: 17px;
+				font-weight: 600;
+				color: #111;
+				margin-bottom: 4px;
+			}
+			.card-subtitle {
+				font-size: 13px;
+				color: #999;
+				line-height: 1.4;
+			}
+
+			/* ---- browser: Safari chrome + live iframe + hover-to-visit ---- */
+			.k-browser .panel-surface {
+				display: flex;
+				flex-direction: column;
+				background: #fff;
+				border-radius: 12px;
+				overflow: hidden;
+				border: 1px solid #e2e2e2;
+				pointer-events: auto;
+			}
+			.browser-chrome {
+				display: flex;
+				align-items: center;
+				gap: 10px;
+				padding: 10px 12px;
+				background: #f4f4f4;
+				border-bottom: 1px solid #e6e6e6;
+			}
+			.browser-dots {
+				display: flex;
+				gap: 6px;
+			}
+			.browser-dots span {
+				width: 9px;
+				height: 9px;
+				border-radius: 999px;
+				background: #ddd;
+			}
+			.browser-url {
+				flex: 1;
+				background: #fff;
+				border: 1px solid #e6e6e6;
+				border-radius: 6px;
+				padding: 3px 10px;
+				font-size: 11px;
+				color: #999;
+				text-align: center;
+			}
+			.browser-body {
+				position: relative;
+				flex: 1;
+				background: #fafafa;
+			}
+			.browser-body iframe {
+				width: 100%;
+				height: 100%;
+				border: 0;
+				display: block;
+				pointer-events: none; /* the iframe never steals the drag */
+			}
+			.browser-visit {
 				position: absolute;
-				bottom: 8px;
-				right: 10px;
-				font-size: 10px;
+				inset: 0;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				background: rgba(255, 255, 255, 0);
+				opacity: 0;
+				transition: opacity 200ms, background 200ms;
+				text-decoration: none;
+				pointer-events: none;
+			}
+			.k-browser .panel-surface:hover .browser-visit {
+				opacity: 1;
+				background: rgba(255, 255, 255, 0.55);
+				pointer-events: auto;
+			}
+			.browser-visit-icon {
+				width: 52px;
+				height: 52px;
+				border-radius: 999px;
+				background: #111;
+				color: #fff;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+				transform: scale(0.85);
+				transition: transform 200ms;
+			}
+			.k-browser .panel-surface:hover .browser-visit-icon {
+				transform: scale(1);
+			}
+
+			/* ---- photo: polaroid-style frame + camera metadata caption ---- */
+			.k-photo .panel-surface {
+				background: #fff;
+				border-radius: 4px;
+				box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+				padding: 14px 14px 0;
+				display: flex;
+				flex-direction: column;
+			}
+			.photo-image {
+				flex: 1;
+				border-radius: 2px;
+			}
+			.photo-caption {
+				padding: 12px 4px 16px;
+			}
+			.photo-meta-camera {
+				font-size: 12px;
+				color: #666;
+				font-weight: 500;
+			}
+			.photo-meta-line {
+				font-size: 11px;
+				color: #aaa;
+				margin-top: 2px;
+			}
+
+			.coord {
+				position: absolute;
+				bottom: 6px;
+				right: 8px;
+				font-size: 9px;
 				color: #ccc;
+				z-index: 5;
 			}
 
 			/* edge affordance arrows */
@@ -268,42 +402,56 @@
 
 		<script>
 			// ---- content model -------------------------------------------------
-			// A torus: both axes loop forever. Row 0 / col 0 is "home".
+			// A torus: both axes loop forever. Row 0 / col 0 is "home". Every
+			// item now carries its own kind + size — panels are no longer
+			// uniform, they vary by what they're showing.
 			const COLS = 6;
 			const ROWS = 3;
-			type Panel = { type: string; label: string };
 
-			const rowsByIndex: Panel[][] = [
+			type Sized = { w: number; h: number };
+			type HomeItem = Sized & { kind: 'home'; title: string };
+			type CardItem = Sized & { kind: 'card'; tag: string; title: string; subtitle: string };
+			type BrowserItem = Sized & { kind: 'browser'; url: string; display: string };
+			type PhotoItem = Sized & { kind: 'photo'; tone: string; camera: string; meta: string };
+			type Item = HomeItem | CardItem | BrowserItem | PhotoItem;
+
+			const SM: Sized = { w: 280, h: 220 };
+			const MD: Sized = { w: 380, h: 300 };
+			const LG: Sized = { w: 520, h: 380 };
+			const BROWSER: Sized = { w: 560, h: 380 };
+			const PHOTO: Sized = { w: 300, h: 400 };
+
+			const rowsByIndex: Item[][] = [
 				[
-					{ type: 'home', label: 'Humayun Rashid is a designer & founder in NYC.' },
-					{ type: 'case study', label: 'Sublime Security' },
-					{ type: 'link', label: 'rendr.app ↗' },
-					{ type: 'image', label: 'Untitled study, 03' },
-					{ type: 'case study', label: 'Atrium' },
-					{ type: 'video', label: 'Reel — process' },
+					{ kind: 'home', title: 'Humayun Rashid is a designer & founder in NYC.', ...LG },
+					{ kind: 'card', tag: 'case study', title: 'Sublime Security', subtitle: 'Quarantine digests & phishing simulations for the fastest-growing email security startup in the US.', ...MD },
+					{ kind: 'browser', url: 'https://rendr.app', display: 'rendr.app', ...BROWSER },
+					{ kind: 'photo', tone: '#d8d2c4', camera: 'Fujifilm X100V', meta: 'Brooklyn, NY · Sep 2024', ...PHOTO },
+					{ kind: 'card', tag: 'case study', title: 'Atrium', subtitle: 'A quiet home for books and articles worth remembering.', ...MD },
+					{ kind: 'card', tag: 'process', title: 'Reel — process', subtitle: 'A short cut of how the Sublime rebrand came together.', ...SM },
 				],
 				[
-					{ type: 'about', label: 'About — the longer version' },
-					{ type: 'ideas', label: 'Ideas — writing & notes' },
-					{ type: 'work', label: 'Work — full index' },
-					{ type: 'image', label: 'Desk, 2026' },
-					{ type: 'video', label: 'Talk — five users' },
-					{ type: 'case study', label: 'Principles' },
+					{ kind: 'card', tag: 'about', title: 'About — the longer version', subtitle: 'A decade of B2B SaaS and eCommerce design, and what I care about now.', ...LG },
+					{ kind: 'card', tag: 'ideas', title: 'Ideas — writing & notes', subtitle: 'Short essays on onboarding, empty states, and saying no.', ...MD },
+					{ kind: 'card', tag: 'work', title: 'Work — full index', subtitle: 'Every case study and experiment in one place.', ...MD },
+					{ kind: 'photo', tone: '#c9d0c6', camera: 'Kodak Gold 200', meta: 'Prospect Park · Jun 2024', ...PHOTO },
+					{ kind: 'browser', url: 'https://www.humrashid.com', display: 'humrashid.com', ...BROWSER },
+					{ kind: 'card', tag: 'writing', title: 'Principles', subtitle: 'A running list of rules I design by.', ...SM },
 				],
 				[
-					{ type: 'image', label: 'Sketch, pass 1' },
-					{ type: 'experiment', label: 'Pack hover takeover' },
-					{ type: 'image', label: 'Type test' },
-					{ type: 'video', label: 'Motion study' },
-					{ type: 'link', label: 'dribbble ↗' },
-					{ type: 'image', label: 'Color study' },
+					{ kind: 'photo', tone: '#dcd6cf', camera: 'iPhone 15 Pro', meta: 'Lower Manhattan · Mar 2024', ...PHOTO },
+					{ kind: 'card', tag: 'experiment', title: 'Pack hover takeover', subtitle: 'A hover state that takes over the whole viewport.', ...MD },
+					{ kind: 'card', tag: 'image', title: 'Type test', subtitle: 'Testing a condensed grotesk at display sizes.', ...SM },
+					{ kind: 'browser', url: 'https://example.com', display: 'example.com', ...BROWSER },
+					{ kind: 'card', tag: 'link', title: 'dribbble ↗', subtitle: 'Shots and works-in-progress.', ...SM },
+					{ kind: 'card', tag: 'image', title: 'Color study', subtitle: 'Palette exploration for the Atrium footer.', ...SM },
 				],
 			];
 
 			function mod(n: number, m: number) {
 				return ((n % m) + m) % m;
 			}
-			function contentAt(col: number, row: number): Panel {
+			function itemAt(col: number, row: number): Item {
 				return rowsByIndex[mod(row, ROWS)][mod(col, COLS)];
 			}
 			function safe(n: number): number {
@@ -314,16 +462,9 @@
 			}
 
 			// ---- true spherical placement -----------------------------------------
-			// Every point in the field — a panel's own center, and every tile inside
-			// it — is placed by longitude/latitude on an actual sphere, not by a
-			// flat grid position plus a rigid rotate. That's what makes a panel's
-			// own edges visibly bow away, and keeps the same curvature true for
-			// whichever content is scrolled into any given spot.
 			const SPHERE_R = 1900; // px
-			const DEG_PER_COL = 34; // longitude degrees between adjacent panel centers
-			const DEG_PER_ROW = 26; // latitude degrees between adjacent panel centers
-			const PANEL_SPAN_LON = 15; // degrees a single panel's own mesh spans
-			const PANEL_SPAN_LAT = 11;
+			const DEG_PER_COL = 30; // longitude degrees between adjacent panel centers
+			const DEG_PER_ROW = 24; // latitude degrees between adjacent panel centers
 
 			function sphereTransform(lonDeg: number, latDeg: number, extra = ''): string {
 				const lon = (clamp(lonDeg, -85, 85) * Math.PI) / 180;
@@ -334,19 +475,7 @@
 				return `translate(-50%, -50%) translate3d(${x}px, ${y}px, ${z}px) rotateY(${-lonDeg}deg) rotateX(${latDeg}deg) ${extra}`;
 			}
 
-			function panelSize() {
-				return {
-					w: Math.min(window.innerWidth * 0.5, 720),
-					h: Math.min(window.innerHeight * 0.64, 520),
-				};
-			}
-
 			// ---- state -----------------------------------------------------------
-			// rawCol/rawRow are the "true" unbounded drag position. panCol/panRow
-			// (what's actually rendered) are rawCol/rawRow pushed through a
-			// resistance curve — see applyResistance — so motion is continuous
-			// everywhere but reluctant to leave a centered panel and quick to
-			// cross the gap to the next one.
 			let rawCol = 0;
 			let rawRow = 0;
 			let dragging = false;
@@ -364,10 +493,6 @@
 			const DRAG_SENSITIVITY = 1 / 420;
 			const WHEEL_SENSITIVITY = 1 / 900;
 
-			// resistance: an ease-in-out applied within each unit interval, so
-			// dragging away from an integer (a centered panel) starts slow —
-			// "locked, with a little give" — then moves quickly through the
-			// middle toward the next integer.
 			function easeInOutCubic(t: number): number {
 				return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 			}
@@ -382,87 +507,92 @@
 
 			// Only a cross of 5 panels is ever rendered: center + one neighbor in
 			// each cardinal direction. No diagonals, no grid.
-			const TILE_COLS = 6;
-			const TILE_ROWS = 4;
-			const MESH_SCALE = 1.14; // tiles span slightly beyond the content box
-
-			type Slot = {
-				content: HTMLDivElement;
-				tiles: HTMLDivElement[];
-				key: string;
-				dc: number;
-				dr: number;
-			};
+			type Slot = { wrap: HTMLDivElement; surface: HTMLDivElement; key: string; dc: number; dr: number };
 			const slots: Slot[] = [];
 			function makeSlot(dc: number, dr: number): Slot {
-				const content = document.createElement('div');
-				content.className = 'content';
-				content.innerHTML = `<div class="type"></div><div class="label"></div><div class="coord"></div>`;
-				const tiles: HTMLDivElement[] = [];
-				for (let i = 0; i < TILE_COLS * TILE_ROWS; i++) {
-					const tile = document.createElement('div');
-					tile.className = 'tile';
-					field.appendChild(tile);
-					tiles.push(tile);
-				}
-				field.appendChild(content); // content painted after its tiles, on top
-				return { content, tiles, key: '', dc, dr };
+				const wrap = document.createElement('div');
+				wrap.className = 'panel-wrap';
+				const surface = document.createElement('div');
+				surface.className = 'panel-surface';
+				wrap.appendChild(surface);
+				field.appendChild(wrap);
+				return { wrap, surface, key: '', dc, dr };
 			}
 			slots.push(makeSlot(-1, 0), makeSlot(0, 0), makeSlot(1, 0), makeSlot(0, -1), makeSlot(0, 1));
 
+			function buildSurface(item: Item): string {
+				if (item.kind === 'home') {
+					return `<div class="home-label">${item.title}</div>`;
+				}
+				if (item.kind === 'card') {
+					return `
+						<div class="card-media"><span class="tag">${item.tag}</span></div>
+						<div class="card-text">
+							<div class="card-title">${item.title}</div>
+							<div class="card-subtitle">${item.subtitle}</div>
+						</div>`;
+				}
+				if (item.kind === 'browser') {
+					return `
+						<div class="browser-chrome">
+							<div class="browser-dots"><span></span><span></span><span></span></div>
+							<div class="browser-url">${item.display}</div>
+						</div>
+						<div class="browser-body">
+							<iframe src="${item.url}" loading="lazy" referrerpolicy="no-referrer"></iframe>
+							<a class="browser-visit" href="${item.url}" target="_blank" rel="noopener">
+								<span class="browser-visit-icon">
+									<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+										<path d="M7 17L17 7M17 7H9M17 7V15" />
+									</svg>
+								</span>
+							</a>
+						</div>`;
+				}
+				// photo
+				return `
+					<div class="photo-image" style="background:${item.tone}"></div>
+					<div class="photo-caption">
+						<div class="photo-meta-camera">${item.camera}</div>
+						<div class="photo-meta-line">${item.meta}</div>
+					</div>`;
+			}
+
 			function render() {
-				const centerColInt = Math.round(applyResistance(rawCol));
-				const centerRowInt = Math.round(applyResistance(rawRow));
 				const panCol = applyResistance(rawCol);
 				const panRow = applyResistance(rawRow);
-				const { w: panelW, h: panelH } = panelSize();
-				const tileW = (panelW * MESH_SCALE) / TILE_COLS;
-				const tileH = (panelH * MESH_SCALE) / TILE_ROWS;
+				const centerColInt = Math.round(panCol);
+				const centerRowInt = Math.round(panRow);
 
 				for (const slot of slots) {
 					const c = centerColInt + slot.dc;
 					const r = centerRowInt + slot.dr;
 					const key = `${c},${r}`;
 					if (slot.key !== key) {
-						const item = contentAt(c, r);
-						const isHome = item.type === 'home';
-						slot.content.classList.toggle('home', isHome);
-						slot.content.querySelector('.type')!.textContent = item.type;
-						slot.content.querySelector('.label')!.textContent = item.label;
-						slot.content.querySelector('.coord')!.textContent = `${c},${r}`;
-						for (const tile of slot.tiles) tile.classList.toggle('home', isHome);
+						const item = itemAt(c, r);
+						slot.surface.innerHTML = buildSurface(item) + `<div class="coord">${c},${r}</div>`;
+						slot.wrap.className = `panel-wrap k-${item.kind}`;
+						slot.wrap.style.width = `${item.w}px`;
+						slot.wrap.style.height = `${item.h}px`;
 						slot.key = key;
 					}
 
 					const dCol = c - panCol;
 					const dRow = r - panRow;
 					const dist = Math.sqrt(dCol * dCol + dRow * dRow);
-					const scale = clamp(1.15 - dist * 0.5, 0.4, 1.15);
+					const scale = clamp(1.1 - dist * 0.42, 0.45, 1.1);
 					const opacity = clamp(1 - dist * 0.55, 0, 1);
 					const lon = dCol * DEG_PER_COL;
 					const lat = dRow * DEG_PER_ROW;
 
-					slot.content.style.transform = sphereTransform(lon, lat, `scale(${scale})`);
-					slot.content.style.opacity = String(opacity);
-					slot.content.style.width = `${panelW}px`;
-					slot.content.style.height = `${panelH}px`;
-					slot.content.style.zIndex = String(Math.round(2000 - dist * 10));
+					slot.wrap.style.transform = sphereTransform(lon, lat, `scale(${scale})`);
+					slot.wrap.style.opacity = String(opacity);
+					slot.wrap.style.zIndex = String(Math.round(2000 - dist * 10));
 
-					let ti = 0;
-					for (let ty = 0; ty < TILE_ROWS; ty++) {
-						for (let tx = 0; tx < TILE_COLS; tx++) {
-							const tile = slot.tiles[ti++];
-							const localU = (tx + 0.5) / TILE_COLS - 0.5; // -0.5..0.5
-							const localV = (ty + 0.5) / TILE_ROWS - 0.5;
-							const tileLon = lon + localU * PANEL_SPAN_LON;
-							const tileLat = lat + localV * PANEL_SPAN_LAT;
-							tile.style.width = `${tileW}px`;
-							tile.style.height = `${tileH}px`;
-							tile.style.transform = sphereTransform(tileLon, tileLat, `scale(${scale})`);
-							tile.style.opacity = String(opacity * 0.85);
-							tile.style.zIndex = String(Math.round(1000 - dist * 10));
-						}
-					}
+					// floating depth: the more centered a panel is, the more it
+					// looks lifted off the surface — bigger, softer shadow
+					const lift = clamp(1 - dist, 0, 1);
+					slot.surface.style.boxShadow = `0 ${18 * lift + 4}px ${46 * lift + 10}px rgba(0,0,0,${0.05 + 0.16 * lift})`;
 				}
 				renderMinimap(centerColInt, centerRowInt);
 			}
@@ -482,9 +612,10 @@
 				}
 			}
 
-			window.addEventListener('resize', render);
-
 			// ---- input: drag (mouse + touch via pointer events) -----------------
+			// Listens on #stage, but panels are pointer-events:auto (so hover/
+			// click work on browser panels) — pointerdown on a panel still
+			// bubbles up to this handler since nothing stops propagation.
 			stage.addEventListener('pointerdown', (e) => {
 				dragging = true;
 				stage.classList.add('grabbing');
@@ -546,11 +677,7 @@
 			);
 
 			// ---- hard lock on release, with a fling override ----------------------
-			// Snaps to the nearest panel — a decisive, brief animation so the
-			// arriving panel visibly settles into focus. A fast flick (velocity
-			// past FLING_MIN) is biased to advance to the next panel even from a
-			// short drag, like a swipe gesture.
-			const FLING_MIN = 0.35; // grid units / ms, in *display* terms
+			const FLING_MIN = 0.35;
 			const FLING_BIAS = 0.5;
 			function lockToNearest(vCol: number, vRow: number) {
 				const biasCol = Math.abs(vCol) > FLING_MIN ? clamp(vCol, -1, 1) * FLING_BIAS : 0;
@@ -581,10 +708,6 @@
 			document.getElementById('arrow-right')!.addEventListener('click', () => stepMove(1, 0));
 			document.getElementById('nav-home')!.addEventListener('click', () => animateRawTo(0, 0));
 
-			// true only while chaining discrete arrow/click steps, so rapid key
-			// repeats build on the intended target rather than a live, still-
-			// animating rawCol; false the rest of the time, where a fresh step
-			// should snap off the actual current (rounded) spot
 			let stepChaining = false;
 			let targetCol = 0;
 			let targetRow = 0;
@@ -614,7 +737,7 @@
 				const start = performance.now();
 				function tick(now: number) {
 					const t = clamp((now - start) / duration, 0, 1);
-					const eased = 1 - Math.pow(1 - t, 3); // ease-out cubic
+					const eased = 1 - Math.pow(1 - t, 3);
 					rawCol = fromCol + dCol * eased;
 					rawRow = fromRow + dRow * eased;
 					render();
