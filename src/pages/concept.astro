@@ -136,6 +136,10 @@
 				opacity: 0;
 				transition: opacity 200ms, background 200ms;
 				text-decoration: none;
+				border: none;
+				padding: 0;
+				cursor: pointer;
+				font: inherit;
 			}
 			.card-media:hover .card-visit {
 				opacity: 1;
@@ -458,6 +462,57 @@
 				line-height: 1.5;
 			}
 
+			/* case-study modal: the real page, loaded in place, scrollable like
+			   any normal page — not a re-summarized preview */
+			#case-modal {
+				position: fixed;
+				inset: 0;
+				z-index: 1000;
+				display: none;
+				align-items: center;
+				justify-content: center;
+				background: rgba(20, 20, 20, 0.45);
+				backdrop-filter: blur(8px);
+			}
+			#case-modal.open {
+				display: flex;
+			}
+			#case-modal .modal-panel {
+				position: relative;
+				width: min(1120px, 92vw);
+				height: min(840px, 88vh);
+				background: #fff;
+				border-radius: 20px;
+				overflow: hidden;
+				box-shadow: 0 40px 120px rgba(0, 0, 0, 0.4);
+			}
+			#case-modal iframe {
+				width: 100%;
+				height: 100%;
+				border: 0;
+				display: block;
+			}
+			#case-modal .modal-close {
+				position: absolute;
+				top: -22px;
+				right: -22px;
+				width: 56px;
+				height: 56px;
+				border-radius: 999px;
+				background: #fff;
+				color: #111;
+				border: 1px solid #eaeaea;
+				box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25);
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				cursor: pointer;
+			}
+			#case-modal .modal-close svg {
+				width: 22px;
+				height: 22px;
+			}
+
 			#minimap {
 				position: fixed;
 				bottom: 96px;
@@ -523,10 +578,21 @@
 
 		<nav id="nav">
 			<button class="dot" id="nav-home" title="recenter">◎</button>
-			<a href="#" data-stub="/work">Work</a>
+			<a href="#" id="nav-work">Work</a>
 			<a href="#" data-stub="/ideas">Ideas</a>
 			<a href="#" data-stub="/about">About</a>
 		</nav>
+
+		<div id="case-modal">
+			<div class="modal-panel">
+				<button class="modal-close" id="modal-close" aria-label="Close">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+						><path d="M6 6l12 12M18 6L6 18" /></svg
+					>
+				</button>
+				<iframe id="modal-iframe" src="about:blank" title="Case study"></iframe>
+			</div>
+		</div>
 
 		<script>
 			// ---- content model -------------------------------------------------
@@ -555,7 +621,7 @@
 			const SM: Sized = { w: 280, h: 220 };
 			const MD: Sized = { w: 380, h: 300 };
 			const LG: Sized = { w: 520, h: 380 };
-			const CASE_STUDY: Sized = { w: 520, h: 410 }; // ~37% bigger than MD — default size for real case studies
+			const CASE_STUDY: Sized = { w: 650, h: 513 }; // ~37% bigger than MD, then +25% more per feedback
 			const HOME: Sized = { w: 980, h: 460 }; // roomy — this text has no box, needs space
 			const BROWSER: Sized = { w: 784, h: 532 }; // 40% larger than the other kinds
 			const PHOTO: Sized = { w: 300, h: 400 };
@@ -585,15 +651,47 @@
 				return { kind: 'card', tag: 'case study', title, subtitle, seed, image, link, ...CASE_STUDY };
 			}
 
+			// named so both the default grid and the "Work" rearrangement can
+			// reference the exact same items
+			const ITEM_SUBLIME = card(
+				'case study',
+				'Sublime Security',
+				'Quarantine digests & phishing simulations for the fastest-growing email security startup in the US.',
+				'sublime',
+				MD
+			); // no live page or cover art for this one yet — stays the generic treatment until both exist
+			const ITEM_ATRIUM = card('case study', 'Atrium', 'A quiet home for books and articles worth remembering.', 'atrium', MD);
+			const ITEM_PACK = caseStudy(
+				'Pack',
+				"Turning an agency's custom commerce builds into a scalable, merchant friendly SaaS platform.",
+				'pack',
+				'/case-studies/pack/01-hero-a.webp',
+				'/work/pack'
+			);
+			const ITEM_INVETERATE = caseStudy(
+				'Inveterate',
+				'Taking a loyalty and membership platform from zero to one for eCommerce brands.',
+				'inveterate',
+				'/case-studies/inveterate/01-hero-desktop.webp',
+				'/work/inveterate'
+			);
+			const ITEM_PPVP = caseStudy(
+				'PPVP',
+				'Designing an exclusive investment app for accredited investors.',
+				'ppvp',
+				'/case-studies/ppvp/01-hero-desktop.webp',
+				'/work/ppvp'
+			);
+			const ITEM_RENDR: Item = { kind: 'browser', url: 'https://rendr.app', display: 'rendr.app', ...BROWSER };
+			const ITEM_HUMRASHID: Item = { kind: 'browser', url: 'https://www.humrashid.com', display: 'humrashid.com', ...BROWSER };
+
 			const rowsByIndex: Item[][] = [
 				[
 					{ kind: 'home', title: 'Humayun Rashid is a designer<br/>and founder in NYC', ...HOME },
-					// no live page or cover art for this one yet — stays the
-					// generic placeholder treatment until both exist
-					card('case study', 'Sublime Security', 'Quarantine digests & phishing simulations for the fastest-growing email security startup in the US.', 'sublime', MD),
-					{ kind: 'browser', url: 'https://rendr.app', display: 'rendr.app', ...BROWSER },
+					ITEM_SUBLIME,
+					ITEM_RENDR,
 					{ kind: 'photo', tone: '#d8d2c4', camera: 'Fujifilm X100V', meta: 'Brooklyn, NY · Sep 2024', ...PHOTO },
-					card('case study', 'Atrium', 'A quiet home for books and articles worth remembering.', 'atrium', MD),
+					ITEM_ATRIUM,
 					{ kind: 'video', title: 'Reel — process', subtitle: 'A short cut of how the Sublime rebrand came together.', ...VIDEO },
 				],
 				[
@@ -601,36 +699,25 @@
 					card('ideas', 'Ideas — writing & notes', 'Short essays on onboarding, empty states, and saying no.', 'ideas-notes', MD),
 					{ kind: 'video', title: 'Talk — five users', subtitle: 'A clip from a workshop on user interviews.', ...VIDEO },
 					{ kind: 'photo', tone: '#c9d0c6', camera: 'Kodak Gold 200', meta: 'Prospect Park · Jun 2024', ...PHOTO },
-					{ kind: 'browser', url: 'https://www.humrashid.com', display: 'humrashid.com', ...BROWSER },
+					ITEM_HUMRASHID,
 					card('writing', 'Principles', 'A running list of rules I design by.', 'principles', SM),
 				],
 				[
 					{ kind: 'photo', tone: '#dcd6cf', camera: 'iPhone 15 Pro', meta: 'Lower Manhattan · Mar 2024', ...PHOTO },
-					caseStudy(
-						'Pack',
-						"Turning an agency's custom commerce builds into a scalable, merchant friendly SaaS platform.",
-						'pack',
-						'/case-studies/pack/01-hero-a.webp',
-						'/work/pack'
-					),
-					caseStudy(
-						'Inveterate',
-						'Taking a loyalty and membership platform from zero to one for eCommerce brands.',
-						'inveterate',
-						'/case-studies/inveterate/01-hero-desktop.webp',
-						'/work/inveterate'
-					),
+					ITEM_PACK,
+					ITEM_INVETERATE,
 					{ kind: 'browser', url: 'https://example.com', display: 'example.com', ...BROWSER },
 					card('link', 'dribbble ↗', 'Shots and works-in-progress.', 'dribbble', SM),
-					caseStudy(
-						'PPVP',
-						'Designing an exclusive investment app for accredited investors.',
-						'ppvp',
-						'/case-studies/ppvp/01-hero-desktop.webp',
-						'/work/ppvp'
-					),
+					ITEM_PPVP,
 				],
 			];
+
+			// "Work" mode: every real case study plus the other live sites,
+			// nothing else — cycles through a flat list instead of the usual
+			// grid, with each row offset so it doesn't repeat in a straight
+			// column.
+			const WORK_ITEMS: Item[] = [ITEM_PACK, ITEM_INVETERATE, ITEM_PPVP, ITEM_SUBLIME, ITEM_ATRIUM, ITEM_RENDR, ITEM_HUMRASHID];
+			let mode: 'default' | 'work' = 'default';
 
 			function mod(n: number, m: number) {
 				return ((n % m) + m) % m;
@@ -641,6 +728,9 @@
 				return h;
 			}
 			function itemAt(col: number, row: number): Item {
+				if (mode === 'work') {
+					return WORK_ITEMS[mod(col + row * 2, WORK_ITEMS.length)];
+				}
 				return rowsByIndex[mod(row, ROWS)][mod(col, COLS)];
 			}
 			function safe(n: number): number {
@@ -708,6 +798,25 @@
 			const field = document.getElementById('field') as HTMLDivElement;
 			const stage = document.getElementById('stage') as HTMLDivElement;
 
+			// ---- case-study modal: loads the real page in place -------------------
+			const caseModal = document.getElementById('case-modal') as HTMLDivElement;
+			const modalIframe = document.getElementById('modal-iframe') as HTMLIFrameElement;
+			function openCaseModal(url: string) {
+				modalIframe.src = url;
+				caseModal.classList.add('open');
+			}
+			function closeCaseModal() {
+				caseModal.classList.remove('open');
+				modalIframe.src = 'about:blank';
+			}
+			document.getElementById('modal-close')!.addEventListener('click', closeCaseModal);
+			caseModal.addEventListener('click', (e) => {
+				if (e.target === caseModal) closeCaseModal();
+			});
+			window.addEventListener('keydown', (e) => {
+				if (e.key === 'Escape' && caseModal.classList.contains('open')) closeCaseModal();
+			});
+
 			// Only a cross of 5 panels is ever rendered: center + one neighbor in
 			// each cardinal direction. No diagonals, no grid.
 			type Slot = { wrap: HTMLDivElement; surface: HTMLDivElement; key: string; dc: number; dr: number };
@@ -735,13 +844,13 @@
 					const bg = item.image ?? `https://picsum.photos/seed/${encodeURIComponent(item.seed)}/${item.w * 2}/${Math.round((item.h - 90) * 2)}`;
 					const isCaseStudy = item.tag === 'case study' && !!item.image;
 					const visitArrow = item.link
-						? `<a class="card-visit" href="${item.link}">
+						? `<button class="card-visit" data-case-link="${item.link}">
 								<span class="card-visit-icon">
 									<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 										<path d="M7 17L17 7M17 7H9M17 7V15" />
 									</svg>
 								</span>
-							</a>`
+							</button>`
 						: '';
 					return `
 						<div class="card-media" style="background-image:url('${bg}')">
@@ -829,6 +938,15 @@
 							});
 							nycEl?.addEventListener('mouseleave', () => {
 								nycEl.textContent = 'NYC';
+							});
+						}
+						// case-study visit arrow opens the real page in the modal
+						// instead of navigating away from the sphere
+						if (item.kind === 'card' && item.link) {
+							const visitBtn = slot.surface.querySelector<HTMLButtonElement>('.card-visit');
+							visitBtn?.addEventListener('click', (e) => {
+								e.stopPropagation();
+								openCaseModal(item.link!);
 							});
 						}
 					}
@@ -997,6 +1115,44 @@
 			document.getElementById('arrow-left')!.addEventListener('click', () => stepMove(-1, 0));
 			document.getElementById('arrow-right')!.addEventListener('click', () => stepMove(1, 0));
 			document.getElementById('nav-home')!.addEventListener('click', () => animateRawTo(0, 0));
+
+			// ---- "Work" nav: jumble the visible panels, then rearrange into a
+			// work-only view (every case study + the other live sites). Clicking
+			// again toggles back to the normal mixed field.
+			document.getElementById('nav-work')!.addEventListener('click', (e) => {
+				e.preventDefault();
+				toggleWorkMode();
+			});
+
+			function toggleWorkMode() {
+				cancelAnim();
+				const jitterEls = slots.map((s) => s.wrap);
+				const baseTransforms = jitterEls.map((el) => el.style.transform);
+				const JUMBLE_MS = 480;
+				const start = performance.now();
+				function jumble(now: number) {
+					const t = clamp((now - start) / JUMBLE_MS, 0, 1);
+					const wobble = Math.sin(t * Math.PI); // ramps up then back down to 0
+					for (let i = 0; i < jitterEls.length; i++) {
+						const jx = Math.sin(i * 13.1 + 1) * 220 * wobble;
+						const jy = Math.sin(i * 7.7 + 3) * 160 * wobble;
+						const jr = Math.sin(i * 5.3 + 2) * 50 * wobble;
+						jitterEls[i].style.transform = `${baseTransforms[i]} translate(${jx}px, ${jy}px) rotate(${jr}deg)`;
+					}
+					if (t < 1) {
+						requestAnimationFrame(jumble);
+					} else {
+						for (let i = 0; i < jitterEls.length; i++) jitterEls[i].style.transform = baseTransforms[i];
+						mode = mode === 'work' ? 'default' : 'work';
+						rawCol = 0;
+						rawRow = 0;
+						stepChaining = false;
+						for (const s of slots) s.key = '';
+						render();
+					}
+				}
+				requestAnimationFrame(jumble);
+			}
 
 			let stepChaining = false;
 			let targetCol = 0;
