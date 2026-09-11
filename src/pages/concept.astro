@@ -47,12 +47,10 @@
 				position: absolute;
 				top: 50%;
 				left: 50%;
-				width: 46vw;
-				max-width: 560px;
-				height: 60vh;
-				max-height: 420px;
-				margin-left: calc(-23vw);
-				margin-top: calc(-30vh);
+				width: 50vw;
+				max-width: 720px;
+				height: 64vh;
+				max-height: 520px;
 				border: 1.5px dashed #bbb;
 				background: #f6f6f6;
 				border-radius: 10px;
@@ -318,27 +316,36 @@
 			let snapTimeout: number | undefined;
 			let animRAF: number | undefined;
 
-			const SPACING_X = 620; // px per column at scale 1
-			const SPACING_Y = 480; // px per row at scale 1
+			// generous gaps between panels, and a dominant center — see CSS panel
+			// base size above (50vw/64vh). Neighbors only peek in from the edges.
+			const SPACING_X = 780; // px per column at scale 1
+			const SPACING_Y = 600; // px per row at scale 1
 			const DRAG_SENSITIVITY = 1 / 420;
 			const WHEEL_SENSITIVITY = 1 / 900;
+
+			// sphere warp: side/top/bottom panels curve away like they're sitting
+			// on the surface of a globe, proportional to distance from center —
+			// continuous, so the curve holds as you scroll through every panel,
+			// not just a fixed pose at rest.
+			const ROTATE_Y_MAX = 32; // deg, applied for horizontal distance
+			const ROTATE_X_MAX = 22; // deg, applied for vertical distance
+			const WARP_RANGE = 1.4; // distance (in grid units) at which warp maxes out
 
 			const field = document.getElementById('field') as HTMLDivElement;
 			const stage = document.getElementById('stage') as HTMLDivElement;
 
-			// pool of slot elements, reused and repositioned each render
-			const WINDOW_COLS = 4; // render +/- this many columns from center
-			type Slot = { el: HTMLDivElement; key: string };
+			// Only a cross of 5 panels is ever rendered: center + one neighbor in
+			// each cardinal direction. No diagonals, no grid.
+			type Slot = { el: HTMLDivElement; key: string; dc: number; dr: number };
 			const slots: Slot[] = [];
-			for (let r = -1; r <= 1; r++) {
-				for (let c = -WINDOW_COLS; c <= WINDOW_COLS; c++) {
-					const el = document.createElement('div');
-					el.className = 'panel';
-					el.innerHTML = `<div class="type"></div><div class="label"></div><div class="coord"></div>`;
-					field.appendChild(el);
-					slots.push({ el, key: '' });
-				}
+			function makeSlot(dc: number, dr: number): Slot {
+				const el = document.createElement('div');
+				el.className = 'panel';
+				el.innerHTML = `<div class="type"></div><div class="label"></div><div class="coord"></div>`;
+				field.appendChild(el);
+				return { el, key: '', dc, dr };
 			}
+			slots.push(makeSlot(-1, 0), makeSlot(0, 0), makeSlot(1, 0), makeSlot(0, -1), makeSlot(0, 1));
 
 			function clamp(v: number, lo: number, hi: number) {
 				return Math.min(hi, Math.max(lo, v));
@@ -346,35 +353,48 @@
 
 			function render() {
 				const centerColInt = Math.round(panCol);
-				let i = 0;
-				for (let r = -1; r <= 1; r++) {
-					for (let c = centerColInt - WINDOW_COLS; c <= centerColInt + WINDOW_COLS; c++) {
-						const slot = slots[i++];
-						const key = `${c},${r}`;
-						if (slot.key !== key) {
-							const content = contentAt(c, r);
-							slot.el.classList.toggle('home', content.type === 'home');
-							slot.el.querySelector('.type')!.textContent = content.type;
-							slot.el.querySelector('.label')!.textContent = content.label;
-							slot.el.querySelector('.coord')!.textContent = `${c},${r}`;
-							slot.key = key;
-						}
-						const dxUnits = c - panCol;
-						const dyUnits = r - panRow;
-						const dist = Math.sqrt(dxUnits * dxUnits + dyUnits * dyUnits);
-						const scale = clamp(1 - dist * 0.16, 0.35, 1);
-						const opacity = clamp(1 - dist * 0.32, 0, 1);
-						const x = dxUnits * SPACING_X;
-						const y = dyUnits * SPACING_Y;
-						const z = -dist * 220;
-						slot.el.style.transform = `translate3d(${x}px, ${y}px, ${z}px) scale(${scale})`;
-						slot.el.style.opacity = String(opacity);
-						slot.el.style.zIndex = String(Math.round(1000 - dist * 10));
+				const centerRowInt = clamp(Math.round(panRow), -1, 1);
+				for (const slot of slots) {
+					const c = centerColInt + slot.dc;
+					const r = centerRowInt + slot.dr;
+					if (r < -1 || r > 1) {
+						// past the pole — there is nothing further that way, so
+						// hide the slot rather than looking up content that
+						// doesn't exist (rows are only defined for -1..1)
+						slot.el.style.opacity = '0';
+						slot.el.style.pointerEvents = 'none';
+						slot.key = ''; // force a content refresh once back in range
+						continue;
 					}
+					const key = `${c},${r}`;
+					if (slot.key !== key) {
+						const content = contentAt(c, r);
+						slot.el.classList.toggle('home', content.type === 'home');
+						slot.el.querySelector('.type')!.textContent = content.type;
+						slot.el.querySelector('.label')!.textContent = content.label;
+						slot.el.querySelector('.coord')!.textContent = `${c},${r}`;
+						slot.key = key;
+					}
+					const dxUnits = c - panCol;
+					const dyUnits = r - panRow;
+					const dist = Math.sqrt(dxUnits * dxUnits + dyUnits * dyUnits);
+					const scale = clamp(1.15 - dist * 0.55, 0.4, 1.15);
+					const opacity = clamp(1 - dist * 0.55, 0, 1);
+					const x = dxUnits * SPACING_X;
+					const y = dyUnits * SPACING_Y;
+					const z = -dist * 260;
+					const angleY = (clamp(dxUnits, -WARP_RANGE, WARP_RANGE) / WARP_RANGE) * ROTATE_Y_MAX;
+					const angleX = (clamp(dyUnits, -WARP_RANGE, WARP_RANGE) / WARP_RANGE) * ROTATE_X_MAX;
+					slot.el.style.transform = `translate(-50%, -50%) translate3d(${x}px, ${y}px, ${z}px) rotateY(${-angleY}deg) rotateX(${angleX}deg) scale(${scale})`;
+					slot.el.style.opacity = String(opacity);
+					slot.el.style.zIndex = String(Math.round(1000 - dist * 10));
 				}
-				// edge arrows: hide up/down at poles, always show left/right (infinite)
-				(document.getElementById('arrow-up') as HTMLElement).dataset.hidden = String(panRow <= -1 + 0.02);
-				(document.getElementById('arrow-down') as HTMLElement).dataset.hidden = String(panRow >= 1 - 0.02);
+				// edge arrows: hide up/down at poles, always show left/right (infinite).
+				// Based on the nearest row, not an exact pole value — rest
+				// positions are fractional now that dragging is fluid, not
+				// grid-locked, so an exact threshold would under-trigger.
+				(document.getElementById('arrow-up') as HTMLElement).dataset.hidden = String(centerRowInt <= -1);
+				(document.getElementById('arrow-down') as HTMLElement).dataset.hidden = String(centerRowInt >= 1);
 				renderMinimap(centerColInt);
 			}
 
@@ -406,6 +426,7 @@
 				lastMoveT = performance.now();
 				cancelAnim();
 				clearTimeout(snapTimeout);
+				stepChaining = false;
 			});
 
 			stage.addEventListener('pointermove', (e) => {
@@ -428,16 +449,11 @@
 				if (!dragging) return;
 				dragging = false;
 				stage.classList.remove('grabbing');
-				// small momentum flick, then snap — clamp both velocity and the
-				// resulting offset so a very fast (or instantaneous, e.g.
-				// scripted) drag can't fling the field dozens of panels away
-				const vX = clamp(velX, -1.5, 1.5);
-				const vY = clamp(velY, -1.5, 1.5);
-				panCol -= clamp(vX * 40, -2, 2);
-				panRow = clamp(panRow - clamp(vY * 40, -2, 2), -1.3, 1.3);
-				targetCol = Math.round(panCol);
-				targetRow = clamp(Math.round(panRow), -1, 1);
-				snapToNearest();
+				// no grid-lock: let go and it glides on its own momentum, coming
+				// to rest wherever friction takes it — never snapped to a panel
+				const vCol = clamp(-velX * DRAG_SENSITIVITY, -2.2, 2.2);
+				const vRow = clamp(-velY * DRAG_SENSITIVITY, -2.2, 2.2);
+				startCoast(vCol, vRow);
 			}
 			stage.addEventListener('pointerup', endDrag);
 			stage.addEventListener('pointercancel', endDrag);
@@ -452,13 +468,67 @@
 					e.preventDefault();
 					cancelAnim();
 					panCol += e.deltaX * WHEEL_SENSITIVITY;
-					panRow = clamp(panRow + e.deltaY * WHEEL_SENSITIVITY, -1.15, 1.15);
+					panRow = clamp(panRow + e.deltaY * WHEEL_SENSITIVITY, -1.3, 1.3);
 					render();
+					// after the wheel goes quiet, ease any pole overshoot back to
+					// bounds — but otherwise leave it resting exactly where the
+					// scroll left it, no snap to a panel
 					clearTimeout(snapTimeout);
-					snapTimeout = window.setTimeout(snapToNearest, 140);
+					snapTimeout = window.setTimeout(() => startCoast(0, 0), 120);
 				},
 				{ passive: false }
 			);
+
+			// ---- fluid inertial coast (drag/wheel release) -----------------------
+			const FRICTION_PER_16MS = 0.88;
+			// hard ceiling on how far a single release can carry the field,
+			// independent of the friction curve above — a real fast flick (or an
+			// oddly-measured one, e.g. a single large synthetic pointermove)
+			// should never fling the view many panels away. Momentum here is a
+			// flourish on top of the 1:1 drag tracking, not the primary mover.
+			const MAX_COAST_COLS = 1.6;
+			const MAX_COAST_ROWS = 1.2;
+			function startCoast(vCol: number, vRow: number) {
+				cancelAnim();
+				let lastT = performance.now();
+				const startCol = panCol;
+				const startRow = panRow;
+				function frame(now: number) {
+					const dt = Math.min(48, now - lastT);
+					lastT = now;
+					panCol = clamp(panCol + vCol * dt, startCol - MAX_COAST_COLS, startCol + MAX_COAST_COLS);
+					panRow = clamp(panRow + vRow * dt, startRow - MAX_COAST_ROWS, startRow + MAX_COAST_ROWS);
+					const decay = Math.pow(FRICTION_PER_16MS, dt / 16.67);
+					vCol *= decay;
+					vRow *= decay;
+					// soft rubber-band spring back only once you've overshot the
+					// poles — everywhere else the coast is completely free
+					if (panRow > 1) {
+						const over = panRow - 1;
+						vRow -= over * 0.02 * dt;
+						panRow -= over * 0.08;
+					} else if (panRow < -1) {
+						const over = panRow + 1;
+						vRow -= over * 0.02 * dt;
+						panRow -= over * 0.08;
+					}
+					render();
+					const settled =
+						Math.abs(vCol) < 0.00006 &&
+						Math.abs(vRow) < 0.00006 &&
+						Math.abs(clamp(panRow, -1, 1) - panRow) < 0.001;
+					if (!settled) {
+						animRAF = requestAnimationFrame(frame);
+					} else {
+						panRow = clamp(panRow, -1, 1);
+						targetCol = Math.round(panCol);
+						targetRow = clamp(Math.round(panRow), -1, 1);
+						render();
+						animRAF = undefined;
+					}
+				}
+				animRAF = requestAnimationFrame(frame);
+			}
 
 			// ---- input: keyboard ---------------------------------------------------
 			window.addEventListener('keydown', (e) => {
@@ -479,17 +549,22 @@
 			document.getElementById('arrow-down')!.addEventListener('click', () => stepMove(0, 1));
 			document.getElementById('arrow-left')!.addEventListener('click', () => stepMove(-1, 0));
 			document.getElementById('arrow-right')!.addEventListener('click', () => stepMove(1, 0));
-			document.getElementById('nav-home')!.addEventListener('click', () => animateTo(0, 0));
+			document.getElementById('nav-home')!.addEventListener('click', () => {
+				stepChaining = false;
+				animateTo(0, 0);
+			});
+
+			// true only while chaining discrete arrow/click steps, so rapid key
+			// repeats build on the intended target rather than a live, still-
+			// animating panCol; false the rest of the time (free coast, rest),
+			// where a fresh step should instead snap off the actual current spot
+			let stepChaining = false;
 
 			function stepMove(dc: number, dr: number) {
-				const nextCol = targetCol + dc;
-				const nextRow = clamp(targetRow + dr, -1, 1);
-				animateTo(nextCol, nextRow);
-			}
-
-			// ---- snapping / easing animation -------------------------------------
-			function snapToNearest() {
-				animateTo(Math.round(panCol), clamp(Math.round(panRow), -1, 1));
+				const baseCol = stepChaining ? targetCol : Math.round(panCol);
+				const baseRow = stepChaining ? targetRow : clamp(Math.round(panRow), -1, 1);
+				animateTo(baseCol + dc, clamp(baseRow + dr, -1, 1));
+				stepChaining = true;
 			}
 
 			function cancelAnim() {
