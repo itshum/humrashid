@@ -2,7 +2,7 @@
 // Low-fidelity prototype: sphere/orbit navigation mechanic.
 // Wireframe only — no visual design. Goal is to prove the interaction
 // model (drag/scroll/keys pan a field of panels, center = "front-facing"
-// panel, horizontal wraps infinitely, vertical is bounded).
+// panel, both axes loop forever like a torus/globe — no dead ends).
 ---
 
 <html lang="en">
@@ -135,10 +135,6 @@
 				top: 50%;
 				transform: translateY(-50%);
 			}
-			.edge-arrow[data-hidden='true'] {
-				opacity: 0;
-				pointer-events: none;
-			}
 
 			/* floating nav pill, Mobbin-style, fixed bottom center */
 			#nav {
@@ -218,7 +214,7 @@
 	<body>
 		<div id="hint">
 			drag / scroll / swipe to look around · arrow keys work too<br />
-			horizontal loops forever · vertical stops at the poles
+			both axes loop forever — there's no edge to run out of
 		</div>
 
 		<div id="stage">
@@ -257,47 +253,57 @@
 
 		<script>
 			// ---- content model -------------------------------------------------
-			// Horizontal wraps infinitely (longitude). Vertical is bounded to
-			// [-1, 1] (latitude, with poles). Column 0 / row 0 is "home".
+			// A true torus, not a bounded sphere with poles: both axes loop
+			// forever. Row 0 / col 0 is "home". panCol/panRow are plain
+			// continuous numbers, wrapped (mod) only at content-lookup time —
+			// identical treatment for both axes, no special-cased bounds.
 			const COLS = 6;
+			const ROWS = 3;
 			type Panel = { type: string; label: string };
 
-			const row0: Panel[] = [
-				{ type: 'home', label: 'Humayun Rashid is a designer & founder in NYC.' },
-				{ type: 'case study', label: 'Sublime Security' },
-				{ type: 'link', label: 'rendr.app ↗' },
-				{ type: 'image', label: 'Untitled study, 03' },
-				{ type: 'case study', label: 'Atrium' },
-				{ type: 'video', label: 'Reel — process' },
+			// index 0 = home row, 1 = "below" home, 2 = "above" home (wrapping
+			// past row 1 lands back on row 0, and past row 0 going up lands on
+			// row 2 — exactly how columns already wrap)
+			const rowsByIndex: Panel[][] = [
+				[
+					{ type: 'home', label: 'Humayun Rashid is a designer & founder in NYC.' },
+					{ type: 'case study', label: 'Sublime Security' },
+					{ type: 'link', label: 'rendr.app ↗' },
+					{ type: 'image', label: 'Untitled study, 03' },
+					{ type: 'case study', label: 'Atrium' },
+					{ type: 'video', label: 'Reel — process' },
+				],
+				[
+					{ type: 'about', label: 'About — the longer version' },
+					{ type: 'ideas', label: 'Ideas — writing & notes' },
+					{ type: 'work', label: 'Work — full index' },
+					{ type: 'image', label: 'Desk, 2026' },
+					{ type: 'video', label: 'Talk — five users' },
+					{ type: 'case study', label: 'Principles' },
+				],
+				[
+					{ type: 'image', label: 'Sketch, pass 1' },
+					{ type: 'experiment', label: 'Pack hover takeover' },
+					{ type: 'image', label: 'Type test' },
+					{ type: 'video', label: 'Motion study' },
+					{ type: 'link', label: 'dribbble ↗' },
+					{ type: 'image', label: 'Color study' },
+				],
 			];
-			const rowUp: Panel[] = [
-				{ type: 'image', label: 'Sketch, pass 1' },
-				{ type: 'experiment', label: 'Pack hover takeover' },
-				{ type: 'image', label: 'Type test' },
-				{ type: 'video', label: 'Motion study' },
-				{ type: 'link', label: 'dribbble ↗' },
-				{ type: 'image', label: 'Color study' },
-			];
-			const rowDown: Panel[] = [
-				{ type: 'about', label: 'About — the longer version' },
-				{ type: 'ideas', label: 'Ideas — writing & notes' },
-				{ type: 'work', label: 'Work — full index' },
-				{ type: 'image', label: 'Desk, 2026' },
-				{ type: 'video', label: 'Talk — five users' },
-				{ type: 'case study', label: 'Principles' },
-			];
-			const rows: Record<number, Panel[]> = { [-1]: rowUp, 0: row0, 1: rowDown };
 
 			function mod(n: number, m: number) {
 				return ((n % m) + m) % m;
 			}
 			function contentAt(col: number, row: number): Panel {
-				return rows[row][mod(col, COLS)];
+				return rowsByIndex[mod(row, ROWS)][mod(col, COLS)];
+			}
+			function safe(n: number): number {
+				return Number.isFinite(n) ? n : 0;
 			}
 
 			// ---- state -----------------------------------------------------------
-			let panCol = 0; // continuous, unbounded (wraps on read)
-			let panRow = 0; // continuous, clamped to [-1, 1]
+			let panCol = 0; // continuous, unbounded — wraps only at lookup time
+			let panRow = 0; // continuous, unbounded — wraps only at lookup time, no poles
 			// last *settled* target — stepMove/snap build on this, not the live
 			// (possibly mid-animation) panCol/panRow, so rapid inputs (key repeat,
 			// fast successive swipes) accumulate correctly instead of drifting
@@ -353,19 +359,10 @@
 
 			function render() {
 				const centerColInt = Math.round(panCol);
-				const centerRowInt = clamp(Math.round(panRow), -1, 1);
+				const centerRowInt = Math.round(panRow);
 				for (const slot of slots) {
 					const c = centerColInt + slot.dc;
 					const r = centerRowInt + slot.dr;
-					if (r < -1 || r > 1) {
-						// past the pole — there is nothing further that way, so
-						// hide the slot rather than looking up content that
-						// doesn't exist (rows are only defined for -1..1)
-						slot.el.style.opacity = '0';
-						slot.el.style.pointerEvents = 'none';
-						slot.key = ''; // force a content refresh once back in range
-						continue;
-					}
 					const key = `${c},${r}`;
 					if (slot.key !== key) {
 						const content = contentAt(c, r);
@@ -389,23 +386,17 @@
 					slot.el.style.opacity = String(opacity);
 					slot.el.style.zIndex = String(Math.round(1000 - dist * 10));
 				}
-				// edge arrows: hide up/down at poles, always show left/right (infinite).
-				// Based on the nearest row, not an exact pole value — rest
-				// positions are fractional now that dragging is fluid, not
-				// grid-locked, so an exact threshold would under-trigger.
-				(document.getElementById('arrow-up') as HTMLElement).dataset.hidden = String(centerRowInt <= -1);
-				(document.getElementById('arrow-down') as HTMLElement).dataset.hidden = String(centerRowInt >= 1);
-				renderMinimap(centerColInt);
+				renderMinimap(centerColInt, centerRowInt);
 			}
 
-			function renderMinimap(centerColInt: number) {
+			function renderMinimap(centerColInt: number, centerRowInt: number) {
 				const mm = document.getElementById('minimap')!;
 				mm.innerHTML = '';
-				for (let r = -1; r <= 1; r++) {
+				for (let r = 0; r < ROWS; r++) {
 					for (let c = 0; c < COLS; c++) {
 						const cell = document.createElement('div');
 						cell.className = 'cell';
-						if (r === Math.round(panRow) && mod(c, COLS) === mod(centerColInt, COLS)) {
+						if (mod(r, ROWS) === mod(centerRowInt, ROWS) && mod(c, COLS) === mod(centerColInt, COLS)) {
 							cell.classList.add('active');
 						}
 						mm.appendChild(cell);
@@ -440,8 +431,8 @@
 				lastDx = dx;
 				lastDy = dy;
 				lastMoveT = now;
-				panCol = startPanCol - dx * DRAG_SENSITIVITY;
-				panRow = clamp(startPanRow - dy * DRAG_SENSITIVITY, -1.3, 1.3); // slight rubber-band past poles
+				panCol = safe(startPanCol - dx * DRAG_SENSITIVITY);
+				panRow = safe(startPanRow - dy * DRAG_SENSITIVITY); // no bounds — loops forever
 				render();
 			});
 
@@ -467,63 +458,46 @@
 				(e) => {
 					e.preventDefault();
 					cancelAnim();
-					panCol += e.deltaX * WHEEL_SENSITIVITY;
-					panRow = clamp(panRow + e.deltaY * WHEEL_SENSITIVITY, -1.3, 1.3);
+					panCol = safe(panCol + e.deltaX * WHEEL_SENSITIVITY);
+					panRow = safe(panRow + e.deltaY * WHEEL_SENSITIVITY); // no bounds
 					render();
-					// after the wheel goes quiet, ease any pole overshoot back to
-					// bounds — but otherwise leave it resting exactly where the
-					// scroll left it, no snap to a panel
+					// leave it resting exactly where the scroll left it — no snap
 					clearTimeout(snapTimeout);
-					snapTimeout = window.setTimeout(() => startCoast(0, 0), 120);
 				},
 				{ passive: false }
 			);
 
-			// ---- fluid inertial coast (drag/wheel release) -----------------------
+			// ---- fluid inertial coast (drag release) -----------------------------
+			// Both axes loop forever now (no poles), so this is just plain
+			// friction decay — no rubber-band special case needed for rows.
 			const FRICTION_PER_16MS = 0.88;
 			// hard ceiling on how far a single release can carry the field,
 			// independent of the friction curve above — a real fast flick (or an
 			// oddly-measured one, e.g. a single large synthetic pointermove)
 			// should never fling the view many panels away. Momentum here is a
 			// flourish on top of the 1:1 drag tracking, not the primary mover.
-			const MAX_COAST_COLS = 1.6;
-			const MAX_COAST_ROWS = 1.2;
+			const MAX_COAST_UNITS = 1.6;
 			function startCoast(vCol: number, vRow: number) {
 				cancelAnim();
+				if (!Number.isFinite(vCol) || !Number.isFinite(vRow)) return;
 				let lastT = performance.now();
 				const startCol = panCol;
 				const startRow = panRow;
 				function frame(now: number) {
 					const dt = Math.min(48, now - lastT);
 					lastT = now;
-					panCol = clamp(panCol + vCol * dt, startCol - MAX_COAST_COLS, startCol + MAX_COAST_COLS);
-					panRow = clamp(panRow + vRow * dt, startRow - MAX_COAST_ROWS, startRow + MAX_COAST_ROWS);
+					panCol = safe(clamp(panCol + vCol * dt, startCol - MAX_COAST_UNITS, startCol + MAX_COAST_UNITS));
+					panRow = safe(clamp(panRow + vRow * dt, startRow - MAX_COAST_UNITS, startRow + MAX_COAST_UNITS));
 					const decay = Math.pow(FRICTION_PER_16MS, dt / 16.67);
 					vCol *= decay;
 					vRow *= decay;
-					// soft rubber-band spring back only once you've overshot the
-					// poles — everywhere else the coast is completely free
-					if (panRow > 1) {
-						const over = panRow - 1;
-						vRow -= over * 0.02 * dt;
-						panRow -= over * 0.08;
-					} else if (panRow < -1) {
-						const over = panRow + 1;
-						vRow -= over * 0.02 * dt;
-						panRow -= over * 0.08;
-					}
 					render();
-					const settled =
-						Math.abs(vCol) < 0.00006 &&
-						Math.abs(vRow) < 0.00006 &&
-						Math.abs(clamp(panRow, -1, 1) - panRow) < 0.001;
+					const settled = Math.abs(vCol) < 0.00006 && Math.abs(vRow) < 0.00006;
 					if (!settled) {
 						animRAF = requestAnimationFrame(frame);
 					} else {
-						panRow = clamp(panRow, -1, 1);
 						targetCol = Math.round(panCol);
-						targetRow = clamp(Math.round(panRow), -1, 1);
-						render();
+						targetRow = Math.round(panRow);
 						animRAF = undefined;
 					}
 				}
@@ -562,8 +536,8 @@
 
 			function stepMove(dc: number, dr: number) {
 				const baseCol = stepChaining ? targetCol : Math.round(panCol);
-				const baseRow = stepChaining ? targetRow : clamp(Math.round(panRow), -1, 1);
-				animateTo(baseCol + dc, clamp(baseRow + dr, -1, 1));
+				const baseRow = stepChaining ? targetRow : Math.round(panRow);
+				animateTo(baseCol + dc, baseRow + dr);
 				stepChaining = true;
 			}
 
