@@ -1,8 +1,10 @@
 ---
 // Low-fidelity prototype: sphere/orbit navigation mechanic.
 // Wireframe only — no visual design. Goal is to prove the interaction
-// model (drag/scroll/keys pan a field of panels, center = "front-facing"
-// panel, both axes loop forever like a torus/globe — no dead ends).
+// model: a field of panels sitting on true spherical coordinates (each
+// panel is a small mesh of tiles, not a rigid flat rectangle, so its own
+// edges visibly curve away), navigated with resistance-then-hard-lock
+// dragging. Both axes loop forever — no dead ends.
 ---
 
 <html lang="en">
@@ -28,7 +30,7 @@
 			#stage {
 				position: fixed;
 				inset: 0;
-				perspective: 1400px;
+				perspective: 1600px;
 				perspective-origin: 50% 50%;
 				cursor: grab;
 			}
@@ -40,10 +42,23 @@
 				position: absolute;
 				inset: 0;
 				transform-style: preserve-3d;
-				transition: transform 120ms ease-out;
 			}
 
-			.panel {
+			.tile {
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				background: #f2f2f2;
+				border: 1px solid #e2e2e2;
+				will-change: transform, opacity;
+				pointer-events: none;
+			}
+			.tile.home {
+				background: #fafafa;
+				border-color: #ececec;
+			}
+
+			.content {
 				position: absolute;
 				top: 50%;
 				left: 50%;
@@ -52,7 +67,7 @@
 				height: 64vh;
 				max-height: 520px;
 				border: 1.5px dashed #bbb;
-				background: #f6f6f6;
+				background: rgba(246, 246, 246, 0.35);
 				border-radius: 10px;
 				display: flex;
 				flex-direction: column;
@@ -64,29 +79,29 @@
 				will-change: transform, opacity;
 				pointer-events: none;
 			}
-			.panel.home {
-				background: #fff;
+			.content.home {
+				background: rgba(255, 255, 255, 0.6);
 				border-style: solid;
 				border-color: #ddd;
 			}
-			.panel .type {
+			.content .type {
 				font-size: 11px;
 				letter-spacing: 0.08em;
 				text-transform: uppercase;
 				color: #999;
 			}
-			.panel .label {
+			.content .label {
 				font-size: 18px;
 				color: #444;
 				max-width: 80%;
 			}
-			.panel.home .label {
+			.content.home .label {
 				font-size: clamp(22px, 3vw, 34px);
 				color: #111;
 				font-weight: 500;
 				line-height: 1.25;
 			}
-			.panel .coord {
+			.content .coord {
 				position: absolute;
 				bottom: 8px;
 				right: 10px;
@@ -186,7 +201,7 @@
 				font-size: 11px;
 				color: #bbb;
 				z-index: 30;
-				max-width: 220px;
+				max-width: 230px;
 				line-height: 1.5;
 			}
 
@@ -214,7 +229,7 @@
 	<body>
 		<div id="hint">
 			drag / scroll / swipe to look around · arrow keys work too<br />
-			both axes loop forever — there's no edge to run out of
+			loops forever both ways · panels lock into place, with a little give as you leave one
 		</div>
 
 		<div id="stage">
@@ -253,17 +268,11 @@
 
 		<script>
 			// ---- content model -------------------------------------------------
-			// A true torus, not a bounded sphere with poles: both axes loop
-			// forever. Row 0 / col 0 is "home". panCol/panRow are plain
-			// continuous numbers, wrapped (mod) only at content-lookup time —
-			// identical treatment for both axes, no special-cased bounds.
+			// A torus: both axes loop forever. Row 0 / col 0 is "home".
 			const COLS = 6;
 			const ROWS = 3;
 			type Panel = { type: string; label: string };
 
-			// index 0 = home row, 1 = "below" home, 2 = "above" home (wrapping
-			// past row 1 lands back on row 0, and past row 0 going up lands on
-			// row 2 — exactly how columns already wrap)
 			const rowsByIndex: Panel[][] = [
 				[
 					{ type: 'home', label: 'Humayun Rashid is a designer & founder in NYC.' },
@@ -300,91 +309,160 @@
 			function safe(n: number): number {
 				return Number.isFinite(n) ? n : 0;
 			}
+			function clamp(v: number, lo: number, hi: number) {
+				return Math.min(hi, Math.max(lo, v));
+			}
+
+			// ---- true spherical placement -----------------------------------------
+			// Every point in the field — a panel's own center, and every tile inside
+			// it — is placed by longitude/latitude on an actual sphere, not by a
+			// flat grid position plus a rigid rotate. That's what makes a panel's
+			// own edges visibly bow away, and keeps the same curvature true for
+			// whichever content is scrolled into any given spot.
+			const SPHERE_R = 1900; // px
+			const DEG_PER_COL = 34; // longitude degrees between adjacent panel centers
+			const DEG_PER_ROW = 26; // latitude degrees between adjacent panel centers
+			const PANEL_SPAN_LON = 15; // degrees a single panel's own mesh spans
+			const PANEL_SPAN_LAT = 11;
+
+			function sphereTransform(lonDeg: number, latDeg: number, extra = ''): string {
+				const lon = (clamp(lonDeg, -85, 85) * Math.PI) / 180;
+				const lat = (clamp(latDeg, -85, 85) * Math.PI) / 180;
+				const x = SPHERE_R * Math.sin(lon) * Math.cos(lat);
+				const y = SPHERE_R * Math.sin(lat);
+				const z = SPHERE_R * (Math.cos(lon) * Math.cos(lat) - 1);
+				return `translate(-50%, -50%) translate3d(${x}px, ${y}px, ${z}px) rotateY(${-lonDeg}deg) rotateX(${latDeg}deg) ${extra}`;
+			}
+
+			function panelSize() {
+				return {
+					w: Math.min(window.innerWidth * 0.5, 720),
+					h: Math.min(window.innerHeight * 0.64, 520),
+				};
+			}
 
 			// ---- state -----------------------------------------------------------
-			let panCol = 0; // continuous, unbounded — wraps only at lookup time
-			let panRow = 0; // continuous, unbounded — wraps only at lookup time, no poles
-			// last *settled* target — stepMove/snap build on this, not the live
-			// (possibly mid-animation) panCol/panRow, so rapid inputs (key repeat,
-			// fast successive swipes) accumulate correctly instead of drifting
-			let targetCol = 0;
-			let targetRow = 0;
+			// rawCol/rawRow are the "true" unbounded drag position. panCol/panRow
+			// (what's actually rendered) are rawCol/rawRow pushed through a
+			// resistance curve — see applyResistance — so motion is continuous
+			// everywhere but reluctant to leave a centered panel and quick to
+			// cross the gap to the next one.
+			let rawCol = 0;
+			let rawRow = 0;
 			let dragging = false;
 			let startX = 0,
 				startY = 0,
-				startPanCol = 0,
-				startPanRow = 0;
+				startRawCol = 0,
+				startRawRow = 0;
 			let velX = 0,
 				velY = 0,
 				lastMoveT = 0,
 				lastDx = 0,
 				lastDy = 0;
-			let snapTimeout: number | undefined;
 			let animRAF: number | undefined;
 
-			// generous gaps between panels, and a dominant center — see CSS panel
-			// base size above (50vw/64vh). Neighbors only peek in from the edges.
-			const SPACING_X = 780; // px per column at scale 1
-			const SPACING_Y = 600; // px per row at scale 1
 			const DRAG_SENSITIVITY = 1 / 420;
 			const WHEEL_SENSITIVITY = 1 / 900;
 
-			// sphere warp: side/top/bottom panels curve away like they're sitting
-			// on the surface of a globe, proportional to distance from center —
-			// continuous, so the curve holds as you scroll through every panel,
-			// not just a fixed pose at rest.
-			const ROTATE_Y_MAX = 32; // deg, applied for horizontal distance
-			const ROTATE_X_MAX = 22; // deg, applied for vertical distance
-			const WARP_RANGE = 1.4; // distance (in grid units) at which warp maxes out
+			// resistance: an ease-in-out applied within each unit interval, so
+			// dragging away from an integer (a centered panel) starts slow —
+			// "locked, with a little give" — then moves quickly through the
+			// middle toward the next integer.
+			function easeInOutCubic(t: number): number {
+				return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+			}
+			function applyResistance(raw: number): number {
+				const base = Math.floor(raw);
+				const frac = raw - base;
+				return base + easeInOutCubic(frac);
+			}
 
 			const field = document.getElementById('field') as HTMLDivElement;
 			const stage = document.getElementById('stage') as HTMLDivElement;
 
 			// Only a cross of 5 panels is ever rendered: center + one neighbor in
 			// each cardinal direction. No diagonals, no grid.
-			type Slot = { el: HTMLDivElement; key: string; dc: number; dr: number };
+			const TILE_COLS = 6;
+			const TILE_ROWS = 4;
+			const MESH_SCALE = 1.14; // tiles span slightly beyond the content box
+
+			type Slot = {
+				content: HTMLDivElement;
+				tiles: HTMLDivElement[];
+				key: string;
+				dc: number;
+				dr: number;
+			};
 			const slots: Slot[] = [];
 			function makeSlot(dc: number, dr: number): Slot {
-				const el = document.createElement('div');
-				el.className = 'panel';
-				el.innerHTML = `<div class="type"></div><div class="label"></div><div class="coord"></div>`;
-				field.appendChild(el);
-				return { el, key: '', dc, dr };
+				const content = document.createElement('div');
+				content.className = 'content';
+				content.innerHTML = `<div class="type"></div><div class="label"></div><div class="coord"></div>`;
+				const tiles: HTMLDivElement[] = [];
+				for (let i = 0; i < TILE_COLS * TILE_ROWS; i++) {
+					const tile = document.createElement('div');
+					tile.className = 'tile';
+					field.appendChild(tile);
+					tiles.push(tile);
+				}
+				field.appendChild(content); // content painted after its tiles, on top
+				return { content, tiles, key: '', dc, dr };
 			}
 			slots.push(makeSlot(-1, 0), makeSlot(0, 0), makeSlot(1, 0), makeSlot(0, -1), makeSlot(0, 1));
 
-			function clamp(v: number, lo: number, hi: number) {
-				return Math.min(hi, Math.max(lo, v));
-			}
-
 			function render() {
-				const centerColInt = Math.round(panCol);
-				const centerRowInt = Math.round(panRow);
+				const centerColInt = Math.round(applyResistance(rawCol));
+				const centerRowInt = Math.round(applyResistance(rawRow));
+				const panCol = applyResistance(rawCol);
+				const panRow = applyResistance(rawRow);
+				const { w: panelW, h: panelH } = panelSize();
+				const tileW = (panelW * MESH_SCALE) / TILE_COLS;
+				const tileH = (panelH * MESH_SCALE) / TILE_ROWS;
+
 				for (const slot of slots) {
 					const c = centerColInt + slot.dc;
 					const r = centerRowInt + slot.dr;
 					const key = `${c},${r}`;
 					if (slot.key !== key) {
-						const content = contentAt(c, r);
-						slot.el.classList.toggle('home', content.type === 'home');
-						slot.el.querySelector('.type')!.textContent = content.type;
-						slot.el.querySelector('.label')!.textContent = content.label;
-						slot.el.querySelector('.coord')!.textContent = `${c},${r}`;
+						const item = contentAt(c, r);
+						const isHome = item.type === 'home';
+						slot.content.classList.toggle('home', isHome);
+						slot.content.querySelector('.type')!.textContent = item.type;
+						slot.content.querySelector('.label')!.textContent = item.label;
+						slot.content.querySelector('.coord')!.textContent = `${c},${r}`;
+						for (const tile of slot.tiles) tile.classList.toggle('home', isHome);
 						slot.key = key;
 					}
-					const dxUnits = c - panCol;
-					const dyUnits = r - panRow;
-					const dist = Math.sqrt(dxUnits * dxUnits + dyUnits * dyUnits);
-					const scale = clamp(1.15 - dist * 0.55, 0.4, 1.15);
+
+					const dCol = c - panCol;
+					const dRow = r - panRow;
+					const dist = Math.sqrt(dCol * dCol + dRow * dRow);
+					const scale = clamp(1.15 - dist * 0.5, 0.4, 1.15);
 					const opacity = clamp(1 - dist * 0.55, 0, 1);
-					const x = dxUnits * SPACING_X;
-					const y = dyUnits * SPACING_Y;
-					const z = -dist * 260;
-					const angleY = (clamp(dxUnits, -WARP_RANGE, WARP_RANGE) / WARP_RANGE) * ROTATE_Y_MAX;
-					const angleX = (clamp(dyUnits, -WARP_RANGE, WARP_RANGE) / WARP_RANGE) * ROTATE_X_MAX;
-					slot.el.style.transform = `translate(-50%, -50%) translate3d(${x}px, ${y}px, ${z}px) rotateY(${-angleY}deg) rotateX(${angleX}deg) scale(${scale})`;
-					slot.el.style.opacity = String(opacity);
-					slot.el.style.zIndex = String(Math.round(1000 - dist * 10));
+					const lon = dCol * DEG_PER_COL;
+					const lat = dRow * DEG_PER_ROW;
+
+					slot.content.style.transform = sphereTransform(lon, lat, `scale(${scale})`);
+					slot.content.style.opacity = String(opacity);
+					slot.content.style.width = `${panelW}px`;
+					slot.content.style.height = `${panelH}px`;
+					slot.content.style.zIndex = String(Math.round(2000 - dist * 10));
+
+					let ti = 0;
+					for (let ty = 0; ty < TILE_ROWS; ty++) {
+						for (let tx = 0; tx < TILE_COLS; tx++) {
+							const tile = slot.tiles[ti++];
+							const localU = (tx + 0.5) / TILE_COLS - 0.5; // -0.5..0.5
+							const localV = (ty + 0.5) / TILE_ROWS - 0.5;
+							const tileLon = lon + localU * PANEL_SPAN_LON;
+							const tileLat = lat + localV * PANEL_SPAN_LAT;
+							tile.style.width = `${tileW}px`;
+							tile.style.height = `${tileH}px`;
+							tile.style.transform = sphereTransform(tileLon, tileLat, `scale(${scale})`);
+							tile.style.opacity = String(opacity * 0.85);
+							tile.style.zIndex = String(Math.round(1000 - dist * 10));
+						}
+					}
 				}
 				renderMinimap(centerColInt, centerRowInt);
 			}
@@ -404,6 +482,8 @@
 				}
 			}
 
+			window.addEventListener('resize', render);
+
 			// ---- input: drag (mouse + touch via pointer events) -----------------
 			stage.addEventListener('pointerdown', (e) => {
 				dragging = true;
@@ -411,13 +491,12 @@
 				stage.setPointerCapture(e.pointerId);
 				startX = e.clientX;
 				startY = e.clientY;
-				startPanCol = panCol;
-				startPanRow = panRow;
+				startRawCol = rawCol;
+				startRawRow = rawRow;
 				velX = velY = 0;
+				lastDx = lastDy = 0;
 				lastMoveT = performance.now();
 				cancelAnim();
-				clearTimeout(snapTimeout);
-				stepChaining = false;
 			});
 
 			stage.addEventListener('pointermove', (e) => {
@@ -431,8 +510,8 @@
 				lastDx = dx;
 				lastDy = dy;
 				lastMoveT = now;
-				panCol = safe(startPanCol - dx * DRAG_SENSITIVITY);
-				panRow = safe(startPanRow - dy * DRAG_SENSITIVITY); // no bounds — loops forever
+				rawCol = safe(startRawCol - dx * DRAG_SENSITIVITY);
+				rawRow = safe(startRawRow - dy * DRAG_SENSITIVITY);
 				render();
 			});
 
@@ -440,11 +519,9 @@
 				if (!dragging) return;
 				dragging = false;
 				stage.classList.remove('grabbing');
-				// no grid-lock: let go and it glides on its own momentum, coming
-				// to rest wherever friction takes it — never snapped to a panel
-				const vCol = clamp(-velX * DRAG_SENSITIVITY, -2.2, 2.2);
-				const vRow = clamp(-velY * DRAG_SENSITIVITY, -2.2, 2.2);
-				startCoast(vCol, vRow);
+				const vCol = -velX * DRAG_SENSITIVITY;
+				const vRow = -velY * DRAG_SENSITIVITY;
+				lockToNearest(vCol, vRow);
 			}
 			stage.addEventListener('pointerup', endDrag);
 			stage.addEventListener('pointercancel', endDrag);
@@ -453,55 +530,34 @@
 			});
 
 			// ---- input: wheel / trackpad -----------------------------------------
+			let wheelSettleTimeout: number | undefined;
 			stage.addEventListener(
 				'wheel',
 				(e) => {
 					e.preventDefault();
 					cancelAnim();
-					panCol = safe(panCol + e.deltaX * WHEEL_SENSITIVITY);
-					panRow = safe(panRow + e.deltaY * WHEEL_SENSITIVITY); // no bounds
+					rawCol = safe(rawCol + e.deltaX * WHEEL_SENSITIVITY);
+					rawRow = safe(rawRow + e.deltaY * WHEEL_SENSITIVITY);
 					render();
-					// leave it resting exactly where the scroll left it — no snap
-					clearTimeout(snapTimeout);
+					clearTimeout(wheelSettleTimeout);
+					wheelSettleTimeout = window.setTimeout(() => lockToNearest(0, 0), 110);
 				},
 				{ passive: false }
 			);
 
-			// ---- fluid inertial coast (drag release) -----------------------------
-			// Both axes loop forever now (no poles), so this is just plain
-			// friction decay — no rubber-band special case needed for rows.
-			const FRICTION_PER_16MS = 0.88;
-			// hard ceiling on how far a single release can carry the field,
-			// independent of the friction curve above — a real fast flick (or an
-			// oddly-measured one, e.g. a single large synthetic pointermove)
-			// should never fling the view many panels away. Momentum here is a
-			// flourish on top of the 1:1 drag tracking, not the primary mover.
-			const MAX_COAST_UNITS = 1.6;
-			function startCoast(vCol: number, vRow: number) {
-				cancelAnim();
-				if (!Number.isFinite(vCol) || !Number.isFinite(vRow)) return;
-				let lastT = performance.now();
-				const startCol = panCol;
-				const startRow = panRow;
-				function frame(now: number) {
-					const dt = Math.min(48, now - lastT);
-					lastT = now;
-					panCol = safe(clamp(panCol + vCol * dt, startCol - MAX_COAST_UNITS, startCol + MAX_COAST_UNITS));
-					panRow = safe(clamp(panRow + vRow * dt, startRow - MAX_COAST_UNITS, startRow + MAX_COAST_UNITS));
-					const decay = Math.pow(FRICTION_PER_16MS, dt / 16.67);
-					vCol *= decay;
-					vRow *= decay;
-					render();
-					const settled = Math.abs(vCol) < 0.00006 && Math.abs(vRow) < 0.00006;
-					if (!settled) {
-						animRAF = requestAnimationFrame(frame);
-					} else {
-						targetCol = Math.round(panCol);
-						targetRow = Math.round(panRow);
-						animRAF = undefined;
-					}
-				}
-				animRAF = requestAnimationFrame(frame);
+			// ---- hard lock on release, with a fling override ----------------------
+			// Snaps to the nearest panel — a decisive, brief animation so the
+			// arriving panel visibly settles into focus. A fast flick (velocity
+			// past FLING_MIN) is biased to advance to the next panel even from a
+			// short drag, like a swipe gesture.
+			const FLING_MIN = 0.35; // grid units / ms, in *display* terms
+			const FLING_BIAS = 0.5;
+			function lockToNearest(vCol: number, vRow: number) {
+				const biasCol = Math.abs(vCol) > FLING_MIN ? clamp(vCol, -1, 1) * FLING_BIAS : 0;
+				const biasRow = Math.abs(vRow) > FLING_MIN ? clamp(vRow, -1, 1) * FLING_BIAS : 0;
+				const targetCol = Math.round(rawCol + biasCol);
+				const targetRow = Math.round(rawRow + biasRow);
+				animateRawTo(targetCol, targetRow);
 			}
 
 			// ---- input: keyboard ---------------------------------------------------
@@ -523,21 +579,20 @@
 			document.getElementById('arrow-down')!.addEventListener('click', () => stepMove(0, 1));
 			document.getElementById('arrow-left')!.addEventListener('click', () => stepMove(-1, 0));
 			document.getElementById('arrow-right')!.addEventListener('click', () => stepMove(1, 0));
-			document.getElementById('nav-home')!.addEventListener('click', () => {
-				stepChaining = false;
-				animateTo(0, 0);
-			});
+			document.getElementById('nav-home')!.addEventListener('click', () => animateRawTo(0, 0));
 
 			// true only while chaining discrete arrow/click steps, so rapid key
 			// repeats build on the intended target rather than a live, still-
-			// animating panCol; false the rest of the time (free coast, rest),
-			// where a fresh step should instead snap off the actual current spot
+			// animating rawCol; false the rest of the time, where a fresh step
+			// should snap off the actual current (rounded) spot
 			let stepChaining = false;
+			let targetCol = 0;
+			let targetRow = 0;
 
 			function stepMove(dc: number, dr: number) {
-				const baseCol = stepChaining ? targetCol : Math.round(panCol);
-				const baseRow = stepChaining ? targetRow : Math.round(panRow);
-				animateTo(baseCol + dc, baseRow + dr);
+				const baseCol = stepChaining ? targetCol : Math.round(rawCol);
+				const baseRow = stepChaining ? targetRow : Math.round(rawRow);
+				animateRawTo(baseCol + dc, baseRow + dr);
 				stepChaining = true;
 			}
 
@@ -546,27 +601,28 @@
 				animRAF = undefined;
 			}
 
-			function animateTo(nextCol: number, nextRow: number) {
+			function animateRawTo(nextCol: number, nextRow: number) {
 				cancelAnim();
+				stepChaining = true;
 				targetCol = nextCol;
 				targetRow = nextRow;
-				const fromCol = panCol;
-				const fromRow = panRow;
+				const fromCol = rawCol;
+				const fromRow = rawRow;
 				const dCol = nextCol - fromCol;
 				const dRow = nextRow - fromRow;
-				const duration = 380;
+				const duration = 320;
 				const start = performance.now();
 				function tick(now: number) {
 					const t = clamp((now - start) / duration, 0, 1);
 					const eased = 1 - Math.pow(1 - t, 3); // ease-out cubic
-					panCol = fromCol + dCol * eased;
-					panRow = fromRow + dRow * eased;
+					rawCol = fromCol + dCol * eased;
+					rawRow = fromRow + dRow * eased;
 					render();
 					if (t < 1) {
 						animRAF = requestAnimationFrame(tick);
 					} else {
-						panCol = nextCol;
-						panRow = nextRow;
+						rawCol = nextCol;
+						rawRow = nextRow;
 						render();
 						animRAF = undefined;
 					}
