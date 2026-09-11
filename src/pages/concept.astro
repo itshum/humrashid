@@ -729,13 +729,20 @@
 
 					// floating depth: very subtle — a hint of lift, not a heavy
 					// drop shadow. The hover-to-visit affordance on browser
-					// panels is untouched. Home is just bare text — no shadow,
-					// no implied box around it.
+					// panels is untouched. Home is bare text — no shadow at all.
+					// For card/video, the shadow belongs on the media block only
+					// — the headline/subtext below must read as free-floating
+					// text on the page, not part of a shared card silhouette.
+					const lift = clamp(1 - dist, 0, 1);
+					const shadow = `0 ${5 * lift + 2}px ${16 * lift + 5}px rgba(0,0,0,${0.03 + 0.05 * lift})`;
 					if (item.kind === 'home') {
 						slot.surface.style.boxShadow = 'none';
+					} else if (item.kind === 'card' || item.kind === 'video') {
+						slot.surface.style.boxShadow = 'none';
+						const media = slot.surface.querySelector<HTMLElement>('.card-media, .video-media');
+						if (media) media.style.boxShadow = shadow;
 					} else {
-						const lift = clamp(1 - dist, 0, 1);
-						slot.surface.style.boxShadow = `0 ${5 * lift + 2}px ${16 * lift + 5}px rgba(0,0,0,${0.03 + 0.05 * lift})`;
+						slot.surface.style.boxShadow = shadow;
 					}
 				}
 				renderMinimap(centerColInt, centerRowInt);
