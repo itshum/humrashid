@@ -1000,15 +1000,16 @@
 					return `<div class="home-label">${withNycSpan}</div>`;
 				}
 				if (item.kind === 'card') {
-					// real, same-origin case-study art always loads (it's the
-					// point of those panels) — but the generic placeholder used
-					// by cards with no real art yet is a random picsum.photos
-					// fetch, and re-mounting that on every peripheral slot
-					// recycle was a second copy of the same "flash" bug as the
-					// browser iframes: only fetch it once this slot is focused,
-					// otherwise just sit on the plain fill already on
-					// .card-media instead of hitting the network for nothing
-					const bg = item.image ?? (focused ? `https://picsum.photos/seed/${encodeURIComponent(item.seed)}/${item.w * 2}/${Math.round((item.h - 90) * 2)}` : null);
+					// Always set a background — a plain <img>/background-image
+					// request is cheap and cached by the browser once loaded, so
+					// unlike the iframe/video fix below, gating this on `focused`
+					// was wrong: it wasn't preventing a real reload, it was
+					// actively hiding an already-cached image every time this
+					// slot's DOM element wasn't the focused one, which produced
+					// a *more* visible flash (image -> blank gray -> image again
+					// as a card moved in and out of focus) than the thing it was
+					// meant to fix.
+					const bg = item.image ?? `https://picsum.photos/seed/${encodeURIComponent(item.seed)}/${item.w * 2}/${Math.round((item.h - 90) * 2)}`;
 					const isCaseStudy = item.tag === 'case study' && !!item.image;
 					const visitArrow = item.link
 						? `<button class="card-visit" data-case-link="${item.link}">
