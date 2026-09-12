@@ -7,27 +7,25 @@
 // (longitude/latitude per panel), with resistance-then-hard-lock dragging
 // and an infinite loop on both axes.
 
-// Nav logo: a real circle — straight horizontal rows and vertical
-// columns of an 11x11 grid, with any cell farther than LOGO_RADIUS from
-// the center dropped, tapering each row's length near the top/bottom
-// exactly like the reference. Not a spiral: every dot lines up with its
-// row and column neighbors.
-const LOGO_GRID_N = 11;
-const LOGO_RADIUS = 5.2; // in grid units from center
-const logoDots = Array.from({ length: LOGO_GRID_N * LOGO_GRID_N }, (_, i) => {
-  const row = Math.floor(i / LOGO_GRID_N);
-  const col = i % LOGO_GRID_N;
-  const center = (LOGO_GRID_N - 1) / 2;
-  const dist = Math.hypot(row - center, col - center);
-  // deterministic pseudo-random (not Math.random — this needs to render
-  // the same on every request) pick of which dots carry the shimmer
-  const pseudoRandom = ((i * 9301 + 49297) % 233280) / 233280;
-  return {
-    visible: dist <= LOGO_RADIUS,
-    isLetter: pseudoRandom < 0.45,
-    delayMs: Math.round((row / LOGO_GRID_N) * 320),
-  };
-});
+// Nav logo: exact copy of the user-supplied reference — a hex-packed
+// circle, 9 rows of 4/6/8/9/9/9/8/6/4 dots (63 total), alternating rows
+// offset by half a dot-pitch so each row sits in the gaps of the row
+// above/below it (a honeycomb stagger), not a plain square grid.
+const LOGO_ROWS = [4, 6, 8, 9, 9, 9, 8, 6, 4];
+let logoDotIndex = 0;
+const logoRows = LOGO_ROWS.map((count, rowIndex) => ({
+  offset: rowIndex % 2 === 1,
+  dots: Array.from({ length: count }, () => {
+    const i = logoDotIndex++;
+    // deterministic pseudo-random (not Math.random — this needs to render
+    // the same on every request) pick of which dots carry the shimmer
+    const pseudoRandom = ((i * 9301 + 49297) % 233280) / 233280;
+    return {
+      isLetter: pseudoRandom < 0.45,
+      delayMs: Math.round((rowIndex / LOGO_ROWS.length) * 320),
+    };
+  }),
+}));
 ---
 
 <html lang="en">
@@ -520,26 +518,32 @@ const logoDots = Array.from({ length: LOGO_GRID_N * LOGO_GRID_N }, (_, i) => {
 				padding: 0;
 			}
 
-			/* logo mark: a real circle — an 11x11 grid (see logoDots in the
-			   frontmatter) with any cell past LOGO_RADIUS from center hidden
-			   via visibility (not display, so the grid tracks/alignment stay
-			   put), tapering each row's length near the top/bottom. Straight
-			   rows and columns throughout, not a spiral. */
+			/* logo mark: exact copy of the reference — 9 rows of
+			   4/6/8/9/9/9/8/6/4 dots (63 total, see logoRows in the
+			   frontmatter), alternating rows shifted right by half a dot
+			   pitch for the honeycomb/hex-packed stagger the reference has,
+			   rather than a plain square grid. */
 			.logo-mark {
-				display: grid;
-				grid-template-columns: repeat(11, 2.2px);
-				grid-template-rows: repeat(11, 2.2px);
-				gap: 0.75px;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				gap: 1.3px;
+			}
+			.logo-row {
+				display: flex;
+				justify-content: center;
+				gap: 1.3px;
+			}
+			.logo-row.is-offset {
+				margin-left: 2.05px; /* half of (dot width + gap) */
 			}
 			.logo-mark .px {
-				width: 2.2px;
-				height: 2.2px;
+				width: 2.8px;
+				height: 2.8px;
+				flex-shrink: 0;
 				border-radius: 999px;
 				background: #d5d5d1;
 				animation: dot-enter 480ms ease-out both;
-			}
-			.logo-mark .px.is-hidden {
-				visibility: hidden;
 			}
 			.logo-mark .px.is-letter {
 				animation:
@@ -699,11 +703,12 @@ const logoDots = Array.from({ length: LOGO_GRID_N * LOGO_GRID_N }, (_, i) => {
 		<nav id="nav">
 			<button class="dot" id="nav-home" title="recenter">
 				<span class="logo-mark" aria-label="Humayun Rashid, home">
-					{logoDots.map((d) => (
-						<span
-							class={`px${d.isLetter ? ' is-letter' : ''}${d.visible ? '' : ' is-hidden'}`}
-							style={`animation-delay:${d.delayMs}ms`}
-						/>
+					{logoRows.map((row) => (
+						<span class={`logo-row${row.offset ? ' is-offset' : ''}`}>
+							{row.dots.map((d) => (
+								<span class={`px${d.isLetter ? ' is-letter' : ''}`} style={`animation-delay:${d.delayMs}ms`} />
+							))}
+						</span>
 					))}
 				</span>
 			</button>
@@ -1412,7 +1417,7 @@ const logoDots = Array.from({ length: LOGO_GRID_N * LOGO_GRID_N }, (_, i) => {
 			// cells randomly flip between the shimmer ("letter") state and
 			// plain gray on mousemove, at the same ~45% chance per cell
 			const LOGO_LETTER_CHANCE = 0.45;
-			const logoCells = document.querySelectorAll<HTMLElement>('.logo-mark .px:not(.is-hidden)');
+			const logoCells = document.querySelectorAll<HTMLElement>('.logo-mark .px');
 			document.getElementById('nav-home')!.addEventListener('mousemove', () => {
 				logoCells.forEach((cell) => {
 					cell.classList.toggle('is-letter', Math.random() < LOGO_LETTER_CHANCE);
