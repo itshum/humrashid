@@ -491,13 +491,15 @@
 
 			/* logo mark: same idea as the real site's pixel-grid logo (a grid of
 			   cells encoding "Hr"), rebuilt as an actual filled disc of dots —
-			   a 5x5 grid with the 4 corners hidden (visibility, not display, so
-			   the grid tracks stay put) reads as a circle, not a clipped square */
+			   a 6x6 grid with only the 4 true corners hidden (visibility, not
+			   display, so the grid tracks stay put) is round enough at this
+			   size to read as a circle rather than a clipped square, without
+			   needing more rows/cols (which would shrink every dot to fit) */
 			.logo-mark {
 				display: grid;
-				grid-template-columns: repeat(5, 4.4px);
-				grid-template-rows: repeat(5, 4.4px);
-				gap: 2.2px;
+				grid-template-columns: repeat(6, 4.4px);
+				grid-template-rows: repeat(6, 4.4px);
+				gap: 1px;
 			}
 			.logo-mark .px {
 				width: 4.4px;
@@ -667,11 +669,12 @@
 		<nav id="nav">
 			<button class="dot" id="nav-home" title="recenter">
 				<span class="logo-mark" aria-label="Humayun Rashid, home">
-					<span class="px is-corner" style="animation-delay:0ms"></span><span class="px is-letter" style="animation-delay:0ms"></span><span class="px" style="animation-delay:0ms"></span><span class="px is-letter" style="animation-delay:0ms"></span><span class="px is-corner" style="animation-delay:0ms"></span>
-					<span class="px is-letter" style="animation-delay:70ms"></span><span class="px" style="animation-delay:70ms"></span><span class="px is-letter" style="animation-delay:70ms"></span><span class="px" style="animation-delay:70ms"></span><span class="px is-letter" style="animation-delay:70ms"></span>
-					<span class="px" style="animation-delay:140ms"></span><span class="px is-letter" style="animation-delay:140ms"></span><span class="px" style="animation-delay:140ms"></span><span class="px is-letter" style="animation-delay:140ms"></span><span class="px" style="animation-delay:140ms"></span>
-					<span class="px is-letter" style="animation-delay:210ms"></span><span class="px" style="animation-delay:210ms"></span><span class="px is-letter" style="animation-delay:210ms"></span><span class="px" style="animation-delay:210ms"></span><span class="px is-letter" style="animation-delay:210ms"></span>
-					<span class="px is-corner" style="animation-delay:280ms"></span><span class="px is-letter" style="animation-delay:280ms"></span><span class="px" style="animation-delay:280ms"></span><span class="px is-letter" style="animation-delay:280ms"></span><span class="px is-corner" style="animation-delay:280ms"></span>
+					<span class="px is-corner" style="animation-delay:0ms"></span><span class="px is-letter" style="animation-delay:0ms"></span><span class="px" style="animation-delay:0ms"></span><span class="px" style="animation-delay:0ms"></span><span class="px is-letter" style="animation-delay:0ms"></span><span class="px is-corner" style="animation-delay:0ms"></span>
+					<span class="px" style="animation-delay:56ms"></span><span class="px is-letter" style="animation-delay:56ms"></span><span class="px" style="animation-delay:56ms"></span><span class="px" style="animation-delay:56ms"></span><span class="px is-letter" style="animation-delay:56ms"></span><span class="px is-letter" style="animation-delay:56ms"></span>
+					<span class="px" style="animation-delay:112ms"></span><span class="px is-letter" style="animation-delay:112ms"></span><span class="px is-letter" style="animation-delay:112ms"></span><span class="px is-letter" style="animation-delay:112ms"></span><span class="px is-letter" style="animation-delay:112ms"></span><span class="px is-letter" style="animation-delay:112ms"></span>
+					<span class="px" style="animation-delay:168ms"></span><span class="px is-letter" style="animation-delay:168ms"></span><span class="px" style="animation-delay:168ms"></span><span class="px" style="animation-delay:168ms"></span><span class="px is-letter" style="animation-delay:168ms"></span><span class="px" style="animation-delay:168ms"></span>
+					<span class="px" style="animation-delay:224ms"></span><span class="px is-letter" style="animation-delay:224ms"></span><span class="px" style="animation-delay:224ms"></span><span class="px" style="animation-delay:224ms"></span><span class="px is-letter" style="animation-delay:224ms"></span><span class="px" style="animation-delay:224ms"></span>
+					<span class="px is-corner" style="animation-delay:280ms"></span><span class="px is-letter" style="animation-delay:280ms"></span><span class="px" style="animation-delay:280ms"></span><span class="px" style="animation-delay:280ms"></span><span class="px is-letter" style="animation-delay:280ms"></span><span class="px is-corner" style="animation-delay:280ms"></span>
 				</span>
 			</button>
 			<a href="#" id="nav-work">Work</a>
