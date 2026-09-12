@@ -185,45 +185,64 @@
 				font-size: 16px;
 			}
 
-			/* ---- browser: Safari chrome + live iframe + hover-to-visit ---- */
+			/* ---- browser: Safari chrome + live iframe + hover-to-visit, with
+			   a title/subtitle caption below — same shell shape as .k-card
+			   (window flex:1, caption auto-height below it) so browser and
+			   case-study panels read as the same family in Work mode ---- */
 			.k-browser .panel-surface {
 				display: flex;
 				flex-direction: column;
-				background: #fff;
-				border-radius: 12px;
-				overflow: hidden;
-				border: 1px solid #dcdcdc;
-				box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+				gap: 14px;
 				pointer-events: auto;
 			}
+			.browser-window {
+				flex: 1;
+				display: flex;
+				flex-direction: column;
+				background: #fdfdfd;
+				border-radius: 14px;
+				overflow: hidden;
+				border: 1px solid #e4e4e4;
+				box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+				min-height: 0;
+			}
+			/* real macOS Safari toolbar: traffic lights, sidebar + back
+			   controls, a centered pill address bar (lock/domain/reload), then
+			   the download/share/new-tab/tab-overview icon cluster on the
+			   right — same grouping and order as the reference window */
 			.browser-chrome {
 				display: flex;
 				align-items: center;
 				gap: 14px;
-				padding: 12px 14px;
-				background: linear-gradient(#f8f8f8, #ececec);
-				border-bottom: 1px solid #d8d8d8;
+				padding: 11px 14px;
+				background: #f7f7f7;
+				border-bottom: 1px solid #e3e3e3;
 			}
 			.browser-dots {
 				display: flex;
-				gap: 8px;
+				gap: 7px;
 				flex-shrink: 0;
 			}
 			.browser-dots svg {
-				width: 13px;
-				height: 13px;
+				width: 12px;
+				height: 12px;
 				display: block;
 			}
-			.browser-nav-icons {
+			.browser-tool-group {
 				display: flex;
-				gap: 10px;
+				align-items: center;
+				gap: 9px;
 				flex-shrink: 0;
-				color: #b0b0b0;
+				color: #a3a3a3;
 			}
-			.browser-nav-icons svg {
-				width: 15px;
-				height: 15px;
+			.browser-tool-group svg {
+				width: 14px;
+				height: 14px;
 				display: block;
+			}
+			.browser-tool-group .chevron-down svg {
+				width: 9px;
+				height: 9px;
 			}
 			.browser-url {
 				flex: 1;
@@ -234,10 +253,10 @@
 				background: #fff;
 				border: 1px solid #e2e2e2;
 				box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-				border-radius: 7px;
-				padding: 5px 10px;
+				border-radius: 8px;
+				padding: 6px 10px;
 				font-size: 12px;
-				color: #6b6b6b;
+				color: #444;
 				min-width: 0;
 			}
 			.browser-url svg {
@@ -245,6 +264,9 @@
 				height: 11px;
 				flex-shrink: 0;
 				color: #9a9a9a;
+			}
+			.browser-url .browser-reload {
+				margin-left: auto;
 			}
 			.browser-url span {
 				overflow: hidden;
@@ -275,7 +297,7 @@
 				text-decoration: none;
 				pointer-events: none;
 			}
-			.k-browser .panel-surface:hover .browser-visit {
+			.browser-window:hover .browser-visit {
 				opacity: 1;
 				background: rgba(255, 255, 255, 0.55);
 				pointer-events: auto;
@@ -293,7 +315,7 @@
 				transform: scale(0.85);
 				transition: transform 200ms;
 			}
-			.k-browser .panel-surface:hover .browser-visit-icon {
+			.browser-window:hover .browser-visit-icon {
 				transform: scale(1);
 			}
 
@@ -357,46 +379,18 @@
 				margin-top: 2px;
 			}
 
-			/* ---- portrait: cursor-interactive treatment, one of 6 picked at
-			   random per page load ---- */
+			/* ---- portrait: plain photo, no treatment ---- */
 			.k-portrait .panel-surface {
 				border-radius: 16px;
 				overflow: hidden;
 				background: #f4f2ec;
 				box-shadow: 0 14px 34px rgba(0, 0, 0, 0.14);
-				pointer-events: auto;
-			}
-			.portrait-stage {
-				position: relative;
-				width: 100%;
-				height: 100%;
-			}
-			.portrait-canvas {
-				display: block;
-				cursor: crosshair;
-			}
-			.portrait-img,
-			.portrait-svg {
-				position: absolute;
-				inset: 0;
-				width: 100%;
-				height: 100%;
 			}
 			.portrait-img {
+				display: block;
+				width: 100%;
+				height: 100%;
 				object-fit: cover;
-			}
-			.portrait-svg path,
-			.portrait-svg circle,
-			.portrait-svg line {
-				fill: none;
-				stroke: #111;
-				stroke-width: 4;
-				stroke-linecap: round;
-				stroke-linejoin: round;
-			}
-			.portrait-svg .crown {
-				stroke: #d4af37;
-				stroke-width: 5;
 			}
 
 			.coord {
@@ -461,12 +455,12 @@
 				align-items: center;
 				gap: 4px;
 				padding: 8px;
-				background: rgba(255, 255, 255, 0.55);
+				background: rgba(255, 255, 255, 0.82);
 				backdrop-filter: blur(22px) saturate(180%);
 				-webkit-backdrop-filter: blur(22px) saturate(180%);
-				border: 1px solid rgba(255, 255, 255, 0.7);
+				border: 1px solid rgba(255, 255, 255, 0.85);
 				border-radius: 999px;
-				box-shadow: 0 8px 32px rgba(0, 0, 0, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+				box-shadow: 0 8px 32px rgba(0, 0, 0, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.7);
 			}
 			#nav button.dot {
 				width: 42px;
@@ -593,27 +587,6 @@
 				border: 0;
 				display: block;
 			}
-			#case-modal .modal-close {
-				position: absolute;
-				top: -22px;
-				right: -22px;
-				width: 56px;
-				height: 56px;
-				border-radius: 999px;
-				background: #fff;
-				color: #111;
-				border: 1px solid #eaeaea;
-				box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25);
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				cursor: pointer;
-			}
-			#case-modal .modal-close svg {
-				width: 22px;
-				height: 22px;
-			}
-
 			#minimap {
 				position: fixed;
 				bottom: 96px;
@@ -694,11 +667,6 @@
 
 		<div id="case-modal">
 			<div class="modal-panel">
-				<button class="modal-close" id="modal-close" aria-label="Close">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-						><path d="M6 6l12 12M18 6L6 18" /></svg
-					>
-				</button>
 				<iframe id="modal-iframe" src="about:blank" title="Case study"></iframe>
 			</div>
 		</div>
@@ -722,7 +690,14 @@
 				image?: string; // real asset path — overrides the Picsum placeholder
 				link?: string; // real page URL — adds the hover-to-visit arrow
 			};
-			type BrowserItem = Sized & { kind: 'browser'; url: string; display: string };
+			type BrowserItem = Sized & {
+				kind: 'browser';
+				url: string;
+				display: string;
+				title?: string;
+				subtitle?: string;
+				year?: string;
+			};
 			type PhotoItem = Sized & { kind: 'photo'; tone: string; camera: string; meta: string };
 			type VideoItem = Sized & { kind: 'video'; title: string; subtitle: string };
 			type PortraitItem = Sized & { kind: 'portrait'; src: string };
@@ -737,12 +712,6 @@
 			const PHOTO: Sized = { w: 300, h: 400 };
 			const VIDEO: Sized = { w: 420, h: 320 };
 			const PORTRAIT: Sized = { w: 360, h: 500 };
-
-			// six cursor-interactive treatments of the portrait — one is picked
-			// at random per page load, so a refresh gets a different style
-			type PortraitStyle = 'pixelate' | 'basquiat' | 'warhol' | 'pointillism' | 'impressionist' | 'sketch';
-			const PORTRAIT_STYLES: PortraitStyle[] = ['pixelate', 'basquiat', 'warhol', 'pointillism', 'impressionist', 'sketch'];
-			const PORTRAIT_STYLE: PortraitStyle = PORTRAIT_STYLES[Math.floor(Math.random() * PORTRAIT_STYLES.length)];
 
 			// a couple of small, freely-embeddable public sample clips (CC0/MDN
 			// demo assets) — stand-ins to test the video-panel format, not final
@@ -799,8 +768,24 @@
 				'/case-studies/ppvp/01-hero-desktop.webp',
 				'/work/ppvp'
 			);
-			const ITEM_RENDR: Item = { kind: 'browser', url: 'https://rendr.app', display: 'rendr.app', ...BROWSER };
-			const ITEM_HUMRASHID: Item = { kind: 'browser', url: 'https://www.humrashid.com', display: 'humrashid.com', ...BROWSER };
+			const ITEM_RENDR: Item = {
+				kind: 'browser',
+				url: 'https://rendr.app',
+				display: 'rendr.app',
+				title: 'rendr',
+				subtitle: 'Product design & build',
+				year: '2024',
+				...BROWSER,
+			};
+			const ITEM_HUMRASHID: Item = {
+				kind: 'browser',
+				url: 'https://www.humrashid.com',
+				display: 'humrashid.com',
+				title: 'humrashid.com',
+				subtitle: 'This site — design & build',
+				year: '2025',
+				...BROWSER,
+			};
 
 			const rowsByIndex: Item[][] = [
 				[
@@ -925,8 +910,11 @@
 			function closeCaseModal() {
 				caseModal.classList.remove('open');
 				modalIframe.src = 'about:blank';
+				animateRawTo(0, 0);
 			}
-			document.getElementById('modal-close')!.addEventListener('click', closeCaseModal);
+			window.addEventListener('message', (e) => {
+				if (e.origin === window.location.origin && e.data?.type === 'close-case-study') closeCaseModal();
+			});
 			caseModal.addEventListener('click', (e) => {
 				if (e.target === caseModal) closeCaseModal();
 			});
@@ -999,57 +987,57 @@
 						</div>`;
 				}
 				if (item.kind === 'browser') {
+					const caption = item.title
+						? `<div class="card-text">
+								<div class="card-title">${item.title}</div>
+								<div class="card-subtitle">${item.subtitle ?? ''}${item.subtitle && item.year ? ' · ' : ''}${item.year ?? ''}</div>
+							</div>`
+						: '';
 					return `
-						<div class="browser-chrome">
-							<div class="browser-dots">
-								<svg viewBox="0 0 13 13"><circle cx="6.5" cy="6.5" r="6.5" fill="#ff5f57" /><circle cx="6.5" cy="6.5" r="6.5" fill="url(#bgloss)" /></svg>
-								<svg viewBox="0 0 13 13"><circle cx="6.5" cy="6.5" r="6.5" fill="#febc2e" /><circle cx="6.5" cy="6.5" r="6.5" fill="url(#bgloss)" /></svg>
-								<svg viewBox="0 0 13 13"><circle cx="6.5" cy="6.5" r="6.5" fill="#28c840" /><circle cx="6.5" cy="6.5" r="6.5" fill="url(#bgloss)" /></svg>
+						<div class="browser-window">
+							<div class="browser-chrome">
+								<div class="browser-dots">
+									<svg viewBox="0 0 13 13"><circle cx="6.5" cy="6.5" r="6.5" fill="#ff5f57" /><circle cx="6.5" cy="6.5" r="6.5" fill="url(#bgloss)" /></svg>
+									<svg viewBox="0 0 13 13"><circle cx="6.5" cy="6.5" r="6.5" fill="#febc2e" /><circle cx="6.5" cy="6.5" r="6.5" fill="url(#bgloss)" /></svg>
+									<svg viewBox="0 0 13 13"><circle cx="6.5" cy="6.5" r="6.5" fill="#28c840" /><circle cx="6.5" cy="6.5" r="6.5" fill="url(#bgloss)" /></svg>
+								</div>
+								<div class="browser-tool-group">
+									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="5" width="18" height="14" rx="3" /><line x1="9" y1="5" x2="9" y2="19" /></svg>
+									<span class="chevron-down"
+										><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6" /></svg
+									></span>
+									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6" /></svg>
+									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z" /></svg>
+								</div>
+								<div class="browser-url">
+									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" /></svg>
+									<span>${item.display}</span>
+									<span class="browser-reload"
+										><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" /></svg
+									></span>
+								</div>
+								<div class="browser-tool-group">
+									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9" /><path d="M12 8v6m0 0l-2.5-2.5M12 14l2.5-2.5" /></svg>
+									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4M8 8l4-4 4 4" /><path d="M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5" /></svg>
+									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14" /></svg>
+									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="8" height="8" rx="1.5" /><rect x="13" y="3" width="8" height="8" rx="1.5" /><rect x="3" y="13" width="8" height="8" rx="1.5" /><rect x="13" y="13" width="8" height="8" rx="1.5" /></svg>
+								</div>
 							</div>
-							<div class="browser-nav-icons">
-								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 6l-6 6 6 6" /></svg>
-								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6" /></svg>
-							</div>
-							<div class="browser-url">
-								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" /></svg>
-								<span>${item.display}</span>
+							<div class="browser-body">
+								<iframe src="${item.url}" loading="lazy" referrerpolicy="no-referrer"></iframe>
+								<a class="browser-visit" href="${item.url}" target="_blank" rel="noopener">
+									<span class="browser-visit-icon">
+										<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+											<path d="M7 17L17 7M17 7H9M17 7V15" />
+										</svg>
+									</span>
+								</a>
 							</div>
 						</div>
-						<div class="browser-body">
-							<iframe src="${item.url}" loading="lazy" referrerpolicy="no-referrer"></iframe>
-							<a class="browser-visit" href="${item.url}" target="_blank" rel="noopener">
-								<span class="browser-visit-icon">
-									<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-										<path d="M7 17L17 7M17 7H9M17 7V15" />
-									</svg>
-								</span>
-							</a>
-						</div>`;
+						${caption}`;
 				}
 				if (item.kind === 'portrait') {
-					if (PORTRAIT_STYLE === 'basquiat') {
-						return `
-							<div class="portrait-stage">
-								<img class="portrait-img" src="${item.src}" alt="Humayun Rashid" />
-								<svg class="portrait-svg" viewBox="0 0 360 500" preserveAspectRatio="none">
-									<!-- crown, sat on the hairline, five jagged points with a
-									     banded base and small facet ticks for a more layered,
-									     scratchy Basquiat texture -->
-									<path class="crown" d="M135,112 L135,92 L150,65 L165,92 L178,60 L193,92 L208,60 L221,92 L236,65 L251,92 L251,112 Z" />
-									<path class="crown" d="M140,100 L246,100" />
-									<path class="crown" d="M160,80 L165,88" />
-									<path class="crown" d="M188,73 L193,85" />
-									<path class="crown" d="M216,80 L221,88" />
-									<!-- mustache -->
-									<path d="M165,216 Q178,209 193,215 Q208,209 221,216" />
-									<!-- beard: a smooth U tracing the jaw from ear to ear under
-									     the chin — a jagged stroke at this scale just scattered
-									     across the mouth instead of reading as an outline -->
-									<path d="M148,200 Q140,230 145,255 Q150,280 175,298 Q193,306 211,298 Q236,280 241,255 Q246,230 238,200" />
-								</svg>
-							</div>`;
-					}
-					return `<div class="portrait-stage"><canvas class="portrait-canvas"></canvas></div>`;
+					return `<img class="portrait-img" src="${item.src}" alt="Humayun Rashid" />`;
 				}
 				// photo
 				return `
@@ -1058,386 +1046,6 @@
 						<div class="photo-meta-camera">${item.camera}</div>
 						<div class="photo-meta-line">${item.meta}</div>
 					</div>`;
-			}
-
-			// ---- portrait effects: 6 cursor-interactive treatments -----------------
-			function clamp01(v: number): number {
-				return Math.min(1, Math.max(0, v));
-			}
-
-			function coverFit(img: HTMLImageElement, w: number, h: number) {
-				const ir = img.naturalWidth / img.naturalHeight;
-				const cr = w / h;
-				let sx = 0,
-					sy = 0,
-					sw = img.naturalWidth,
-					sh = img.naturalHeight;
-				if (ir > cr) {
-					sw = img.naturalHeight * cr;
-					sx = (img.naturalWidth - sw) / 2;
-				} else {
-					sh = img.naturalWidth / cr;
-					sy = (img.naturalHeight - sh) / 2;
-				}
-				return { sx, sy, sw, sh };
-			}
-
-			function setupCanvas(canvas: HTMLCanvasElement, w: number, h: number): CanvasRenderingContext2D {
-				const dpr = Math.min(window.devicePixelRatio || 1, 2);
-				canvas.width = w * dpr;
-				canvas.height = h * dpr;
-				canvas.style.width = `${w}px`;
-				canvas.style.height = `${h}px`;
-				const ctx = canvas.getContext('2d')!;
-				ctx.scale(dpr, dpr);
-				return ctx;
-			}
-
-			type Crop = { sx: number; sy: number; sw: number; sh: number };
-
-			// 1. Pixelation — ambient pixel size slowly grows over time (full
-			// clarity -> pixelated), while a small sharp "lens" follows the cursor
-			function startPixelate(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, img: HTMLImageElement, crop: Crop, w: number, h: number) {
-				let ambient = 2;
-				const maxAmbient = 26;
-				const growthPerSec = 2.4;
-				let mouse: { x: number; y: number } | null = null;
-				let last = performance.now();
-				let raf = 0;
-				const off = document.createElement('canvas');
-				const offCtx = off.getContext('2d')!;
-
-				function drawPixelated(size: number, clip?: () => void) {
-					const cols = Math.max(1, Math.round(w / size));
-					const rows = Math.max(1, Math.round(h / size));
-					off.width = cols;
-					off.height = rows;
-					offCtx.drawImage(img, crop.sx, crop.sy, crop.sw, crop.sh, 0, 0, cols, rows);
-					ctx.save();
-					if (clip) clip();
-					ctx.imageSmoothingEnabled = false;
-					ctx.drawImage(off, 0, 0, cols, rows, 0, 0, w, h);
-					ctx.restore();
-				}
-
-				function frame(now: number) {
-					const dt = (now - last) / 1000;
-					last = now;
-					ambient = Math.min(maxAmbient, ambient + growthPerSec * dt);
-					drawPixelated(ambient);
-					if (mouse) {
-						const mx = mouse.x,
-							my = mouse.y;
-						drawPixelated(2, () => {
-							ctx.beginPath();
-							ctx.arc(mx, my, 70, 0, Math.PI * 2);
-							ctx.clip();
-						});
-					}
-					raf = requestAnimationFrame(frame);
-				}
-				raf = requestAnimationFrame(frame);
-
-				function onMove(e: MouseEvent) {
-					const r = canvas.getBoundingClientRect();
-					mouse = { x: e.clientX - r.left, y: e.clientY - r.top };
-				}
-				function onLeave() {
-					mouse = null;
-				}
-				canvas.addEventListener('mousemove', onMove);
-				canvas.addEventListener('mouseleave', onLeave);
-				return () => {
-					cancelAnimationFrame(raf);
-					canvas.removeEventListener('mousemove', onMove);
-					canvas.removeEventListener('mouseleave', onLeave);
-				};
-			}
-
-			// 3. Warhol — 2x2 duotone grid, cursor position shifts each quadrant's
-			// registration for a "chromium"/misprinted-silkscreen feel
-			function startWarhol(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, img: HTMLImageElement, crop: Crop, w: number, h: number) {
-				const palettes = ['rgb(255,60,120)', 'rgb(0,180,190)', 'rgb(255,140,0)', 'rgb(150,210,60)'];
-				let mouseX = 0.5;
-				let raf = 0;
-				function render() {
-					ctx.clearRect(0, 0, w, h);
-					const cw = w / 2,
-						ch = h / 2;
-					for (let i = 0; i < 4; i++) {
-						const cx = (i % 2) * cw,
-							cy = Math.floor(i / 2) * ch;
-						ctx.save();
-						ctx.beginPath();
-						ctx.rect(cx, cy, cw, ch);
-						ctx.clip();
-						ctx.fillStyle = palettes[i];
-						ctx.fillRect(cx, cy, cw, ch);
-						ctx.filter = 'grayscale(1) contrast(1.35) brightness(1.05)';
-						ctx.globalCompositeOperation = 'multiply';
-						const shift = (mouseX - 0.5) * 16 * (i % 2 === 0 ? 1 : -1);
-						ctx.drawImage(img, crop.sx, crop.sy, crop.sw, crop.sh, cx + shift, cy, cw, ch);
-						ctx.restore();
-					}
-					raf = requestAnimationFrame(render);
-				}
-				raf = requestAnimationFrame(render);
-				function onMove(e: MouseEvent) {
-					const r = canvas.getBoundingClientRect();
-					mouseX = (e.clientX - r.left) / w;
-				}
-				canvas.addEventListener('mousemove', onMove);
-				return () => {
-					cancelAnimationFrame(raf);
-					canvas.removeEventListener('mousemove', onMove);
-				};
-			}
-
-			// 4. Pointillism — stippled dots everywhere; near the cursor, dots
-			// shrink and resolve into sharper detail
-			function startPointillism(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, img: HTMLImageElement, crop: Crop, w: number, h: number) {
-				const off = document.createElement('canvas');
-				off.width = w;
-				off.height = h;
-				const offCtx = off.getContext('2d')!;
-				offCtx.drawImage(img, crop.sx, crop.sy, crop.sw, crop.sh, 0, 0, w, h);
-				const data = offCtx.getImageData(0, 0, w, h).data;
-				let mouse: { x: number; y: number } | null = null;
-				let raf = 0;
-				const cell = 7;
-				function render() {
-					ctx.fillStyle = '#faf8f2';
-					ctx.fillRect(0, 0, w, h);
-					for (let y = 0; y < h; y += cell) {
-						for (let x = 0; x < w; x += cell) {
-							const idx = (Math.min(h - 1, y) * w + Math.min(w - 1, x)) * 4;
-							let radius = cell * 0.42;
-							if (mouse) {
-								const d = Math.hypot(x - mouse.x, y - mouse.y);
-								if (d < 90) radius = cell * 0.42 * (0.35 + 0.65 * (d / 90));
-							}
-							ctx.beginPath();
-							ctx.fillStyle = `rgb(${data[idx]},${data[idx + 1]},${data[idx + 2]})`;
-							ctx.arc(x + cell / 2, y + cell / 2, Math.max(0.6, radius), 0, Math.PI * 2);
-							ctx.fill();
-						}
-					}
-					raf = requestAnimationFrame(render);
-				}
-				raf = requestAnimationFrame(render);
-				function onMove(e: MouseEvent) {
-					const r = canvas.getBoundingClientRect();
-					mouse = { x: e.clientX - r.left, y: e.clientY - r.top };
-				}
-				function onLeave() {
-					mouse = null;
-				}
-				canvas.addEventListener('mousemove', onMove);
-				canvas.addEventListener('mouseleave', onLeave);
-				return () => {
-					cancelAnimationFrame(raf);
-					canvas.removeEventListener('mousemove', onMove);
-					canvas.removeEventListener('mouseleave', onLeave);
-				};
-			}
-
-			// 5. Impressionist brushstrokes — a field of small rotated strokes
-			// sampled from the photo; cursor stirs a local swirl into the flow
-			function startImpressionist(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, img: HTMLImageElement, crop: Crop, w: number, h: number) {
-				const off = document.createElement('canvas');
-				off.width = w;
-				off.height = h;
-				const offCtx = off.getContext('2d')!;
-				offCtx.drawImage(img, crop.sx, crop.sy, crop.sw, crop.sh, 0, 0, w, h);
-				const data = offCtx.getImageData(0, 0, w, h).data;
-				let mouse = { x: w / 2, y: h / 2 };
-				let t = 0;
-				let raf = 0;
-				const cell = 8;
-				function render() {
-					t += 0.01;
-					ctx.fillStyle = '#141210';
-					ctx.fillRect(0, 0, w, h);
-					for (let y = 0; y < h; y += cell) {
-						for (let x = 0; x < w; x += cell) {
-							const idx = (Math.min(h - 1, y) * w + Math.min(w - 1, x)) * 4;
-							let angle = Math.sin(x * 0.05 + t) * 0.6 + Math.cos(y * 0.05 + t * 0.7) * 0.6;
-							const dx = x - mouse.x,
-								dy = y - mouse.y;
-							const dist = Math.hypot(dx, dy);
-							if (dist < 120) {
-								const swirl = (1 - dist / 120) * 2.2;
-								angle += Math.atan2(dy, dx) + (Math.PI / 2) * swirl;
-							}
-							ctx.save();
-							ctx.translate(x + cell / 2, y + cell / 2);
-							ctx.rotate(angle);
-							ctx.fillStyle = `rgb(${data[idx]},${data[idx + 1]},${data[idx + 2]})`;
-							ctx.fillRect(-cell * 0.7, -cell * 0.22, cell * 1.4, cell * 0.44);
-							ctx.restore();
-						}
-					}
-					raf = requestAnimationFrame(render);
-				}
-				raf = requestAnimationFrame(render);
-				function onMove(e: MouseEvent) {
-					const r = canvas.getBoundingClientRect();
-					mouse = { x: e.clientX - r.left, y: e.clientY - r.top };
-				}
-				canvas.addEventListener('mousemove', onMove);
-				return () => {
-					cancelAnimationFrame(raf);
-					canvas.removeEventListener('mousemove', onMove);
-				};
-			}
-
-			// 6. Sketch — Sobel edge-detected line art that draws itself in with a
-			// jittery, hand-drawn reveal edge; cursor nudges a "still touching up"
-			// jitter into nearby lines once the reveal is done
-			function startSketch(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, img: HTMLImageElement, crop: Crop, w: number, h: number) {
-				const off = document.createElement('canvas');
-				off.width = w;
-				off.height = h;
-				const offCtx = off.getContext('2d')!;
-				offCtx.drawImage(img, crop.sx, crop.sy, crop.sw, crop.sh, 0, 0, w, h);
-				const src = offCtx.getImageData(0, 0, w, h);
-				const gray = new Float32Array(w * h);
-				for (let i = 0; i < w * h; i++) {
-					const o = i * 4;
-					gray[i] = src.data[o] * 0.3 + src.data[o + 1] * 0.59 + src.data[o + 2] * 0.11;
-				}
-				const sketchCanvas = document.createElement('canvas');
-				sketchCanvas.width = w;
-				sketchCanvas.height = h;
-				const sketchImg = sketchCanvas.getContext('2d')!.createImageData(w, h);
-				for (let y = 1; y < h - 1; y++) {
-					for (let x = 1; x < w - 1; x++) {
-						const i = y * w + x;
-						const gx = -gray[i - w - 1] - 2 * gray[i - 1] - gray[i + w - 1] + gray[i - w + 1] + 2 * gray[i + 1] + gray[i + w + 1];
-						const gy = -gray[i - w - 1] - 2 * gray[i - w] - gray[i - w + 1] + gray[i + w - 1] + 2 * gray[i + w] + gray[i + w + 1];
-						const mag = Math.min(255, Math.sqrt(gx * gx + gy * gy));
-						const v = 255 - mag * 1.6;
-						sketchImg.data[i * 4] = v;
-						sketchImg.data[i * 4 + 1] = v;
-						sketchImg.data[i * 4 + 2] = v;
-						sketchImg.data[i * 4 + 3] = 255;
-					}
-				}
-				sketchCanvas.getContext('2d')!.putImageData(sketchImg, 0, 0);
-
-				let raf = 0;
-				let mouse: { x: number; y: number } | null = null;
-				const start = performance.now();
-				const REVEAL_MS = 2600;
-				const jitterSeed = Array.from({ length: 40 }, () => Math.random());
-
-				function render(now: number) {
-					const t = clamp01((now - start) / REVEAL_MS);
-					ctx.fillStyle = '#fdfcf8';
-					ctx.fillRect(0, 0, w, h);
-					ctx.save();
-					ctx.beginPath();
-					const revealY = t * (h + 60) - 30;
-					const step = w / (jitterSeed.length - 1);
-					ctx.moveTo(0, 0);
-					ctx.lineTo(w, 0);
-					// walk the jittery boundary right-to-left so it continues the
-					// path's direction instead of zigzagging back across itself
-					for (let i = jitterSeed.length - 1; i >= 0; i--) {
-						const x = i * step;
-						const jitter = (jitterSeed[i] - 0.5) * 26;
-						ctx.lineTo(x, Math.max(0, revealY + jitter));
-					}
-					ctx.closePath();
-					ctx.clip();
-					ctx.drawImage(sketchCanvas, 0, 0);
-					ctx.restore();
-
-					if (mouse && t >= 1) {
-						ctx.save();
-						ctx.beginPath();
-						ctx.arc(mouse.x, mouse.y, 46, 0, Math.PI * 2);
-						ctx.clip();
-						ctx.globalAlpha = 0.85 + Math.random() * 0.15;
-						ctx.drawImage(sketchCanvas, Math.round((Math.random() - 0.5) * 2), Math.round((Math.random() - 0.5) * 2));
-						ctx.restore();
-					}
-					raf = requestAnimationFrame(render);
-				}
-				raf = requestAnimationFrame(render);
-				function onMove(e: MouseEvent) {
-					const r = canvas.getBoundingClientRect();
-					mouse = { x: e.clientX - r.left, y: e.clientY - r.top };
-				}
-				function onLeave() {
-					mouse = null;
-				}
-				canvas.addEventListener('mousemove', onMove);
-				canvas.addEventListener('mouseleave', onLeave);
-				return () => {
-					cancelAnimationFrame(raf);
-					canvas.removeEventListener('mousemove', onMove);
-					canvas.removeEventListener('mouseleave', onLeave);
-				};
-			}
-
-			// 2. Basquiat — hand-drawn crown/monocle/beard SVG overlay that draws
-			// itself on; hovering the portrait replays the draw-on animation
-			function startBasquiat(container: HTMLElement): () => void {
-				const svg = container.querySelector('svg.portrait-svg');
-				const paths = svg ? Array.from(svg.querySelectorAll('path, circle, line')) : [];
-				function playDraw() {
-					paths.forEach((p, i) => {
-						const el = p as SVGGeometryElement & HTMLElement;
-						const len = 'getTotalLength' in el ? (el as any).getTotalLength() : 200;
-						el.style.strokeDasharray = String(len);
-						el.style.strokeDashoffset = String(len);
-						el.style.transition = 'none';
-						void el.getBoundingClientRect(); // force reflow so the reset above takes effect before animating
-						el.style.transition = `stroke-dashoffset ${900 + i * 220}ms ease-out ${i * 160}ms`;
-						requestAnimationFrame(() => {
-							el.style.strokeDashoffset = '0';
-						});
-					});
-				}
-				playDraw();
-				function onEnter() {
-					playDraw();
-				}
-				container.addEventListener('mouseenter', onEnter);
-				return () => {
-					container.removeEventListener('mouseenter', onEnter);
-				};
-			}
-
-			function initPortrait(container: HTMLElement, src: string, w: number, h: number): () => void {
-				let cancelled = false;
-				let stop: (() => void) | null = null;
-				if (PORTRAIT_STYLE === 'basquiat') {
-					stop = startBasquiat(container);
-					return () => {
-						cancelled = true;
-						stop?.();
-					};
-				}
-				const img = new Image();
-				img.onload = () => {
-					if (cancelled) return;
-					const canvas = container.querySelector('canvas.portrait-canvas') as HTMLCanvasElement | null;
-					if (!canvas) return;
-					const ctx = setupCanvas(canvas, w, h);
-					const crop = coverFit(img, w, h);
-					if (PORTRAIT_STYLE === 'pixelate') stop = startPixelate(canvas, ctx, img, crop, w, h);
-					else if (PORTRAIT_STYLE === 'warhol') stop = startWarhol(canvas, ctx, img, crop, w, h);
-					else if (PORTRAIT_STYLE === 'pointillism') stop = startPointillism(canvas, ctx, img, crop, w, h);
-					else if (PORTRAIT_STYLE === 'impressionist') stop = startImpressionist(canvas, ctx, img, crop, w, h);
-					else if (PORTRAIT_STYLE === 'sketch') stop = startSketch(canvas, ctx, img, crop, w, h);
-				};
-				img.src = src;
-				return () => {
-					cancelled = true;
-					stop?.();
-				};
 			}
 
 			function render() {
@@ -1479,9 +1087,6 @@
 								e.stopPropagation();
 								openCaseModal(item.link!);
 							});
-						}
-						if (item.kind === 'portrait') {
-							slot.cleanup = initPortrait(slot.surface, item.src, item.w, item.h);
 						}
 					}
 
@@ -1678,34 +1283,51 @@
 				toggleWorkMode();
 			});
 
-			function toggleWorkMode() {
-				cancelAnim();
-				const jitterEls = slots.map((s) => s.wrap);
-				const baseTransforms = jitterEls.map((el) => el.style.transform);
-				const JUMBLE_MS = 480;
+			// Two straight, eased passes — panels slide off toward their own
+			// corner of the field and back in, like cards being swept aside
+			// and re-dealt onto a table. No rotation, no wobble: every panel
+			// moves once, in one direction, and settles.
+			function slidePanels(direction: 1 | -1, onDone: () => void) {
+				const SLIDE_MS = 300;
+				const STAGGER_MS = 26;
+				const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
+				const bases = slots.map((s) => s.wrap.style.transform);
+				const baseOpacities = slots.map((s) => parseFloat(s.wrap.style.opacity || '1'));
+				const delays = slots.map((s) => (Math.abs(s.dc) + Math.abs(s.dr)) * STAGGER_MS);
 				const start = performance.now();
-				function jumble(now: number) {
-					const t = clamp((now - start) / JUMBLE_MS, 0, 1);
-					const wobble = Math.sin(t * Math.PI); // ramps up then back down to 0
-					for (let i = 0; i < jitterEls.length; i++) {
-						const jx = Math.sin(i * 13.1 + 1) * 220 * wobble;
-						const jy = Math.sin(i * 7.7 + 3) * 160 * wobble;
-						const jr = Math.sin(i * 5.3 + 2) * 50 * wobble;
-						jitterEls[i].style.transform = `${baseTransforms[i]} translate(${jx}px, ${jy}px) rotate(${jr}deg)`;
+				function frame(now: number) {
+					let allDone = true;
+					for (let i = 0; i < slots.length; i++) {
+						const localT = clamp((now - start - delays[i]) / SLIDE_MS, 0, 1);
+						if (localT < 1) allDone = false;
+						const eased = easeOutCubic(localT);
+						// direction 1 (out): amount grows 0 -> 1. direction -1 (in): amount shrinks 1 -> 0.
+						const amount = direction === 1 ? eased : 1 - eased;
+						const dx = slots[i].dc * 34 * amount;
+						const dy = 70 * amount + slots[i].dr * 20 * amount;
+						slots[i].wrap.style.transform = `${bases[i]} translate(${dx}px, ${dy}px)`;
+						slots[i].wrap.style.opacity = String(baseOpacities[i] * (1 - 0.7 * amount));
 					}
-					if (t < 1) {
-						requestAnimationFrame(jumble);
+					if (!allDone) {
+						requestAnimationFrame(frame);
 					} else {
-						for (let i = 0; i < jitterEls.length; i++) jitterEls[i].style.transform = baseTransforms[i];
-						mode = mode === 'work' ? 'default' : 'work';
-						rawCol = 0;
-						rawRow = 0;
-						stepChaining = false;
-						for (const s of slots) s.key = '';
-						render();
+						onDone();
 					}
 				}
-				requestAnimationFrame(jumble);
+				requestAnimationFrame(frame);
+			}
+
+			function toggleWorkMode() {
+				cancelAnim();
+				slidePanels(1, () => {
+					mode = mode === 'work' ? 'default' : 'work';
+					rawCol = 0;
+					rawRow = 0;
+					stepChaining = false;
+					for (const s of slots) s.key = '';
+					render();
+					slidePanels(-1, render);
+				});
 			}
 
 			let stepChaining = false;

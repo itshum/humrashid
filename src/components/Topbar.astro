@@ -2,17 +2,19 @@
 interface Props {
   showBack?: boolean;
   showNav?: boolean;
+  iconOnlyBack?: boolean;
+  hideLogo?: boolean;
 }
 
-const { showBack = false, showNav = false } = Astro.props;
+const { showBack = false, showNav = false, iconOnlyBack = false, hideLogo = false } = Astro.props;
 ---
 
 <div class="topbar">
   {
     showBack && (
-      <a class="back-link" href="/">
+      <a class={`back-link${iconOnlyBack ? " is-icon-only" : ""}`} href="/" id="back-link" aria-label="Back to home">
         <span class="arrow">←</span>
-        Back
+        {!iconOnlyBack && "Back"}
       </a>
     )
   }
@@ -24,7 +26,7 @@ const { showBack = false, showNav = false } = Astro.props;
       </nav>
     )
   }
-  <a class="logo-mark" id="logo-mark" href="/" aria-label="Home"></a>
+  {!hideLogo && <a class="logo-mark" id="logo-mark" href="/" aria-label="Home"></a>}
 </div>
 
 <style is:global>
@@ -194,6 +196,14 @@ const { showBack = false, showNav = false } = Astro.props;
     transform: translateX(-2px);
   }
 
+  /* Case-study format: no "Back" label, just the arrow - the logo is
+     hidden alongside it (see hideLogo) so this is the only way home
+     and doesn't need a word to explain itself. */
+  .topbar .back-link.is-icon-only {
+    padding: 0.5rem;
+    font-size: 1rem;
+  }
+
   /* Same ghost-button treatment as .back-link (ends up on the same
      left side of the bar, just on pages with no back link to show
      instead) - ordinary weight, quiet until interacted with, so nav
@@ -223,6 +233,18 @@ const { showBack = false, showNav = false } = Astro.props;
 </style>
 
 <script>
+  // When this page is loaded inside the concept prototype's case-study
+  // modal (an iframe), the back link shouldn't navigate the iframe
+  // itself to "/" - it should close the modal and hand control back
+  // to the parent page instead. Standalone visits are unaffected.
+  const backLink = document.getElementById("back-link");
+  if (backLink && window.self !== window.top) {
+    backLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      window.parent.postMessage({ type: "close-case-study" }, window.location.origin);
+    });
+  }
+
   // Dark mode is time-based, not a manual toggle or OS preference:
   // dark from 7pm to 6am NYC local time (the same clock the homepage
   // footer already shows), light the rest of the day. Re-checked once
