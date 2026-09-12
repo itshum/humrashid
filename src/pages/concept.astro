@@ -365,6 +365,11 @@
 				object-fit: cover;
 				display: block;
 			}
+			.video-media-placeholder {
+				position: absolute;
+				inset: 0;
+				background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 60%, #1a1a1a 100%);
+			}
 			.video-badge {
 				position: absolute;
 				top: 10px;
@@ -1001,7 +1006,15 @@
 					return `<div class="home-label">${withNycSpan}</div>`;
 				}
 				if (item.kind === 'card') {
-					const bg = item.image ?? `https://picsum.photos/seed/${encodeURIComponent(item.seed)}/${item.w * 2}/${Math.round((item.h - 90) * 2)}`;
+					// real, same-origin case-study art always loads (it's the
+					// point of those panels) — but the generic placeholder used
+					// by cards with no real art yet is a random picsum.photos
+					// fetch, and re-mounting that on every peripheral slot
+					// recycle was a second copy of the same "flash" bug as the
+					// browser iframes: only fetch it once this slot is focused,
+					// otherwise just sit on the plain fill already on
+					// .card-media instead of hitting the network for nothing
+					const bg = item.image ?? (focused ? `https://picsum.photos/seed/${encodeURIComponent(item.seed)}/${item.w * 2}/${Math.round((item.h - 90) * 2)}` : null);
 					const isCaseStudy = item.tag === 'case study' && !!item.image;
 					const visitArrow = item.link
 						? `<button class="card-visit" data-case-link="${item.link}">
@@ -1013,7 +1026,7 @@
 							</button>`
 						: '';
 					return `
-						<div class="card-media" style="background-image:url('${bg}')">
+						<div class="card-media"${bg ? ` style="background-image:url('${bg}')"` : ''}>
 							<span class="tag">${item.tag}</span>
 							${visitArrow}
 						</div>
@@ -1023,10 +1036,14 @@
 						</div>`;
 				}
 				if (item.kind === 'video') {
+					// same fix as the browser iframes/card placeholders — an
+					// autoplaying <video src> is a real network fetch, so a
+					// peripheral slot recycling past this item constantly
+					// re-triggers it. Only load it once this slot is focused.
 					const src = Math.abs(hashCode(item.title)) % 2 === 0 ? CLIP_A : CLIP_B;
 					return `
 						<div class="video-media">
-							<video autoplay muted loop playsinline src="${src}"></video>
+							${focused ? `<video autoplay muted loop playsinline src="${src}"></video>` : `<div class="video-media-placeholder"></div>`}
 							<span class="video-badge">video</span>
 						</div>
 						<div class="card-text">
