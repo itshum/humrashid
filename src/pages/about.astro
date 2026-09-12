@@ -1,0 +1,283 @@
+---
+import Topbar from "../components/Topbar.astro";
+import Analytics from "@vercel/analytics/astro";
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <Analytics />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="canonical" href="https://www.humrashid.com/about" />
+    <script is:inline>
+      // Set before first paint so there's no light-mode flash before
+      // Topbar's script confirms/re-checks the same NYC-time rule.
+      (function () {
+        var parts = new Intl.DateTimeFormat("en-US", {
+          timeZone: "America/New_York",
+          hour: "numeric",
+          hour12: false,
+        }).formatToParts(new Date());
+        var hour = Number(
+          (parts.filter(function (p) {
+            return p.type === "hour";
+          })[0] || {}).value || 12
+        );
+        document.documentElement.dataset.theme = hour >= 19 || hour < 6 ? "dark" : "light";
+      })();
+    </script>
+    <style is:inline>
+      html[data-theme="dark"] {
+        background: #16171c;
+        color: #eeede8;
+      }
+      html:not([data-theme="dark"]) {
+        background: #f6f6f3;
+        color: #262626;
+      }
+    </style>
+    <title>About · Humayun Rashid</title>
+    <meta name="description" content="A bit about me — how I think about design, and what I'm doing now." />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Humayun Rashid" />
+    <meta property="og:title" content="About · Humayun Rashid" />
+    <meta property="og:url" content="https://www.humrashid.com/about" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&display=swap"
+    />
+    <style is:global>
+      /* same tokens as the case-study template — this page follows the
+         exact same shell (Topbar back-arrow format, dark mode, fonts) */
+      :root {
+        --bg: #f6f6f3;
+        --text: #262626;
+        --text-secondary: #2b2b2b;
+        --label: #7a7a7a;
+        --hover-bg: #e8e7e2;
+        --title: #262626;
+        --year: #8a8984;
+        --icon: #c9c7c0;
+        --icon-hover: #6b6b6b;
+        --border: #e0ded7;
+        --selection-bg: #1f3d2e;
+        --selection-text: #f8f8f6;
+      }
+
+      :root[data-theme="dark"] {
+        --bg: #0d0d0c;
+        --text: #eeede8;
+        --text-secondary: #d6d5d0;
+        --label: #a1a09a;
+        --hover-bg: #1d1d1b;
+        --title: #eeede8;
+        --year: #696862;
+        --icon: #474641;
+        --icon-hover: #b5b4ad;
+        --border: #252423;
+        --selection-bg: #4fae82;
+        --selection-text: #171715;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+        scrollbar-color: var(--border) var(--bg);
+      }
+
+      html,
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+        transition: background 0.3s ease, color 0.3s ease;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      ::selection {
+        background: var(--selection-bg);
+        color: var(--selection-text);
+      }
+
+      .col {
+        max-width: 560px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+      }
+
+      @media (max-width: 600px) {
+        .col {
+          padding: 0 2rem;
+        }
+      }
+
+      .about-hero {
+        padding: 3.5rem 0 1rem;
+      }
+
+      .about-hero .eyebrow {
+        font-size: 0.8rem;
+        color: var(--label);
+        margin: 0 0 1.25rem;
+      }
+
+      .about-hero h1 {
+        font-size: 2.25rem;
+        font-weight: 500;
+        letter-spacing: -0.015em;
+        margin: 0;
+      }
+
+      .prose {
+        padding: 1rem 0 2rem;
+        font-size: 1.08rem;
+        line-height: 1.75;
+        color: var(--text-secondary);
+      }
+
+      .prose p {
+        margin: 0 0 1.4rem;
+      }
+      .prose p:last-child {
+        margin-bottom: 0;
+      }
+
+      /* ---- signature: draws itself on, once, the moment it scrolls
+         into view — same [data-reveal] convention as the case-study
+         template's own scroll reveals, just driven by stroke-dashoffset
+         instead of opacity/transform. Placeholder mark for now (see
+         reply for how to swap in a real digitized signature). ---- */
+      .sign-off {
+        padding: 2.5rem 0 5rem;
+        display: flex;
+        justify-content: center;
+      }
+
+      .signature {
+        width: 260px;
+        height: auto;
+        overflow: visible;
+      }
+
+      .signature path {
+        fill: none;
+        stroke: var(--title);
+        stroke-width: 3;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      .signature .stroke {
+        stroke-dasharray: 900;
+        stroke-dashoffset: 900;
+        transition: stroke-dashoffset 1.6s cubic-bezier(0.65, 0, 0.35, 1);
+      }
+
+      .signature .smile {
+        stroke-dasharray: 120;
+        stroke-dashoffset: 120;
+        transition: stroke-dashoffset 0.5s ease;
+        transition-delay: 1.3s;
+      }
+
+      .signature.is-revealed .stroke {
+        stroke-dashoffset: 0;
+      }
+      .signature.is-revealed .smile {
+        stroke-dashoffset: 0;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .signature .stroke,
+        .signature .smile {
+          transition: none;
+          stroke-dashoffset: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <Topbar showBack iconOnlyBack hideLogo />
+
+    <div class="col">
+      <div class="about-hero">
+        <p class="eyebrow">About</p>
+        <h1>Hi, I'm Humayun.</h1>
+      </div>
+
+      <div class="prose">
+        <!-- placeholder copy — workshop this later -->
+        <p>
+          I'm a designer and founder based in New York City. Over the last decade I've led design for
+          B2B SaaS and eCommerce products — most recently as Design Director at Nessa, where I've
+          worked with teams like Pack, Inveterate, and PPVP to take raw ideas into products real
+          people run their businesses on.
+        </p>
+        <p>
+          I care most about the unglamorous middle of a product: the onboarding flow nobody screenshots,
+          the empty state that has to work on someone's worst day, the system that has to hold up long
+          after the first release ships. Good design, to me, is mostly about saying no to the right
+          things.
+        </p>
+        <p>
+          Outside of client work, I build my own things — rendr among them — and spend a lot of time
+          thinking about how design systems scale without losing the personality that made them worth
+          building in the first place.
+        </p>
+        <p>
+          When I'm not at a desk, I'm probably walking around this city with a camera, at a workshop I
+          had no business signing up for, or trying to convince a friend that yes, we do need to see
+          five more blocks of it.
+        </p>
+      </div>
+
+      <div class="sign-off">
+        <svg class="signature" data-reveal viewBox="0 0 300 150" xmlns="http://www.w3.org/2000/svg">
+          <path
+            class="stroke"
+            d="M20,100 C30,40 50,40 60,80 C68,110 75,60 85,50 C95,40 100,90 110,95
+               C120,100 130,60 140,55 C150,50 160,100 175,90 C190,80 195,40 210,60
+               C220,74 225,95 240,90"
+          />
+          <path class="smile" d="M258,72 a2,2 0 1,0 0.1,0 M272,72 a2,2 0 1,0 0.1,0 M256,82 q9,10 18,0" />
+        </svg>
+      </div>
+    </div>
+
+    <script>
+      const signature = document.querySelector<SVGElement>(".signature[data-reveal]");
+      if (signature) {
+        if ("IntersectionObserver" in window) {
+          const observer = new IntersectionObserver(
+            (entries) => {
+              entries.forEach((entry) => {
+                if (!entry.isIntersecting) return;
+                entry.target.classList.add("is-revealed");
+                observer.unobserve(entry.target);
+              });
+            },
+            { threshold: 0.6 }
+          );
+          observer.observe(signature);
+        } else {
+          signature.classList.add("is-revealed");
+        }
+      }
+    </script>
+  </body>
+</html>

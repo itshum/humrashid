@@ -662,7 +662,7 @@
 			</button>
 			<a href="#" id="nav-work">Work</a>
 			<a href="#" data-stub="/ideas">Ideas</a>
-			<a href="#" data-stub="/about">About</a>
+			<a href="#" id="nav-about">About</a>
 		</nav>
 
 		<div id="case-modal">
@@ -1319,6 +1319,13 @@
 			document.getElementById('nav-work')!.addEventListener('click', (e) => {
 				e.preventDefault();
 				toggleWorkMode();
+			});
+
+			// ---- "About" nav: same case-study modal, pointed at the real
+			// /about page instead of a case study
+			document.getElementById('nav-about')!.addEventListener('click', (e) => {
+				e.preventDefault();
+				openCaseModal('/about');
 			});
 
 			// Two straight, eased passes — panels slide off toward their own
