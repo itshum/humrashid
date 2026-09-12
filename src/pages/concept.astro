@@ -28,11 +28,18 @@
 				touch-action: none;
 				user-select: none;
 				-webkit-user-select: none;
+				/* the dedicated control for this, distinct from wheel's own
+				   preventDefault: without it, some browsers still run their own
+				   overscroll bounce/pull-to-refresh chrome at the top/bottom of
+				   the page on a fast vertical scroll, which is its own source of
+				   a white flash independent of anything happening in #stage */
+				overscroll-behavior: none;
 			}
 
 			#stage {
 				position: fixed;
 				inset: 0;
+				overscroll-behavior: none;
 				perspective: 1600px;
 				perspective-origin: 50% 50%;
 				cursor: grab;
@@ -1105,12 +1112,22 @@
 			}
 
 			function render() {
+				// self-heal rather than cascade — a NaN here (there's no known
+				// path to one, but the coast/animate loops don't individually
+				// guard every write) would otherwise turn into `rowsByIndex[NaN]`
+				// being undefined, throwing inside the loop below and, since
+				// this runs inside a requestAnimationFrame callback, silently
+				// killing that rAF loop mid-motion — which would freeze the
+				// sphere until the next interaction, not just for that slot.
+				rawCol = safe(rawCol);
+				rawRow = safe(rawRow);
 				const panCol = applyResistance(rawCol);
 				const panRow = applyResistance(rawRow);
 				const centerColInt = Math.round(panCol);
 				const centerRowInt = Math.round(panRow);
 
 				for (const slot of slots) {
+					try {
 					const c = centerColInt + slot.dc;
 					const r = centerRowInt + slot.dr;
 					const key = `${c},${r}`;
@@ -1210,6 +1227,9 @@
 						if (media) media.style.boxShadow = shadow;
 					} else {
 						slot.surface.style.boxShadow = shadow;
+					}
+					} catch (err) {
+						console.error('render() failed for one slot — skipping it instead of aborting the frame', err);
 					}
 				}
 				renderMinimap(centerColInt, centerRowInt);
