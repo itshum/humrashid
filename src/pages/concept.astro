@@ -1129,6 +1129,7 @@
 					const key = `${c},${r}`;
 					const item = itemAt(c, r);
 					if (slot.key !== key) {
+						const isFirstAssignment = slot.key === '';
 						slot.key = key;
 						slot.cleanup?.(); // stop any live effect (portrait canvas rAF) before this slot's content is replaced
 						slot.cleanup = undefined;
@@ -1164,10 +1165,18 @@
 						// stark "reset"), then a quick CSS-driven flash softens the
 						// pop. Restarting via remove/reflow/add so a slot that swaps
 						// again before the flash finishes just restarts cleanly
-						// instead of getting stuck.
-						slot.surface.classList.remove('is-swapping');
-						void slot.surface.offsetWidth;
-						slot.surface.classList.add('is-swapping');
+						// instead of getting stuck. Skipped on a slot's very first
+						// assignment (page load) — that flash (opacity 0.35 -> 1)
+						// was fighting the boot sequence below, which explicitly
+						// holds every surface at opacity 0 until it's ready to
+						// reveal them in order; racing it made panels flash
+						// visible immediately, then fade out, then fade in again
+						// for real.
+						if (!isFirstAssignment) {
+							slot.surface.classList.remove('is-swapping');
+							void slot.surface.offsetWidth;
+							slot.surface.classList.add('is-swapping');
+						}
 					}
 
 					const dCol = c - panCol;

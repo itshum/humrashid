@@ -145,19 +145,24 @@ import Analytics from "@vercel/analytics/astro";
 
       /* hover (or focus, for keyboard/touch) over the name reveals a
          small play button to its right that speaks the pronunciation —
-         hidden by default so it doesn't compete with the heading */
+         hidden by default so it doesn't compete with the heading.
+         padding-right (instead of a gap outside the box) pulls the dead
+         space between the word and the button INSIDE .name-say's own
+         hoverable box, so moving the cursor across that gap doesn't
+         drop out of :hover before it reaches the button. */
       .name-say {
         position: relative;
         display: inline-block;
+        padding-right: 1.75rem;
       }
 
       .say-name {
         position: absolute;
         top: 50%;
-        left: calc(100% + 0.5rem);
+        right: 0;
         transform: translateY(-50%) scale(0.85);
-        width: 34px;
-        height: 34px;
+        width: 26px;
+        height: 26px;
         border-radius: 999px;
         border: 1px solid var(--border);
         background: var(--bg);
@@ -173,17 +178,27 @@ import Analytics from "@vercel/analytics/astro";
       }
 
       .say-name svg {
-        width: 14px;
-        height: 14px;
+        width: 11px;
+        height: 11px;
         margin-left: 1px; /* optical centering — a play triangle reads left-heavy otherwise */
       }
 
       .name-say:hover .say-name,
-      .name-say:focus-within .say-name,
-      .say-name.is-playing {
+      .name-say:focus-within .say-name {
         opacity: 1;
         pointer-events: auto;
         transform: translateY(-50%) scale(1);
+      }
+
+      /* once played, the button hides even if the cursor never left —
+         .name-say carries this class until the mouse actually leaves,
+         so the very next hover starts the same on-hover/persist/hide
+         cycle over again instead of the button staying visible or
+         instantly reappearing */
+      .name-say.just-played .say-name {
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(-50%) scale(0.85);
       }
 
       .say-name:hover,
@@ -195,6 +210,9 @@ import Analytics from "@vercel/analytics/astro";
       @media (max-width: 600px) {
         /* no hover on touch — the button stays put once the name area
            is tapped/focused instead of chasing a hover that can't happen */
+        .name-say {
+          padding-right: 0;
+        }
         .say-name {
           position: static;
           transform: none;
@@ -203,6 +221,11 @@ import Analytics from "@vercel/analytics/astro";
           display: inline-flex;
           vertical-align: middle;
           margin-left: 0.5rem;
+        }
+        .name-say.just-played .say-name {
+          opacity: 1;
+          pointer-events: auto;
+          transform: none;
         }
       }
 
@@ -352,9 +375,10 @@ import Analytics from "@vercel/analytics/astro";
         }
       }
 
+      const nameSay = document.querySelector<HTMLElement>(".name-say");
       const sayNameBtn = document.getElementById("say-name") as HTMLButtonElement | null;
       const nameAudio = document.getElementById("name-audio") as HTMLAudioElement | null;
-      if (sayNameBtn && nameAudio) {
+      if (nameSay && sayNameBtn && nameAudio) {
         sayNameBtn.addEventListener("click", (e) => {
           e.preventDefault();
           nameAudio.currentTime = 0;
@@ -362,7 +386,13 @@ import Analytics from "@vercel/analytics/astro";
             // no audio file at /audio/humayun-pronunciation.mp3 yet, or the
             // browser blocked it — fail quietly rather than throw
           });
+          // hide immediately, even though the cursor is still sitting right
+          // on top of it — .just-played overrides :hover until the mouse
+          // actually leaves, at which point the next hover starts the same
+          // appear/persist/hide cycle fresh
+          nameSay.classList.add("just-played");
         });
+        nameSay.addEventListener("mouseleave", () => nameSay.classList.remove("just-played"));
         nameAudio.addEventListener("play", () => sayNameBtn.classList.add("is-playing"));
         nameAudio.addEventListener("pause", () => sayNameBtn.classList.remove("is-playing"));
         nameAudio.addEventListener("ended", () => sayNameBtn.classList.remove("is-playing"));
