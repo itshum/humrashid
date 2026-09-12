@@ -143,6 +143,69 @@ import Analytics from "@vercel/analytics/astro";
         margin: 0;
       }
 
+      /* hover (or focus, for keyboard/touch) over the name reveals a
+         small play button to its right that speaks the pronunciation —
+         hidden by default so it doesn't compete with the heading */
+      .name-say {
+        position: relative;
+        display: inline-block;
+      }
+
+      .say-name {
+        position: absolute;
+        top: 50%;
+        left: calc(100% + 0.5rem);
+        transform: translateY(-50%) scale(0.85);
+        width: 34px;
+        height: 34px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: var(--bg);
+        color: var(--label);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        cursor: pointer;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.15s ease, transform 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+      }
+
+      .say-name svg {
+        width: 14px;
+        height: 14px;
+        margin-left: 1px; /* optical centering — a play triangle reads left-heavy otherwise */
+      }
+
+      .name-say:hover .say-name,
+      .name-say:focus-within .say-name,
+      .say-name.is-playing {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translateY(-50%) scale(1);
+      }
+
+      .say-name:hover,
+      .say-name.is-playing {
+        color: var(--title);
+        border-color: var(--label);
+      }
+
+      @media (max-width: 600px) {
+        /* no hover on touch — the button stays put once the name area
+           is tapped/focused instead of chasing a hover that can't happen */
+        .say-name {
+          position: static;
+          transform: none;
+          opacity: 1;
+          pointer-events: auto;
+          display: inline-flex;
+          vertical-align: middle;
+          margin-left: 0.5rem;
+        }
+      }
+
       .prose {
         padding: 1rem 0 2rem;
         font-size: 1.08rem;
@@ -217,7 +280,17 @@ import Analytics from "@vercel/analytics/astro";
     <div class="col">
       <div class="about-hero">
         <p class="eyebrow">About</p>
-        <h1>Hi, I'm Humayun.</h1>
+        <h1
+          >Hi, I'm <span class="name-say"
+            >Humayun.
+            <button class="say-name" id="say-name" aria-label="Hear how to pronounce Humayun">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            </button>
+          </span>
+          <audio id="name-audio" src="/audio/humayun-pronunciation.mp3" preload="none"></audio>
+        </h1>
       </div>
 
       <div class="prose">
@@ -277,6 +350,22 @@ import Analytics from "@vercel/analytics/astro";
         } else {
           signature.classList.add("is-revealed");
         }
+      }
+
+      const sayNameBtn = document.getElementById("say-name") as HTMLButtonElement | null;
+      const nameAudio = document.getElementById("name-audio") as HTMLAudioElement | null;
+      if (sayNameBtn && nameAudio) {
+        sayNameBtn.addEventListener("click", (e) => {
+          e.preventDefault();
+          nameAudio.currentTime = 0;
+          nameAudio.play().catch(() => {
+            // no audio file at /audio/humayun-pronunciation.mp3 yet, or the
+            // browser blocked it — fail quietly rather than throw
+          });
+        });
+        nameAudio.addEventListener("play", () => sayNameBtn.classList.add("is-playing"));
+        nameAudio.addEventListener("pause", () => sayNameBtn.classList.remove("is-playing"));
+        nameAudio.addEventListener("ended", () => sayNameBtn.classList.remove("is-playing"));
       }
     </script>
   </body>

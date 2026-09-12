@@ -1190,7 +1190,12 @@
 
 					slot.wrap.style.transform = sphereTransform(lon, lat, `scale(${scale})`);
 					slot.wrap.style.opacity = String(opacity);
-					slot.wrap.style.filter = blur > 0.05 ? `blur(${blur.toFixed(1)}px)` : '';
+					// `filter: blur()` clips at the element's own box — on a card
+					// or photo that edge is hidden by the panel's own background/
+					// image, but "home" is bare text with nothing behind it, so
+					// the blur's hard-clipped edge showed up as a faint rectangle
+					// floating around the words while it panned off-center.
+					slot.wrap.style.filter = blur > 0.05 && item.kind !== 'home' ? `blur(${blur.toFixed(1)}px)` : '';
 					slot.wrap.style.zIndex = String(Math.round(2000 - dist * 10));
 
 					// floating depth: very subtle — a hint of lift, not a heavy
