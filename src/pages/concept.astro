@@ -1247,9 +1247,20 @@
 			});
 
 			// ---- input: wheel / trackpad -----------------------------------------
-			stage.addEventListener(
+			// Listens on window, not #stage: the edge-pan arrows, hint text, and
+			// nav pill are fixed-position siblings of #stage, not children of
+			// it — exactly where a vertical scroll gesture's cursor tends to
+			// land (arrow-up/down sit dead center top/bottom). A wheel event
+			// over any of them used to bubble straight past this handler with
+			// nothing calling preventDefault, so the browser's own overscroll
+			// gesture (Chrome's pull-to-refresh chief among them) took over —
+			// the "hard reset / bright flash" that only ever showed up on
+			// vertical scroll. Listening on window catches every wheel event
+			// on the page regardless of what's directly under the cursor.
+			window.addEventListener(
 				'wheel',
 				(e) => {
+					if (caseModal.classList.contains('open')) return; // let the modal's own content scroll normally
 					e.preventDefault();
 					cancelAnim();
 					rawCol = safe(rawCol + e.deltaX * WHEEL_SENSITIVITY);
