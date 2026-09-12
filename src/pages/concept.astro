@@ -52,7 +52,7 @@
 				position: absolute;
 				top: 50%;
 				left: 50%;
-				will-change: transform, opacity;
+				will-change: transform, opacity, filter;
 			}
 
 			/* inner surface: carries the idle float + shadow, composes with the
@@ -922,8 +922,12 @@
 				if (e.key === 'Escape' && caseModal.classList.contains('open')) closeCaseModal();
 			});
 
-			// Only a cross of 5 panels is ever rendered: center + one neighbor in
-			// each cardinal direction. No diagonals, no grid.
+			// A cross of 9 panels is rendered: center, plus two neighbors deep
+			// in each cardinal direction. The extra (second) ring is never
+			// meant to be seen clearly — by the time a slot is recycled to a
+			// new column/row at the edge of that ring, the distance-based
+			// opacity curve below has already faded it to exactly 0, so the
+			// content swap happens while invisible instead of mid-screen.
 			type Slot = {
 				wrap: HTMLDivElement;
 				surface: HTMLDivElement;
@@ -931,6 +935,7 @@
 				dc: number;
 				dr: number;
 				cleanup?: () => void; // stops a live effect (portrait canvas rAF/listeners) before content is replaced
+				swapTimer?: ReturnType<typeof setTimeout>; // in-flight content crossfade
 			};
 			const slots: Slot[] = [];
 			function makeSlot(dc: number, dr: number): Slot {
@@ -942,7 +947,17 @@
 				field.appendChild(wrap);
 				return { wrap, surface, key: '', dc, dr };
 			}
-			slots.push(makeSlot(-1, 0), makeSlot(0, 0), makeSlot(1, 0), makeSlot(0, -1), makeSlot(0, 1));
+			slots.push(
+				makeSlot(-2, 0),
+				makeSlot(-1, 0),
+				makeSlot(0, 0),
+				makeSlot(1, 0),
+				makeSlot(2, 0),
+				makeSlot(0, -2),
+				makeSlot(0, -1),
+				makeSlot(0, 1),
+				makeSlot(0, 2)
+			);
 
 			function buildSurface(item: Item): string {
 				if (item.kind === 'home') {
@@ -1060,48 +1075,71 @@
 					const key = `${c},${r}`;
 					const item = itemAt(c, r);
 					if (slot.key !== key) {
-						slot.cleanup?.(); // stop any live effect (portrait canvas rAF) before this slot's content is replaced
-						slot.cleanup = undefined;
-						slot.surface.innerHTML = buildSurface(item) + `<div class="coord">${c},${r}</div>`;
-						slot.wrap.className = `panel-wrap k-${item.kind}`;
-						slot.wrap.style.width = `${item.w}px`;
-						slot.wrap.style.height = `${item.h}px`;
-						slot.key = key;
-						// re-wire the NYC hover-swap every time home's markup is
-						// rebuilt (innerHTML replace drops old listeners) — covers
-						// both the first render and any later return to home
-						if (item.kind === 'home') {
-							const nycEl = slot.surface.querySelector<HTMLElement>('.nyc-word');
-							nycEl?.addEventListener('mouseenter', () => {
-								nycEl.textContent = NYC_EMOJIS[Math.floor(Math.random() * NYC_EMOJIS.length)];
+						slot.key = key; // set immediately so a fast re-trigger mid-fade doesn't restart from scratch
+						clearTimeout(slot.swapTimer);
+						const swap = () => {
+							slot.cleanup?.(); // stop any live effect (portrait canvas rAF) before this slot's content is replaced
+							slot.cleanup = undefined;
+							slot.surface.innerHTML = buildSurface(item) + `<div class="coord">${c},${r}</div>`;
+							slot.wrap.className = `panel-wrap k-${item.kind}`;
+							slot.wrap.style.width = `${item.w}px`;
+							slot.wrap.style.height = `${item.h}px`;
+							// re-wire the NYC hover-swap every time home's markup is
+							// rebuilt (innerHTML replace drops old listeners) — covers
+							// both the first render and any later return to home
+							if (item.kind === 'home') {
+								const nycEl = slot.surface.querySelector<HTMLElement>('.nyc-word');
+								nycEl?.addEventListener('mouseenter', () => {
+									nycEl.textContent = NYC_EMOJIS[Math.floor(Math.random() * NYC_EMOJIS.length)];
+								});
+								nycEl?.addEventListener('mouseleave', () => {
+									nycEl.textContent = 'NYC';
+								});
+							}
+							// case-study visit arrow opens the real page in the modal
+							// instead of navigating away from the sphere
+							if (item.kind === 'card' && item.link) {
+								const visitBtn = slot.surface.querySelector<HTMLButtonElement>('.card-visit');
+								visitBtn?.addEventListener('click', (e) => {
+									e.stopPropagation();
+									openCaseModal(item.link!);
+								});
+							}
+							requestAnimationFrame(() => {
+								slot.surface.style.opacity = '1';
 							});
-							nycEl?.addEventListener('mouseleave', () => {
-								nycEl.textContent = 'NYC';
-							});
-						}
-						// case-study visit arrow opens the real page in the modal
-						// instead of navigating away from the sphere
-						if (item.kind === 'card' && item.link) {
-							const visitBtn = slot.surface.querySelector<HTMLButtonElement>('.card-visit');
-							visitBtn?.addEventListener('click', (e) => {
-								e.stopPropagation();
-								openCaseModal(item.link!);
-							});
+						};
+						// content is swapped behind a quick fade-to-transparent so a
+						// slot changing identity never reads as an instant pop — by
+						// the time this fires the slot is almost always already
+						// faded to ~0 by distance anyway (see the opacity curve
+						// below), so this mostly matters right at rest/on load
+						if (slot.surface.style.opacity === '0') {
+							swap();
+						} else {
+							slot.surface.style.transition = 'opacity 140ms ease';
+							slot.surface.style.opacity = '0';
+							slot.swapTimer = setTimeout(swap, 140);
 						}
 					}
 
 					const dCol = c - panCol;
 					const dRow = r - panRow;
 					const dist = Math.sqrt(dCol * dCol + dRow * dRow);
-					// gentler falloff than before — neighbors should still read
-					// clearly as "there's more this way", not fade to near-nothing
-					const scale = clamp(1.08 - dist * 0.28, 0.62, 1.08);
-					const opacity = clamp(1 - dist * 0.32, 0.35, 1);
+					// steep enough that opacity hits true 0 well inside the
+					// second ring — a recycled slot's content swap (see above)
+					// always happens while fully invisible, not mid-fade
+					const scale = clamp(1.1 - dist * 0.3, 0.4, 1.1);
+					const opacity = clamp(1 - dist * 0.72, 0, 1);
+					// Ramp-style depth of field: sharp at the center, softly
+					// gaussian-blurred the further a panel sits from focus
+					const blur = clamp(dist * 9, 0, 14);
 					const lon = dCol * DEG_PER_COL;
 					const lat = dRow * DEG_PER_ROW;
 
 					slot.wrap.style.transform = sphereTransform(lon, lat, `scale(${scale})`);
 					slot.wrap.style.opacity = String(opacity);
+					slot.wrap.style.filter = blur > 0.05 ? `blur(${blur.toFixed(1)}px)` : '';
 					slot.wrap.style.zIndex = String(Math.round(2000 - dist * 10));
 
 					// floating depth: very subtle — a hint of lift, not a heavy
