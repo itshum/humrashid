@@ -7,24 +7,25 @@
 // (longitude/latitude per panel), with resistance-then-hard-lock dragging
 // and an infinite loop on both axes.
 
-// Nav logo: a Fibonacci/sunflower phyllotaxis spiral (Vogel's model) —
-// dots fan out from the center at the golden angle, which is what
-// naturally produces a true circular boundary with visible spiral arms,
-// no grid or corner-clipping needed. Computed once at build time.
-const LOGO_DOT_COUNT = 60;
-const LOGO_RADIUS = 15.5; // px, from center
-const GOLDEN_ANGLE_DEG = 137.50776;
-const logoDots = Array.from({ length: LOGO_DOT_COUNT }, (_, i) => {
-  const r = LOGO_RADIUS * Math.sqrt((i + 0.5) / LOGO_DOT_COUNT);
-  const theta = (i * GOLDEN_ANGLE_DEG * Math.PI) / 180;
+// Nav logo: a real circle — straight horizontal rows and vertical
+// columns of an 11x11 grid, with any cell farther than LOGO_RADIUS from
+// the center dropped, tapering each row's length near the top/bottom
+// exactly like the reference. Not a spiral: every dot lines up with its
+// row and column neighbors.
+const LOGO_GRID_N = 11;
+const LOGO_RADIUS = 5.2; // in grid units from center
+const logoDots = Array.from({ length: LOGO_GRID_N * LOGO_GRID_N }, (_, i) => {
+  const row = Math.floor(i / LOGO_GRID_N);
+  const col = i % LOGO_GRID_N;
+  const center = (LOGO_GRID_N - 1) / 2;
+  const dist = Math.hypot(row - center, col - center);
   // deterministic pseudo-random (not Math.random — this needs to render
   // the same on every request) pick of which dots carry the shimmer
   const pseudoRandom = ((i * 9301 + 49297) % 233280) / 233280;
   return {
-    x: r * Math.cos(theta),
-    y: r * Math.sin(theta),
+    visible: dist <= LOGO_RADIUS,
     isLetter: pseudoRandom < 0.45,
-    delayMs: Math.round((i / LOGO_DOT_COUNT) * 320),
+    delayMs: Math.round((row / LOGO_GRID_N) * 320),
   };
 });
 ---
@@ -519,24 +520,26 @@ const logoDots = Array.from({ length: LOGO_DOT_COUNT }, (_, i) => {
 				padding: 0;
 			}
 
-			/* logo mark: a Fibonacci/sunflower spiral of dots (positions
-			   computed once at build time, see logoDots in the frontmatter) —
-			   the golden-angle spacing is what gives this a true circular
-			   boundary with visible fanned arms, rather than a grid clipped
-			   into a rough circle. */
+			/* logo mark: a real circle — an 11x11 grid (see logoDots in the
+			   frontmatter) with any cell past LOGO_RADIUS from center hidden
+			   via visibility (not display, so the grid tracks/alignment stay
+			   put), tapering each row's length near the top/bottom. Straight
+			   rows and columns throughout, not a spiral. */
 			.logo-mark {
-				position: relative;
-				width: 34px;
-				height: 34px;
+				display: grid;
+				grid-template-columns: repeat(11, 2.2px);
+				grid-template-rows: repeat(11, 2.2px);
+				gap: 0.75px;
 			}
 			.logo-mark .px {
-				position: absolute;
-				width: 2.6px;
-				height: 2.6px;
-				margin: -1.3px;
+				width: 2.2px;
+				height: 2.2px;
 				border-radius: 999px;
 				background: #d5d5d1;
 				animation: dot-enter 480ms ease-out both;
+			}
+			.logo-mark .px.is-hidden {
+				visibility: hidden;
 			}
 			.logo-mark .px.is-letter {
 				animation:
@@ -698,8 +701,8 @@ const logoDots = Array.from({ length: LOGO_DOT_COUNT }, (_, i) => {
 				<span class="logo-mark" aria-label="Humayun Rashid, home">
 					{logoDots.map((d) => (
 						<span
-							class={`px${d.isLetter ? ' is-letter' : ''}`}
-							style={`left:calc(50% + ${d.x.toFixed(2)}px); top:calc(50% + ${d.y.toFixed(2)}px); animation-delay:${d.delayMs}ms`}
+							class={`px${d.isLetter ? ' is-letter' : ''}${d.visible ? '' : ' is-hidden'}`}
+							style={`animation-delay:${d.delayMs}ms`}
 						/>
 					))}
 				</span>
@@ -1409,7 +1412,7 @@ const logoDots = Array.from({ length: LOGO_DOT_COUNT }, (_, i) => {
 			// cells randomly flip between the shimmer ("letter") state and
 			// plain gray on mousemove, at the same ~45% chance per cell
 			const LOGO_LETTER_CHANCE = 0.45;
-			const logoCells = document.querySelectorAll<HTMLElement>('.logo-mark .px');
+			const logoCells = document.querySelectorAll<HTMLElement>('.logo-mark .px:not(.is-hidden)');
 			document.getElementById('nav-home')!.addEventListener('mousemove', () => {
 				logoCells.forEach((cell) => {
 					cell.classList.toggle('is-letter', Math.random() < LOGO_LETTER_CHANCE);
