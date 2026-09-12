@@ -299,6 +299,18 @@
 				display: block;
 				pointer-events: none; /* the iframe never steals the drag */
 			}
+			/* peripheral/background browser panels never mount a real iframe —
+			   a live cross-origin embed (rendr.app, humrashid.com, etc.) being
+			   torn down and recreated every time a slot recycles to a new
+			   column was forcing a real network fetch mid-scroll, which is
+			   what read as a "hard reset" flash. Only the one slot that's
+			   actually centered (see `focused` in buildSurface) gets a real
+			   iframe; every other occurrence gets this static fill instead. */
+			.browser-body-placeholder {
+				position: absolute;
+				inset: 0;
+				background: linear-gradient(135deg, #f2f2f0 0%, #fafafa 40%, #f2f2f0 100%);
+			}
 			.browser-visit {
 				position: absolute;
 				inset: 0;
@@ -867,6 +879,12 @@
 			const SPHERE_R = 1800; // px
 			const DEG_PER_COL = 25; // longitude degrees between adjacent panel centers
 			const DEG_PER_ROW = 21; // latitude degrees between adjacent panel centers
+			// Work mode is every item at case-study/browser size, back to back —
+			// packed at the default grid's spacing they visibly overlap, where
+			// the default grid gets away with it by mixing in small/medium
+			// panels between the big ones. Wider spacing just for this mode.
+			const WORK_DEG_PER_COL = 36;
+			const WORK_DEG_PER_ROW = 31;
 
 			function sphereTransform(lonDeg: number, latDeg: number, extra = ''): string {
 				const lon = (clamp(lonDeg, -85, 85) * Math.PI) / 180;
@@ -974,7 +992,7 @@
 				makeSlot(0, 2)
 			);
 
-			function buildSurface(item: Item): string {
+			function buildSurface(item: Item, focused: boolean): string {
 				if (item.kind === 'home') {
 					// "NYC" gets its own span: it's the word the boot animation
 					// cycles through landmark emoji into, and the word that
@@ -1054,7 +1072,11 @@
 								</div>
 							</div>
 							<div class="browser-body">
-								<iframe src="${item.url}" loading="lazy" referrerpolicy="no-referrer"></iframe>
+								${
+									focused
+										? `<iframe src="${item.url}" loading="lazy" referrerpolicy="no-referrer"></iframe>`
+										: `<div class="browser-body-placeholder"></div>`
+								}
 								<a class="browser-visit" href="${item.url}" target="_blank" rel="noopener">
 									<span class="browser-visit-icon">
 										<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1093,7 +1115,8 @@
 						slot.key = key;
 						slot.cleanup?.(); // stop any live effect (portrait canvas rAF) before this slot's content is replaced
 						slot.cleanup = undefined;
-						slot.surface.innerHTML = buildSurface(item) + `<div class="coord">${c},${r}</div>`;
+						const focused = slot.dc === 0 && slot.dr === 0;
+						slot.surface.innerHTML = buildSurface(item, focused) + `<div class="coord">${c},${r}</div>`;
 						slot.wrap.className = `panel-wrap k-${item.kind}`;
 						slot.wrap.style.width = `${item.w}px`;
 						slot.wrap.style.height = `${item.h}px`;
@@ -1145,8 +1168,8 @@
 					// Ramp-style depth of field: sharp through the middle,
 					// softly gaussian-blurred only at the outer edge
 					const blur = clamp(t * 7, 0, 6);
-					const lon = dCol * DEG_PER_COL;
-					const lat = dRow * DEG_PER_ROW;
+					const lon = dCol * (mode === 'work' ? WORK_DEG_PER_COL : DEG_PER_COL);
+					const lat = dRow * (mode === 'work' ? WORK_DEG_PER_ROW : DEG_PER_ROW);
 
 					slot.wrap.style.transform = sphereTransform(lon, lat, `scale(${scale})`);
 					slot.wrap.style.opacity = String(opacity);
