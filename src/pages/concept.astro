@@ -6,6 +6,27 @@
 // vary in size by content kind. Positioning is still a true sphere
 // (longitude/latitude per panel), with resistance-then-hard-lock dragging
 // and an infinite loop on both axes.
+
+// Nav logo: a Fibonacci/sunflower phyllotaxis spiral (Vogel's model) —
+// dots fan out from the center at the golden angle, which is what
+// naturally produces a true circular boundary with visible spiral arms,
+// no grid or corner-clipping needed. Computed once at build time.
+const LOGO_DOT_COUNT = 60;
+const LOGO_RADIUS = 15.5; // px, from center
+const GOLDEN_ANGLE_DEG = 137.50776;
+const logoDots = Array.from({ length: LOGO_DOT_COUNT }, (_, i) => {
+  const r = LOGO_RADIUS * Math.sqrt((i + 0.5) / LOGO_DOT_COUNT);
+  const theta = (i * GOLDEN_ANGLE_DEG * Math.PI) / 180;
+  // deterministic pseudo-random (not Math.random — this needs to render
+  // the same on every request) pick of which dots carry the shimmer
+  const pseudoRandom = ((i * 9301 + 49297) % 233280) / 233280;
+  return {
+    x: r * Math.cos(theta),
+    y: r * Math.sin(theta),
+    isLetter: pseudoRandom < 0.45,
+    delayMs: Math.round((i / LOGO_DOT_COUNT) * 320),
+  };
+});
 ---
 
 <html lang="en">
@@ -478,12 +499,12 @@
 				align-items: center;
 				gap: 4px;
 				padding: 8px;
-				background: rgba(255, 255, 255, 0.82);
+				background: rgba(255, 255, 255, 0.94);
 				backdrop-filter: blur(22px) saturate(180%);
 				-webkit-backdrop-filter: blur(22px) saturate(180%);
-				border: 1px solid rgba(255, 255, 255, 0.85);
+				border: 1px solid rgba(255, 255, 255, 0.92);
 				border-radius: 999px;
-				box-shadow: 0 8px 32px rgba(0, 0, 0, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+				box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.8);
 			}
 			#nav button.dot {
 				width: 42px;
@@ -498,27 +519,24 @@
 				padding: 0;
 			}
 
-			/* logo mark: same idea as the real site's pixel-grid logo (a grid of
-			   cells encoding "Hr"), rebuilt as an actual filled disc of dots —
-			   a 6x6 grid with only the 4 true corners hidden (visibility, not
-			   display, so the grid tracks stay put) is round enough at this
-			   size to read as a circle rather than a clipped square, without
-			   needing more rows/cols (which would shrink every dot to fit) */
+			/* logo mark: a Fibonacci/sunflower spiral of dots (positions
+			   computed once at build time, see logoDots in the frontmatter) —
+			   the golden-angle spacing is what gives this a true circular
+			   boundary with visible fanned arms, rather than a grid clipped
+			   into a rough circle. */
 			.logo-mark {
-				display: grid;
-				grid-template-columns: repeat(6, 4.4px);
-				grid-template-rows: repeat(6, 4.4px);
-				gap: 1px;
+				position: relative;
+				width: 34px;
+				height: 34px;
 			}
 			.logo-mark .px {
-				width: 4.4px;
-				height: 4.4px;
+				position: absolute;
+				width: 2.6px;
+				height: 2.6px;
+				margin: -1.3px;
 				border-radius: 999px;
 				background: #d5d5d1;
 				animation: dot-enter 480ms ease-out both;
-			}
-			.logo-mark .px.is-corner {
-				visibility: hidden;
 			}
 			.logo-mark .px.is-letter {
 				animation:
@@ -678,16 +696,17 @@
 		<nav id="nav">
 			<button class="dot" id="nav-home" title="recenter">
 				<span class="logo-mark" aria-label="Humayun Rashid, home">
-					<span class="px is-corner" style="animation-delay:0ms"></span><span class="px is-letter" style="animation-delay:0ms"></span><span class="px" style="animation-delay:0ms"></span><span class="px" style="animation-delay:0ms"></span><span class="px is-letter" style="animation-delay:0ms"></span><span class="px is-corner" style="animation-delay:0ms"></span>
-					<span class="px" style="animation-delay:56ms"></span><span class="px is-letter" style="animation-delay:56ms"></span><span class="px" style="animation-delay:56ms"></span><span class="px" style="animation-delay:56ms"></span><span class="px is-letter" style="animation-delay:56ms"></span><span class="px is-letter" style="animation-delay:56ms"></span>
-					<span class="px" style="animation-delay:112ms"></span><span class="px is-letter" style="animation-delay:112ms"></span><span class="px is-letter" style="animation-delay:112ms"></span><span class="px is-letter" style="animation-delay:112ms"></span><span class="px is-letter" style="animation-delay:112ms"></span><span class="px is-letter" style="animation-delay:112ms"></span>
-					<span class="px" style="animation-delay:168ms"></span><span class="px is-letter" style="animation-delay:168ms"></span><span class="px" style="animation-delay:168ms"></span><span class="px" style="animation-delay:168ms"></span><span class="px is-letter" style="animation-delay:168ms"></span><span class="px" style="animation-delay:168ms"></span>
-					<span class="px" style="animation-delay:224ms"></span><span class="px is-letter" style="animation-delay:224ms"></span><span class="px" style="animation-delay:224ms"></span><span class="px" style="animation-delay:224ms"></span><span class="px is-letter" style="animation-delay:224ms"></span><span class="px" style="animation-delay:224ms"></span>
-					<span class="px is-corner" style="animation-delay:280ms"></span><span class="px is-letter" style="animation-delay:280ms"></span><span class="px" style="animation-delay:280ms"></span><span class="px" style="animation-delay:280ms"></span><span class="px is-letter" style="animation-delay:280ms"></span><span class="px is-corner" style="animation-delay:280ms"></span>
+					{logoDots.map((d) => (
+						<span
+							class={`px${d.isLetter ? ' is-letter' : ''}`}
+							style={`left:calc(50% + ${d.x.toFixed(2)}px); top:calc(50% + ${d.y.toFixed(2)}px); animation-delay:${d.delayMs}ms`}
+						/>
+					))}
 				</span>
 			</button>
 			<a href="#" id="nav-work">Work</a>
 			<a href="#" data-stub="/ideas">Ideas</a>
+			<a href="#" id="nav-principles">Principles</a>
 			<a href="#" id="nav-about">About</a>
 		</nav>
 
@@ -1390,7 +1409,7 @@
 			// cells randomly flip between the shimmer ("letter") state and
 			// plain gray on mousemove, at the same ~45% chance per cell
 			const LOGO_LETTER_CHANCE = 0.45;
-			const logoCells = document.querySelectorAll<HTMLElement>('.logo-mark .px:not(.is-corner)');
+			const logoCells = document.querySelectorAll<HTMLElement>('.logo-mark .px');
 			document.getElementById('nav-home')!.addEventListener('mousemove', () => {
 				logoCells.forEach((cell) => {
 					cell.classList.toggle('is-letter', Math.random() < LOGO_LETTER_CHANCE);
@@ -1405,11 +1424,15 @@
 				toggleWorkMode();
 			});
 
-			// ---- "About" nav: same case-study modal, pointed at the real
-			// /about page instead of a case study
+			// ---- "About"/"Principles" nav: same case-study modal, pointed at
+			// the real pages instead of a case study
 			document.getElementById('nav-about')!.addEventListener('click', (e) => {
 				e.preventDefault();
 				openCaseModal('/about');
+			});
+			document.getElementById('nav-principles')!.addEventListener('click', (e) => {
+				e.preventDefault();
+				openCaseModal('/principles');
 			});
 
 			// Two straight, eased passes — panels slide off toward their own
