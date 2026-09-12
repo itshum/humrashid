@@ -348,8 +348,6 @@
 			/* ---- video: looping muted clip, same card shell as .k-card ---- */
 			.k-video .panel-surface {
 				display: flex;
-				flex-direction: column;
-				gap: 14px;
 				pointer-events: auto;
 			}
 			.video-media {
@@ -370,19 +368,6 @@
 				inset: 0;
 				background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 60%, #1a1a1a 100%);
 			}
-			.video-badge {
-				position: absolute;
-				top: 10px;
-				left: 10px;
-				background: rgba(0, 0, 0, 0.55);
-				color: #fff;
-				font-size: 10px;
-				letter-spacing: 0.08em;
-				text-transform: uppercase;
-				padding: 3px 9px;
-				border-radius: 999px;
-			}
-
 			/* ---- photo: polaroid-style frame + camera metadata caption ---- */
 			.k-photo .panel-surface {
 				background: #fff;
@@ -732,8 +717,8 @@
 				subtitle?: string;
 				year?: string;
 			};
-			type PhotoItem = Sized & { kind: 'photo'; tone: string; camera: string; meta: string };
-			type VideoItem = Sized & { kind: 'video'; title: string; subtitle: string };
+			type PhotoItem = Sized & { kind: 'photo'; tone: string; camera: string; meta: string; src?: string };
+			type VideoItem = Sized & { kind: 'video'; title: string; subtitle: string; src?: string };
 			type PortraitItem = Sized & { kind: 'portrait'; src: string };
 			type Item = HomeItem | CardItem | BrowserItem | PhotoItem | VideoItem | PortraitItem;
 
@@ -752,6 +737,8 @@
 			// content
 			const CLIP_A = 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4';
 			const CLIP_B = 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/friday.mp4';
+			// real b-roll from the Nessa site — a looping cab shot
+			const CLIP_NESSA_CAB = 'https://cdn.prod.website-files.com/6284f50b95ff173d79dff367/62fffc164bf9875964f162d3_Nessa%20-%20Cab-transcode.mp4';
 
 			// NYC landmarks, standard emoji glyphs (renders as Apple's style on
 			// macOS/iOS automatically). No dedicated emoji exists yet for a
@@ -826,14 +813,14 @@
 					{ kind: 'home', title: 'Humayun Rashid is a designer<br/>and founder in NYC', ...HOME },
 					{ kind: 'portrait', src: '/concept/portrait.jpg', ...PORTRAIT },
 					ITEM_RENDR,
-					{ kind: 'photo', tone: '#d8d2c4', camera: 'Fujifilm X100V', meta: 'Brooklyn, NY · Sep 2024', ...PHOTO },
+					{ kind: 'photo', tone: '#d8d2c4', camera: 'Candid', meta: 'Nessa studio, NYC', src: '/concept/humayun-ux.jpg', ...PHOTO },
 					ITEM_ATRIUM,
 					ITEM_SUBLIME,
 				],
 				[
 					card('about', 'About — the longer version', 'A decade of B2B SaaS and eCommerce design, and what I care about now.', 'about-me', LG),
 					card('ideas', 'Ideas — writing & notes', 'Short essays on onboarding, empty states, and saying no.', 'ideas-notes', MD),
-					{ kind: 'video', title: 'Talk — five users', subtitle: 'A clip from a workshop on user interviews.', ...VIDEO },
+					{ kind: 'video', title: 'Nessa — Studio', subtitle: 'B-roll from a shoot around the city.', src: CLIP_NESSA_CAB, ...VIDEO },
 					{ kind: 'photo', tone: '#c9d0c6', camera: 'Kodak Gold 200', meta: 'Prospect Park · Jun 2024', ...PHOTO },
 					ITEM_HUMRASHID,
 					card('writing', 'Principles', 'A running list of rules I design by.', 'principles', SM),
@@ -1040,15 +1027,11 @@
 					// autoplaying <video src> is a real network fetch, so a
 					// peripheral slot recycling past this item constantly
 					// re-triggers it. Only load it once this slot is focused.
-					const src = Math.abs(hashCode(item.title)) % 2 === 0 ? CLIP_A : CLIP_B;
+					// no caption — just the loop, edge to edge
+					const src = item.src ?? (Math.abs(hashCode(item.title)) % 2 === 0 ? CLIP_A : CLIP_B);
 					return `
 						<div class="video-media">
 							${focused ? `<video autoplay muted loop playsinline src="${src}"></video>` : `<div class="video-media-placeholder"></div>`}
-							<span class="video-badge">video</span>
-						</div>
-						<div class="card-text">
-							<div class="card-title">${item.title}</div>
-							<div class="card-subtitle">${item.subtitle}</div>
 						</div>`;
 				}
 				if (item.kind === 'browser') {
@@ -1108,9 +1091,13 @@
 				if (item.kind === 'portrait') {
 					return `<img class="portrait-img" src="${item.src}" alt="Humayun Rashid" />`;
 				}
-				// photo
+				// photo — a real src (same-origin asset) overrides the flat
+				// tone color with the actual image, cover-fit
+				const photoStyle = item.src
+					? `background-image:url('${item.src}');background-size:cover;background-position:center`
+					: `background:${item.tone}`;
 				return `
-					<div class="photo-image" style="background:${item.tone}"></div>
+					<div class="photo-image" style="${photoStyle}"></div>
 					<div class="photo-caption">
 						<div class="photo-meta-camera">${item.camera}</div>
 						<div class="photo-meta-line">${item.meta}</div>
