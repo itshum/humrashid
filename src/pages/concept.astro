@@ -801,6 +801,7 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 				title?: string;
 				subtitle?: string;
 				year?: string;
+				noEmbed?: boolean; // site sends X-Frame-Options/CSP that blocks iframing — never attempt a live embed, even when focused
 			};
 			type PhotoItem = Sized & { kind: 'photo'; tone: string; camera: string; meta: string; src?: string };
 			type VideoItem = Sized & { kind: 'video'; title: string; subtitle: string; src?: string };
@@ -892,6 +893,25 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 				year: '2025',
 				...BROWSER,
 			};
+			const ITEM_ALOHA: Item = {
+				kind: 'browser',
+				url: 'https://aloha.com',
+				display: 'aloha.com',
+				title: 'Aloha',
+				subtitle: 'eCommerce redesign for a plant-based protein brand — AWWWARDS eComm Site of the Year nominee',
+				year: '2020',
+				noEmbed: true, // sends frame-ancestors 'none' — refuses to load in an iframe at all
+				...BROWSER,
+			};
+			const ITEM_SHOPPINGGIVES: Item = {
+				kind: 'browser',
+				url: 'https://shoppinggives.com',
+				display: 'shoppinggives.com',
+				title: 'Shopping Gives',
+				subtitle: 'Product strategy, commerce activation & product design for a donation-enablement startup',
+				noEmbed: true, // sends frame-ancestors 'self' — refuses to load in an iframe at all
+				...BROWSER,
+			};
 
 			const rowsByIndex: Item[][] = [
 				[
@@ -914,8 +934,8 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 					{ kind: 'photo', tone: '#dcd6cf', camera: 'iPhone 15 Pro', meta: 'Lower Manhattan · Mar 2024', ...PHOTO },
 					ITEM_PACK,
 					ITEM_INVETERATE,
-					{ kind: 'browser', url: 'https://example.com', display: 'example.com', ...BROWSER },
-					card('link', 'dribbble ↗', 'Shots and works-in-progress.', 'dribbble', SM),
+					ITEM_ALOHA,
+					ITEM_SHOPPINGGIVES,
 					ITEM_PPVP,
 				],
 			];
@@ -924,7 +944,17 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 			// nothing else — cycles through a flat list instead of the usual
 			// grid, with each row offset so it doesn't repeat in a straight
 			// column.
-			const WORK_ITEMS: Item[] = [ITEM_PACK, ITEM_INVETERATE, ITEM_PPVP, ITEM_SUBLIME, ITEM_ATRIUM, ITEM_RENDR, ITEM_HUMRASHID];
+			const WORK_ITEMS: Item[] = [
+				ITEM_PACK,
+				ITEM_INVETERATE,
+				ITEM_PPVP,
+				ITEM_SUBLIME,
+				ITEM_ATRIUM,
+				ITEM_RENDR,
+				ITEM_HUMRASHID,
+				ITEM_ALOHA,
+				ITEM_SHOPPINGGIVES,
+			];
 			let mode: 'default' | 'work' = 'default';
 
 			function mod(n: number, m: number) {
@@ -1159,7 +1189,7 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 							</div>
 							<div class="browser-body">
 								${
-									focused
+									focused && !item.noEmbed
 										? `<iframe src="${item.url}" loading="lazy" referrerpolicy="no-referrer"></iframe>`
 										: `<div class="browser-body-placeholder"></div>`
 								}
