@@ -151,6 +151,15 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 				border-radius: 14px;
 				animation: floaty 6s ease-in-out infinite;
 				transition: box-shadow 300ms ease;
+				/* every panel sits inside a parent that's constantly moved with
+				   translate3d/rotateY/rotateX (see sphereTransform) — WebKit/
+				   Safari is known to draw a faint seam along a rounded corner
+				   that's GPU-composited inside a live 3D transform, since the
+				   layer's edge doesn't always land on a device pixel boundary.
+				   Forcing this surface onto its own flattened, backface-hidden
+				   layer is the standard fix for that class of artifact. */
+				-webkit-backface-visibility: hidden;
+				backface-visibility: hidden;
 			}
 			/* the idle bob was constantly nudging the visit button out from
 			   under the cursor mid-hover — freezing it in place while hovered
@@ -161,18 +170,25 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 			@keyframes floaty {
 				0%,
 				100% {
-					transform: translateY(0);
+					transform: translateY(0) translateZ(0);
 				}
 				50% {
-					transform: translateY(-8px);
+					transform: translateY(-8px) translateZ(0);
 				}
 			}
 			/* a slot's content identity changes constantly as it's recycled to
-			   a new column/row — this softens that swap into a quick flash
-			   instead of an instant pop, restarted from JS on every swap */
+			   a new column/row — this used to dip to 0.35 opacity to soften
+			   that swap, but under continuous fast scrolling literally every
+			   visible slot re-triggers it on every tick (measured: all 9 at
+			   once, restarting faster than the 220ms it takes to finish),
+			   so the whole screen sat in a permanent partial-fade state that
+			   read as a strobing white flash, not a soft pop. A much
+			   shallower dip keeps the intent (no instant hard pop on a
+			   single, isolated swap) without being visible as a flash when
+			   every panel on screen restarts it in lockstep. */
 			@keyframes panelSwapFade {
 				from {
-					opacity: 0.35;
+					opacity: 0.88;
 				}
 				to {
 					opacity: 1;
@@ -310,8 +326,6 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 				background: #fdfdfd;
 				border-radius: 14px;
 				overflow: hidden;
-				border: 1px solid #e4e4e4;
-				box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), inset 0 0 0 1px rgba(255, 255, 255, 0.6);
 				min-height: 0;
 			}
 			/* real macOS Safari toolbar: traffic lights, sidebar + back
@@ -971,17 +985,28 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 			// "Work" mode: every real case study plus the other live sites,
 			// nothing else — cycles through a flat list instead of the usual
 			// grid, with each row offset so it doesn't repeat in a straight
-			// column.
+			// column. Order matters here: measuring actual rendered bounding
+			// boxes across a full drag sweep showed every BROWSER-BROWSER
+			// neighbor pair (784px + 784px, the widest kind on the site)
+			// overlapping by well over 100px at some drag fractions — the
+			// four browser items were sitting back to back in this list, so
+			// they always landed as adjacent columns. Only 2 of these 9 items
+			// (Sublime, Atrium) are small enough to act as spacers, so with 7
+			// large (CASE_STUDY/BROWSER) items on a 9-item cycle, some
+			// large-large adjacency is unavoidable by pigeonhole — but
+			// interleaving so no two BROWSER items ever sit next to each
+			// other (the single worst combination) gets this down to the
+			// mathematical minimum of large-large edges.
 			const WORK_ITEMS: Item[] = [
+				ITEM_RENDR,
+				ITEM_SUBLIME,
+				ITEM_HUMRASHID,
 				ITEM_PACK,
+				ITEM_ALOHA,
+				ITEM_ATRIUM,
+				ITEM_SHOPPINGGIVES,
 				ITEM_INVETERATE,
 				ITEM_PPVP,
-				ITEM_SUBLIME,
-				ITEM_ATRIUM,
-				ITEM_RENDR,
-				ITEM_HUMRASHID,
-				ITEM_ALOHA,
-				ITEM_SHOPPINGGIVES,
 			];
 			let mode: 'default' | 'work' = 'default';
 
@@ -1029,7 +1054,7 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 			// more predictable way to guarantee a minimum gap, since it
 			// scales the panels down before the (unpredictable) sphere
 			// projection rather than fighting it with a bigger angle.
-			const WORK_SCALE = 0.72;
+			const WORK_SCALE = 0.6;
 
 			function sphereTransform(lonDeg: number, latDeg: number, extra = ''): string {
 				const lon = (clamp(lonDeg, -85, 85) * Math.PI) / 180;
