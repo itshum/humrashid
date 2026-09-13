@@ -152,6 +152,12 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 				animation: floaty 6s ease-in-out infinite;
 				transition: box-shadow 300ms ease;
 			}
+			/* the idle bob was constantly nudging the visit button out from
+			   under the cursor mid-hover — freezing it in place while hovered
+			   is what actually makes the button reliably clickable */
+			.panel-surface:hover {
+				animation-play-state: paused;
+			}
 			@keyframes floaty {
 				0%,
 				100% {
@@ -245,7 +251,7 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 			}
 			.card-media:hover .card-visit {
 				opacity: 1;
-				background: rgba(255, 255, 255, 0.35);
+				background: rgba(255, 255, 255, 0.14);
 			}
 			.card-visit-icon {
 				width: 52px;
@@ -409,11 +415,12 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 				opacity: 0;
 				transition: opacity 200ms, background 200ms;
 				text-decoration: none;
+				cursor: pointer;
 				pointer-events: none;
 			}
 			.browser-window:hover .browser-visit {
 				opacity: 1;
-				background: rgba(255, 255, 255, 0.55);
+				background: rgba(255, 255, 255, 0.16);
 				pointer-events: auto;
 			}
 			.browser-visit-icon {
@@ -1320,23 +1327,18 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 					slot.wrap.style.filter = blur > 0.05 && item.kind !== 'home' ? `blur(${blur.toFixed(1)}px)` : '';
 					slot.wrap.style.zIndex = String(Math.round(2000 - dist * 10));
 
-					// floating depth: very subtle — a hint of lift, not a heavy
-					// drop shadow. The hover-to-visit affordance on browser
-					// panels is untouched. Home is bare text — no shadow at all.
-					// For card/video, the shadow belongs on the media block only
-					// — the headline/subtext below must read as free-floating
-					// text on the page, not part of a shared card silhouette.
+					// Floating depth, applied the same way to every kind (image
+					// and caption text together, one shadow under the whole
+					// card) — this needs a real blur radius and spread to read
+					// as a soft shadow sitting under a floating object. The
+					// previous version only shadowed the media block on
+					// card/video and used a small blur radius on a transparent
+					// box for everything else, which read as a thin hard-edged
+					// border rather than a shadow. Home stays bare text with no
+					// box, so it gets none.
 					const lift = clamp(1 - dist, 0, 1);
-					const shadow = `0 ${5 * lift + 2}px ${16 * lift + 5}px rgba(0,0,0,${0.03 + 0.05 * lift})`;
-					if (item.kind === 'home') {
-						slot.surface.style.boxShadow = 'none';
-					} else if (item.kind === 'card' || item.kind === 'video') {
-						slot.surface.style.boxShadow = 'none';
-						const media = slot.surface.querySelector<HTMLElement>('.card-media, .video-media');
-						if (media) media.style.boxShadow = shadow;
-					} else {
-						slot.surface.style.boxShadow = shadow;
-					}
+					const shadow = `0 ${10 + 18 * lift}px ${28 + 42 * lift}px rgba(0,0,0,${(0.05 + 0.09 * lift).toFixed(3)})`;
+					slot.surface.style.boxShadow = item.kind === 'home' ? 'none' : shadow;
 					} catch (err) {
 						console.error('render() failed for one slot — skipping it instead of aborting the frame', err);
 					}
