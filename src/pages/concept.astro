@@ -386,20 +386,24 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 				flex: 1;
 				background: #fafafa;
 			}
-			.browser-body iframe {
+			/* every browser panel shows a static homepage screenshot, never a
+			   live iframe — some sites (aloha.com, shoppinggives.com) refuse
+			   to be framed at all via X-Frame-Options/CSP, and a live embed
+			   being torn down and recreated every time a slot recycles to a
+			   new column was also forcing a real network fetch mid-scroll,
+			   which read as a "hard reset" flash. A plain <img> has neither
+			   problem — it loads once and the browser cache handles the rest. */
+			.browser-body-shot {
+				position: absolute;
+				inset: 0;
 				width: 100%;
 				height: 100%;
-				border: 0;
+				object-fit: cover;
+				object-position: top;
 				display: block;
-				pointer-events: none; /* the iframe never steals the drag */
+				pointer-events: none;
 			}
-			/* peripheral/background browser panels never mount a real iframe —
-			   a live cross-origin embed (rendr.app, humrashid.com, etc.) being
-			   torn down and recreated every time a slot recycles to a new
-			   column was forcing a real network fetch mid-scroll, which is
-			   what read as a "hard reset" flash. Only the one slot that's
-			   actually centered (see `focused` in buildSurface) gets a real
-			   iframe; every other occurrence gets this static fill instead. */
+			/* fallback for any browser item with no screenshot yet */
 			.browser-body-placeholder {
 				position: absolute;
 				inset: 0;
@@ -808,7 +812,7 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 				title?: string;
 				subtitle?: string;
 				year?: string;
-				noEmbed?: boolean; // site sends X-Frame-Options/CSP that blocks iframing — never attempt a live embed, even when focused
+				shot?: string; // static homepage screenshot — every browser panel uses one of these, not a live iframe (see buildSurface)
 			};
 			type PhotoItem = Sized & { kind: 'photo'; tone: string; camera: string; meta: string; src?: string };
 			type VideoItem = Sized & { kind: 'video'; title: string; subtitle: string; src?: string };
@@ -882,6 +886,10 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 				'/case-studies/ppvp/01-hero-desktop.webp',
 				'/work/ppvp'
 			);
+			// no `shot` yet — rendr.app currently resolves to a GoDaddy domain
+			// parking page (checked while capturing the other three
+			// screenshots below), not the real product. Flagged separately;
+			// leave this on the plain placeholder fill until that's sorted.
 			const ITEM_RENDR: Item = {
 				kind: 'browser',
 				url: 'https://rendr.app',
@@ -898,6 +906,7 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 				title: 'humrashid.com',
 				subtitle: 'This site — design & build',
 				year: '2025',
+				shot: '/concept/site-shots/humrashid.jpg',
 				...BROWSER,
 			};
 			const ITEM_ALOHA: Item = {
@@ -907,7 +916,7 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 				title: 'Aloha',
 				subtitle: 'eCommerce redesign for a plant-based protein brand — AWWWARDS eComm Site of the Year nominee',
 				year: '2020',
-				noEmbed: true, // sends frame-ancestors 'none' — refuses to load in an iframe at all
+				shot: '/concept/site-shots/aloha.jpg',
 				...BROWSER,
 			};
 			const ITEM_SHOPPINGGIVES: Item = {
@@ -916,7 +925,7 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 				display: 'shoppinggives.com',
 				title: 'Shopping Gives',
 				subtitle: 'Product strategy, commerce activation & product design for a donation-enablement startup',
-				noEmbed: true, // sends frame-ancestors 'self' — refuses to load in an iframe at all
+				shot: '/concept/site-shots/shoppinggives.jpg',
 				...BROWSER,
 			};
 
@@ -1196,8 +1205,8 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 							</div>
 							<div class="browser-body">
 								${
-									focused && !item.noEmbed
-										? `<iframe src="${item.url}" loading="lazy" referrerpolicy="no-referrer"></iframe>`
+									item.shot
+										? `<img class="browser-body-shot" src="${item.shot}" alt="${item.display} homepage" loading="lazy" />`
 										: `<div class="browser-body-placeholder"></div>`
 								}
 								<a class="browser-visit" href="${item.url}" target="_blank" rel="noopener">
