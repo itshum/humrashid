@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Chart templates — light/dark preview</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&display=swap"
+    />
+    <style>
+      /* Same tokens as the real site (see src/pages/index.astro) -
+         this file exists only to preview the chart templates in both
+         themes; it isn't part of the built site. */
+      :root {
+        --bg: #f6f6f3;
+        --text: #262626;
+        --label: #7a7a7a;
+        --title: #262626;
+        --hover-bg: #e8e7e2;
+        --border: #e0ded7;
+        --selection-bg: #1f3d2e;
+        --selection-text: #f8f8f6;
+      }
+
+      [data-theme="dark"] {
+        --bg: #0d0d0c;
+        --text: #eeede8;
+        --label: #93928c;
+        --title: #eeede8;
+        --hover-bg: #1d1d1b;
+        --border: #252423;
+        --selection-bg: #4fae82;
+        --selection-text: #171715;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: #d8d6cf;
+        font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+        padding: 2rem;
+      }
+
+      .row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .panel {
+        background: var(--bg);
+        color: var(--text);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 1.5rem;
+      }
+
+      .panel h2 {
+        margin: 0 0 1rem;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--label);
+        font-weight: 500;
+      }
+
+      .panel svg {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="row">
+      <div class="panel" data-theme="light">
+        <h2>Bar chart — light</h2>
+        <div class="slot" data-src="example-bar-chart.svg"></div>
+      </div>
+      <div class="panel" data-theme="dark">
+        <h2>Bar chart — dark</h2>
+        <div class="slot" data-src="example-bar-chart.svg"></div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="panel" data-theme="light">
+        <h2>Flow diagram — light</h2>
+        <div class="slot" data-src="example-flow-diagram.svg"></div>
+      </div>
+      <div class="panel" data-theme="dark">
+        <h2>Flow diagram — dark</h2>
+        <div class="slot" data-src="example-flow-diagram.svg"></div>
+      </div>
+    </div>
+
+    <script>
+      // Inline (not <object>/<img>) is the only way an embedded SVG
+      // shares the page's CSSOM - only then do its var(--token) fills
+      // actually resolve against each panel's own data-theme, rather
+      // than always falling back to the light-mode default baked into
+      // each var()'s fallback argument.
+      document.querySelectorAll(".slot").forEach(async (slot) => {
+        const res = await fetch(slot.dataset.src);
+        slot.innerHTML = await res.text();
+      });
+    </script>
+  </body>
+</html>
