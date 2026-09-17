@@ -1,6 +1,10 @@
 ---
 import Topbar from "../components/Topbar.astro";
+import Footer from "../components/Footer.astro";
 import Analytics from "@vercel/analytics/astro";
+import signatureSvg from "../assets/humayun-signature-strokes.svg?raw";
+
+const polishedSignatureSvg = signatureSvg.replace('viewBox="0 0 1000 364"', 'viewBox="220 125 650 185"');
 ---
 
 <!doctype html>
@@ -105,6 +109,15 @@ import Analytics from "@vercel/analytics/astro";
         transition: background 0.3s ease, color 0.3s ease;
       }
 
+      body {
+        min-height: 100svh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      body > .col { flex: 1; }
+      body > .site-footer { margin-top: auto; }
+
       a {
         color: inherit;
       }
@@ -115,7 +128,7 @@ import Analytics from "@vercel/analytics/astro";
       }
 
       .col {
-        max-width: 560px;
+        max-width: 718px;
         margin: 0 auto;
         padding: 0 1.5rem;
       }
@@ -143,92 +156,6 @@ import Analytics from "@vercel/analytics/astro";
         margin: 0;
       }
 
-      /* hover (or focus, for keyboard/touch) over the name reveals a
-         small play button to its right that speaks the pronunciation —
-         hidden by default so it doesn't compete with the heading.
-         padding-right (instead of a gap outside the box) pulls the dead
-         space between the word and the button INSIDE .name-say's own
-         hoverable box, so moving the cursor across that gap doesn't
-         drop out of :hover before it reaches the button. */
-      .name-say {
-        position: relative;
-        display: inline-block;
-        padding-right: 1.75rem;
-      }
-
-      .say-name {
-        position: absolute;
-        top: 50%;
-        right: 0;
-        transform: translateY(-50%) scale(0.85);
-        width: 26px;
-        height: 26px;
-        border-radius: 999px;
-        border: 1px solid var(--border);
-        background: var(--bg);
-        color: var(--label);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0;
-        cursor: pointer;
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 0.15s ease, transform 0.15s ease, color 0.15s ease, border-color 0.15s ease;
-      }
-
-      .say-name svg {
-        width: 11px;
-        height: 11px;
-        margin-left: 1px; /* optical centering — a play triangle reads left-heavy otherwise */
-      }
-
-      .name-say:hover .say-name,
-      .name-say:focus-within .say-name {
-        opacity: 1;
-        pointer-events: auto;
-        transform: translateY(-50%) scale(1);
-      }
-
-      /* once played, the button hides even if the cursor never left —
-         .name-say carries this class until the mouse actually leaves,
-         so the very next hover starts the same on-hover/persist/hide
-         cycle over again instead of the button staying visible or
-         instantly reappearing */
-      .name-say.just-played .say-name {
-        opacity: 0;
-        pointer-events: none;
-        transform: translateY(-50%) scale(0.85);
-      }
-
-      .say-name:hover,
-      .say-name.is-playing {
-        color: var(--title);
-        border-color: var(--label);
-      }
-
-      @media (max-width: 600px) {
-        /* no hover on touch — the button stays put once the name area
-           is tapped/focused instead of chasing a hover that can't happen */
-        .name-say {
-          padding-right: 0;
-        }
-        .say-name {
-          position: static;
-          transform: none;
-          opacity: 1;
-          pointer-events: auto;
-          display: inline-flex;
-          vertical-align: middle;
-          margin-left: 0.5rem;
-        }
-        .name-say.just-played .say-name {
-          opacity: 1;
-          pointer-events: auto;
-          transform: none;
-        }
-      }
-
       .prose {
         padding: 1rem 0 2rem;
         font-size: 1.08rem;
@@ -243,57 +170,55 @@ import Analytics from "@vercel/analytics/astro";
         margin-bottom: 0;
       }
 
-      /* ---- signature: draws itself on, once, the moment it scrolls
-         into view — same [data-reveal] convention as the case-study
-         template's own scroll reveals, just driven by stroke-dashoffset
-         instead of opacity/transform. Placeholder mark for now (see
-         reply for how to swap in a real digitized signature). ---- */
+      /* The original trackpad drawing stays vector-sharp at every size. */
       .sign-off {
-        padding: 2.5rem 0 5rem;
+        padding: 2.75rem 0 5rem;
         display: flex;
-        justify-content: center;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: flex-start;
+      }
+
+      .sign-off-line {
+        margin: 0 0 1.25rem;
+        font-size: 1.08rem;
+        line-height: 1.75;
+        color: var(--text-secondary);
       }
 
       .signature {
-        width: 260px;
+        width: min(100%, 218px);
+        opacity: 0;
+        transform: translateY(18px);
+        transition: opacity 0.55s ease, transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .signature svg {
+        display: block;
+        width: 100%;
         height: auto;
         overflow: visible;
       }
 
       .signature path {
-        fill: none;
         stroke: var(--title);
-        stroke-width: 3;
-        stroke-linecap: round;
-        stroke-linejoin: round;
+        stroke-dasharray: var(--path-length);
+        stroke-dashoffset: var(--path-length);
       }
 
-      .signature .stroke {
-        stroke-dasharray: 900;
-        stroke-dashoffset: 900;
-        transition: stroke-dashoffset 1.6s cubic-bezier(0.65, 0, 0.35, 1);
+      .signature.is-revealed {
+        opacity: 1;
+        transform: translateY(0);
       }
 
-      .signature .smile {
-        stroke-dasharray: 120;
-        stroke-dashoffset: 120;
-        transition: stroke-dashoffset 0.5s ease;
-        transition-delay: 1.3s;
-      }
-
-      .signature.is-revealed .stroke {
+      .signature.is-revealed path {
         stroke-dashoffset: 0;
-      }
-      .signature.is-revealed .smile {
-        stroke-dashoffset: 0;
+        transition: stroke-dashoffset var(--draw-duration) linear var(--draw-delay);
       }
 
       @media (prefers-reduced-motion: reduce) {
-        .signature .stroke,
-        .signature .smile {
-          transition: none;
-          stroke-dashoffset: 0;
-        }
+        .signature { transition: none; }
+        .signature path { stroke-dashoffset: 0; transition: none; }
       }
     </style>
   </head>
@@ -302,62 +227,59 @@ import Analytics from "@vercel/analytics/astro";
 
     <div class="col">
       <div class="about-hero">
-        <p class="eyebrow">About</p>
-        <h1
-          >Hi, I'm <span class="name-say"
-            >Humayun.
-            <button class="say-name" id="say-name" aria-label="Hear how to pronounce Humayun">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M8 5v14l11-7z" />
-              </svg>
-            </button>
-          </span>
-          <audio id="name-audio" src="/audio/humayun-pronunciation.mp3" preload="none"></audio>
-        </h1>
+        <h1>Hi, I'm Humayun.</h1>
       </div>
 
       <div class="prose">
-        <!-- placeholder copy — workshop this later -->
         <p>
-          I'm a designer and founder based in New York City. Over the last decade I've led design for
-          B2B SaaS and eCommerce products — most recently as Design Director at Nessa, where I've
-          worked with teams like Pack, Inveterate, and PPVP to take raw ideas into products real
-          people run their businesses on.
+          I've spent over a decade designing and building products across B2B SaaS and eCommerce.
+          Most recently, I was on the early design team at Sublime Security, the fastest-growing
+          cybersecurity email startup in the US, where I led design on launches like Quarantine
+          Digest and Dynamic Phishing Simulations. Before that, I founded and led Nessa Labs, a studio
+          where I advised founders and designed digital products for early-stage startups.
         </p>
         <p>
-          I care most about the unglamorous middle of a product: the onboarding flow nobody screenshots,
-          the empty state that has to work on someone's worst day, the system that has to hold up long
-          after the first release ships. Good design, to me, is mostly about saying no to the right
-          things.
+          I've also built and exited digital agencies, and worked alongside founders to take their
+          products from nothing to acquisition. That's given me a real sense of what it takes to build
+          something people actually use, not just design around one.
         </p>
         <p>
-          Outside of client work, I build my own things — rendr among them — and spend a lot of time
-          thinking about how design systems scale without losing the personality that made them worth
-          building in the first place.
+          I care about how things connect, and how that shapes the smallest details. The people using
+          what I design are real, with real needs, not abstractions. That's what draws me to the parts
+          of a product nobody notices: the empty state that quietly loses someone, the setting that
+          should've been the default all along. Getting those right starts with talking to users,
+          understanding where they get stuck before assuming I know the fix. That's where the real work
+          happens, and where most teams stop looking. Great design is deciding what to leave out.
         </p>
         <p>
-          When I'm not at a desk, I'm probably walking around this city with a camera, at a workshop I
-          had no business signing up for, or trying to convince a friend that yes, we do need to see
-          five more blocks of it.
+          Beyond work, I'm an avid marathoner, usually running alongside my three-year-old Vizsla,
+          Mars. In the kitchen, I'm reconstructing Bangladeshi classics from scratch and digging into
+          the food science behind them. Travel is where those interests collide: I explore a city
+          through its food, culture, and art, doing my best Anthony Bourdain impression along the way.
         </p>
       </div>
 
       <div class="sign-off">
-        <svg class="signature" data-reveal viewBox="0 0 300 150" xmlns="http://www.w3.org/2000/svg">
-          <path
-            class="stroke"
-            d="M20,100 C30,40 50,40 60,80 C68,110 75,60 85,50 C95,40 100,90 110,95
-               C120,100 130,60 140,55 C150,50 160,100 175,90 C190,80 195,40 210,60
-               C220,74 225,95 240,90"
-          />
-          <path class="smile" d="M258,72 a2,2 0 1,0 0.1,0 M272,72 a2,2 0 1,0 0.1,0 M256,82 q9,10 18,0" />
-        </svg>
+        <p class="sign-off-line">Stay curious,</p>
+        <div class="signature" data-reveal role="img" aria-label="Handwritten signature of Humayun Rashid" set:html={polishedSignatureSvg}></div>
       </div>
     </div>
 
+    <Footer />
+
     <script>
-      const signature = document.querySelector<SVGElement>(".signature[data-reveal]");
+      const signature = document.querySelector<HTMLElement>(".signature[data-reveal]");
       if (signature) {
+        const playbackSpeed = 0.62;
+        signature.querySelectorAll<SVGPathElement>("path").forEach((path) => {
+          const length = path.getTotalLength();
+          const duration = Number(path.dataset.duration || 700) * playbackSpeed;
+          const delay = Number(path.dataset.delay || 0) * playbackSpeed;
+          path.style.setProperty("--path-length", `${length}`);
+          path.style.setProperty("--draw-duration", `${duration}ms`);
+          path.style.setProperty("--draw-delay", `${delay + 120}ms`);
+        });
+
         if ("IntersectionObserver" in window) {
           const observer = new IntersectionObserver(
             (entries) => {
@@ -375,28 +297,6 @@ import Analytics from "@vercel/analytics/astro";
         }
       }
 
-      const nameSay = document.querySelector<HTMLElement>(".name-say");
-      const sayNameBtn = document.getElementById("say-name") as HTMLButtonElement | null;
-      const nameAudio = document.getElementById("name-audio") as HTMLAudioElement | null;
-      if (nameSay && sayNameBtn && nameAudio) {
-        sayNameBtn.addEventListener("click", (e) => {
-          e.preventDefault();
-          nameAudio.currentTime = 0;
-          nameAudio.play().catch(() => {
-            // no audio file at /audio/humayun-pronunciation.mp3 yet, or the
-            // browser blocked it — fail quietly rather than throw
-          });
-          // hide immediately, even though the cursor is still sitting right
-          // on top of it — .just-played overrides :hover until the mouse
-          // actually leaves, at which point the next hover starts the same
-          // appear/persist/hide cycle fresh
-          nameSay.classList.add("just-played");
-        });
-        nameSay.addEventListener("mouseleave", () => nameSay.classList.remove("just-played"));
-        nameAudio.addEventListener("play", () => sayNameBtn.classList.add("is-playing"));
-        nameAudio.addEventListener("pause", () => sayNameBtn.classList.remove("is-playing"));
-        nameAudio.addEventListener("ended", () => sayNameBtn.classList.remove("is-playing"));
-      }
     </script>
   </body>
 </html>

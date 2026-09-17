@@ -141,6 +141,13 @@ const logoDots = logoPattern.map((isLetter) => ({ isLetter: !!isLetter }));
 				text-align: center;
 				cursor: pointer;
 			}
+			.nyc-word img {
+				display: inline-block;
+				width: 1.05em;
+				height: 1.05em;
+				object-fit: contain;
+				vertical-align: -0.13em;
+			}
 
 			/* ---- card: Mobbin-style — media block, then headline + subtext below ---- */
 			.k-card .panel-surface {
@@ -765,12 +772,24 @@ const logoDots = logoPattern.map((isLetter) => ({ isLetter: !!isLetter }));
 			// real b-roll from the Nessa site — a looping cab shot
 			const CLIP_NESSA_CAB = 'https://cdn.prod.website-files.com/6284f50b95ff173d79dff367/62fffc164bf9875964f162d3_Nessa%20-%20Cab-transcode.mp4';
 
-			// NYC landmarks, standard emoji glyphs (renders as Apple's style on
-			// macOS/iOS automatically). No dedicated emoji exists yet for a
-			// pigeon specifically, the Empire State Building, a MetroCard, or
-			// the classic blue Greek diner cup — closest standard stand-ins used
-			// instead (generic bird, building, card, coffee cup).
-			const NYC_EMOJIS = ['🚕', '🍎', '🗽', '🌭', '🐦', '🏢', '☕', '🥯', '💳'];
+			// Standard Apple-rendered emoji plus one custom, dimensional Greek
+			// diner cup asset where Unicode has no suitable NYC-specific glyph.
+			const COFFEE_ICON = '/images/nyc-greek-coffee-emoji.png';
+			const PIGEON_ICON = '/images/nyc-pigeon-emoji.png';
+			const KNICKS_ICON = '/images/nyc-knicks-emoji.png';
+			const NYC_EMOJIS = ['🚕', '🍎', '🗽', '🌭', PIGEON_ICON, COFFEE_ICON, '🥯', KNICKS_ICON];
+			function setNycSymbol(el: HTMLElement, symbol: string) {
+				if (symbol === COFFEE_ICON || symbol === PIGEON_ICON || symbol === KNICKS_ICON) {
+					const alt = symbol === COFFEE_ICON
+						? 'New York Greek coffee cup'
+						: symbol === PIGEON_ICON
+							? 'New York pigeon'
+							: 'New York Knicks';
+					el.innerHTML = `<img src="${symbol}" alt="${alt}" />`;
+				} else {
+					el.textContent = symbol;
+				}
+			}
 
 			function card(tag: string, title: string, subtitle: string, seed: string, size: Sized, image?: string): CardItem {
 				return { kind: 'card', tag, title, subtitle, seed, image, ...size };
@@ -1175,7 +1194,7 @@ const logoDots = logoPattern.map((isLetter) => ({ isLetter: !!isLetter }));
 							const nycEl = slot.surface.querySelector<HTMLElement>('.nyc-word');
 							nycEl?.addEventListener('mouseenter', () => {
 								nycEl.dataset.hovered = 'true';
-								nycEl.textContent = NYC_EMOJIS[Math.floor(Math.random() * NYC_EMOJIS.length)];
+								setNycSymbol(nycEl, NYC_EMOJIS[Math.floor(Math.random() * NYC_EMOJIS.length)]);
 							});
 							nycEl?.addEventListener('mouseleave', () => {
 								nycEl.textContent = 'NYC';
@@ -1644,7 +1663,7 @@ const logoDots = logoPattern.map((isLetter) => ({ isLetter: !!isLetter }));
 					// A real hover takes ownership permanently from the one-time intro reel.
 					if (!nycWord!.isConnected || nycWord!.dataset.hovered) return;
 					if (i < NYC_EMOJIS.length) {
-						nycWord!.textContent = NYC_EMOJIS[i];
+						setNycSymbol(nycWord!, NYC_EMOJIS[i]);
 						i++;
 						setTimeout(cycle, frameMs);
 					} else {

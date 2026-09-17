@@ -68,6 +68,7 @@ const copies = ['before', 'main', 'after'];
       #intro { position: fixed; z-index: 10; inset: 0; pointer-events: none; background: white; display: grid; place-items: center; }
       #intro h1 { max-width: 1000px; padding: 24px; text-align: center; font-size: clamp(28px, 4.2vw, 64px); line-height: 1.15; font-weight: 500; letter-spacing: -.035em; opacity: 0; transform: translateY(14px); animation: intro-in 900ms 180ms cubic-bezier(.2,.75,.25,1) forwards; }
       #nyc { display: inline-block; width: 2.5em; text-align: center; }
+      #nyc img { display:inline-block; width:1.05em; height:1.05em; object-fit:contain; vertical-align:-.13em; }
       body.ready #intro { display: none; } @keyframes intro-in { to { opacity: 1; transform: translateY(0); } }
       #nav { position: fixed; z-index: 20; left: 50%; bottom: 28px; transform: translateX(-50%) translateY(14px); display: flex; gap: 4px; align-items: center; padding: 8px; background: rgba(255,255,255,.92); border: 1px solid rgba(0,0,0,.07); border-radius: 999px; backdrop-filter: blur(18px) saturate(150%); box-shadow: 0 12px 36px rgba(0,0,0,.12); opacity: 0; pointer-events: none; transition: opacity 600ms ease 350ms, transform 600ms cubic-bezier(.2,.75,.25,1) 350ms; }
       body.ready #nav { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
@@ -105,14 +106,29 @@ const copies = ['before', 'main', 'after'];
       let correcting = false;
       function height() { return main.getBoundingClientRect().height; }
       function center() { scroll.scrollTop = height(); }
-      const NYC_EMOJIS = ['🚕', '🍎', '🗽', '🌭', '🐦', '🏢', '☕', '🥯', '💳'];
+      const COFFEE_ICON = '/images/nyc-greek-coffee-emoji.png';
+      const PIGEON_ICON = '/images/nyc-pigeon-emoji.png';
+      const KNICKS_ICON = '/images/nyc-knicks-emoji.png';
+      const NYC_EMOJIS = ['🚕', '🍎', '🗽', '🌭', PIGEON_ICON, COFFEE_ICON, '🥯', KNICKS_ICON];
       const nyc = document.querySelector('#nyc');
+      const setNycSymbol = (symbol) => {
+        if (!nyc) return;
+        if (symbol === COFFEE_ICON || symbol === PIGEON_ICON || symbol === KNICKS_ICON) {
+          const alt = symbol === COFFEE_ICON
+            ? 'New York Greek coffee cup'
+            : symbol === PIGEON_ICON
+              ? 'New York pigeon'
+              : 'New York Knicks';
+          nyc.innerHTML = `<img src="${symbol}" alt="${alt}" />`;
+        }
+        else nyc.textContent = symbol;
+      };
       requestAnimationFrame(() => {
         center();
         let index = 0;
         const reel = window.setInterval(() => {
           if (!nyc || index >= NYC_EMOJIS.length) { window.clearInterval(reel); if (nyc) nyc.textContent = 'NYC'; return; }
-          nyc.textContent = NYC_EMOJIS[index++];
+          setNycSymbol(NYC_EMOJIS[index++]);
         }, 235);
         // Let the headline and the complete NYC reel breathe before the grid appears.
         setTimeout(() => document.body.classList.add('ready'), 3700);

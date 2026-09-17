@@ -215,13 +215,27 @@ import Analytics from "@vercel/analytics/astro";
          letter-spacing -0.015em, text-wrap: balance) for a consistent
          "this is a heading" feel across the site. */
       .intro-h1 {
-        font-size: 2.375rem;
+        font-size: 2.625rem;
         font-weight: 500;
         letter-spacing: -0.015em;
         line-height: 1.3;
         color: var(--title);
         margin: 0 0 2.25rem;
         text-wrap: balance;
+      }
+
+      .nyc-word {
+        display: inline-block;
+        min-width: 2.35em;
+        cursor: default;
+      }
+
+      .nyc-word img {
+        display: inline-block;
+        width: 1.05em;
+        height: 1.05em;
+        object-fit: contain;
+        vertical-align: -0.13em;
       }
 
       /* Instrument Serif's italic ampersand specifically - a small,
@@ -290,7 +304,7 @@ import Analytics from "@vercel/analytics/astro";
 
       @media (max-width: 600px) {
         .intro-h1 {
-          font-size: 1.9rem;
+          font-size: 2.05rem;
         }
       }
 
@@ -427,7 +441,7 @@ import Analytics from "@vercel/analytics/astro";
       }
 
       section {
-        padding: 4.55rem 0;
+        padding: 5.75rem 0 4.55rem;
       }
 
       .section-heading {
@@ -651,33 +665,7 @@ import Analytics from "@vercel/analytics/astro";
 
     <div class="col">
       <div class="intro">
-        <h1 class="intro-h1" data-load-reveal><span class="name-trigger">Humayun Rashid</span> is a designer <span class="amp" aria-hidden="true"><svg viewBox="0 -730 525 739" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <mask id="amp-reveal-mask" maskUnits="userSpaceOnUse" x="-100" y="-830" width="725" height="950">
-                  <path class="amp-mask-stroke" pathLength="1" d="M473.0,-398.0 L504.0,-373.0 L514.0,-319.0 L421.0,-291.0 L429.0,-161.0 L370.0,-60.0 L302.0,-19.0 L219.0,-8.0 L104.0,-61.0 L56.0,-186.0 L91.0,-344.0 L140.0,-402.0 L212.0,-441.0 L293.0,-431.0 L213.0,-441.0 L188.0,-497.0 L187.0,-589.0 L237.0,-672.0 L334.0,-708.0 L408.0,-684.0 L429.0,-656.0 L423.0,-509.0 L429.0,-656.0 L396.0,-693.0 L295.0,-703.0 L209.0,-640.0 L183.0,-531.0 L212.0,-441.0 L106.0,-367.0 L63.0,-266.0 L61.0,-149.0 L104.0,-61.0 L219.0,-8.0 L302.0,-19.0 L370.0,-60.0 L429.0,-161.0 L421.0,-292.0 L320.0,-298.0 L272.0,-260.0 L266.0,-210.0 L310.0,-180.0 L265.0,-214.0 L293.0,-286.0 L501.0,-303.0 L512.0,-356.0 L473.0,-398.0" />
-                </mask>
-              </defs>
-              <path class="amp-glyph" mask="url(#amp-reveal-mask)" d="M223 9 Q162 9 116.0 -17 Q70 -43 44.5 -89 Q19 -135 19 -196 Q19 -255 42.5 -306 Q66 -357 106.5 -394 Q147 -431 198 -447 Q168 -486 168 -545 Q168 -597 191.5 -639 Q215 -681 255.5 -705.5 Q296 -730 346 -730 Q378 -730 407.5 -719.5 Q437 -709 456 -691 Q470 -678 466 -658 L438 -512 Q435 -497 424 -497 Q412 -497 411 -514 L410 -535 Q406 -618 387.0 -652.5 Q368 -687 325 -687 Q289 -687 260.5 -668 Q232 -649 215.0 -616 Q198 -583 198 -541 Q198 -482 230 -454 Q245 -456 260 -456 Q313 -456 313 -430 Q313 -406 275 -406 Q244 -406 218 -426 Q91 -387 91 -218 Q91 -126 131.0 -74.5 Q171 -23 241 -23 Q291 -23 331.5 -48 Q372 -73 396.0 -114.5 Q420 -156 420 -207 Q420 -285 346 -285 Q317 -285 300.5 -273.5 Q284 -262 284 -245 Q284 -230 294.0 -225 Q304 -220 317.0 -217 Q330 -214 340.0 -206.5 Q350 -199 350 -179 Q350 -161 337.0 -150.5 Q324 -140 303 -140 Q276 -140 260.0 -160 Q244 -180 244 -213 Q244 -250 266.0 -277 Q288 -304 325.5 -316 Q363 -328 408 -320 L439 -315 Q504 -305 504 -331 Q504 -343 493.0 -348 Q482 -353 468.0 -357.5 Q454 -362 443.0 -370.5 Q432 -379 432 -397 Q432 -414 444.0 -425 Q456 -436 478 -436 Q507 -436 523.0 -415.5 Q539 -395 539 -361 Q539 -318 512.0 -292 Q485 -266 443 -269 Q450 -246 450 -214 Q450 -150 420.5 -99.5 Q391 -49 340.0 -20 Q289 9 223 9 Z" />
-            </svg></span><span class="sr-only">&amp;</span> founder in New York City</h1>
-        <p data-load-reveal>
-          I've spent over a decade designing and building products across B2B SaaS and eCommerce.
-          Most recently, I was on the early design team at Sublime Security, the fastest-growing
-          cybersecurity email startup in the US. I led design on crucial launches like
-          quarantine digests and dynamic phishing simulations. Before that, I founded and led
-          Nessa Labs, a studio where I advised founders and designed digital products for
-          early-stage startups.
-        </p>
-        <p data-load-reveal>
-          I care about what never makes it onto the screen: the onboarding flow nobody notices,
-          the empty state that quietly loses the user, the setting that should've been the
-          default all along. Getting those subtle details right starts with talking to users
-          first, understanding where they get stuck before assuming you know the fix. That's
-          where the real work happens, and where most teams give up.
-        </p>
-        <p data-load-reveal>
-          Great design is deciding what to leave out.
-        </p>
-
+        <h1 class="intro-h1" data-load-reveal><span class="name-trigger">Humayun Rashid</span> is a designer and founder in <span class="nyc-word" aria-label="NYC">NYC</span></h1>
         <span class="name-photo" role="img" aria-label="Headshot of Humayun Rashid">
           <img class="name-photo-img" src="/headshot.jpg" alt="" />
         </span>
@@ -797,6 +785,48 @@ import Analytics from "@vercel/analytics/astro";
       const LOAD_REVEAL_HEADLINE_GAP_MS = 340;
 
       const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      const nycWord = document.querySelector<HTMLElement>(".nyc-word");
+      const COFFEE_ICON = "/images/nyc-greek-coffee-emoji.png";
+      const PIGEON_ICON = "/images/nyc-pigeon-emoji.png";
+      const KNICKS_ICON = "/images/nyc-knicks-emoji.png";
+      const NYC_EMOJIS = ["🚕", "🍎", "🗽", "🌭", PIGEON_ICON, COFFEE_ICON, "🥯", KNICKS_ICON];
+      const setNycSymbol = (el: HTMLElement, symbol: string) => {
+        if (symbol === COFFEE_ICON || symbol === PIGEON_ICON || symbol === KNICKS_ICON) {
+          const alt = symbol === COFFEE_ICON
+            ? "New York Greek coffee cup"
+            : symbol === PIGEON_ICON
+              ? "New York pigeon"
+              : "New York Knicks";
+          el.innerHTML = `<img src="${symbol}" alt="${alt}" />`;
+        } else {
+          el.textContent = symbol;
+        }
+      };
+
+      if (nycWord) {
+        nycWord.addEventListener("mouseenter", () => {
+          nycWord.dataset.hovered = "true";
+          setNycSymbol(nycWord, NYC_EMOJIS[Math.floor(Math.random() * NYC_EMOJIS.length)]);
+        });
+        nycWord.addEventListener("mouseleave", () => {
+          nycWord.textContent = "NYC";
+        });
+
+        if (!prefersReducedMotion) {
+          let emojiIndex = 0;
+          const cycleEmoji = () => {
+            if (!nycWord.isConnected || nycWord.dataset.hovered) return;
+            if (emojiIndex < NYC_EMOJIS.length) {
+              setNycSymbol(nycWord, NYC_EMOJIS[emojiIndex++]);
+              window.setTimeout(cycleEmoji, 135);
+            } else {
+              nycWord.textContent = "NYC";
+            }
+          };
+          window.setTimeout(cycleEmoji, 120);
+        }
+      }
 
       if (loadRevealEls.length > 0) {
         if (prefersReducedMotion) {

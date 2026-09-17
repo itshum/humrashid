@@ -7,6 +7,7 @@ import Triptych from "../../components/Triptych.astro";
 import Quad from "../../components/Quad.astro";
 import CompareReveal from "../../components/CompareReveal.astro";
 import DetailSplit from "../../components/DetailSplit.astro";
+import Footer from "../../components/Footer.astro";
 import Analytics from "@vercel/analytics/astro";
 import { getCollection } from "astro:content";
 
@@ -974,6 +975,8 @@ const paragraphs = (text: string) =>
         </section>
       )
     }
+
+    <Footer />
 
     <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-hidden="true">
       <button class="lightbox-close" type="button" aria-label="Close">
