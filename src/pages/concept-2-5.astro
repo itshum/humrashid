@@ -1,19 +1,20 @@
 ---
 const groups = [
-  // Two-column panels always have a row to themselves. Small panels only ever pair across columns one and three.
-  { type: 'case wide', title: 'Pack', body: 'Turning custom commerce builds into a scalable SaaS platform.', image: '/case-studies/pack/01-hero-a.webp', href: '/work/pack', span: 2, start: 1, row: 2, offset: 0 },
-  { type: 'note', title: 'A small rule', body: 'Make the important thing feel inevitable.', span: 1, start: 1, row: 3, offset: 20 },
-  { type: 'portrait', title: 'Humayun Rashid', body: 'Designer and founder in New York City.', image: '/concept/portrait.jpg', span: 1, start: 3, row: 3, offset: 110 },
-  { type: 'browser', title: 'Aloha', body: 'eCommerce redesign for a plant-based protein brand · 2020', image: '/concept/site-shots/aloha.jpg', href: 'https://aloha.com', span: 2, start: 2, row: 4, offset: 0 },
-  { type: 'photo', title: 'Prospect Park', body: 'Kodak Gold 200 · June 2024', image: '/concept/humayun-ux.jpg', span: 1, start: 1, row: 4, offset: 100 },
-  { type: 'case wide', title: 'PPVP', body: 'Designing an exclusive investment app for accredited investors.', image: '/case-studies/ppvp/01-hero-desktop.webp', href: '/work/ppvp', span: 2, start: 1, row: 5, offset: 0 },
-  { type: 'browser', title: 'Shopping Gives', body: 'Product strategy and design for donation enablement.', image: '/concept/site-shots/shoppinggives.jpg', href: 'https://shoppinggives.com', span: 2, start: 1, row: 6, offset: 0 },
-  { type: 'case wide', title: 'Inveterate', body: 'Zero-to-one design for loyalty and membership.', image: '/case-studies/inveterate/01-hero-desktop.webp', href: '/work/inveterate', span: 2, start: 2, row: 7, offset: 0 },
-  { type: 'text', title: 'Ideas', body: 'Notes on onboarding, empty states, and making less.', span: 1, start: 1, row: 8, offset: 90 },
-  { type: 'video', title: 'Nessa — Studio', body: 'A loop from a day around the city.', span: 1, start: 3, row: 8, offset: 0 },
-  { type: 'browser', title: 'humrashid.com', body: 'This site · design & build · 2025', image: '/concept/site-shots/humrashid.jpg', href: 'https://www.humrashid.com', span: 2, start: 1, row: 9, offset: 0 },
-  { type: 'photo', title: 'Lower Manhattan', body: 'iPhone 15 Pro · March 2024', image: '/concept/humayun-ux.jpg', span: 1, start: 1, row: 10, offset: 0 },
-  { type: 'case', title: 'Sublime Security', body: 'Email security tools for teams under attack.', image: '/case-studies/pack/01-hero-a.webp', span: 2, start: 2, row: 11, offset: 0 },
+  // Every three rows repeat the same fixed rhythm: small + large, three small, then large + small.
+  { type: 'note', title: 'A small rule', body: 'Make the important thing feel inevitable.', span: 1, start: 1, row: 1, offset: 0 },
+  { type: 'case wide', title: 'Pack', body: 'Turning custom commerce builds into a scalable SaaS platform.', image: '/case-studies/pack/01-hero-a.webp', href: '/work/pack', span: 2, start: 2, row: 1, offset: 0 },
+  { type: 'portrait', title: 'Humayun Rashid', body: 'Designer and founder in New York City.', image: '/concept/portrait.jpg', span: 1, start: 1, row: 2, offset: 0 },
+  { type: 'photo', title: 'Prospect Park', body: 'Kodak Gold 200 · June 2024', image: '/concept/humayun-ux.jpg', span: 1, start: 2, row: 2, offset: 0 },
+  { type: 'text', title: 'Ideas', body: 'Notes on onboarding, empty states, and making less.', span: 1, start: 3, row: 2, offset: 0 },
+  { type: 'case wide', title: 'PPVP', body: 'Designing an exclusive investment app for accredited investors.', image: '/case-studies/ppvp/01-hero-desktop.webp', href: '/work/ppvp', span: 2, start: 1, row: 3, offset: 0 },
+  { type: 'video', title: 'Nessa — Studio', body: 'A loop from a day around the city.', span: 1, start: 3, row: 3, offset: 0 },
+  { type: 'browser', title: 'Aloha', body: 'eCommerce redesign for a plant-based protein brand · 2020', image: '/concept/site-shots/aloha.jpg', href: 'https://aloha.com', span: 1, start: 1, row: 4, offset: 0 },
+  { type: 'browser', title: 'Shopping Gives', body: 'Product strategy and design for donation enablement.', image: '/concept/site-shots/shoppinggives.jpg', href: 'https://shoppinggives.com', span: 1, start: 2, row: 4, offset: 0 },
+  { type: 'photo', title: 'Lower Manhattan', body: 'iPhone 15 Pro · March 2024', image: '/concept/humayun-ux.jpg', span: 1, start: 3, row: 4, offset: 0 },
+  { type: 'text', title: 'Good friction', body: 'The best interaction is sometimes a pause.', span: 1, start: 1, row: 5, offset: 0 },
+  { type: 'case wide', title: 'Inveterate', body: 'Zero-to-one design for loyalty and membership.', image: '/case-studies/inveterate/01-hero-desktop.webp', href: '/work/inveterate', span: 2, start: 2, row: 5, offset: 0 },
+  { type: 'case wide', title: 'Sublime Security', body: 'Email security tools for teams under attack.', image: '/case-studies/pack/01-hero-a.webp', span: 2, start: 1, row: 6, offset: 0 },
+  { type: 'browser', title: 'humrashid.com', body: 'This site · design & build · 2025', image: '/concept/site-shots/humrashid.jpg', href: 'https://www.humrashid.com', span: 1, start: 3, row: 6, offset: 0 },
 ];
 
 const copies = ['before', 'main', 'after'];
