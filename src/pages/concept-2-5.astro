@@ -1,0 +1,129 @@
+---
+const groups = [
+  // Two-column panels always have a row to themselves. Small panels only ever pair across columns one and three.
+  { type: 'case wide', title: 'Pack', body: 'Turning custom commerce builds into a scalable SaaS platform.', image: '/case-studies/pack/01-hero-a.webp', href: '/work/pack', span: 2, start: 1, row: 2, offset: 0 },
+  { type: 'note', title: 'A small rule', body: 'Make the important thing feel inevitable.', span: 1, start: 1, row: 3, offset: 20 },
+  { type: 'portrait', title: 'Humayun Rashid', body: 'Designer and founder in New York City.', image: '/concept/portrait.jpg', span: 1, start: 3, row: 3, offset: 110 },
+  { type: 'browser', title: 'Aloha', body: 'eCommerce redesign for a plant-based protein brand · 2020', image: '/concept/site-shots/aloha.jpg', href: 'https://aloha.com', span: 2, start: 2, row: 4, offset: 0 },
+  { type: 'photo', title: 'Prospect Park', body: 'Kodak Gold 200 · June 2024', image: '/concept/humayun-ux.jpg', span: 1, start: 1, row: 5, offset: 100 },
+  { type: 'case', title: 'PPVP', body: 'Designing an exclusive investment app for accredited investors.', image: '/case-studies/ppvp/01-hero-desktop.webp', href: '/work/ppvp', span: 1, start: 3, row: 5, offset: 0 },
+  { type: 'browser', title: 'Shopping Gives', body: 'Product strategy and design for donation enablement.', image: '/concept/site-shots/shoppinggives.jpg', href: 'https://shoppinggives.com', span: 2, start: 1, row: 6, offset: 0 },
+  { type: 'case wide', title: 'Inveterate', body: 'Zero-to-one design for loyalty and membership.', image: '/case-studies/inveterate/01-hero-desktop.webp', href: '/work/inveterate', span: 2, start: 2, row: 7, offset: 0 },
+  { type: 'text', title: 'Ideas', body: 'Notes on onboarding, empty states, and making less.', span: 1, start: 1, row: 8, offset: 90 },
+  { type: 'video', title: 'Nessa — Studio', body: 'A loop from a day around the city.', span: 1, start: 3, row: 8, offset: 0 },
+  { type: 'browser', title: 'humrashid.com', body: 'This site · design & build · 2025', image: '/concept/site-shots/humrashid.jpg', href: 'https://www.humrashid.com', span: 2, start: 1, row: 9, offset: 0 },
+  { type: 'photo', title: 'Lower Manhattan', body: 'iPhone 15 Pro · March 2024', image: '/concept/humayun-ux.jpg', span: 1, start: 1, row: 10, offset: 0 },
+  { type: 'case', title: 'Sublime Security', body: 'Email security tools for teams under attack.', image: '/case-studies/pack/01-hero-a.webp', span: 2, start: 2, row: 11, offset: 0 },
+];
+
+const copies = ['before', 'main', 'after'];
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>concept 2.5 — looping grid</title>
+    <link rel="preconnect" href="https://api.fontshare.com" />
+    <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet" />
+    <style is:global>
+      :root { font-family: 'Satoshi', Arial, sans-serif; background: #fff; color: #101010; }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; height: 100%; overscroll-behavior: none; }
+      body { overflow: hidden; }
+      a { color: inherit; }
+      #scroll { height: 100svh; overflow-y: auto; overflow-x: clip; overscroll-behavior: none; scroll-behavior: auto; }
+      .loop { display: grid; gap: 0; }
+      .mosaic { width: min(1420px, calc(100% - 96px)); margin: 0 auto; padding: 0 0 220px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-auto-flow: row; column-gap: clamp(34px, 4vw, 72px); row-gap: clamp(110px, 13vw, 220px); align-items: start; }
+      .grid-intro { grid-column: 1 / -1; min-height: 100svh; display: grid; place-items: center; padding: 110px 24px 150px; opacity: 0; }
+      .grid-intro h1 { max-width: 1000px; margin: 0; text-align: center; font-size: clamp(28px, 4.2vw, 64px); line-height: 1.15; font-weight: 500; letter-spacing: -.035em; }
+      body.ready .grid-intro { opacity: 1; }
+      .loop:first-child .mosaic, .loop:last-child .mosaic { opacity: .68; }
+      .panel { grid-column: var(--start) / span var(--span); grid-row: var(--row); min-width: 0; position: relative; margin-top: var(--offset); opacity: 0; transform: translateY(22px); transition: opacity 800ms cubic-bezier(.2,.75,.25,1), transform 900ms cubic-bezier(.2,.75,.25,1); }
+      body.ready .panel { opacity: 1; transform: translateY(0); }
+      .panel:nth-child(1) { transition-delay: 80ms; } .panel:nth-child(2) { transition-delay: 160ms; }
+      .panel:nth-child(3) { transition-delay: 240ms; } .panel:nth-child(4) { transition-delay: 320ms; }
+      .panel:nth-child(5) { transition-delay: 400ms; } .panel:nth-child(6) { transition-delay: 480ms; }
+      .panel:nth-child(7) { transition-delay: 560ms; } .panel:nth-child(8) { transition-delay: 640ms; }
+      .media { aspect-ratio: 1.32; border-radius: 16px; overflow: hidden; background: #eee; position: relative; box-shadow: 0 24px 58px rgba(0,0,0,.10), 0 6px 18px rgba(0,0,0,.05); transition: transform 500ms cubic-bezier(.2,.75,.25,1), box-shadow 500ms ease; }
+      .panel:hover .media { transform: translateY(-5px); box-shadow: 0 34px 72px rgba(0,0,0,.13), 0 9px 23px rgba(0,0,0,.06); }
+      .panel.wide .media, .panel.browser .media { aspect-ratio: 1.6; }
+      .panel.portrait .media { aspect-ratio: .73; }
+      .media img, .media video { display: block; width: 100%; height: 100%; object-fit: cover; }
+      .browser-shell { height: 44px; display: flex; align-items: center; gap: 7px; padding: 0 14px; background: #f4f4f5; border-bottom: 1px solid #e7e7e9; }
+      .lights { display: flex; gap: 5px; } .lights i { width: 9px; height: 9px; border-radius: 50%; background: #ff5f57; } .lights i:nth-child(2) { background: #febc2e; } .lights i:nth-child(3) { background: #28c840; }
+      .address { margin-left: 8px; flex: 1; height: 23px; border: 1px solid #e0e0e2; background: #fff; border-radius: 6px; color: #777; font-size: 10px; padding: 6px 8px; }
+      .browser .media > img { height: calc(100% - 44px); }
+      .tag { position: absolute; z-index: 2; left: 12px; top: 12px; border-radius: 999px; background: rgba(0,0,0,.58); color: #fff; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; padding: 5px 8px; }
+      .visit { position: absolute; inset: 0; display: grid; place-items: center; text-decoration: none; opacity: 0; background: rgba(255,255,255,.10); transition: opacity 250ms ease; }
+      .panel:hover .visit, .panel:focus-within .visit { opacity: 1; }
+      .visit span { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 50%; background: #111; color: white; font-size: 25px; box-shadow: 0 8px 20px rgba(0,0,0,.25); }
+      .caption { padding: 15px 2px 0; } .caption h2 { font-size: 20px; letter-spacing: -.035em; margin: 0 0 6px; } .caption p { margin: 0; color: #8d8d8d; font-size: 14px; line-height: 1.4; }
+      .note .media, .text .media { display: flex; align-items: flex-end; padding: 28px; background: linear-gradient(145deg, #f3f1ea, #dedbd1); } .note .media strong, .text .media strong { font-size: clamp(24px, 3vw, 42px); line-height: 1.02; letter-spacing: -.055em; max-width: 8ch; }
+      .text .media { background: #111; color: #fff; } .text .media strong { max-width: 7ch; }
+      .video .media { background: linear-gradient(135deg,#1e1e22,#090909); } .video .media::after { content: '▶'; position: absolute; inset: 0; display: grid; place-items: center; color: white; font-size: 36px; }
+      .photo .media { aspect-ratio: .88; border-radius: 3px; padding: 13px 13px 0; background: #fff; } .photo .media img { height: 100%; border-radius: 1px; }
+      .photo .caption { padding-top: 12px; }
+      #intro { position: fixed; z-index: 10; inset: 0; pointer-events: none; background: white; display: grid; place-items: center; }
+      #intro h1 { max-width: 1000px; padding: 24px; text-align: center; font-size: clamp(28px, 4.2vw, 64px); line-height: 1.15; font-weight: 500; letter-spacing: -.035em; opacity: 0; transform: translateY(14px); animation: intro-in 900ms 180ms cubic-bezier(.2,.75,.25,1) forwards; }
+      #nyc { display: inline-block; width: 2.5em; text-align: center; }
+      body.ready #intro { display: none; } @keyframes intro-in { to { opacity: 1; transform: translateY(0); } }
+      #nav { position: fixed; z-index: 20; left: 50%; bottom: 28px; transform: translateX(-50%) translateY(14px); display: flex; gap: 4px; align-items: center; padding: 8px; background: rgba(255,255,255,.92); border: 1px solid rgba(0,0,0,.07); border-radius: 999px; backdrop-filter: blur(18px) saturate(150%); box-shadow: 0 12px 36px rgba(0,0,0,.12); opacity: 0; pointer-events: none; transition: opacity 600ms ease 350ms, transform 600ms cubic-bezier(.2,.75,.25,1) 350ms; }
+      body.ready #nav { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+      #nav button, #nav a { border: 0; background: none; font: inherit; font-size: 14px; text-decoration: none; padding: 10px 14px; border-radius: 999px; cursor: pointer; }
+      #nav button:hover, #nav a:hover { background: #f0f0f0; }
+      .logo { width: 26px; height: 26px; display: grid; grid-template-columns: repeat(4, 4px); grid-template-rows: repeat(4, 4px); gap: 3px; place-content: center; }
+      .logo i { width: 4px; height: 4px; border-radius: 50%; background: #d8d8d5; } .logo i.on { background: linear-gradient(135deg,#9682d2,#78bec8,#d28cb4); background-size: 400% 400%; animation: hue 9s linear infinite; } @keyframes hue { to { background-position: 100% 100%; } }
+      @media (max-width: 720px) { .mosaic { width: min(100% - 32px, 560px); grid-template-columns: repeat(3,minmax(0,1fr)); gap: 70px 18px; } .grid-intro { min-height: 100svh; padding: 72px 18px 120px; } .panel { grid-column: span 3 !important; margin-top: calc(var(--offset) * .35); } .panel.photo, .panel.note, .panel.text, .panel.portrait { grid-column: span 2 !important; } .caption h2 { font-size: 18px; } #nav { bottom: 16px; } #nav a { padding: 9px 10px; font-size: 13px; } }
+      @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+    </style>
+  </head>
+  <body>
+    <div id="intro"><h1>Humayun Rashid is a designer<br />and founder in <span id="nyc">NYC</span></h1></div>
+    <main id="scroll" aria-label="Portfolio grid">
+      {copies.map((copy) => <section class="loop" data-loop={copy}><div class="mosaic">
+        <header class="grid-intro" aria-label="Introduction"><h1>Humayun Rashid is a designer<br />and founder in NYC</h1></header>
+        {groups.map((item) => <article class={`panel ${item.type} ${item.span === 2 ? 'wide' : ''}`} style={`--span:${item.span};--start:${item.start};--row:${item.row};--offset:${item.offset}px`}>
+          <div class="media">
+            {item.type.includes('browser') && <div class="browser-shell"><span class="lights"><i></i><i></i><i></i></span><span class="address">{item.href?.replace('https://','')}</span></div>}
+            {item.image && <img src={item.image} alt="" loading="lazy" />}
+            {item.type.includes('case') && <span class="tag">Case study</span>}
+            {item.type === 'note' && <strong>{item.body}</strong>}
+            {item.type === 'text' && <strong>{item.title}</strong>}
+            {item.href && <a class="visit" href={item.href} target={item.href.startsWith('http') ? '_blank' : undefined} rel="noopener"><span>{item.href.startsWith('http') ? '↗' : '→'}</span></a>}
+          </div>
+          <div class="caption"><h2>{item.title}</h2><p>{item.body}</p></div>
+        </article>)}
+      </div></section>)}
+    </main>
+    <nav id="nav" aria-label="Portfolio navigation"><button id="home" aria-label="Return to introduction"><span class="logo">{Array.from({length:16},(_,i)=><i class={i===0||i===2||i===3||i===4||i===6||i===8||i===9||i===10||i===12||i===14?'on':''}></i>)}</span></button><button id="work">Work</button><a href="#ideas">Ideas</a><a href="/principles">Principles</a><a href="/about">About</a></nav>
+    <script>
+      const scroll = document.querySelector('#scroll');
+      const loops = Array.from(document.querySelectorAll('.loop'));
+      const main = loops[1];
+      let correcting = false;
+      function height() { return main.getBoundingClientRect().height; }
+      function center() { scroll.scrollTop = height(); }
+      const NYC_EMOJIS = ['🚕', '🍎', '🗽', '🌭', '🐦', '🏢', '☕', '🥯', '💳'];
+      const nyc = document.querySelector('#nyc');
+      requestAnimationFrame(() => {
+        center();
+        let index = 0;
+        const reel = window.setInterval(() => {
+          if (!nyc || index >= NYC_EMOJIS.length) { window.clearInterval(reel); if (nyc) nyc.textContent = 'NYC'; return; }
+          nyc.textContent = NYC_EMOJIS[index++];
+        }, 235);
+        // Let the headline and the complete NYC reel breathe before the grid appears.
+        setTimeout(() => document.body.classList.add('ready'), 3700);
+      });
+      scroll.addEventListener('scroll', () => {
+        if (correcting) return;
+        const h = height();
+        if (scroll.scrollTop < h * .35 || scroll.scrollTop > h * 1.65) { correcting = true; scroll.scrollTop += scroll.scrollTop < h ? h : -h; requestAnimationFrame(() => correcting = false); }
+      }, { passive: true });
+      document.querySelector('#home').addEventListener('click', center);
+      document.querySelector('#work').addEventListener('click', () => { const target = main.querySelector('.case'); target?.scrollIntoView({ block: 'center', behavior: 'smooth' }); });
+    </script>
+  </body>
+</html>
