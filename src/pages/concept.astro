@@ -7,86 +7,10 @@
 // (longitude/latitude per panel), with resistance-then-hard-lock dragging
 // and an infinite loop on both axes.
 
-// Nav logo: exact pixel positions extracted from the user-supplied
-// reference image (assets/Honeycomb.png) via connected-component
-// detection on the 63 dots, centered and normalized, then scaled to
-// this icon's radius — not a hand-modeled grid/hex-lattice approximation.
-const LOGO_COORDS: Array<{ x: number; y: number }> = [
-  { x: -0.01, y: -15.3 },
-  { x: -4.05, y: -14.69 },
-  { x: 3.73, y: -14.73 },
-  { x: 7.49, y: -13.2 },
-  { x: -7.79, y: -13.12 },
-  { x: -0.02, y: -11.44 },
-  { x: -10.91, y: -10.69 },
-  { x: -3.59, y: -10.79 },
-  { x: 3.56, y: -10.79 },
-  { x: 10.69, y: -10.76 },
-  { x: -6.8, y: -9.18 },
-  { x: 6.72, y: -9.13 },
-  { x: -0.01, y: -7.59 },
-  { x: -13.38, y: -7.44 },
-  { x: 13.13, y: -7.55 },
-  { x: -9.32, y: -6.67 },
-  { x: -3.89, y: -6.51 },
-  { x: 3.76, y: -6.53 },
-  { x: 9.2, y: -6.56 },
-  { x: 14.67, y: -3.88 },
-  { x: -14.95, y: -3.72 },
-  { x: -6.72, y: -3.76 },
-  { x: 6.57, y: -3.73 },
-  { x: -11.01, y: -3.52 },
-  { x: 10.8, y: -3.38 },
-  { x: -2.01, y: -3.25 },
-  { x: 1.83, y: -3.27 },
-  { x: -15.26, y: 0.0 },
-  { x: 15.26, y: 0.0 },
-  { x: -11.44, y: 0.03 },
-  { x: -7.64, y: 0.01 },
-  { x: -3.81, y: 0.0 },
-  { x: 0.0, y: -0.02 },
-  { x: 3.83, y: -0.01 },
-  { x: 7.66, y: 0.01 },
-  { x: 11.47, y: 0.01 },
-  { x: -2.02, y: 3.39 },
-  { x: 1.87, y: 3.4 },
-  { x: -10.98, y: 3.6 },
-  { x: 10.84, y: 3.69 },
-  { x: -6.74, y: 3.94 },
-  { x: 6.56, y: 3.94 },
-  { x: 14.69, y: 3.96 },
-  { x: -14.83, y: 4.09 },
-  { x: 3.76, y: 6.75 },
-  { x: -9.4, y: 6.82 },
-  { x: -3.93, y: 6.76 },
-  { x: 9.16, y: 6.94 },
-  { x: 0.0, y: 7.68 },
-  { x: -13.28, y: 7.81 },
-  { x: 13.19, y: 7.72 },
-  { x: -6.91, y: 9.36 },
-  { x: 6.61, y: 9.46 },
-  { x: 10.77, y: 10.93 },
-  { x: -10.86, y: 11.0 },
-  { x: -3.69, y: 11.09 },
-  { x: 3.37, y: 11.07 },
-  { x: 0.0, y: 11.53 },
-  { x: 7.6, y: 13.33 },
-  { x: -7.66, y: 13.48 },
-  { x: -3.88, y: 14.98 },
-  { x: 3.9, y: 14.88 },
-  { x: -0.01, y: 15.3 },
-];
-const logoDots = LOGO_COORDS.map((pt, i) => {
-  // deterministic pseudo-random (not Math.random — this needs to render
-  // the same on every request) pick of which dots carry the shimmer
-  const pseudoRandom = ((i * 9301 + 49297) % 233280) / 233280;
-  return {
-    x: pt.x,
-    y: pt.y,
-    isLetter: pseudoRandom < 0.45,
-    delayMs: Math.round((i / LOGO_COORDS.length) * 320),
-  };
-});
+// Same shared-stem H/r pattern as Topbar, rendered with circular dots.
+const logoPattern = [1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0];
+const logoDots = logoPattern.map((isLetter) => ({ isLetter: !!isLetter }));
+
 ---
 
 <html lang="en">
@@ -150,7 +74,8 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 				height: 100%;
 				border-radius: 14px;
 				animation: floaty 6s ease-in-out infinite;
-				transition: box-shadow 300ms ease;
+				background: transparent;
+				box-shadow: none;
 				/* every panel sits inside a parent that's constantly moved with
 				   translate3d/rotateY/rotateX (see sphereTransform) — WebKit/
 				   Safari is known to draw a faint seam along a rounded corner
@@ -164,7 +89,8 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 			/* the idle bob was constantly nudging the visit button out from
 			   under the cursor mid-hover — freezing it in place while hovered
 			   is what actually makes the button reliably clickable */
-			.panel-surface:hover {
+			.panel-wrap:hover .panel-surface,
+			.panel-wrap:focus-within .panel-surface {
 				animation-play-state: paused;
 			}
 			@keyframes floaty {
@@ -176,27 +102,18 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 					transform: translateY(-8px) translateZ(0);
 				}
 			}
-			/* a slot's content identity changes constantly as it's recycled to
-			   a new column/row — this used to dip to 0.35 opacity to soften
-			   that swap, but under continuous fast scrolling literally every
-			   visible slot re-triggers it on every tick (measured: all 9 at
-			   once, restarting faster than the 220ms it takes to finish),
-			   so the whole screen sat in a permanent partial-fade state that
-			   read as a strobing white flash, not a soft pop. A much
-			   shallower dip keeps the intent (no instant hard pop on a
-			   single, isolated swap) without being visible as a flash when
-			   every panel on screen restarts it in lockstep. */
-			@keyframes panelSwapFade {
-				from {
-					opacity: 0.88;
-				}
-				to {
-					opacity: 1;
-				}
+
+			/* The intro stays bare text, including when a recycled media slot becomes home. */
+			.k-home, .k-home .panel-surface, .k-home .home-label {
+				background: transparent;
+				border: 0;
+				outline: 0;
+				box-shadow: none;
+				text-shadow: none;
+				filter: none;
+				backdrop-filter: none;
 			}
-			.panel-surface.is-swapping {
-				animation: floaty 6s ease-in-out infinite, panelSwapFade 220ms ease-out;
-			}
+			.k-home { will-change: transform, opacity; }
 
 			/* ---- home: just the text, no card/box around it ---- */
 			.k-home .panel-surface {
@@ -217,6 +134,11 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 			}
 			.nyc-word {
 				display: inline-block;
+				/* Keep the hit area and line layout unchanged when NYC becomes one emoji. */
+				width: 2.3em;
+				height: 1.15em;
+				vertical-align: bottom;
+				text-align: center;
 				cursor: pointer;
 			}
 
@@ -234,6 +156,7 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 				background-size: cover;
 				background-position: center;
 				position: relative;
+				box-shadow: var(--media-shadow, 0 14px 34px rgba(0, 0, 0, 0.10));
 			}
 			.card-media .tag {
 				position: absolute;
@@ -265,7 +188,8 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 				cursor: pointer;
 				font: inherit;
 			}
-			.card-media:hover .card-visit {
+			.panel-wrap:hover .card-visit,
+			.panel-wrap:focus-within .card-visit {
 				opacity: 1;
 				background: rgba(255, 255, 255, 0.14);
 			}
@@ -282,7 +206,8 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 				transform: scale(0.85);
 				transition: transform 200ms;
 			}
-			.card-media:hover .card-visit-icon {
+			.panel-wrap:hover .card-visit-icon,
+			.panel-wrap:focus-within .card-visit-icon {
 				transform: scale(1);
 			}
 			.card-text {
@@ -327,6 +252,7 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 				border-radius: 14px;
 				overflow: hidden;
 				min-height: 0;
+				box-shadow: var(--media-shadow, 0 14px 34px rgba(0, 0, 0, 0.10));
 			}
 			/* real macOS Safari toolbar: traffic lights, sidebar + back
 			   controls, a centered pill address bar (lock/domain/reload), then
@@ -434,9 +360,10 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 				transition: opacity 200ms, background 200ms;
 				text-decoration: none;
 				cursor: pointer;
-				pointer-events: none;
+				pointer-events: auto;
 			}
-			.browser-window:hover .browser-visit {
+			.panel-wrap:hover .browser-visit,
+			.panel-wrap:focus-within .browser-visit {
 				opacity: 1;
 				background: rgba(255, 255, 255, 0.16);
 				pointer-events: auto;
@@ -454,7 +381,8 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 				transform: scale(0.85);
 				transition: transform 200ms;
 			}
-			.browser-window:hover .browser-visit-icon {
+			.panel-wrap:hover .browser-visit-icon,
+			.panel-wrap:focus-within .browser-visit-icon {
 				transform: scale(1);
 			}
 
@@ -469,6 +397,7 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 				overflow: hidden;
 				position: relative;
 				background: #000;
+				box-shadow: var(--media-shadow, 0 14px 34px rgba(0, 0, 0, 0.10));
 			}
 			.video-media video {
 				width: 100%;
@@ -483,16 +412,15 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 			}
 			/* ---- photo: polaroid-style frame + camera metadata caption ---- */
 			.k-photo .panel-surface {
-				background: #fff;
-				border-radius: 4px;
-				box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
-				padding: 14px 14px 0;
+				background: transparent;
+				padding: 0;
 				display: flex;
 				flex-direction: column;
 			}
 			.photo-image {
 				flex: 1;
 				border-radius: 2px;
+				box-shadow: var(--media-shadow, 0 14px 34px rgba(0, 0, 0, 0.10));
 			}
 			.photo-caption {
 				padding: 12px 4px 16px;
@@ -513,7 +441,7 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 				border-radius: 16px;
 				overflow: hidden;
 				background: #f4f2ec;
-				box-shadow: 0 14px 34px rgba(0, 0, 0, 0.14);
+				box-shadow: var(--media-shadow, 0 14px 34px rgba(0, 0, 0, 0.10));
 			}
 			.portrait-img {
 				display: block;
@@ -604,58 +532,44 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 				padding: 0;
 			}
 
-			/* logo mark: pixel positions lifted directly from the reference
-			   image (assets/Honeycomb.png) via connected-component detection
-			   on its 63 dots — not a modeled grid/hex-lattice, the exact
-			   coordinates (see LOGO_COORDS in the frontmatter). */
 			.logo-mark {
-				position: relative;
-				width: 32px;
-				height: 32px;
+				display: grid;
+				grid-template-columns: repeat(4, 5px);
+				grid-template-rows: repeat(4, 5px);
+				gap: 3px;
 			}
 			.logo-mark .px {
+				position: relative;
+				width: 5px;
+				height: 5px;
+				border-radius: 50%;
+				background: #dcdcd8;
+			}
+			.logo-mark .px::after {
+				content: '';
 				position: absolute;
-				width: 2.9px;
-				height: 2.9px;
-				margin: -1.45px;
-				border-radius: 999px;
-				background: #d5d5d1;
-				animation: dot-enter 480ms ease-out both;
+				inset: 0;
+				border-radius: inherit;
+				opacity: 0;
+				transition: opacity 650ms ease;
+				animation-delay: inherit;
+				background-image: repeating-linear-gradient(120deg,
+					rgb(150,130,210) 0%, rgb(120,190,200) 12%,
+					rgb(200,190,130) 24%, rgb(210,140,180) 36%,
+					rgb(130,170,220) 48%, rgb(150,130,210) 60%);
+				background-size: 500% 500%;
+				animation-name: logo-cell-shimmer;
+				animation-duration: 9s;
+				animation-timing-function: linear;
+				animation-iteration-count: infinite;
 			}
-			.logo-mark .px.is-letter {
-				animation:
-					dot-enter 480ms ease-out both,
-					dot-shimmer 5s linear infinite;
+			.logo-mark .px.is-letter::after { opacity: 1; }
+			@keyframes logo-cell-shimmer {
+				from { background-position: 0% 50%; }
+				to { background-position: 100% 50%; }
 			}
-			@keyframes dot-enter {
-				from {
-					opacity: 0;
-					transform: scale(0.3);
-				}
-				to {
-					opacity: 1;
-					transform: scale(1);
-				}
-			}
-			@keyframes dot-shimmer {
-				0% {
-					background: rgb(150, 130, 210);
-				}
-				20% {
-					background: rgb(120, 190, 200);
-				}
-				40% {
-					background: rgb(200, 190, 130);
-				}
-				60% {
-					background: rgb(210, 140, 180);
-				}
-				80% {
-					background: rgb(130, 170, 220);
-				}
-				100% {
-					background: rgb(150, 130, 210);
-				}
+			@media (prefers-reduced-motion: reduce) {
+				.logo-mark .px::after { animation: none; transition: none; }
 			}
 			#nav a {
 				padding: 8px 16px;
@@ -782,8 +696,8 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 				<span class="logo-mark" aria-label="Humayun Rashid, home">
 					{logoDots.map((d) => (
 						<span
-							class={`px${d.isLetter ? ' is-letter' : ''}`}
-							style={`left:calc(50% + ${d.x}px); top:calc(50% + ${d.y}px); animation-delay:${d.delayMs}ms`}
+							class="px"
+							data-letter={d.isLetter ? 'true' : 'false'}
 						/>
 					))}
 				</span>
@@ -958,57 +872,33 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 			const rowsByIndex: Item[][] = [
 				[
 					{ kind: 'home', title: 'Humayun Rashid is a designer<br/>and founder in NYC', ...HOME },
-					{ kind: 'portrait', src: '/concept/portrait.jpg', ...PORTRAIT },
-					ITEM_RENDR,
-					{ kind: 'photo', tone: '#d8d2c4', camera: 'Candid', meta: 'Nessa studio, NYC', src: '/concept/humayun-ux.jpg', ...PHOTO },
 					ITEM_ALOHA,
+					ITEM_RENDR,
+					{ kind: 'portrait', src: '/concept/portrait.jpg', ...PORTRAIT },
+					{ kind: 'photo', tone: '#d8d2c4', camera: 'Candid', meta: 'Nessa studio, NYC', src: '/concept/humayun-ux.jpg', ...PHOTO },
 					ITEM_SUBLIME,
 				],
 				[
 					card('about', 'About — the longer version', 'A decade of B2B SaaS and eCommerce design, and what I care about now.', 'about-me', LG),
 					ITEM_HUMRASHID,
-					{ kind: 'video', title: 'Nessa — Studio', subtitle: 'B-roll from a shoot around the city.', src: CLIP_NESSA_CAB, ...VIDEO },
-					ITEM_SHOPPINGGIVES,
-					{ kind: 'photo', tone: '#c9d0c6', camera: 'Kodak Gold 200', meta: 'Prospect Park · Jun 2024', ...PHOTO },
+					ITEM_PPVP,
+					ITEM_PACK,
+					ITEM_INVETERATE,
 					card('writing', 'Principles', 'A running list of rules I design by.', 'principles', SM),
 				],
 				[
 					{ kind: 'photo', tone: '#dcd6cf', camera: 'iPhone 15 Pro', meta: 'Lower Manhattan · Mar 2024', ...PHOTO },
-					ITEM_PACK,
+					{ kind: 'video', title: 'Nessa — Studio', subtitle: 'B-roll from a shoot around the city.', src: CLIP_NESSA_CAB, ...VIDEO },
+					{ kind: 'photo', tone: '#c9d0c6', camera: 'Kodak Gold 200', meta: 'Prospect Park · Jun 2024', ...PHOTO },
 					card('ideas', 'Ideas — writing & notes', 'Short essays on onboarding, empty states, and saying no.', 'ideas-notes', MD),
-					ITEM_INVETERATE,
 					ITEM_ATRIUM,
-					ITEM_PPVP,
+					ITEM_SHOPPINGGIVES,
 				],
 			];
 
-			// "Work" mode: every real case study plus the other live sites,
-			// nothing else — cycles through a flat list instead of the usual
-			// grid, with each row offset so it doesn't repeat in a straight
-			// column. Order matters here: measuring actual rendered bounding
-			// boxes across a full drag sweep showed every BROWSER-BROWSER
-			// neighbor pair (784px + 784px, the widest kind on the site)
-			// overlapping by well over 100px at some drag fractions — the
-			// four browser items were sitting back to back in this list, so
-			// they always landed as adjacent columns. Only 2 of these 9 items
-			// (Sublime, Atrium) are small enough to act as spacers, so with 7
-			// large (CASE_STUDY/BROWSER) items on a 9-item cycle, some
-			// large-large adjacency is unavoidable by pigeonhole — but
-			// interleaving so no two BROWSER items ever sit next to each
-			// other (the single worst combination) gets this down to the
-			// mathematical minimum of large-large edges.
-			const WORK_ITEMS: Item[] = [
-				ITEM_RENDR,
-				ITEM_SUBLIME,
-				ITEM_HUMRASHID,
-				ITEM_PACK,
-				ITEM_ALOHA,
-				ITEM_ATRIUM,
-				ITEM_SHOPPINGGIVES,
-				ITEM_INVETERATE,
-				ITEM_PPVP,
-			];
-			let mode: 'default' | 'work' = 'default';
+			// Work resets to this five-panel cross, then ordinary exploration continues.
+			const WORK_ANCHOR = { col: 3, row: 1 };
+			let workTransitioning = false;
 
 			function mod(n: number, m: number) {
 				return ((n % m) + m) % m;
@@ -1019,9 +909,6 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 				return h;
 			}
 			function itemAt(col: number, row: number): Item {
-				if (mode === 'work') {
-					return WORK_ITEMS[mod(col + row * 2, WORK_ITEMS.length)];
-				}
 				return rowsByIndex[mod(row, ROWS)][mod(col, COLS)];
 			}
 			function safe(n: number): number {
@@ -1039,22 +926,6 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 			const SPHERE_R = 1800; // px
 			const DEG_PER_COL = 25; // longitude degrees between adjacent panel centers
 			const DEG_PER_ROW = 21; // latitude degrees between adjacent panel centers
-			// Work mode is every item at case-study/browser size, back to back —
-			// packed at the default grid's spacing they visibly overlap, where
-			// the default grid gets away with it by mixing in small/medium
-			// panels between the big ones. Wider spacing just for this mode.
-			const WORK_DEG_PER_COL = 36;
-			const WORK_DEG_PER_ROW = 31;
-			// Widening the angular pitch further to fix overlap turned out to
-			// make it worse at some drag fractions — the sphere's
-			// sin()-based screen projection isn't guaranteed monotonic in
-			// on-screen separation as the angle grows, so two panels can
-			// cross paths mid-drag even though they're far apart at rest.
-			// Shrinking every Work-mode panel's actual footprint is a much
-			// more predictable way to guarantee a minimum gap, since it
-			// scales the panels down before the (unpredictable) sphere
-			// projection rather than fighting it with a bigger angle.
-			const WORK_SCALE = 0.6;
 
 			function sphereTransform(lonDeg: number, latDeg: number, extra = ''): string {
 				const lon = (clamp(lonDeg, -85, 85) * Math.PI) / 180;
@@ -1091,7 +962,7 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 			// close to 0 would be pure free-flowing linear motion; keep it low so
 			// you feel just the slightest hesitation passing a centered panel,
 			// then it's back to plain, direct tracking.
-			const RESISTANCE_MIX = 0.22;
+			const RESISTANCE_MIX = 0.08;
 			function easeInOutCubic(t: number): number {
 				return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 			}
@@ -1127,11 +998,7 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 				if (e.key === 'Escape' && caseModal.classList.contains('open')) closeCaseModal();
 			});
 
-			// A cross of 9 panels is rendered: center, plus two neighbors deep
-			// in each cardinal direction. The extra (second) ring is never
-			// meant to be seen clearly — by the time a slot is recycled to a
-			// new column/row at the edge of that ring gives extra off-screen
-			// context around the focused panel, Ramp-style.
+			// Persistent lattice: recycle only beyond the fully transparent perimeter.
 			type Slot = {
 				wrap: HTMLDivElement;
 				surface: HTMLDivElement;
@@ -1150,17 +1017,9 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 				field.appendChild(wrap);
 				return { wrap, surface, key: '', dc, dr };
 			}
-			slots.push(
-				makeSlot(-2, 0),
-				makeSlot(-1, 0),
-				makeSlot(0, 0),
-				makeSlot(1, 0),
-				makeSlot(2, 0),
-				makeSlot(0, -2),
-				makeSlot(0, -1),
-				makeSlot(0, 1),
-				makeSlot(0, 2)
-			);
+			for (let row = -2; row <= 2; row++) {
+				for (let col = -2; col <= 2; col++) slots.push(makeSlot(col, row));
+			}
 
 			function buildSurface(item: Item, focused: boolean): string {
 				if (item.kind === 'home') {
@@ -1183,10 +1042,10 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 					const bg = item.image ?? `https://picsum.photos/seed/${encodeURIComponent(item.seed)}/${item.w * 2}/${Math.round((item.h - 90) * 2)}`;
 					const isCaseStudy = item.tag === 'case study' && !!item.image;
 					const visitArrow = item.link
-						? `<button class="card-visit" data-case-link="${item.link}">
+						? `<button class="card-visit" aria-label="Open case study" data-case-link="${item.link}">
 								<span class="card-visit-icon">
 									<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-										<path d="M7 17L17 7M17 7H9M17 7V15" />
+										<path d="M5 12H19M12 5L19 12L12 19" />
 									</svg>
 								</span>
 							</button>`
@@ -1202,15 +1061,11 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 						</div>`;
 				}
 				if (item.kind === 'video') {
-					// same fix as the browser iframes/card placeholders — an
-					// autoplaying <video src> is a real network fetch, so a
-					// peripheral slot recycling past this item constantly
-					// re-triggers it. Only load it once this slot is focused.
-					// no caption — just the loop, edge to edge
+					// Keep the video element alive as its panel moves through the foreground.
 					const src = item.src ?? (Math.abs(hashCode(item.title)) % 2 === 0 ? CLIP_A : CLIP_B);
 					return `
 						<div class="video-media">
-							${focused ? `<video autoplay muted loop playsinline src="${src}"></video>` : `<div class="video-media-placeholder"></div>`}
+							<video autoplay muted loop playsinline preload="auto" src="${src}"></video>
 						</div>`;
 				}
 				if (item.kind === 'browser') {
@@ -1256,7 +1111,7 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 										? `<img class="browser-body-shot" src="${item.shot}" alt="${item.display} homepage" loading="lazy" />`
 										: `<div class="browser-body-placeholder"></div>`
 								}
-								<a class="browser-visit" href="${item.url}" target="_blank" rel="noopener">
+								<a class="browser-visit" aria-label="Open website in a new tab" href="${item.url}" target="_blank" rel="noopener">
 									<span class="browser-visit-icon">
 										<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 											<path d="M7 17L17 7M17 7H9M17 7V15" />
@@ -1300,17 +1155,16 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 
 				for (const slot of slots) {
 					try {
-					const c = centerColInt + slot.dc;
-					const r = centerRowInt + slot.dr;
+					const c = slot.dc + 5 * Math.round((panCol - slot.dc) / 5);
+					const r = slot.dr + 5 * Math.round((panRow - slot.dr) / 5);
 					const key = `${c},${r}`;
 					const item = itemAt(c, r);
 					if (slot.key !== key) {
-						const isFirstAssignment = slot.key === '';
 						slot.key = key;
 						slot.cleanup?.(); // stop any live effect (portrait canvas rAF) before this slot's content is replaced
 						slot.cleanup = undefined;
 						const focused = slot.dc === 0 && slot.dr === 0;
-						slot.surface.innerHTML = buildSurface(item, focused) + `<div class="coord">${c},${r}</div>`;
+						slot.surface.innerHTML = buildSurface(item, focused) + (item.kind === 'home' ? '' : `<div class="coord">${c},${r}</div>`);
 						slot.wrap.className = `panel-wrap k-${item.kind}`;
 						slot.wrap.style.width = `${item.w}px`;
 						slot.wrap.style.height = `${item.h}px`;
@@ -1320,6 +1174,7 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 						if (item.kind === 'home') {
 							const nycEl = slot.surface.querySelector<HTMLElement>('.nyc-word');
 							nycEl?.addEventListener('mouseenter', () => {
+								nycEl.dataset.hovered = 'true';
 								nycEl.textContent = NYC_EMOJIS[Math.floor(Math.random() * NYC_EMOJIS.length)];
 							});
 							nycEl?.addEventListener('mouseleave', () => {
@@ -1335,24 +1190,7 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 								openCaseModal(item.link!);
 							});
 						}
-						// content is swapped instantly (no delayed timer — under fast
-						// continuous scrolling a timer-based fade kept re-triggering
-						// itself before finishing, which is what was reading as a
-						// stark "reset"), then a quick CSS-driven flash softens the
-						// pop. Restarting via remove/reflow/add so a slot that swaps
-						// again before the flash finishes just restarts cleanly
-						// instead of getting stuck. Skipped on a slot's very first
-						// assignment (page load) — that flash (opacity 0.35 -> 1)
-						// was fighting the boot sequence below, which explicitly
-						// holds every surface at opacity 0 until it's ready to
-						// reveal them in order; racing it made panels flash
-						// visible immediately, then fade out, then fade in again
-						// for real.
-						if (!isFirstAssignment) {
-							slot.surface.classList.remove('is-swapping');
-							void slot.surface.offsetWidth;
-							slot.surface.classList.add('is-swapping');
-						}
+
 					}
 
 					const dCol = c - panCol;
@@ -1374,36 +1212,31 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 					// for Work mode above, fixes this without touching the
 					// global angular pitch every other panel also depends on.
 					const HOME_SHRINK = 0.72;
-					const scale = clamp(1.08 - t * 0.32, 0.62, 1.08) * (mode === 'work' ? WORK_SCALE : item.kind === 'home' ? HOME_SHRINK : 1);
-					const opacity = clamp(1 - t * 0.5, 0.3, 1);
-					// Ramp-style depth of field: sharp through the middle,
-					// softly gaussian-blurred only at the outer edge
-					const blur = clamp(t * 7, 0, 6);
-					const lon = dCol * (mode === 'work' ? WORK_DEG_PER_COL : DEG_PER_COL);
-					const lat = dRow * (mode === 'work' ? WORK_DEG_PER_ROW : DEG_PER_ROW);
-
+					const scale = clamp(1.08 - t * 0.32, 0.62, 1.08) * (item.kind === 'home' ? HOME_SHRINK : 1);
+					const fade = clamp((dist - 1.15) / 1.15, 0, 1);
+					const opacity = 1 - fade * fade * (3 - 2 * fade);
+					// Broad focus zone: both panels remain sharp during a handoff.
+					// Smoothstep adds subtle defocus toward the sphere's perimeter,
+					// without a visible threshold or requiring exact centering.
+					const defocus = clamp((dist - 0.65) / 1.0, 0, 1);
+					const blur = 2.4 * defocus * defocus * (3 - 2 * defocus);
+					const lon = dCol * DEG_PER_COL;
+					const lat = dRow * DEG_PER_ROW;
 					slot.wrap.style.transform = sphereTransform(lon, lat, `scale(${scale})`);
 					slot.wrap.style.opacity = String(opacity);
+					slot.wrap.style.pointerEvents = Number(slot.wrap.style.opacity) < 0.01 ? 'none' : '';
 					// `filter: blur()` clips at the element's own box — on a card
 					// or photo that edge is hidden by the panel's own background/
 					// image, but "home" is bare text with nothing behind it, so
 					// the blur's hard-clipped edge showed up as a faint rectangle
 					// floating around the words while it panned off-center.
-					slot.wrap.style.filter = blur > 0.05 && item.kind !== 'home' ? `blur(${blur.toFixed(1)}px)` : '';
+					slot.wrap.style.filter = item.kind !== 'home' ? `blur(${blur.toFixed(3)}px)` : '';
 					slot.wrap.style.zIndex = String(Math.round(2000 - dist * 10));
 
-					// Floating depth, applied the same way to every kind (image
-					// and caption text together, one shadow under the whole
-					// card) — this needs a real blur radius and spread to read
-					// as a soft shadow sitting under a floating object. The
-					// previous version only shadowed the media block on
-					// card/video and used a small blur radius on a transparent
-					// box for everything else, which read as a thin hard-edged
-					// border rather than a shadow. Home stays bare text with no
-					// box, so it gets none.
+					// Shadow only the media, never the transparent media-and-caption box.
 					const lift = clamp(1 - dist, 0, 1);
 					const shadow = `0 ${10 + 18 * lift}px ${28 + 42 * lift}px rgba(0,0,0,${(0.05 + 0.09 * lift).toFixed(3)})`;
-					slot.surface.style.boxShadow = item.kind === 'home' ? 'none' : shadow;
+					slot.surface.style.setProperty('--media-shadow', item.kind === 'home' ? 'none' : shadow);
 					} catch (err) {
 						console.error('render() failed for one slot — skipping it instead of aborting the frame', err);
 					}
@@ -1411,7 +1244,11 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 				renderMinimap(centerColInt, centerRowInt);
 			}
 
+			let minimapKey = '';
 			function renderMinimap(centerColInt: number, centerRowInt: number) {
+				const key = `${mod(centerColInt, COLS)},${mod(centerRowInt, ROWS)}`;
+				if (key === minimapKey) return;
+				minimapKey = key;
 				const mm = document.getElementById('minimap')!;
 				mm.innerHTML = '';
 				for (let r = 0; r < ROWS; r++) {
@@ -1439,7 +1276,7 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 			// real mouse click on the case-study arrow, which JS-triggered
 			// .click() calls during earlier testing had masked.
 			stage.addEventListener('pointerdown', (e) => {
-				if ((e.target as HTMLElement).closest('.card-visit, .browser-visit')) return;
+				if (workTransitioning || (e.target as HTMLElement).closest('.card-visit, .browser-visit')) return;
 				dragging = true;
 				stage.classList.add('grabbing');
 				stage.setPointerCapture(e.pointerId);
@@ -1494,15 +1331,40 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 			// the "hard reset / bright flash" that only ever showed up on
 			// vertical scroll. Listening on window catches every wheel event
 			// on the page regardless of what's directly under the cursor.
+			let wheelTargetCol = 0, wheelTargetRow = 0;
+			let wheelRunning = false;
+			function smoothWheel() {
+				let last = performance.now();
+				wheelRunning = true;
+				function frame(now: number) {
+					const blend = 1 - Math.exp(-Math.min(now - last, 48) / 65);
+					last = now;
+					rawCol += (wheelTargetCol - rawCol) * blend;
+					rawRow += (wheelTargetRow - rawRow) * blend;
+					render();
+					if (Math.hypot(wheelTargetCol - rawCol, wheelTargetRow - rawRow) > 0.0001) {
+						animRAF = requestAnimationFrame(frame);
+					} else {
+						rawCol = wheelTargetCol; rawRow = wheelTargetRow;
+						wheelRunning = false; animRAF = undefined; render();
+					}
+				}
+				animRAF = requestAnimationFrame(frame);
+			}
 			window.addEventListener(
 				'wheel',
 				(e) => {
 					if (caseModal.classList.contains('open')) return; // let the modal's own content scroll normally
 					e.preventDefault();
-					cancelAnim();
-					rawCol = safe(rawCol + e.deltaX * WHEEL_SENSITIVITY);
-					rawRow = safe(rawRow + e.deltaY * WHEEL_SENSITIVITY);
-					render();
+					if (workTransitioning) return;
+					if (!wheelRunning) {
+						cancelAnim(); wheelTargetCol = rawCol; wheelTargetRow = rawRow;
+					}
+					const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? window.innerHeight : 1;
+					wheelTargetCol += e.deltaX * unit * WHEEL_SENSITIVITY;
+					wheelTargetRow += e.deltaY * unit * WHEEL_SENSITIVITY;
+					stepChaining = false;
+					if (!wheelRunning) smoothWheel();
 				},
 				{ passive: false }
 			);
@@ -1564,12 +1426,23 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 			// logo mark: same hover behavior as the real site's Topbar logo —
 			// cells randomly flip between the shimmer ("letter") state and
 			// plain gray on mousemove, at the same ~45% chance per cell
-			const LOGO_LETTER_CHANCE = 0.45;
 			const logoCells = document.querySelectorAll<HTMLElement>('.logo-mark .px');
-			document.getElementById('nav-home')!.addEventListener('mousemove', () => {
-				logoCells.forEach((cell) => {
-					cell.classList.toggle('is-letter', Math.random() < LOGO_LETTER_CHANCE);
-				});
+			const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+			const revealOrder = Array.from(logoCells).sort(() => Math.random() - 0.5);
+			logoCells.forEach(cell => { cell.style.animationDelay = `${-Math.random() * 9}s`; });
+			revealOrder.forEach((cell, i) => {
+				setTimeout(() => cell.classList.toggle('is-letter', cell.dataset.letter === 'true'), reducedMotion ? 0 : i * 110);
+			});
+			const logoButton = document.getElementById('nav-home')!;
+			let lastLogoChange = -Infinity;
+			logoButton.addEventListener('mousemove', () => {
+				const now = performance.now();
+				if (now - lastLogoChange < 700) return;
+				lastLogoChange = now;
+				logoCells.forEach(cell => cell.classList.toggle('is-letter', Math.random() < 0.45));
+			});
+			logoButton.addEventListener('mouseleave', () => {
+				logoCells.forEach(cell => cell.classList.toggle('is-letter', cell.dataset.letter === 'true'));
 			});
 
 			// ---- "Work" nav: jumble the visible panels, then rearrange into a
@@ -1577,7 +1450,7 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 			// again toggles back to the normal mixed field.
 			document.getElementById('nav-work')!.addEventListener('click', (e) => {
 				e.preventDefault();
-				toggleWorkMode();
+				focusWork();
 			});
 
 			// ---- "About"/"Principles" nav: same case-study modal, pointed at
@@ -1596,7 +1469,7 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 			// and re-dealt onto a table. No rotation, no wobble: every panel
 			// moves once, in one direction, and settles.
 			function slidePanels(direction: 1 | -1, onDone: () => void) {
-				const SLIDE_MS = 300;
+				const SLIDE_MS = 420;
 				const STAGGER_MS = 26;
 				const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
 				const bases = slots.map((s) => s.wrap.style.transform);
@@ -1613,8 +1486,8 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 						const amount = direction === 1 ? eased : 1 - eased;
 						const dx = slots[i].dc * 34 * amount;
 						const dy = 70 * amount + slots[i].dr * 20 * amount;
-						slots[i].wrap.style.transform = `${bases[i]} translate(${dx}px, ${dy}px)`;
-						slots[i].wrap.style.opacity = String(baseOpacities[i] * (1 - 0.7 * amount));
+						slots[i].wrap.style.transform = `${bases[i]} translate(${dx}px, ${dy}px) rotate(${(i % 2 ? 1 : -1) * 2 * amount}deg)`;
+						slots[i].wrap.style.opacity = String(baseOpacities[i] * (1 - amount));
 					}
 					if (!allDone) {
 						requestAnimationFrame(frame);
@@ -1625,16 +1498,19 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 				requestAnimationFrame(frame);
 			}
 
-			function toggleWorkMode() {
+			function focusWork() {
+				if (workTransitioning) return;
+				workTransitioning = true;
 				cancelAnim();
 				slidePanels(1, () => {
-					mode = mode === 'work' ? 'default' : 'work';
-					rawCol = 0;
-					rawRow = 0;
+					// The content cross is already part of the default orbit. Recenter
+					// there, so its spacing, curvature, and depth match every other panel.
+					rawCol = WORK_ANCHOR.col;
+					rawRow = WORK_ANCHOR.row;
 					stepChaining = false;
 					for (const s of slots) s.key = '';
 					render();
-					slidePanels(-1, render);
+					slidePanels(-1, () => { workTransitioning = false; render(); });
 				});
 			}
 
@@ -1643,6 +1519,7 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 			let targetRow = 0;
 
 			function stepMove(dc: number, dr: number) {
+				if (workTransitioning) return;
 				const baseCol = stepChaining ? targetCol : Math.round(rawCol);
 				const baseRow = stepChaining ? targetRow : Math.round(rawRow);
 				animateRawTo(baseCol + dc, baseRow + dr);
@@ -1650,6 +1527,7 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 			}
 
 			function cancelAnim() {
+				wheelRunning = false;
 				if (animRAF) cancelAnimationFrame(animRAF);
 				animRAF = undefined;
 			}
@@ -1692,6 +1570,8 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 					console.log(`stub nav → ${(a as HTMLElement).dataset.stub}`);
 				});
 			});
+
+			window.addEventListener('resize', () => { if (!workTransitioning) render(); });
 
 			// ---- boot sequence: blank -> home text fades in -> neighbors fade in ---
 			// A one-time reveal on first load, not something that replays every
@@ -1761,6 +1641,8 @@ const logoDots = LOGO_COORDS.map((pt, i) => {
 				const frameMs = Math.round((REVEAL_MS * 0.7) / NYC_EMOJIS.length);
 				let i = 0;
 				function cycle() {
+					// A real hover takes ownership permanently from the one-time intro reel.
+					if (!nycWord!.isConnected || nycWord!.dataset.hovered) return;
 					if (i < NYC_EMOJIS.length) {
 						nycWord!.textContent = NYC_EMOJIS[i];
 						i++;
