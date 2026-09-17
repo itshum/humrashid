@@ -5,8 +5,8 @@ const groups = [
   { type: 'note', title: 'A small rule', body: 'Make the important thing feel inevitable.', span: 1, start: 1, row: 3, offset: 20 },
   { type: 'portrait', title: 'Humayun Rashid', body: 'Designer and founder in New York City.', image: '/concept/portrait.jpg', span: 1, start: 3, row: 3, offset: 110 },
   { type: 'browser', title: 'Aloha', body: 'eCommerce redesign for a plant-based protein brand · 2020', image: '/concept/site-shots/aloha.jpg', href: 'https://aloha.com', span: 2, start: 2, row: 4, offset: 0 },
-  { type: 'photo', title: 'Prospect Park', body: 'Kodak Gold 200 · June 2024', image: '/concept/humayun-ux.jpg', span: 1, start: 1, row: 5, offset: 100 },
-  { type: 'case', title: 'PPVP', body: 'Designing an exclusive investment app for accredited investors.', image: '/case-studies/ppvp/01-hero-desktop.webp', href: '/work/ppvp', span: 1, start: 3, row: 5, offset: 0 },
+  { type: 'photo', title: 'Prospect Park', body: 'Kodak Gold 200 · June 2024', image: '/concept/humayun-ux.jpg', span: 1, start: 1, row: 4, offset: 100 },
+  { type: 'case wide', title: 'PPVP', body: 'Designing an exclusive investment app for accredited investors.', image: '/case-studies/ppvp/01-hero-desktop.webp', href: '/work/ppvp', span: 2, start: 1, row: 5, offset: 0 },
   { type: 'browser', title: 'Shopping Gives', body: 'Product strategy and design for donation enablement.', image: '/concept/site-shots/shoppinggives.jpg', href: 'https://shoppinggives.com', span: 2, start: 1, row: 6, offset: 0 },
   { type: 'case wide', title: 'Inveterate', body: 'Zero-to-one design for loyalty and membership.', image: '/case-studies/inveterate/01-hero-desktop.webp', href: '/work/inveterate', span: 2, start: 2, row: 7, offset: 0 },
   { type: 'text', title: 'Ideas', body: 'Notes on onboarding, empty states, and making less.', span: 1, start: 1, row: 8, offset: 90 },
@@ -26,9 +26,9 @@ const copies = ['before', 'main', 'after'];
     <meta name="robots" content="noindex" />
     <title>concept 2.5 — looping grid</title>
     <link rel="preconnect" href="https://api.fontshare.com" />
-    <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet" />
+    <link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet" />
     <style is:global>
-      :root { font-family: 'Satoshi', Arial, sans-serif; background: #fff; color: #101010; }
+      :root { font-family: 'General Sans', Arial, sans-serif; background: #fff; color: #101010; }
       * { box-sizing: border-box; }
       html, body { margin: 0; height: 100%; overscroll-behavior: none; }
       body { overflow: hidden; }
@@ -84,7 +84,6 @@ const copies = ['before', 'main', 'after'];
     <div id="intro"><h1>Humayun Rashid is a designer<br />and founder in <span id="nyc">NYC</span></h1></div>
     <main id="scroll" aria-label="Portfolio grid">
       {copies.map((copy) => <section class="loop" data-loop={copy}><div class="mosaic">
-        <header class="grid-intro" aria-label="Introduction"><h1>Humayun Rashid is a designer<br />and founder in NYC</h1></header>
         {groups.map((item) => <article class={`panel ${item.type} ${item.span === 2 ? 'wide' : ''}`} style={`--span:${item.span};--start:${item.start};--row:${item.row};--offset:${item.offset}px`}>
           <div class="media">
             {item.type.includes('browser') && <div class="browser-shell"><span class="lights"><i></i><i></i><i></i></span><span class="address">{item.href?.replace('https://','')}</span></div>}
