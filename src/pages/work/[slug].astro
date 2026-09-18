@@ -304,6 +304,30 @@ const paragraphs = (text: string) =>
         border-radius: 4px;
       }
 
+      /* Wide paired product screens sit immediately after the challenge
+         when the case study calls for a side-by-side comparison. */
+      .challenge-pair {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: clamp(1.25rem, 2.5vw, 3rem);
+        margin: 4rem auto;
+        padding: 0 2rem;
+      }
+
+      .challenge-pair img {
+        display: block;
+        width: 100%;
+        border-radius: 4px;
+      }
+
+      @media (max-width: 640px) {
+        .challenge-pair {
+          grid-template-columns: 1fr;
+          padding: 0 1.25rem;
+          gap: 1.25rem;
+        }
+      }
+
       /* Some source screenshots end in a ragged edge at the very
          bottom - a fixed aspect-ratio crop gives it one plain,
          straight line instead. */
@@ -772,6 +796,21 @@ const paragraphs = (text: string) =>
           <img
             src={data.challengeImage}
             alt={data.challengeImageAlt ?? `${data.title} interface`}
+          />
+        </div>
+      )
+    }
+
+    {
+      data.challengeSideBySide && (
+        <div class="challenge-pair" data-reveal>
+          <img
+            src={data.challengeSideBySide.left.src}
+            alt={data.challengeSideBySide.left.alt}
+          />
+          <img
+            src={data.challengeSideBySide.right.src}
+            alt={data.challengeSideBySide.right.alt}
           />
         </div>
       )

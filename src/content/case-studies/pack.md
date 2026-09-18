@@ -15,6 +15,13 @@ problem: |
   After closing their seed round, Pack needed to become a product. The same team, the same expertise, but now serving hundreds of merchants instead of a handful of clients. That's a harder design problem than it sounds like. The instincts that make one-off custom work great don't automatically translate into something a stranger can pick up and use without you standing over their shoulder.
 
   I led design on this transition, working directly with Pack's product and engineering team, including CEO Cory Cummings, to define what "productized" actually meant for this business.
+challengeSideBySide:
+  left:
+    src: "/case-studies/pack/pack-dev-setup.png"
+    alt: "Pack developer setup checklist"
+  right:
+    src: "/case-studies/pack/pack-dev-account.png"
+    alt: "Pack account creation screen"
 approachHeading: "Interviews before screens"
 approach: |
   We started with customer interviews, not screens. My team and I talked to merchants who'd tried other headless platforms, to learn where they actually got stuck rather than where we assumed they would. Three patterns showed up fast: onboarding took too long, merchandising tools felt bolted onto the commerce infrastructure instead of built for it, and every customizer on the market asked marketers to think like developers.

@@ -150,6 +150,12 @@ const caseStudies = defineCollection({
         alt: z.string(),
       })
       .optional(),
+    challengeSideBySide: z
+      .object({
+        left: z.object({ src: z.string(), alt: z.string() }),
+        right: z.object({ src: z.string(), alt: z.string() }),
+      })
+      .optional(),
     sideBySide: z
       .object({
         left: z.object({ src: z.string(), alt: z.string() }),
