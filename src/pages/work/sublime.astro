@@ -12,6 +12,7 @@ import Footer from "../../components/Footer.astro";
 import MediaSlot from "../../components/case-study/sublime/MediaSlot.astro";
 import FeatureEvolutionGrid from "../../components/case-study/sublime/FeatureEvolutionGrid.tsx";
 import TtpDiagram from "../../components/case-study/sublime/TtpDiagram.astro";
+import TrainingToggle from "../../components/case-study/sublime/TrainingToggle.tsx";
 import Analytics from "@vercel/analytics/astro";
 import { getCollection } from "astro:content";
 
@@ -954,10 +955,10 @@ const summary =
         </dl>
       </div>
 
-      <!-- TODO (component #3): training toggle can replace or sit next to this image. -->
-      <figure class="hero-media" data-reveal>
-        <MediaSlot src={`${IMG}/notice-vs-training.webp`} alt="The page employees see after clicking, with and without training" />
-      </figure>
+      <!-- Stands in for notice-vs-training.webp: the page employees see after clicking, with and without training. -->
+      <div class="wide" data-reveal>
+        <TrainingToggle client:visible />
+      </div>
 
       <div class="col" data-reveal>
         <h3>AI as a starting point, not a separate tool</h3>

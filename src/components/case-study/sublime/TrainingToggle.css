@@ -1,0 +1,84 @@
+.tt-frame {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.tt-page {
+  padding: 2rem 2.25rem 2.25rem;
+}
+
+@media (max-width: 600px) {
+  .tt-page {
+    padding: 1.5rem 1.25rem;
+  }
+}
+
+.tt-heading {
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: var(--title);
+  margin: 0.9rem 0 0.6rem;
+}
+
+.tt-lede {
+  margin: 0 0 1.5rem;
+  color: var(--text-secondary);
+}
+
+.tt-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--label);
+  margin: 0 0 0.5rem;
+}
+
+.tt-tells {
+  margin: 0 0 1.75rem;
+  padding-left: 1.1rem;
+  color: var(--text-secondary);
+}
+
+.tt-tells li {
+  margin-bottom: 0.35rem;
+}
+
+.tt-tells li::marker {
+  color: var(--label);
+}
+
+.tt-tells code {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.85em;
+  word-break: break-all;
+}
+
+.tt-training {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 1rem 1.1rem;
+  border-radius: 6px;
+  background: var(--sd-accent-soft);
+  border: 1px solid color-mix(in srgb, #4fae82 40%, var(--bg));
+}
+
+.tt-training-title {
+  margin: 0;
+  font-weight: 500;
+  color: var(--title);
+}
+
+.tt-training-meta {
+  margin: 0.15rem 0 0;
+  font-size: 0.8rem;
+  color: var(--label);
+}
+
+.tt-done {
+  margin: 0;
+  padding: 1rem 0 0;
+  border-top: 1px solid var(--border);
+  color: var(--label);
+}
