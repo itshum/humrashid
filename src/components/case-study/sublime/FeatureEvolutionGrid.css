@@ -1,0 +1,196 @@
+/* Uses the case study page's own theme tokens (--bg, --text, --label,
+   --selection-bg...), so it follows the time-based light/dark theme
+   with no extra work. */
+
+/* The light-mode accent (#1f3d2e) is too dark to tint with: mixed down
+   it reads as grey, not green. #4fae82 is the site's own dark-mode
+   accent, used in both themes here so "new" is visibly green. */
+.feg {
+  --feg-accent: #4fae82;
+  --feg-new-bg: color-mix(in srgb, var(--feg-accent) 14%, var(--bg));
+  --feg-new-border: color-mix(in srgb, var(--feg-accent) 45%, var(--bg));
+  --feg-none-border: color-mix(in srgb, var(--label) 45%, var(--bg));
+}
+
+.feg-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.feg-filters {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.25rem;
+  margin-bottom: 1.75rem;
+}
+
+.feg-filter {
+  appearance: none;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--label);
+  font: inherit;
+  font-size: 0.85rem;
+  padding: 0.5rem 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.feg-filter:hover {
+  background: var(--hover-bg);
+  color: var(--title);
+}
+
+.feg-filter[aria-pressed="true"] {
+  background: var(--hover-bg);
+  border-color: var(--border);
+  color: var(--title);
+}
+
+.feg-filter:focus-visible,
+.feg-scroll:focus-visible {
+  outline: 2px solid var(--label);
+  outline-offset: 2px;
+}
+
+/* Sideways scroll on narrow screens rather than squeezing three
+   columns of text into a phone-width table. */
+.feg-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  border-radius: 4px;
+  scrollbar-color: var(--border) transparent;
+}
+
+.feg-table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: separate;
+  border-spacing: 0.5rem;
+  table-layout: fixed;
+}
+
+.feg-corner,
+.feg-area {
+  width: 7rem;
+}
+
+.feg-phase {
+  text-align: left;
+  font-weight: 400;
+  padding: 0 0.85rem 0.4rem;
+  vertical-align: bottom;
+  transition: opacity 0.2s ease;
+}
+
+.feg-phase-name {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--title);
+}
+
+.feg-phase-goal {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--label);
+  margin-top: 0.2rem;
+}
+
+/* Row labels stay put while the phases scroll underneath on mobile. */
+.feg-area {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--bg);
+  box-shadow: -0.5rem 0 0 var(--bg), 0.5rem 0 0 var(--bg);
+  text-align: left;
+  vertical-align: top;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--title);
+  padding: 0.8rem 0.5rem 0 0;
+}
+
+.feg-cell {
+  vertical-align: top;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  padding: 0.8rem 0.85rem;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  transition: opacity 0.2s ease;
+}
+
+.feg-cell--new {
+  background: var(--feg-new-bg);
+  border-color: var(--feg-new-border);
+  color: var(--text);
+}
+
+.feg-cell--carry {
+  background: var(--hover-bg);
+  border-color: var(--border);
+  color: var(--label);
+}
+
+.feg-cell--none {
+  background: transparent;
+  border: 1px dashed var(--feg-none-border);
+  color: var(--year);
+}
+
+.is-dimmed {
+  opacity: 0.3;
+}
+
+.feg-items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.feg-legend {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem 1.75rem;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  font-size: 0.8rem;
+  color: var(--label);
+}
+
+.feg-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.feg-swatch {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  padding: 0;
+  border-radius: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .feg-filter,
+  .feg-phase,
+  .feg-cell {
+    transition: none;
+  }
+}
