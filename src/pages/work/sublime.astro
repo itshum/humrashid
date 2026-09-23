@@ -13,6 +13,7 @@ import MediaSlot from "../../components/case-study/sublime/MediaSlot.astro";
 import FeatureEvolutionGrid from "../../components/case-study/sublime/FeatureEvolutionGrid.tsx";
 import TtpDiagram from "../../components/case-study/sublime/TtpDiagram.astro";
 import TrainingToggle from "../../components/case-study/sublime/TrainingToggle.tsx";
+import RepeatClicks from "../../components/case-study/sublime/RepeatClicks.tsx";
 import Analytics from "@vercel/analytics/astro";
 import { getCollection } from "astro:content";
 
@@ -894,6 +895,10 @@ const summary =
           conversations and rounds of prototypes decided what earned a spot. One request became a core
           feature: a leaderboard of the most vulnerable and the safest employees.
         </p>
+      </div>
+
+      <div class="wide" data-reveal>
+        <RepeatClicks client:visible />
       </div>
 
       <figure class="hero-media" data-reveal>

@@ -1,0 +1,153 @@
+.rc .sd-frame {
+  max-width: 760px;
+  margin: 0 auto;
+  overflow: visible;
+}
+
+.rc-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.rc-title {
+  margin: 0;
+  font-weight: 500;
+  color: var(--title);
+}
+
+.rc-sub {
+  margin: 0.15rem 0 0;
+  font-size: 0.8rem;
+  color: var(--label);
+}
+
+/* Visible overflow on wide screens so the popover isn't clipped; on
+   narrow screens the table scrolls and the popover opens upward. */
+.rc-scroll {
+  overflow: visible;
+}
+
+.rc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.83rem;
+}
+
+.rc-table th {
+  text-align: left;
+  font-weight: 500;
+  font-size: 0.75rem;
+  color: var(--label);
+  padding: 0.65rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.rc-table td {
+  padding: 0.75rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+  color: var(--text-secondary);
+}
+
+.rc-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.rc-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.rc-name {
+  display: block;
+  font-weight: 500;
+  color: var(--title);
+}
+
+.rc-email {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--label);
+}
+
+.rc-campaigns {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.rc-more {
+  position: relative;
+  display: inline-flex;
+}
+
+.rc-more-btn {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: var(--hover-bg);
+  color: var(--title);
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.12rem 0.45rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.rc-more-btn[aria-expanded="true"] {
+  background: var(--sd-accent-soft);
+  border-color: color-mix(in srgb, #4fae82 40%, var(--bg));
+}
+
+.rc-pop {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 6px);
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 190px;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  white-space: nowrap;
+}
+
+.rc-pop[hidden] {
+  display: none;
+}
+
+.rc-pop-label {
+  font-size: 0.7rem;
+  color: var(--label);
+}
+
+.rc-pop-item {
+  font-size: 0.8rem;
+  color: var(--title);
+}
+
+@media (max-width: 640px) {
+  .rc-scroll {
+    overflow-x: auto;
+    padding-top: 7rem;
+    margin-top: -7rem;
+  }
+
+  .rc-table {
+    min-width: 560px;
+  }
+
+  .rc-pop {
+    top: auto;
+    bottom: calc(100% + 6px);
+  }
+}
