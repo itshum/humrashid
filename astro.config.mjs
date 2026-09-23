@@ -28,8 +28,8 @@ export default defineConfig({
   integrations: [
     react(),
     sitemap({
-      // /work/sublime stays out until its password gate is in place.
-      filter: (page) => !page.includes('/design-system') && !page.includes('/work/sublime'),
+      // /work/sublime-security stays out until its password gate is in place.
+      filter: (page) => !page.includes('/design-system') && !page.includes('/work/sublime-security'),
     }),
   ]
 });
