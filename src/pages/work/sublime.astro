@@ -11,6 +11,7 @@ import Topbar from "../../components/Topbar.astro";
 import Footer from "../../components/Footer.astro";
 import MediaSlot from "../../components/case-study/sublime/MediaSlot.astro";
 import FeatureEvolutionGrid from "../../components/case-study/sublime/FeatureEvolutionGrid.tsx";
+import TtpDiagram from "../../components/case-study/sublime/TtpDiagram.astro";
 import Analytics from "@vercel/analytics/astro";
 import { getCollection } from "astro:content";
 
@@ -865,7 +866,7 @@ const summary =
       </div>
 
       <div class="wide" data-reveal>
-        <MediaSlot alt="How a TTP framework flows into detection rules, templates, and prevalence" todo="TTP-to-template diagram (component #2)" aspect="16 / 9" />
+        <TtpDiagram />
       </div>
 
       <div class="wide pair" data-reveal>
