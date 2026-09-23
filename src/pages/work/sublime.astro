@@ -16,6 +16,7 @@ import TrainingToggle from "../../components/case-study/sublime/TrainingToggle.t
 import RepeatClicks from "../../components/case-study/sublime/RepeatClicks.tsx";
 import CampaignBuilder from "../../components/case-study/sublime/CampaignBuilder.tsx";
 import AiGenerateStepper from "../../components/case-study/sublime/AiGenerateStepper.tsx";
+import ExecutiveDashboard from "../../components/case-study/sublime/ExecutiveDashboard.tsx";
 import Analytics from "@vercel/analytics/astro";
 import { getCollection } from "astro:content";
 
@@ -1018,7 +1019,7 @@ const summary =
       </div>
 
       <div class="wide" data-reveal>
-        <MediaSlot alt="Executive dashboard: campaign performance over time, most vulnerable groups, and a recommended next campaign" todo="Executive dashboard (component #7)" />
+        <ExecutiveDashboard client:visible />
       </div>
 
       <!-- What I learned -->
