@@ -281,7 +281,7 @@ const summary =
       /* One or two sentences on what the demo above does, left-aligned
          to the stage's edge like a figure caption. */
       .demo-caption {
-        max-width: 62ch;
+        max-width: 75%;
         margin: 1rem 0 0;
         font-size: 0.9rem;
         line-height: 1.55;
@@ -292,6 +292,10 @@ const summary =
       @media (max-width: 600px) {
         .demo-stage {
           padding: 0 1.25rem;
+        }
+
+        .demo-caption {
+          max-width: none;
         }
       }
 
