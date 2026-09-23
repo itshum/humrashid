@@ -1,0 +1,143 @@
+/* Proportions taken from the Group Leaderboard screenshot: roomy
+   single-line rows with no row dividers, rules only under the header
+   and column labels, numbers left-aligned in fixed columns. */
+
+.rl .su {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.rl-card {
+  overflow: visible;
+}
+
+.rl-scroll {
+  padding-bottom: 1rem;
+}
+
+.rl-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-variant-numeric: tabular-nums;
+}
+
+.rl-table thead th {
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--su-muted);
+  padding: 0.75rem 0.8rem;
+  border-bottom: 1px solid var(--su-border);
+  white-space: nowrap;
+}
+
+.rl-table tbody th,
+.rl-table tbody td {
+  text-align: left;
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--su-text);
+  padding: 0.8rem 0.8rem;
+  line-height: 1.45;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.rl-table tbody tr:first-child th,
+.rl-table tbody tr:first-child td {
+  padding-top: 0.95rem;
+}
+
+.rl-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.rl-campaigns {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.rl-latest {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rl-more {
+  position: relative;
+  display: inline-flex;
+}
+
+.rl-more-btn {
+  appearance: none;
+  background: var(--su-surface);
+  font-family: inherit;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+.rl-more-btn:hover,
+.rl-more-btn[aria-expanded="true"] {
+  border-color: var(--su-muted);
+}
+
+.rl-more-btn:focus-visible {
+  outline: 2px solid var(--su-muted);
+  outline-offset: 2px;
+}
+
+.rl-pop {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 6px);
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 190px;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--su-border);
+  border-radius: 8px;
+  background: var(--su-surface);
+  box-shadow: var(--su-shadow);
+  white-space: nowrap;
+}
+
+.rl-pop[hidden] {
+  display: none;
+}
+
+.rl-pop-label {
+  font-size: 0.72rem;
+  color: var(--su-muted);
+}
+
+.rl-pop-item {
+  font-size: 0.82rem;
+  color: var(--su-text-strong);
+}
+
+/* Narrow screens: the table scrolls sideways instead of squeezing, and
+   the popover opens upward into reserved space so it isn't clipped. */
+@media (max-width: 640px) {
+  .rl-scroll {
+    overflow-x: auto;
+  }
+
+  .rl-table {
+    min-width: 540px;
+  }
+
+  .rl-scroll--pop {
+    padding-top: 7rem;
+    margin-top: -7rem;
+  }
+
+  .rl-pop {
+    top: auto;
+    bottom: calc(100% + 6px);
+  }
+}

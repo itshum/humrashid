@@ -113,17 +113,19 @@ export interface Group {
   recipients: number;
   opened: number;
   clicked: number;
+  reported: number;
 }
 
 // Featured campaign results by group. Sums: 240 recipients, 186 opened,
-// 41 clicked.
+// 41 clicked, 58 reported (matching the featured campaign's totals in
+// campaignHistory below).
 export const groups: Group[] = [
-  { name: "Finance", recipients: 30, opened: 26, clicked: 9 },
-  { name: "Sales", recipients: 48, opened: 39, clicked: 11 },
-  { name: "Customer support", recipients: 42, opened: 33, clicked: 8 },
-  { name: "Operations", recipients: 36, opened: 27, clicked: 5 },
-  { name: "Marketing", recipients: 34, opened: 25, clicked: 4 },
-  { name: "Engineering", recipients: 50, opened: 36, clicked: 4 },
+  { name: "Finance", recipients: 30, opened: 26, clicked: 9, reported: 3 },
+  { name: "Sales", recipients: 48, opened: 39, clicked: 11, reported: 8 },
+  { name: "Customer support", recipients: 42, opened: 33, clicked: 8, reported: 9 },
+  { name: "Operations", recipients: 36, opened: 27, clicked: 5, reported: 10 },
+  { name: "Marketing", recipients: 34, opened: 25, clicked: 4, reported: 10 },
+  { name: "Engineering", recipients: 50, opened: 36, clicked: 4, reported: 18 },
 ];
 
 export interface CampaignResult {
@@ -180,3 +182,7 @@ export const repeatClickers: RepeatClicker[] = [
 
 export const pct = (part: number, whole: number) =>
   whole === 0 ? "0%" : `${((part / whole) * 100).toFixed(1).replace(/\.0$/, "")}%`;
+
+// Always one decimal, the way Sublime's tables print rates ("58.0%").
+export const pct1 = (part: number, whole: number) =>
+  whole === 0 ? "0.0%" : `${((part / whole) * 100).toFixed(1)}%`;

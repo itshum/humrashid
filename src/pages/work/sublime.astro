@@ -13,7 +13,7 @@ import MediaSlot from "../../components/case-study/sublime/MediaSlot.astro";
 import FeatureEvolutionGrid from "../../components/case-study/sublime/FeatureEvolutionGrid.tsx";
 import TtpDiagram from "../../components/case-study/sublime/TtpDiagram.astro";
 import TrainingToggle from "../../components/case-study/sublime/TrainingToggle.tsx";
-import RepeatClicks from "../../components/case-study/sublime/RepeatClicks.tsx";
+import ResultsLeaderboard from "../../components/case-study/sublime/ResultsLeaderboard.tsx";
 import CampaignBuilder from "../../components/case-study/sublime/CampaignBuilder.tsx";
 import AiGenerateStepper from "../../components/case-study/sublime/AiGenerateStepper.tsx";
 import ExecutiveDashboard from "../../components/case-study/sublime/ExecutiveDashboard.tsx";
@@ -276,6 +276,17 @@ const summary =
       .demo-stage-inner > * {
         max-width: 1000px;
         margin: 0 auto;
+      }
+
+      /* One or two sentences on what the demo above does, left-aligned
+         to the stage's edge like a figure caption. */
+      .demo-caption {
+        max-width: 62ch;
+        margin: 1rem 0 0;
+        font-size: 0.9rem;
+        line-height: 1.55;
+        color: var(--label);
+        text-wrap: pretty;
       }
 
       @media (max-width: 600px) {
@@ -892,8 +903,9 @@ const summary =
 
       <div class="demo-stage" data-reveal>
         <div class="demo-stage-inner">
-          <RepeatClicks client:visible />
+          <ResultsLeaderboard client:visible />
         </div>
+        <p class="demo-caption">Campaign results can be read by person or by team. Repeat clickers shows who fell for more than one simulation, and the group leaderboard ranks teams by click rate, flagging the most vulnerable and the safest.</p>
       </div>
 
       <figure class="hero-media" data-reveal>
@@ -949,6 +961,7 @@ const summary =
         <div class="demo-stage-inner">
           <CampaignBuilder client:visible />
         </div>
+        <p class="demo-caption">Every campaign setting lives on one form, with the email previewed live beside it. Switching templates updates the sender, subject, and body together, and the preview shows dynamic tags or the values an employee will see.</p>
       </div>
 
       <!-- Stands in for notice-vs-training.webp: the page employees see after clicking, with and without training. -->
@@ -956,6 +969,7 @@ const summary =
         <div class="demo-stage-inner">
           <TrainingToggle client:visible />
         </div>
+        <p class="demo-caption">Employees who click land on a page that explains what gave the phish away. Turning on training adds a short quiz the security team can customize, without adding a step to the builder.</p>
       </div>
 
       <div class="col" data-reveal>
@@ -995,6 +1009,7 @@ const summary =
         <div class="demo-stage-inner">
           <AiGenerateStepper client:visible />
         </div>
+        <p class="demo-caption">AI generation lives inside the template picker analysts already use. Pick an attack type, refine it, and get a template built from threats seen in the customer's own environment, with names left as variables.</p>
       </div>
 
       <div class="col" data-reveal>
@@ -1055,6 +1070,7 @@ const summary =
         <div class="demo-stage-inner">
           <ExecutiveDashboard client:visible />
         </div>
+        <p class="demo-caption">The dashboard answers three leadership questions at a glance: how campaigns are trending, which teams are most vulnerable, and what to do next. The recommendation turns the weakest team into a campaign draft.</p>
       </div>
 
       <!-- What I learned -->
