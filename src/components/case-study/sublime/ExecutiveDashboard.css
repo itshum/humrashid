@@ -1,0 +1,269 @@
+/* Chart styling follows chart-notes/style-guide.md: hairlines, no
+   gridline clutter, one accent (report rate, the trend worth noticing),
+   and direct labels instead of a legend. */
+
+.ed-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.ed-title {
+  margin: 0;
+  font-weight: 500;
+  color: var(--title);
+}
+
+.ed-grid-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+}
+
+.ed-panel {
+  margin: 0;
+  padding: 1.25rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.ed-panel--performance {
+  border-right: 1px solid var(--border);
+}
+
+.ed-panel--action {
+  grid-column: 1 / -1;
+  border-bottom: none;
+}
+
+.ed-q {
+  margin: 0 0 0.9rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--title);
+}
+
+.ed-note {
+  margin: -0.5rem 0 1rem;
+  font-size: 0.75rem;
+  color: var(--label);
+}
+
+.ed-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 0 0 1.25rem;
+}
+
+.ed-stats dt {
+  font-size: 0.7rem;
+  color: var(--label);
+}
+
+.ed-stats dd {
+  margin: 0.15rem 0 0;
+  font-size: 1.35rem;
+  font-weight: 500;
+  color: var(--title);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Lines are an SVG stretched to the plot box; dots and labels are HTML
+   positioned by percentage so text never scales with the chart. */
+.ed-chart {
+  padding: 0.5rem 5.75rem 1.75rem 2.1rem;
+}
+
+.ed-plot {
+  position: relative;
+  height: 150px;
+}
+
+.ed-plot svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.ed-grid {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.ed-line {
+  fill: none;
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+}
+
+.ed-line--clicked {
+  stroke: var(--label);
+}
+
+.ed-line--reported {
+  stroke: var(--sd-accent);
+  stroke-width: 2;
+}
+
+.ed-dot {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  margin: -3.5px 0 0 -3.5px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 1.5px solid var(--label);
+}
+
+.ed-dot--reported {
+  border-color: var(--sd-accent);
+  background: var(--sd-accent);
+}
+
+.ed-tick {
+  position: absolute;
+  right: calc(100% + 0.5rem);
+  transform: translateY(-50%);
+  font-size: 0.68rem;
+  color: var(--label);
+  font-variant-numeric: tabular-nums;
+}
+
+.ed-end {
+  position: absolute;
+  left: calc(100% + 0.6rem);
+  transform: translateY(-50%);
+  font-size: 0.72rem;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.ed-end--reported {
+  color: var(--title);
+  font-weight: 500;
+}
+
+.ed-end--clicked {
+  color: var(--label);
+}
+
+.ed-x {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  transform: translateX(-50%);
+  font-size: 0.68rem;
+  color: var(--label);
+  white-space: nowrap;
+}
+
+.ed-bars {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.ed-bars li {
+  display: grid;
+  grid-template-columns: 7.5rem 1fr 3rem;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.78rem;
+}
+
+.ed-bar-label {
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ed-bar-track {
+  height: 8px;
+  border-radius: 0 2px 2px 0;
+  background: var(--hover-bg);
+}
+
+.ed-bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: 0 2px 2px 0;
+  background: color-mix(in srgb, var(--label) 55%, var(--bg));
+}
+
+.ed-bar-value {
+  text-align: right;
+  color: var(--label);
+  font-variant-numeric: tabular-nums;
+}
+
+.ed-bars li.is-worst .ed-bar-label,
+.ed-bars li.is-worst .ed-bar-value {
+  color: var(--title);
+  font-weight: 500;
+}
+
+.ed-bars li.is-worst .ed-bar-fill {
+  background: var(--sd-accent);
+}
+
+.ed-rec {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem 1.5rem;
+  flex-wrap: wrap;
+  padding: 1rem 1.1rem;
+  border-radius: 6px;
+  background: var(--sd-accent-soft);
+  border: 1px solid color-mix(in srgb, #4fae82 40%, var(--bg));
+}
+
+.ed-rec > div:first-child {
+  flex: 1 1 320px;
+}
+
+.ed-rec-title {
+  margin: 0;
+  font-weight: 500;
+  color: var(--title);
+}
+
+.ed-rec-body {
+  margin: 0.2rem 0 0;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.ed-rec-done {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--title);
+}
+
+@media (max-width: 760px) {
+  .ed-grid-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .ed-panel--performance {
+    border-right: none;
+  }
+}
+
+@media (max-width: 420px) {
+  .ed-chart {
+    padding-right: 5.25rem;
+  }
+
+  .ed-bars li {
+    grid-template-columns: 7.5rem 1fr 2.5rem;
+  }
+}
