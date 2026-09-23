@@ -14,6 +14,7 @@ import FeatureEvolutionGrid from "../../components/case-study/sublime/FeatureEvo
 import TtpDiagram from "../../components/case-study/sublime/TtpDiagram.astro";
 import TrainingToggle from "../../components/case-study/sublime/TrainingToggle.tsx";
 import RepeatClicks from "../../components/case-study/sublime/RepeatClicks.tsx";
+import CampaignBuilder from "../../components/case-study/sublime/CampaignBuilder.tsx";
 import Analytics from "@vercel/analytics/astro";
 import { getCollection } from "astro:content";
 
@@ -425,41 +426,6 @@ const summary =
 
       .col li::marker {
         color: var(--label);
-      }
-
-      /* The three-part layout of the GA builder. */
-      .area-list {
-        display: grid;
-        grid-template-columns: max-content 1fr;
-        gap: 0.9rem 1.5rem;
-        margin: 2rem 0;
-        padding: 1.5rem 0;
-        border-top: 1px solid var(--border);
-        border-bottom: 1px solid var(--border);
-      }
-
-      .area-list dt {
-        font-size: 0.9rem;
-        font-weight: 500;
-        color: var(--title);
-      }
-
-      .area-list dd {
-        margin: 0;
-        font-size: 0.95rem;
-        line-height: 1.5;
-        color: var(--text-secondary);
-      }
-
-      @media (max-width: 500px) {
-        .area-list {
-          grid-template-columns: 1fr;
-          gap: 0.25rem;
-        }
-
-        .area-list dd {
-          margin-bottom: 0.75rem;
-        }
       }
 
       .guardrails {
@@ -949,15 +915,9 @@ const summary =
         </figure>
       </div>
 
-      <div class="col" data-reveal>
-        <dl class="area-list">
-          <dt>Header</dt>
-          <dd>Save as draft, send a test to yourself, review and launch</dd>
-          <dt>Left: the form</dt>
-          <dd>Campaign details, delivery mode, audience, template, training toggle</dd>
-          <dt>Right: live preview</dt>
-          <dd>Sender, subject, and the email exactly as the employee will see it</dd>
-        </dl>
+      <!-- Replaces the MD's header / form / live preview table: the builder shows that layout directly. -->
+      <div class="wide" data-reveal>
+        <CampaignBuilder client:visible />
       </div>
 
       <!-- Stands in for notice-vs-training.webp: the page employees see after clicking, with and without training. -->

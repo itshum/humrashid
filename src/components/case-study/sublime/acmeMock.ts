@@ -68,7 +68,7 @@ export const templates: Template[] = [
     subject: "Invoice #4471 is waiting on your approval",
     body: [
       "Hi {{recipient.first_name}},",
-      "Invoice #4471 from a {{company.name}} vendor is past due and needs your approval today to avoid a late fee.",
+      "Invoice #4471 for {{company.name}} is past due and needs your approval today to avoid a late fee.",
     ],
     cta: "Review invoice",
     campaignName: "Q2 invoice approval",
