@@ -15,6 +15,7 @@ import TtpDiagram from "../../components/case-study/sublime/TtpDiagram.astro";
 import TrainingToggle from "../../components/case-study/sublime/TrainingToggle.tsx";
 import RepeatClicks from "../../components/case-study/sublime/RepeatClicks.tsx";
 import CampaignBuilder from "../../components/case-study/sublime/CampaignBuilder.tsx";
+import AiGenerateStepper from "../../components/case-study/sublime/AiGenerateStepper.tsx";
 import Analytics from "@vercel/analytics/astro";
 import { getCollection } from "astro:content";
 
@@ -957,10 +958,10 @@ const summary =
         </p>
       </div>
 
-      <!-- TODO (component #6): AI generate stepper. -->
-      <figure class="hero-media" data-reveal>
-        <MediaSlot src={`${IMG}/ai-generating.webp`} alt="Campaign template list with an AI template generating" />
-      </figure>
+      <!-- Stands in for ai-generating.webp: the template picker with an AI template generating. -->
+      <div class="wide" data-reveal>
+        <AiGenerateStepper client:visible />
+      </div>
 
       <div class="col" data-reveal>
         <p>
