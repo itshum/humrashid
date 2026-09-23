@@ -1,0 +1,76 @@
+---
+// Renders a case study image if the file exists in public/, otherwise a
+// clearly labeled placeholder. Drop the real file in and it swaps in on
+// the next build, no code change needed.
+import fs from "node:fs";
+import path from "node:path";
+
+interface Props {
+  src?: string;
+  alt: string;
+  // For slots that aren't a single image yet (a component, a quote).
+  todo?: string;
+  aspect?: string;
+  eager?: boolean;
+  class?: string;
+}
+
+const { src, alt, todo, aspect = "16 / 10", eager = false, class: className } = Astro.props;
+const exists = !!src && fs.existsSync(path.join(process.cwd(), "public", src));
+const fileName = src?.split("/").pop();
+---
+
+{
+  exists ? (
+    <img
+      class={className}
+      src={src}
+      alt={alt}
+      loading={eager ? "eager" : "lazy"}
+      decoding={eager ? "auto" : "async"}
+    />
+  ) : (
+    <div class:list={["media-slot", className]} style={`aspect-ratio: ${aspect};`} role="img" aria-label={`Placeholder: ${alt}`}>
+      <span class="media-slot-tag">TODO</span>
+      <span class="media-slot-name">{todo ?? fileName}</span>
+      <span class="media-slot-alt">{alt}</span>
+    </div>
+  )
+}
+
+<style>
+  .media-slot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    width: 100%;
+    padding: 1.5rem;
+    border: 1px dashed color-mix(in srgb, var(--label) 45%, var(--bg));
+    border-radius: 4px;
+    background: var(--hover-bg);
+    text-align: center;
+  }
+
+  .media-slot-tag {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--label);
+  }
+
+  .media-slot-name {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--title);
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+
+  .media-slot-alt {
+    font-size: 0.8rem;
+    color: var(--label);
+    max-width: 44ch;
+    line-height: 1.45;
+  }
+</style>

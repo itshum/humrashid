@@ -1,0 +1,1223 @@
+---
+// Sublime Security: Phishing Simulations. Standalone rather than a
+// content collection entry because its phase sections and interactive
+// pieces don't fit the fixed slots in [slug].astro. Styles mirror that
+// template so the two read as one system.
+//
+// Not published yet: noindex, excluded from the sitemap, and not linked
+// from anywhere. Content lives inside #case-study so a password gate
+// can wrap or replace it later without restructuring the page.
+import Topbar from "../../components/Topbar.astro";
+import Footer from "../../components/Footer.astro";
+import MediaSlot from "../../components/case-study/sublime/MediaSlot.astro";
+import FeatureEvolutionGrid from "../../components/case-study/sublime/FeatureEvolutionGrid.tsx";
+import Analytics from "@vercel/analytics/astro";
+import { getCollection } from "astro:content";
+
+const IMG = "/case-studies/sublime";
+
+const moreWorkOrder = ["pack", "inveterate", "ppvp"];
+const moreWork = (await getCollection("caseStudies"))
+  .filter((cs) => moreWorkOrder.includes(cs.id))
+  .sort((a, b) => moreWorkOrder.indexOf(a.id) - moreWorkOrder.indexOf(b.id));
+
+const title = "Sublime Security: Phishing Simulations";
+const summary =
+  "Turning a standalone phishing test into a product grounded in the attacks each customer actually faces.";
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <Analytics />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="canonical" href="https://www.humrashid.com/work/sublime" />
+    <script is:inline>
+      // Set before first paint so there's no light-mode flash before
+      // Topbar's script confirms/re-checks the same NYC-time rule.
+      (function () {
+        var parts = new Intl.DateTimeFormat("en-US", {
+          timeZone: "America/New_York",
+          hour: "numeric",
+          hour12: false,
+        }).formatToParts(new Date());
+        var hour = Number(
+          (parts.filter(function (p) {
+            return p.type === "hour";
+          })[0] || {}).value || 12
+        );
+        document.documentElement.dataset.theme = hour >= 19 || hour < 6 ? "dark" : "light";
+      })();
+    </script>
+    <style is:inline>
+      html[data-theme="dark"] {
+        background: #16171c;
+        color: #eeede8;
+      }
+      html:not([data-theme="dark"]) {
+        background: #f6f6f3;
+        color: #262626;
+      }
+    </style>
+    <title>{title} · Humayun Rashid</title>
+    <meta name="description" content={summary} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&display=swap"
+    />
+    <style is:global>
+      /* Same tokens as [slug].astro and the homepage. */
+      :root {
+        --bg: #f6f6f3;
+        --text: #262626;
+        --text-secondary: #2b2b2b;
+        --label: #7a7a7a;
+        --hover-bg: #e8e7e2;
+        --title: #262626;
+        --year: #8a8984;
+        --icon: #c9c7c0;
+        --icon-hover: #6b6b6b;
+        --border: #e0ded7;
+        --selection-bg: #1f3d2e;
+        --selection-text: #f8f8f6;
+      }
+
+      :root[data-theme="dark"] {
+        --bg: #0d0d0c;
+        --text: #eeede8;
+        --text-secondary: #d6d5d0;
+        --label: #a1a09a;
+        --hover-bg: #1d1d1b;
+        --title: #eeede8;
+        --year: #696862;
+        --icon: #474641;
+        --icon-hover: #b5b4ad;
+        --border: #252423;
+        --selection-bg: #4fae82;
+        --selection-text: #171715;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+        scrollbar-color: var(--border) var(--bg);
+      }
+
+      html::-webkit-scrollbar-track {
+        background: var(--bg);
+      }
+
+      html::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 8px;
+      }
+
+      html::-webkit-scrollbar-thumb:hover {
+        background: var(--label);
+      }
+
+      html,
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+        transition: background 0.3s ease, color 0.3s ease;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      ::selection {
+        background: var(--selection-bg);
+        color: var(--selection-text);
+      }
+
+      .col {
+        max-width: 700px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+      }
+
+      @media (max-width: 600px) {
+        .col {
+          padding: 0 2rem;
+        }
+      }
+
+      /* Wider than .col for pieces that need more measure (the phase
+         grid, the diagram, image pairs) but capped short of full bleed. */
+      .wide {
+        max-width: 1000px;
+        margin: 3.5rem auto;
+        padding: 0 2rem;
+      }
+
+      @media (max-width: 600px) {
+        .wide {
+          padding: 0 1.25rem;
+        }
+      }
+
+      .hero {
+        text-align: center;
+        padding: 4.2rem 0 3.5rem;
+      }
+
+      .hero .eyebrow {
+        font-size: 0.8rem;
+        color: var(--label);
+        margin: 0 0 1.25rem;
+      }
+
+      .hero h1 {
+        font-size: 2.5rem;
+        font-weight: 500;
+        letter-spacing: -0.015em;
+        margin: 0 0 1.25rem;
+        text-wrap: balance;
+      }
+
+      @media (max-width: 600px) {
+        .hero h1 {
+          font-size: 2rem;
+        }
+      }
+
+      .hero .summary {
+        font-size: 1.15rem;
+        color: var(--text-secondary);
+        line-height: 1.6;
+        max-width: 42ch;
+        margin: 0 auto;
+      }
+
+      .meta-row {
+        display: flex;
+        justify-content: center;
+        gap: 3.5rem;
+        margin-top: 2.5rem;
+        flex-wrap: wrap;
+      }
+
+      @media (max-width: 600px) {
+        .meta-row {
+          display: grid;
+          grid-template-columns: repeat(2, auto);
+          justify-content: center;
+          gap: 1.75rem 3rem;
+        }
+      }
+
+      .meta-item {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: left;
+        gap: 0.35rem;
+      }
+
+      .meta-item .meta-label {
+        font-size: 0.75rem;
+        color: var(--year);
+      }
+
+      .meta-item .meta-value {
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: var(--label);
+      }
+
+      @media (max-width: 1000px) {
+        .meta-item .meta-label,
+        .meta-item .meta-value {
+          font-size: 0.85rem;
+        }
+      }
+
+      .hero-media {
+        margin: 4rem 0;
+        padding: 0 2rem;
+      }
+
+      .hero-media img {
+        display: block;
+        width: 100%;
+        border-radius: 4px;
+      }
+
+      .media-credit {
+        margin: 0.75rem 0 0;
+        font-size: 0.8rem;
+        color: var(--label);
+        text-align: center;
+      }
+
+      /* Two images side by side (before/after, list/detail). */
+      .pair {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: clamp(1.25rem, 2.5vw, 2rem);
+      }
+
+      .pair img {
+        display: block;
+        width: 100%;
+        border-radius: 4px;
+      }
+
+      /* Three frames of the builder's evolution, left to right. */
+      .strip {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: clamp(1rem, 2vw, 1.5rem);
+      }
+
+      .strip img {
+        display: block;
+        width: 100%;
+        border-radius: 4px;
+      }
+
+      .pair figure,
+      .strip figure {
+        margin: 0;
+      }
+
+      figcaption {
+        margin-top: 0.75rem;
+        font-size: 0.8rem;
+        line-height: 1.45;
+        color: var(--label);
+        text-align: center;
+      }
+
+      @media (max-width: 700px) {
+        .pair,
+        .strip {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      section {
+        margin: 4.5rem 0;
+        scroll-margin-top: 100px;
+      }
+
+      .toc {
+        position: fixed;
+        top: 112px;
+        left: 2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 9px;
+        z-index: 15;
+      }
+
+      .toc-line {
+        width: 18px;
+        height: 1.8px;
+        background: var(--label);
+        border-radius: 1px;
+        transition: background 0.2s ease, width 0.2s ease;
+      }
+
+      .toc-line:hover {
+        background: var(--icon-hover);
+      }
+
+      .toc-line.active {
+        background: var(--title);
+        width: 25px;
+      }
+
+      @media (max-width: 1000px) {
+        .toc {
+          display: none;
+        }
+      }
+
+      section .label {
+        font-size: 0.8rem;
+        color: var(--year);
+        text-align: center;
+        margin: 0 0 1.25rem;
+      }
+
+      @media (max-width: 1000px) {
+        section .label {
+          font-size: 0.85rem;
+        }
+      }
+
+      section h2 {
+        font-size: 1.6rem;
+        font-weight: 500;
+        text-align: center;
+        letter-spacing: -0.01em;
+        margin: 0 0 2.5rem;
+        text-wrap: balance;
+      }
+
+      @media (max-width: 600px) {
+        section h2 {
+          font-size: 1.4rem;
+        }
+      }
+
+      /* Subsections within a phase, sized like the template's
+         solution item headings. */
+      .col h3 {
+        font-size: 1.25rem;
+        font-weight: 500;
+        text-align: center;
+        margin: 4rem 0 1.25rem;
+        text-wrap: balance;
+      }
+
+      .col p,
+      .col li {
+        font-size: 1.05rem;
+        line-height: 1.65;
+        color: var(--text-secondary);
+      }
+
+      .col p {
+        margin: 0 0 1.25rem;
+      }
+
+      .col p:last-child {
+        margin-bottom: 0;
+      }
+
+      .col strong {
+        font-weight: 600;
+        color: var(--title);
+      }
+
+      .col ol,
+      .col ul {
+        margin: 0 0 1.25rem;
+        padding-left: 1.4rem;
+      }
+
+      .col li {
+        margin-bottom: 0.6rem;
+        padding-left: 0.25rem;
+      }
+
+      .col li::marker {
+        color: var(--label);
+      }
+
+      /* The three-part layout of the GA builder. */
+      .area-list {
+        display: grid;
+        grid-template-columns: max-content 1fr;
+        gap: 0.9rem 1.5rem;
+        margin: 2rem 0;
+        padding: 1.5rem 0;
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+      }
+
+      .area-list dt {
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--title);
+      }
+
+      .area-list dd {
+        margin: 0;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        color: var(--text-secondary);
+      }
+
+      @media (max-width: 500px) {
+        .area-list {
+          grid-template-columns: 1fr;
+          gap: 0.25rem;
+        }
+
+        .area-list dd {
+          margin-bottom: 0.75rem;
+        }
+      }
+
+      .guardrails {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1rem;
+        margin: 2rem 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .col .guardrails li {
+        margin: 0;
+        padding: 1.25rem;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        font-size: 0.95rem;
+        line-height: 1.5;
+      }
+
+      .guardrails .guardrail-title {
+        display: block;
+        font-weight: 600;
+        color: var(--title);
+        margin-bottom: 0.35rem;
+      }
+
+      @media (max-width: 600px) {
+        .guardrails {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .quote-section {
+        max-width: 700px;
+        margin-left: auto;
+        margin-right: auto;
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+      }
+
+      .quote-placeholder {
+        text-align: center;
+        font-size: 1rem;
+        color: var(--label);
+        border: 1px dashed color-mix(in srgb, var(--label) 45%, var(--bg));
+        border-radius: 4px;
+        padding: 2rem 1.5rem;
+        margin: 0;
+      }
+
+      #more-work {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 1.5rem 2rem 5rem;
+      }
+
+      #more-work .label {
+        margin-bottom: 2.25rem;
+      }
+
+      .next-work {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 0.75rem;
+      }
+
+      .next-work-row {
+        position: relative;
+        display: block;
+        padding: 1.21rem 2.5rem 1.21rem 1.1rem;
+        border-radius: 6px;
+        text-decoration: none;
+        transition: background 0.15s ease;
+      }
+
+      .next-work-row:hover,
+      .next-work-row:active {
+        background: var(--hover-bg);
+      }
+
+      .next-work-row:focus-visible {
+        outline: 2px solid var(--label);
+        outline-offset: 2px;
+      }
+
+      .next-work-row .title {
+        display: block;
+        font-size: 1.05rem;
+        font-weight: 500;
+        color: var(--title);
+        margin-bottom: 0.3rem;
+      }
+
+      .next-work-row .icon {
+        position: absolute;
+        top: 50%;
+        right: 1.1rem;
+        transform: translateY(-50%);
+        font-size: 0.85rem;
+        color: var(--icon);
+        opacity: 0;
+        transition: opacity 0.15s ease, transform 0.15s ease;
+      }
+
+      .next-work-row:hover .icon,
+      .next-work-row:active .icon {
+        opacity: 1;
+        color: var(--icon-hover);
+        transform: translateY(-50%) translateX(2px);
+      }
+
+      .next-work-row .desc {
+        display: block;
+        font-size: 0.92rem;
+        line-height: 1.5;
+        letter-spacing: 0.25px;
+        color: var(--label);
+      }
+
+      .divider {
+        height: 0;
+        max-width: 80px;
+        margin: 4rem auto 2.5rem;
+        border-top: 1px solid var(--border);
+      }
+
+      .divider + section,
+      .col:has(> .divider) + section {
+        margin-top: 0;
+      }
+
+      [data-reveal] {
+        opacity: 0;
+        transform: translateY(28px);
+        transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      [data-reveal].is-revealed {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+
+        [data-reveal] {
+          opacity: 1;
+          transform: none;
+          transition: none;
+        }
+      }
+
+      .lightbox-eligible {
+        cursor: zoom-in;
+      }
+
+      .lightbox {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        background: rgba(10, 10, 9, 0.94);
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.25s ease;
+      }
+
+      .lightbox.is-open {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .lightbox img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        border-radius: 4px;
+        cursor: zoom-out;
+      }
+
+      .lightbox-close {
+        position: absolute;
+        top: 1.25rem;
+        right: 1.25rem;
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(248, 248, 246, 0.3);
+        border-radius: 100px;
+        background: transparent;
+        color: #f8f8f6;
+        cursor: pointer;
+        transition: background 0.15s ease, border-color 0.15s ease;
+      }
+
+      .lightbox-close:hover {
+        background: rgba(248, 248, 246, 0.12);
+        border-color: rgba(248, 248, 246, 0.5);
+      }
+
+      .lightbox-close svg {
+        width: 18px;
+        height: 18px;
+      }
+
+      @media (max-width: 600px) {
+        .lightbox {
+          padding: 1.25rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <Topbar showBack iconOnlyBack hideLogo />
+
+    <main id="case-study">
+      <div class="col">
+        <div class="hero">
+          <p class="eyebrow">Case study</p>
+          <h1>{title}</h1>
+          <p class="summary">{summary}</p>
+          <div class="meta-row">
+            <div class="meta-item">
+              <span class="meta-label">Company</span>
+              <span class="meta-value">Sublime Security</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Role</span>
+              <span class="meta-value">Lead Product Designer</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Team</span>
+              <span class="meta-value">PM, EM, 2 engineers, ML team</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Year</span>
+              <span class="meta-value">2025–2026</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <figure class="hero-media" data-reveal>
+        <MediaSlot
+          src={`${IMG}/hero-dashboard.webp`}
+          alt="Simulation overview dashboard with click, failure, and report rates, repeat clickers, and a group leaderboard"
+          eager
+        />
+        {/* TODO: optional credit line, depends on whether Sublime marketing made the graphic.
+        <figcaption class="media-credit">Graphic by ...</figcaption> */}
+      </figure>
+
+      <nav class="toc" aria-label="Case study sections">
+        <a href="#challenge" class="toc-line" data-toc="challenge" aria-label="Challenge"></a>
+        <a href="#approach" class="toc-line" data-toc="approach" aria-label="Approach"></a>
+        <a href="#phases" class="toc-line" data-toc="phases" aria-label="Three phases, one idea"></a>
+        <a href="#phase-1" class="toc-line" data-toc="phase-1" aria-label="Phase 1: Private beta"></a>
+        <a href="#phase-2" class="toc-line" data-toc="phase-2" aria-label="Phase 2: Public beta"></a>
+        <a href="#phase-3" class="toc-line" data-toc="phase-3" aria-label="Phase 3: GA"></a>
+        <a href="#learned" class="toc-line" data-toc="learned" aria-label="What I learned"></a>
+        <a href="#outcome" class="toc-line" data-toc="outcome" aria-label="Outcome"></a>
+      </nav>
+
+      <!-- Challenge -->
+      <div class="col" data-reveal>
+        <div class="divider"></div>
+        <section id="challenge">
+          <p class="label">Challenge</p>
+          <h2>Customers were paying for a second tool to test what Sublime already knew</h2>
+          <p>
+            Phishing simulations let a security team find out whether employees will fall for a phish
+            before a real attacker does. The team sends a harmless fake phish to a group of employees,
+            then tracks who clicks, who reports it, and who ignores it.
+          </p>
+          <p>
+            Sublime customers were already doing this, just not in Sublime. They paid for a separate
+            tool, ran it on a quarterly content calendar, and tested employees against generic
+            templates that had little to do with the attacks hitting their inboxes. Simulations were
+            one of our most requested features, and the ask was always the same: fewer tools, one
+            place to work.
+          </p>
+          <p>
+            Sublime was built on a simple belief: stopping the next attack matters more than cleaning
+            up this one. Our detections close gaps in the filter. Simulations could close gaps in
+            people. And because Sublime sits inside the email stack, we already knew which attacks
+            each customer was facing. A standalone tool has to guess. We didn't.
+          </p>
+          <p>I led design from the first concept through private beta, public beta, and GA readiness.</p>
+        </section>
+      </div>
+
+      <!-- Approach -->
+      <div class="col">
+        <div class="divider"></div>
+        <section id="approach" data-reveal>
+          <p class="label">Approach</p>
+          <h2>A campaign in under a minute</h2>
+          <p>
+            I started with the PRD and the analyst's jobs to be done, mapping every flow a campaign
+            needed. From that came one goal: an analyst should be able to launch a campaign in under a
+            minute. The catch was that every campaign still needed several steps, each with its own
+            settings. So the rule was simple: cut the flow as far as possible without taking away the
+            controls analysts actually need.
+          </p>
+
+          <h3>The assumption I got wrong</h3>
+          <p>
+            I assumed analysts would want deep control, maybe even an editor to redesign the phishing
+            email itself. Early concepts and prototypes shown to customers proved otherwise. Analysts
+            didn't want to design emails. They wanted to launch fast and get to the part that mattered.
+          </p>
+          <p>
+            That part came after launch: who in my organization is most likely to fall for this, and
+            what can I do about it? The builder was step one. The real value was the analysis
+            afterward. That reframe shaped everything that followed: keep the builder lean, and put
+            the depth into results.
+          </p>
+        </section>
+      </div>
+
+      <!-- Three phases, one idea -->
+      <div class="col">
+        <div class="divider"></div>
+        <section id="phases" data-reveal>
+          <h2>Three phases, one idea</h2>
+          <p>
+            The product grew in three phases, each shaped by what customers told us in the last. The
+            thread running through all three: tie every campaign more closely to the real attacks
+            Sublime sees.
+          </p>
+        </section>
+      </div>
+
+      <div class="wide" data-reveal>
+        <FeatureEvolutionGrid client:visible />
+      </div>
+
+      <!-- Phase 1 -->
+      <div class="col">
+        <div class="divider"></div>
+        <section id="phase-1" data-reveal>
+          <p class="label">Phase 1: Private beta</p>
+          <h2>Start small, test assumptions</h2>
+          <p>
+            We had a bigger vision, but wanted to test it with a handful of trusted customers before
+            building it. Private beta shipped the basics.
+          </p>
+          <ol>
+            <li><strong>Campaign details.</strong> Name, start date and time, and how long it runs.</li>
+            <li><strong>Audience.</strong> Email lists customers already had in Sublime.</li>
+            <li>
+              <strong>Template.</strong> A short list of static templates, like password resets and CEO
+              invoice requests, sorted by attack type.
+            </li>
+          </ol>
+          <p>
+            After launch, analysts could see every active campaign, and drill into each one to see who
+            opened, clicked, replied, forwarded, or reported.
+          </p>
+        </section>
+      </div>
+
+      <div class="wide pair" data-reveal>
+        <figure>
+          <MediaSlot src={`${IMG}/campaign-list.webp`} alt="Private beta campaign list" todo="campaign-list.webp (data needs fixing)" />
+        </figure>
+        <figure>
+          <MediaSlot src={`${IMG}/campaign-detail.webp`} alt="Private beta campaign detail with per-recipient results" todo="campaign-detail.webp (data needs fixing)" />
+        </figure>
+      </div>
+
+      <div class="col" data-reveal>
+        <p>
+          The biggest gap was deliberate. These templates were isolated from the rest of Sublime,
+          disconnected from the attack data we already had. Closing that gap became the next phase.
+        </p>
+      </div>
+
+      <!-- Phase 2 -->
+      <div class="col">
+        <div class="divider"></div>
+        <section id="phase-2" data-reveal>
+          <p class="label">Phase 2: Public beta</p>
+          <h2>From standalone tool to part of Sublime</h2>
+          <p>
+            Beta customers brought a wish list. The biggest shift wasn't any single feature. It was
+            grounding every campaign in the real threats Sublime already saw in each customer's inbox.
+          </p>
+          <p>
+            <strong>A smarter builder.</strong> Templates were now built from attacks found in the
+            customer's own environment. The top of the template list showed what Sublime had seen in the
+            last month, like password resets, new employee onboarding, and invoice requests, and
+            suggested building a campaign around them. Analysts could also stagger sends, so employees
+            couldn't warn each other at the water cooler, and target Google Workspace or Microsoft 365
+            groups, or upload their own list.
+          </p>
+        </section>
+      </div>
+
+      <div class="wide" data-reveal>
+        <MediaSlot alt="How a TTP framework flows into detection rules, templates, and prevalence" todo="TTP-to-template diagram (component #2)" aspect="16 / 9" />
+      </div>
+
+      <div class="wide pair" data-reveal>
+        <figure>
+          <MediaSlot src={`${IMG}/library-lofi.webp`} alt="Early wireframe of the template library as a plain list" />
+          <figcaption>Before</figcaption>
+        </figure>
+        <figure>
+          <MediaSlot src={`${IMG}/library-final.webp`} alt="Template library grouped by most active and recently seen" />
+          <figcaption>After</figcaption>
+        </figure>
+      </div>
+
+      <div class="col" data-reveal>
+        <p>
+          <strong>From data to decisions.</strong> Analysts kept asking: great, what do I do with this?
+          Campaign reports now flagged <strong>repeat clickers</strong>, people who fell for multiple
+          simulations, and <strong>top targets</strong>, a list of 50 people in the organization. A new
+          simulations dashboard brought every campaign into one place, showing which worked and which
+          didn't.
+        </p>
+        <p>
+          It would have been easy to slap a few extra panels on a dashboard. Instead, ongoing customer
+          conversations and rounds of prototypes decided what earned a spot. One request became a core
+          feature: a leaderboard of the most vulnerable and the safest employees.
+        </p>
+      </div>
+
+      <figure class="hero-media" data-reveal>
+        <MediaSlot src={`${IMG}/champions.webp`} alt="Leaderboard ranking employees by report rate" />
+      </figure>
+
+      <!-- Phase 3 -->
+      <div class="col">
+        <div class="divider"></div>
+        <section id="phase-3" data-reveal>
+          <p class="label">Phase 3: GA</p>
+          <h2>Closing the loop without breaking the flow</h2>
+          <p>
+            GA added the two pieces that completed the story: training for people who fall for a
+            simulation, and AI that writes templates from each customer's own threat data. Both made the
+            product more powerful. Both also threatened to turn a simple builder into a mess.
+          </p>
+
+          <h3>Training, without a fourth hurdle</h3>
+          <p>
+            Training was a separate product. When an employee fails a simulation, they're prompted to
+            complete a set of multiple-choice questions the security team can fully customize. It came
+            with its own settings, and it had to live inside the campaign builder. Our three-step flow
+            was about to become four, and the under-a-minute goal was at risk.
+          </p>
+          <p>
+            I worked through it with my PM using three levers: cut scope, reduce steps, and consolidate.
+            Consolidation did the most work. After many rounds of iteration with my PM and head of
+            design, we dropped the step-by-step wizard for a single form that reveals settings only when
+            they need attention. Training became an optional toggle, there when you want it and out of
+            the way when you don't.
+          </p>
+        </section>
+      </div>
+
+      <div class="wide strip" data-reveal>
+        <figure>
+          <MediaSlot src={`${IMG}/builder-lofi.webp`} alt="Low-fidelity campaign builder wireframe" />
+          <figcaption>Low-fidelity builder</figcaption>
+        </figure>
+        <figure>
+          <MediaSlot src={`${IMG}/builder-nav-variants.webp`} alt="Exploration of stage navigation variants" />
+          <figcaption>Stage navigation variants</figcaption>
+        </figure>
+        <figure>
+          <MediaSlot src={`${IMG}/builder-final.webp`} alt="Final builder: form on the left, live email preview on the right" />
+          <figcaption>Final builder</figcaption>
+        </figure>
+      </div>
+
+      <div class="col" data-reveal>
+        <dl class="area-list">
+          <dt>Header</dt>
+          <dd>Save as draft, send a test to yourself, review and launch</dd>
+          <dt>Left: the form</dt>
+          <dd>Campaign details, delivery mode, audience, template, training toggle</dd>
+          <dt>Right: live preview</dt>
+          <dd>Sender, subject, and the email exactly as the employee will see it</dd>
+        </dl>
+      </div>
+
+      <!-- TODO (component #3): training toggle can replace or sit next to this image. -->
+      <figure class="hero-media" data-reveal>
+        <MediaSlot src={`${IMG}/notice-vs-training.webp`} alt="The page employees see after clicking, with and without training" />
+      </figure>
+
+      <div class="col" data-reveal>
+        <h3>AI as a starting point, not a separate tool</h3>
+        <p>
+          For GA, we worked with the ML and AI teams on an engine that generates a template from
+          scratch, shaped by the threats Sublime has already seen at that company. The result is
+          one-to-one with the customer, not a template any other organization could receive.
+        </p>
+        <p>
+          My first designs put it in a separate AI template manager, a modal with a detailed list view,
+          filters, and metadata. I saw AI generation as its own experience. Through iteration, I
+          realized it wasn't. It was just another way to pick a template. That version got cut and
+          folded back into the builder.
+        </p>
+        <p>The final design reuses the template picker analysts already knew. They choose a starting point:</p>
+        <ul>
+          <li>
+            <strong>From a scenario,</strong> like the attacks most active in their environment or seen
+            most recently.
+          </li>
+          <li>
+            <strong>From a message sample.</strong> Every message group in Sublime has a unique ID. Paste
+            it in, and the generator turns that real attack into a simulation, with personal and
+            sensitive information stripped out.
+          </li>
+        </ul>
+        <p>
+          The live preview works exactly as before. AI also adds a wait, and waits need designing. The
+          builder promises a template in 30 seconds or less, and the loading state uses Sublime's own
+          visual language so it feels native.
+        </p>
+      </div>
+
+      <!-- TODO (component #6): AI generate stepper. -->
+      <figure class="hero-media" data-reveal>
+        <MediaSlot src={`${IMG}/ai-generating.webp`} alt="Campaign template list with an AI template generating" />
+      </figure>
+
+      <div class="col" data-reveal>
+        <p>
+          <strong>Guardrails, built into the flow.</strong> A tool that writes convincing phishing
+          emails can't be allowed to become a real phishing tool. So the rules lived in the design, not
+          in a policy page:
+        </p>
+        <ul class="guardrails">
+          <li>
+            <span class="guardrail-title">No copying.</span>
+            Generated emails reuse a real attack's structure, never its words.
+          </li>
+          <li>
+            <span class="guardrail-title">No real people.</span>
+            Names and company details only appear as dynamic variables.
+          </li>
+          <li>
+            <span class="guardrail-title">No free-text editing.</span>
+            Analysts can tweak variables inline or regenerate, but they can't rewrite the body by hand.
+          </li>
+          <li>
+            <span class="guardrail-title">Graceful fallback.</span>
+            When a customer's detection history is too thin, environment-based options switch off, and
+            analysts can still generate from the rest.
+          </li>
+        </ul>
+        <p>The full template editor I once pitched ended up as a deliberate no.</p>
+
+        <h3>A dashboard that tells a story</h3>
+        <p>
+          By GA, a new audience had appeared: executives. Analysts were pulling numbers from across the
+          product to answer one leadership question: is our simulation program working?
+        </p>
+        <p>
+          The GA dashboard merges simulation and training data into a quick, top-down read built around
+          three questions:
+        </p>
+        <ol>
+          <li>
+            <strong>How are my campaigns performing?</strong> Emails sent, active and total campaigns,
+            and how it all trends over time.
+          </li>
+          <li>
+            <strong>Who is most vulnerable?</strong> A leaderboard of the groups most likely to fall for
+            a phish.
+          </li>
+          <li>
+            <strong>Should I act on any of this?</strong> Sublime turns results into next steps. If a
+            group or person keeps failing, the dashboard suggests building a campaign just for them, so
+            every insight comes with an action attached.
+          </li>
+        </ol>
+        <p>Every panel is a clear, digestible data point an analyst can share with leadership as-is.</p>
+      </div>
+
+      <div class="wide" data-reveal>
+        <MediaSlot alt="Executive dashboard: campaign performance over time, most vulnerable groups, and a recommended next campaign" todo="Executive dashboard (component #7)" />
+      </div>
+
+      <!-- What I learned -->
+      <div class="col">
+        <div class="divider"></div>
+        <section id="learned" data-reveal>
+          <p class="label">What I learned</p>
+          <h2>Less control, closer to the flow</h2>
+          <p>
+            Twice on this project, my first instinct was to give analysts more control in a separate
+            space: a template editor in private beta, an AI template manager at GA. Both times, the
+            better answer was less, folded into the workflow they already knew.
+          </p>
+          <p>
+            Security analysts don't want another tool to master. They want to get a campaign out the
+            door and get to the answer. The best version of each feature was the one they barely noticed
+            was new.
+          </p>
+        </section>
+      </div>
+
+      <!-- Outcome -->
+      <div class="col">
+        <div class="divider"></div>
+        <section id="outcome" data-reveal>
+          <p class="label">Outcome</p>
+          <p>
+            I left Sublime shortly before the GA launch, after designing the product through GA
+            readiness. I can't share post-launch numbers, but I can share the stakes.
+          </p>
+          <ul>
+            <li>
+              <strong>A top-three roadmap priority,</strong> and one of the most requested features from
+              customers.
+            </li>
+            <li>
+              <strong>Built to move revenue.</strong> The business expected it to contribute to ARR, help
+              win new deals, and keep long-time customers from buying a separate tool.
+            </li>
+            <li>
+              <strong>A stickier platform.</strong> The same data that stops attacks now tests and trains
+              the people who might fall for them.
+            </li>
+            <li><strong>Shaped by customers at every phase,</strong> through private and public beta.</li>
+          </ul>
+        </section>
+      </div>
+
+      <!-- Quote: TODO, placeholder until a real quote and attribution exist. -->
+      <div class="col">
+        <div class="divider"></div>
+      </div>
+      <section id="quote" class="quote-section" data-reveal>
+        <p class="quote-placeholder">TODO: quote and attribution (PM, engineering lead, or a beta customer)</p>
+      </section>
+    </main>
+
+    <div class="col">
+      <div class="divider"></div>
+    </div>
+
+    <section id="more-work">
+      <p class="label">More work</p>
+      <div class="next-work">
+        {
+          moreWork.map((cs) => (
+            <a class="next-work-row" href={`/work/${cs.id}`} data-reveal>
+              <span class="icon" aria-hidden="true">→</span>
+              <span class="title">{cs.data.title}</span>
+              <span class="desc">{cs.data.shortSummary ?? cs.data.summary}</span>
+            </a>
+          ))
+        }
+      </div>
+    </section>
+
+    <Footer />
+
+    <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-hidden="true">
+      <button class="lightbox-close" type="button" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 6 6 18" />
+          <path d="M6 6l12 12" />
+        </svg>
+      </button>
+      <img src="" alt="" />
+    </div>
+
+    <script>
+      const lightbox = document.getElementById("lightbox");
+      const lightboxImg = lightbox?.querySelector("img");
+      const lightboxClose = lightbox?.querySelector(".lightbox-close");
+
+      function openLightbox(src: string, alt: string) {
+        if (!lightbox || !lightboxImg) return;
+        lightboxImg.setAttribute("src", src);
+        lightboxImg.setAttribute("alt", alt);
+        lightbox.classList.add("is-open");
+        lightbox.setAttribute("aria-hidden", "false");
+        document.body.style.overflow = "hidden";
+      }
+
+      function closeLightbox() {
+        if (!lightbox || !lightboxImg) return;
+        lightbox.classList.remove("is-open");
+        lightbox.setAttribute("aria-hidden", "true");
+        document.body.style.overflow = "";
+      }
+
+      document.querySelectorAll("#case-study img").forEach((img) => {
+        if (img.closest(".topbar, a, .lightbox")) return;
+        img.classList.add("lightbox-eligible");
+      });
+
+      document.body.addEventListener("click", (event) => {
+        const img = (event.target as HTMLElement).closest("img");
+        if (!(img instanceof HTMLImageElement) || !img.classList.contains("lightbox-eligible")) return;
+        openLightbox(img.currentSrc || img.src, img.alt);
+      });
+
+      lightboxClose?.addEventListener("click", closeLightbox);
+      lightbox?.addEventListener("click", (event) => {
+        if (event.target === lightbox) closeLightbox();
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") closeLightbox();
+      });
+    </script>
+
+    <script>
+      const tocLinks = document.querySelectorAll<HTMLAnchorElement>(".toc-line");
+      const sections = [...tocLinks]
+        .map((link) => document.getElementById(link.dataset.toc ?? ""))
+        .filter((el): el is HTMLElement => el !== null);
+
+      if (tocLinks.length > 0) tocLinks[0].classList.add("active");
+
+      const tocObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            const link = document.querySelector(`.toc-line[data-toc="${entry.target.id}"]`);
+            if (!link) return;
+            tocLinks.forEach((l) => l.classList.remove("active"));
+            link.classList.add("active");
+          });
+        },
+        { rootMargin: "-40% 0px -50% 0px", threshold: 0 }
+      );
+      sections.forEach((section) => tocObserver.observe(section));
+
+      const revealEls = document.querySelectorAll<HTMLElement>("[data-reveal]");
+      if ("IntersectionObserver" in window) {
+        const revealObserver = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (!entry.isIntersecting) return;
+              entry.target.classList.add("is-revealed");
+              revealObserver.unobserve(entry.target);
+            });
+          },
+          { threshold: 0.15, rootMargin: "0px 0px -8% 0px" }
+        );
+        revealEls.forEach((el) => revealObserver.observe(el));
+      } else {
+        revealEls.forEach((el) => el.classList.add("is-revealed"));
+      }
+    </script>
+  </body>
+</html>
