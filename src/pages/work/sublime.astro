@@ -78,7 +78,7 @@ const summary =
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Inter:wght@400;500;600&display=swap"
     />
     <style is:global>
       /* Same tokens as [slug].astro and the homepage. */
@@ -257,6 +257,31 @@ const summary =
       .hero-media {
         margin: 4rem 0;
         padding: 0 2rem;
+      }
+
+      /* Interactive product demos sit on a light grey stage sized like
+         the full-width case study images: same 2rem gutter, same 4px
+         radius, with the demo centered inside. */
+      .demo-stage {
+        margin: 4rem 0;
+        padding: 0 2rem;
+      }
+
+      .demo-stage-inner {
+        border-radius: 4px;
+        background: var(--hover-bg);
+        padding: clamp(2rem, 6vw, 5rem) clamp(1rem, 5vw, 4rem);
+      }
+
+      .demo-stage-inner > * {
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+
+      @media (max-width: 600px) {
+        .demo-stage {
+          padding: 0 1.25rem;
+        }
       }
 
       .hero-media img {
@@ -865,8 +890,10 @@ const summary =
         </p>
       </div>
 
-      <div class="wide" data-reveal>
-        <RepeatClicks client:visible />
+      <div class="demo-stage" data-reveal>
+        <div class="demo-stage-inner">
+          <RepeatClicks client:visible />
+        </div>
       </div>
 
       <figure class="hero-media" data-reveal>
@@ -918,13 +945,17 @@ const summary =
       </div>
 
       <!-- Replaces the MD's header / form / live preview table: the builder shows that layout directly. -->
-      <div class="wide" data-reveal>
-        <CampaignBuilder client:visible />
+      <div class="demo-stage" data-reveal>
+        <div class="demo-stage-inner">
+          <CampaignBuilder client:visible />
+        </div>
       </div>
 
       <!-- Stands in for notice-vs-training.webp: the page employees see after clicking, with and without training. -->
-      <div class="wide" data-reveal>
-        <TrainingToggle client:visible />
+      <div class="demo-stage" data-reveal>
+        <div class="demo-stage-inner">
+          <TrainingToggle client:visible />
+        </div>
       </div>
 
       <div class="col" data-reveal>
@@ -960,8 +991,10 @@ const summary =
       </div>
 
       <!-- Stands in for ai-generating.webp: the template picker with an AI template generating. -->
-      <div class="wide" data-reveal>
-        <AiGenerateStepper client:visible />
+      <div class="demo-stage" data-reveal>
+        <div class="demo-stage-inner">
+          <AiGenerateStepper client:visible />
+        </div>
       </div>
 
       <div class="col" data-reveal>
@@ -1018,8 +1051,10 @@ const summary =
         <p>Every panel is a clear, digestible data point an analyst can share with leadership as-is.</p>
       </div>
 
-      <div class="wide" data-reveal>
-        <ExecutiveDashboard client:visible />
+      <div class="demo-stage" data-reveal>
+        <div class="demo-stage-inner">
+          <ExecutiveDashboard client:visible />
+        </div>
       </div>
 
       <!-- What I learned -->
