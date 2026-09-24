@@ -1,7 +1,27 @@
 import { useId, useState } from "react";
-import { company, featured } from "./acmeMock";
+import { Check, LockKeyhole, Shield } from "lucide-react";
+import { company } from "./acmeMock";
 import "./sublimeDemo.css";
 import "./TrainingToggle.css";
+
+// The page an employee lands on after clicking a simulation, rebuilt from
+// the product's notice and training pages. The toggle switches between
+// the plain notice and the notice with training assigned. The browser
+// chrome and page are always light, like the product.
+
+function NoticeIcon() {
+  return (
+    <span className="tt-icon" aria-hidden="true">
+      <span className="tt-icon-inner">
+        <svg viewBox="0 0 24 24">
+          <path d="M12 2.5 4.5 5.4v5.9c0 4.7 3.2 8.9 7.5 10.2 4.3-1.3 7.5-5.5 7.5-10.2V5.4L12 2.5Z" fill="currentColor" />
+          <rect x="11" y="7.2" width="2" height="6.6" rx="1" fill="#fff" />
+          <circle cx="12" cy="16.4" r="1.15" fill="#fff" />
+        </svg>
+      </span>
+    </span>
+  );
+}
 
 export default function TrainingToggle() {
   const [training, setTraining] = useState(true);
@@ -23,44 +43,59 @@ export default function TrainingToggle() {
         </button>
       </div>
 
-      <div className="sd-frame tt-frame">
-        <div className="sd-frame-bar" aria-hidden="true">
-          <span className="sd-dots">
+      <div className="tt-frame">
+        <div className="tt-bar" aria-hidden="true">
+          <span className="tt-dots">
             <span />
             <span />
             <span />
           </span>
-          <span className="sd-url">security.{company.domain}/simulation</span>
+          <span className="tt-url">security.{company.domain}/simulation</span>
         </div>
 
         <div className="tt-page" aria-live="polite">
-          <span className="sd-tag">Simulated phish</span>
-          <h4 className="tt-heading">This was a phishing test</h4>
-          <p className="tt-lede">
-            "{featured.subject}" was a simulation sent by the {company.name} security team. No harm
-            done, and nothing you entered was saved.
-          </p>
+          <div className="tt-card">
+            <NoticeIcon />
+            <h4 className="tt-heading">This was a phishing simulation</h4>
+            <p className="tt-copy">
+              This email was part of an internal security awareness campaign. No real threat was involved and no data
+              was compromised.
+            </p>
+            {training && (
+              <p className="tt-copy sd-fade">
+                Because you clicked the link, your security team has assigned a short training.
+              </p>
+            )}
 
-          <p className="tt-label">What gave it away</p>
-          <ul className="tt-tells">
-            <li>
-              The sender, <code>{featured.senderEmail}</code>, isn't an {company.domain} address.
-            </li>
-            <li>A deadline pushed you to act before thinking.</li>
-            <li>It asked you to sign in from a link instead of going to the payroll site yourself.</li>
-          </ul>
+            <ul className="tt-list">
+              <li>
+                <Shield aria-hidden="true" strokeWidth={1.5} />
+                You clicked a link in a simulated phishing email.
+              </li>
+              <li>
+                <LockKeyhole aria-hidden="true" strokeWidth={1.5} />
+                This was a test, your account and data are safe.
+              </li>
+              <li>
+                <Check aria-hidden="true" strokeWidth={2} />
+                {training
+                  ? "You have a new assigned training you need to complete."
+                  : "Your response was recorded for training data only."}
+              </li>
+            </ul>
 
-          {training ? (
-            <div className="tt-training sd-fade">
-              <div>
-                <p className="tt-training-title">Your security team assigned a short training</p>
-                <p className="tt-training-meta">5 questions, about 3 minutes</p>
+            {training ? (
+              <div className="sd-fade">
+                <span className="tt-cta">Start training · 2 min</span>
+                <p className="tt-note">Closing this page leaves training incomplete and may trigger a follow-up reminder.</p>
               </div>
-              <span className="sd-btn sd-btn--primary">Start training</span>
-            </div>
-          ) : (
-            <p className="tt-done sd-fade">You can close this page.</p>
-          )}
+            ) : (
+              <p className="tt-footer sd-fade">
+                This simulation was conducted by your security team using Sublime Security. For questions, contact
+                your security team.
+              </p>
+            )}
+          </div>
         </div>
       </div>
     </div>
