@@ -57,7 +57,7 @@ interface LibraryEntry {
 
 const librarySections: { title: string; entries: LibraryEntry[] }[] = [
   {
-    title: "Most active in your Sublime environment",
+    title: "Most active in the sample environment",
     entries: [
       { id: "sso-reset", name: "SSO Password Reset", category: "cred", base: "password" },
       { id: "suite-signin", name: "Office Suite Sign-In Alert", category: "cred", base: "password" },
@@ -472,7 +472,7 @@ export default function AiGenerateStepper() {
                           </span>
                           <span className="cb-muted">
                             {grounded
-                              ? "Anchored to real attacks Sublime caught in your environment."
+                              ? "Based on fictional sample data."
                               : "Generated from your inputs alone."}
                           </span>
                         </span>
@@ -489,7 +489,7 @@ export default function AiGenerateStepper() {
                             onChange={(e) => setMessageId(e.target.value)}
                             spellCheck={false}
                           />
-                          <span className="ag-hint">Paste a message link from Sublime to copy its structure, never its words.</span>
+                          <span className="ag-hint">Use a sample message link to preview the flow.</span>
                         </div>
                       )}
                       <div className="ag-actions">
@@ -555,7 +555,7 @@ export default function AiGenerateStepper() {
                           id={`${uid}-prompt`}
                           className="cb-input ag-textarea"
                           rows={2}
-                          placeholder="e.g. Make it feel like it came from our finance team"
+                          placeholder="e.g. Use a generic training theme"
                           value={prompt}
                           onChange={(e) => setPrompt(e.target.value)}
                         />
@@ -658,7 +658,7 @@ export default function AiGenerateStepper() {
                   {loading ? (
                     <div className="ag-loading" role="status">
                       <Sparkle />
-                      <p className="ag-loading-title">Reviewing threats in your Sublime environment...</p>
+                      <p className="ag-loading-title">Reviewing sample data...</p>
                       <p className="ag-loading-sub">
                         We're tailoring this to the threats and brands your team actually sees. Hang tight while we put
                         the finishing touches.

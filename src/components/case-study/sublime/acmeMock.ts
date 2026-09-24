@@ -18,7 +18,7 @@ export interface Template {
   senderEmail: string;
   avatar: string;
   subject: string;
-  // Body copy with dynamic tags in {{double.braces}}.
+  // Neutral preview text only. The demo never stores actionable email copy.
   body: string[];
   cta: string;
   campaignName: string;
@@ -30,15 +30,12 @@ export const templates: Template[] = [
     name: "Payroll portal update",
     attackType: "Credential phishing",
     theme: "Payroll",
-    senderName: "Acme Payroll",
-    senderEmail: "payroll@acme-payroll-portal.example",
-    avatar: "AP",
-    subject: "Action required: confirm your direct deposit details",
-    body: [
-      "Hi {{recipient.first_name}},",
-      "We're moving {{company.name}} payroll to a new portal before the next pay cycle. To avoid a delay in your paycheck, confirm your direct deposit details by Friday.",
-    ],
-    cta: "Confirm deposit details",
+    senderName: "Demo Sender C",
+    senderEmail: "sender-c@acmecorp.example",
+    avatar: "C",
+    subject: "Training simulation preview C",
+    body: ["Sample greeting", "Placeholder content for fictional sample layout C."],
+    cta: "Demo action",
     campaignName: "Q3 payroll portal update",
   },
   {
@@ -46,15 +43,12 @@ export const templates: Template[] = [
     name: "Benefits enrollment",
     attackType: "Credential phishing",
     theme: "Benefits",
-    senderName: "Acme Benefits",
-    senderEmail: "benefits@acme-benefits-center.example",
-    avatar: "AB",
-    subject: "Open enrollment closes this week",
-    body: [
-      "Hi {{recipient.first_name}},",
-      "Open enrollment for {{company.name}} health and dental plans closes Friday. Sign in to review your elections or your current coverage will roll over.",
-    ],
-    cta: "Review my elections",
+    senderName: "Demo Sender D",
+    senderEmail: "sender-d@acmecorp.example",
+    avatar: "D",
+    subject: "Training simulation preview D",
+    body: ["Sample greeting", "Placeholder content for fictional sample layout D."],
+    cta: "Demo action",
     campaignName: "Q1 benefits enrollment",
   },
   {
@@ -62,15 +56,12 @@ export const templates: Template[] = [
     name: "Invoice approval",
     attackType: "Invoice fraud",
     theme: "Accounts payable",
-    senderName: "Acme Accounts Payable",
-    senderEmail: "ap@acme-billing-center.example",
-    avatar: "AA",
-    subject: "Invoice #4471 is waiting on your approval",
-    body: [
-      "Hi {{recipient.first_name}},",
-      "Invoice #4471 for {{company.name}} is past due and needs your approval today to avoid a late fee.",
-    ],
-    cta: "Review invoice",
+    senderName: "Demo Sender E",
+    senderEmail: "sender-e@acmecorp.example",
+    avatar: "E",
+    subject: "Training simulation preview E",
+    body: ["Sample greeting", "Placeholder content for fictional sample layout E."],
+    cta: "Demo action",
     campaignName: "Q2 invoice approval",
   },
   {
@@ -78,15 +69,12 @@ export const templates: Template[] = [
     name: "Shared file from IT",
     attackType: "Malicious file share",
     theme: "IT",
-    senderName: "Acme IT Service Desk",
-    senderEmail: "it-desk@acme-support-files.example",
-    avatar: "AI",
-    subject: "A file was shared with you: 2026 device policy.pdf",
-    body: [
-      "Hi {{recipient.first_name}},",
-      "The {{company.name}} IT team shared the updated device policy with you. Please review and acknowledge it by the end of the week.",
-    ],
-    cta: "Open file",
+    senderName: "Demo Sender F",
+    senderEmail: "sender-f@acmecorp.example",
+    avatar: "F",
+    subject: "Training simulation preview F",
+    body: ["Sample greeting", "Placeholder content for fictional sample layout F."],
+    cta: "Demo action",
     campaignName: "Q2 IT shared file",
   },
 ];
@@ -98,8 +86,8 @@ export const featured = templateById("payroll");
 
 // Sample recipient for the "User view" of dynamic tags.
 export const sampleRecipient = {
-  firstName: "Jordan",
-  email: `jordan.ellis@${company.domain}`,
+  firstName: "Employee",
+  email: `employee-01@${company.domain}`,
 };
 
 export function fillTags(text: string) {
@@ -155,26 +143,26 @@ export interface RepeatClicker {
 
 export const repeatClickers: RepeatClicker[] = [
   {
-    name: "Jordan Ellis",
-    email: `jordan.ellis@${company.domain}`,
+    name: "Employee 01",
+    email: `employee-01@${company.domain}`,
     group: "Finance",
     campaigns: [featured.campaignName, "Q2 invoice approval", "Q1 benefits enrollment"],
   },
   {
-    name: "Riley Park",
-    email: `riley.park@${company.domain}`,
+    name: "Employee 02",
+    email: `employee-02@${company.domain}`,
     group: "Sales",
     campaigns: [featured.campaignName, "Q2 IT shared file", "Q1 benefits enrollment"],
   },
   {
-    name: "Sam Okafor",
-    email: `sam.okafor@${company.domain}`,
+    name: "Employee 03",
+    email: `employee-03@${company.domain}`,
     group: "Finance",
     campaigns: [featured.campaignName, "Q2 invoice approval"],
   },
   {
-    name: "Casey Moreno",
-    email: `casey.moreno@${company.domain}`,
+    name: "Employee 04",
+    email: `employee-04@${company.domain}`,
     group: "Customer support",
     campaigns: [featured.campaignName, "Q2 IT shared file"],
   },

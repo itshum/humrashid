@@ -70,10 +70,9 @@
   width: calc(470 * var(--px));
   height: calc(530 * var(--px));
   border-radius: calc(8 * var(--px));
+  border: 1px solid #e3e5e5;
   background: #fff;
-  box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.05),
-    0 calc(16 * var(--px)) calc(44 * var(--px)) rgba(0, 0, 0, 0.12);
+  box-shadow: 0 calc(5 * var(--px)) calc(18 * var(--px)) rgba(0, 0, 0, 0.045);
   overflow: hidden;
 }
 
@@ -471,9 +470,7 @@
 
 .gm-preview .cb-card {
   margin-top: 0;
-  box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.04),
-    0 calc(10 * var(--px)) calc(30 * var(--px)) rgba(0, 0, 0, 0.08);
+  box-shadow: 0 calc(5 * var(--px)) calc(18 * var(--px)) rgba(0, 0, 0, 0.045);
 }
 
 .gm-app .gm-preview .cb-tab:disabled {

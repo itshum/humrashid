@@ -10,6 +10,10 @@
   --feg-new-bg: color-mix(in srgb, var(--feg-accent) 14%, var(--bg));
   --feg-new-border: color-mix(in srgb, var(--feg-accent) 45%, var(--bg));
   --feg-none-border: color-mix(in srgb, var(--label) 45%, var(--bg));
+  width: 100%;
+  padding: clamp(1rem, 2.5vw, 2rem);
+  border: 1px solid var(--border);
+  border-radius: 4px;
 }
 
 .feg-sr-only {

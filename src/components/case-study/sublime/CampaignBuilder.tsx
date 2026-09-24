@@ -1,6 +1,7 @@
-import { Fragment, useId, useState, type ReactNode } from "react";
-import { Calendar, ChevronDown, Info, Mail, Sparkles, SquareArrowOutUpRight, X } from "lucide-react";
-import { company, sampleRecipient } from "./acmeMock";
+import { Fragment, useEffect, useId, useRef, useState, type DragEvent, type KeyboardEvent, type ReactNode } from "react";
+import { createPortal } from "react-dom";
+import { BriefcaseBusiness, Calendar, ChevronDown, ChevronLeft, ChevronRight, IdCard, Info, Mail, Phone, Search, Sparkles, SquareArrowOutUpRight, Upload, X } from "lucide-react";
+import { sampleRecipient } from "./acmeMock";
 import "./CampaignBuilder.css";
 
 // The GA campaign builder, rebuilt 1:1 from the product. It's drawn on a
@@ -22,33 +23,60 @@ export interface BuilderTemplate {
 export const builderTemplates: BuilderTemplate[] = [
   {
     id: "password",
-    name: "Acme Password Expiry",
-    alias: "Acme IT",
-    email: "it@acmecorp-accounts.example",
-    subject: "{{recipient_first_name}}, your Acme password expires today",
-    avatar: "acme",
-    body: [
-      `Your ${company.name} network password expires at 5:00 PM today. After that, you won't be able to sign in to email, Slack, or the VPN.`,
-      "Keep your current password by confirming it below. It only takes a moment.",
-    ],
-    cta: "Keep current password",
+    name: "Sample Template A",
+    alias: "Demo Sender A",
+    email: "sender-a@acmecorp.example",
+    subject: "Training simulation preview A",
+    avatar: "A",
+    body: ["Placeholder content for fictional sample layout A."],
+    cta: "Demo action",
     ctaStyle: "brand",
   },
   {
     id: "mfa",
-    name: "IT Helpdesk MFA Re-Enroll",
-    alias: "Acme IT Helpdesk",
-    email: "helpdesk@acme-it-support.example",
-    subject: "{{recipient_first_name}}, re-enroll in MFA before Friday",
-    avatar: "IT",
-    body: [
-      `We're moving ${company.name} to a new multi-factor authentication app. Accounts that aren't re-enrolled by Friday will be locked until IT can verify them.`,
-      "Re-enrolling takes about two minutes.",
-    ],
-    cta: "Re-enroll now",
+    name: "Sample Template B",
+    alias: "Demo Sender B",
+    email: "sender-b@acmecorp.example",
+    subject: "Training simulation preview B",
+    avatar: "B",
+    body: ["Placeholder content for fictional sample layout B."],
+    cta: "Demo action",
     ctaStyle: "dark",
   },
 ];
+
+type LibraryEntry = { id: string; name: string; category: "Credential Phishing" | "BEC / Fraud" | "Callback Phishing"; group: "Most active in your Sublime environment" | "Recently Seen" | "All Templates" };
+const libraryEntries: LibraryEntry[] = [
+  { id: "account", name: "Sample Account Reset", category: "Credential Phishing", group: "Most active in your Sublime environment" },
+  { id: "workspace", name: "Sample Workspace Sign-In Notice", category: "Credential Phishing", group: "Most active in your Sublime environment" },
+  { id: "portal", name: "Sample Portal Access Notice", category: "Credential Phishing", group: "Most active in your Sublime environment" },
+  { id: "invoice", name: "Sample Invoice Approval", category: "BEC / Fraud", group: "Most active in your Sublime environment" },
+  { id: "signature", name: "Sample Document Signature", category: "Credential Phishing", group: "Most active in your Sublime environment" },
+  { id: "mfa", name: "Sample Template B", category: "Credential Phishing", group: "Recently Seen" },
+  { id: "password", name: "Sample Template A", category: "BEC / Fraud", group: "Recently Seen" },
+  { id: "shared-file", name: "Sample Shared Document", category: "Credential Phishing", group: "Recently Seen" },
+  { id: "callback", name: "Sample Support Callback", category: "Callback Phishing", group: "Recently Seen" },
+  { id: "policy", name: "Sample Policy Acknowledgment", category: "Credential Phishing", group: "Recently Seen" },
+  { id: "gift", name: "Sample Gift Card Request", category: "BEC / Fraud", group: "All Templates" },
+  { id: "benefits", name: "Sample Benefits Deadline", category: "Credential Phishing", group: "All Templates" },
+  { id: "payroll", name: "Sample Payroll Change", category: "BEC / Fraud", group: "All Templates" },
+  { id: "question", name: "Sample Executive Question", category: "BEC / Fraud", group: "All Templates" },
+  { id: "vendor", name: "Sample Vendor Update", category: "BEC / Fraud", group: "All Templates" },
+];
+
+function templateFromLibrary(entry: LibraryEntry): BuilderTemplate {
+  return builderTemplates.find((template) => template.id === entry.id) ?? {
+    id: entry.id,
+    name: entry.name,
+    alias: "Demo Sender",
+    email: "sender@acmecorp.example",
+    subject: `Training simulation preview: ${entry.name}`,
+    avatar: "D",
+    body: ["Placeholder content for a fictional training email."],
+    cta: "Demo action",
+    ctaStyle: "brand",
+  };
+}
 
 const sendDate = "Sep 29, 2026, 9:00 AM";
 
@@ -61,7 +89,7 @@ function tagValues(t: BuilderTemplate): Record<string, string> {
     sender_alias: t.alias,
     sender_email: t.email,
     date: sendDate,
-    company_name: company.name,
+    company_name: "Acme Corp",
   };
 }
 
@@ -84,15 +112,6 @@ export function Tagged({ text, view, t }: { text: string; view: View; t: Builder
         );
       })}
     </>
-  );
-}
-
-// Fictional Acme Corp logo mark: a simple peak on the brand orange.
-function AcmeMark() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path fill="#fff" d="M12 5.5 19 18.5h-3.4L12 11.6l-3.6 6.9H5z" />
-    </svg>
   );
 }
 
@@ -121,6 +140,92 @@ export function Box({ children, icon, className = "" }: { children: ReactNode; i
 
 export const chevron = <ChevronDown className="cb-input-icon" aria-hidden="true" strokeWidth={2} />;
 
+const listOptions = ["finance", "sales", "marketing", "support", "engineering", "operations", "human resources"];
+const timeOptions = Array.from({ length: 48 }, (_, index) => {
+  const hour = Math.floor(index / 2);
+  return `${String(hour).padStart(2, "0")}:${index % 2 ? "30" : "00"}`;
+});
+const durationOptions = [
+  { value: "4", label: "4 hours" },
+  { value: "8", label: "8 hours" },
+  { value: "12", label: "12 hours" },
+  { value: "24", label: "1 day" },
+  { value: "48", label: "2 days" },
+  { value: "120", label: "5 days" },
+  { value: "336", label: "2 weeks" },
+  { value: "672", label: "4 weeks" },
+  { value: "1008", label: "6 weeks" },
+];
+const deliveryOptions = [
+  { value: "immediate", label: "Send immediately" },
+  { value: "business", label: "Business hours · Monday to Friday" },
+  { value: "weekends", label: "Send on weekends" },
+];
+const audienceOptions = [
+  { value: "lists", label: "Sublime Lists" },
+  { value: "csv", label: "Upload CSV" },
+];
+
+function dateLabel(value: string) {
+  const [year, month, day] = value.split("-").map(Number);
+  return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(new Date(year, month - 1, day));
+}
+
+function dateValue(year: number, month: number, day: number) {
+  return `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+}
+
+function localDate(value: string) {
+  const [year, month, day] = value.split("-").map(Number);
+  return new Date(year, month - 1, day);
+}
+
+function scheduleTime(value: string) {
+  const [hour, minute] = value.split(":").map(Number);
+  return new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit", hour12: true }).format(new Date(2026, 0, 1, hour, minute));
+}
+
+function SelectField({ id, value, onChange, options, className = "", ariaLabel }: {
+  id: string;
+  value: string;
+  onChange: (value: string) => void;
+  options: { value: string; label: string }[];
+  className?: string;
+  ariaLabel?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const root = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const close = (event: PointerEvent) => { if (root.current && !root.current.contains(event.target as Node)) setOpen(false); };
+    document.addEventListener("pointerdown", close);
+    return () => document.removeEventListener("pointerdown", close);
+  }, [open]);
+
+  function onKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
+    if (event.key === "Escape") { setOpen(false); return; }
+    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+      event.preventDefault();
+      if (!open) { setOpen(true); return; }
+      const current = options.findIndex((item) => item.value === value);
+      const next = (current + (event.key === "ArrowDown" ? 1 : -1) + options.length) % options.length;
+      onChange(options[next].value);
+    }
+  }
+
+  return (
+    <div ref={root} className={`cb-select-wrap ${className}`}>
+      <button id={id} type="button" className="cb-select-trigger" aria-label={ariaLabel} aria-haspopup="listbox" aria-expanded={open} onClick={() => setOpen((current) => !current)} onKeyDown={onKeyDown}>
+        <span>{options.find((item) => item.value === value)?.label}</span>
+        <ChevronDown className="cb-input-icon" aria-hidden="true" strokeWidth={2} />
+      </button>
+      {open && <div className="cb-select-menu" role="listbox" aria-label={ariaLabel ?? "Options"}>
+        {options.map((item) => <button type="button" role="option" aria-selected={item.value === value} key={item.value} onClick={() => { onChange(item.value); setOpen(false); }}>{item.label}</button>)}
+      </div>}
+    </div>
+  );
+}
+
 export function EmailPreview({ t, view }: { t: BuilderTemplate; view: View }) {
   return (
     <div className="cb-email">
@@ -141,15 +246,7 @@ export function EmailPreview({ t, view }: { t: BuilderTemplate; view: View }) {
       </div>
       <div className="cb-email-body">
         <div className="cb-email-from">
-          {t.avatar === "acme" ? (
-            <span className="cb-avatar cb-avatar--acme">
-              <AcmeMark />
-            </span>
-          ) : (
-            <span className="cb-avatar" aria-hidden="true">
-              {t.avatar}
-            </span>
-          )}
+          <span className="cb-avatar" aria-hidden="true">{t.avatar}</span>
           <span className="cb-email-sender">{t.alias}</span>
         </div>
         <p>
@@ -172,10 +269,109 @@ export function EmailPreview({ t, view }: { t: BuilderTemplate; view: View }) {
 
 export default function CampaignBuilder({ fit = false }: { fit?: boolean }) {
   const [templateId, setTemplateId] = useState("password");
+  const [templates, setTemplates] = useState<BuilderTemplate[]>(builderTemplates);
+  const [libraryOpen, setLibraryOpen] = useState(false);
+  const [libraryQuery, setLibraryQuery] = useState("");
+  const [librarySelection, setLibrarySelection] = useState<string[]>(["password", "mfa"]);
   const [view, setView] = useState<View>("template");
   const [training, setTraining] = useState(true);
-  const t = builderTemplates.find((x) => x.id === templateId) ?? builderTemplates[0];
+  const [campaignName, setCampaignName] = useState("Sample campaign");
+  const [startDate, setStartDate] = useState("2026-09-29");
+  const [calendarMonth, setCalendarMonth] = useState(new Date(2026, 8, 1));
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  const [startTime, setStartTime] = useState("09:00");
+  const [durationHours, setDurationHours] = useState("336");
+  const [deliveryMode, setDeliveryMode] = useState("immediate");
+  const [audienceType, setAudienceType] = useState("lists");
+  const [selectedLists, setSelectedLists] = useState(["finance", "sales", "marketing"]);
+  const [listsOpen, setListsOpen] = useState(false);
+  const [csvFile, setCsvFile] = useState<File | null>(null);
+  const [csvError, setCsvError] = useState("");
+  const [dragging, setDragging] = useState(false);
+  const [reviewOpen, setReviewOpen] = useState(false);
+  const [reviewError, setReviewError] = useState("");
+  const [launched, setLaunched] = useState(false);
+  const fileInput = useRef<HTMLInputElement>(null);
+  const nameInput = useRef<HTMLInputElement>(null);
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const t = templates.find((x) => x.id === templateId) ?? templates[0] ?? builderTemplates[0];
   const uid = useId();
+  const [calendarYear, calendarMonthIndex] = [calendarMonth.getFullYear(), calendarMonth.getMonth()];
+  const firstWeekday = new Date(calendarYear, calendarMonthIndex, 1).getDay();
+  const daysInMonth = new Date(calendarYear, calendarMonthIndex + 1, 0).getDate();
+  const endDate = localDate(startDate);
+  const [startHour, startMinute] = startTime.split(":").map(Number);
+  endDate.setHours(startHour + Number(durationHours), startMinute);
+  const endLabel = new Intl.DateTimeFormat("en-US", { month: "long", day: "numeric", year: "numeric" }).format(endDate);
+  const endTimeLabel = new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit", hour12: true }).format(endDate);
+  const deliveryLabel = deliveryMode === "business" ? "Business hours, Monday to Friday" : deliveryMode === "weekends" ? "Send on weekends" : "Send immediately";
+  const durationLabel = durationOptions.find((item) => item.value === durationHours)?.label;
+  const libraryGroups = ["Most active in your Sublime environment", "Recently Seen", "All Templates"] as const;
+
+  function openLibrary() {
+    setLibrarySelection(templates.map((template) => template.id));
+    setLibraryQuery("");
+    setLibraryOpen(true);
+  }
+
+  function toggleLibrary(id: string) {
+    setLibrarySelection((current) => current.includes(id) ? current.filter((entry) => entry !== id) : [...current, id]);
+  }
+
+  function addFromLibrary() {
+    const next = libraryEntries.filter((entry) => librarySelection.includes(entry.id)).map(templateFromLibrary);
+    if (!next.length) return;
+    setTemplates(next);
+    if (!next.some((entry) => entry.id === templateId)) setTemplateId(next[0].id);
+    setLibraryOpen(false);
+  }
+
+  useEffect(() => () => { if (toastTimer.current) clearTimeout(toastTimer.current); }, []);
+
+  function openReview() {
+    if (!campaignName.trim()) {
+      setReviewError("Enter a campaign name before reviewing.");
+      nameInput.current?.focus();
+      return;
+    }
+    if (audienceType === "lists" && selectedLists.length === 0) {
+      setReviewError("Select at least one Sublime list before reviewing.");
+      return;
+    }
+    if (audienceType === "csv" && !csvFile) {
+      setReviewError("Choose a CSV audience before reviewing.");
+      return;
+    }
+    setReviewError("");
+    setReviewOpen(true);
+  }
+
+  function launchCampaign() {
+    setReviewOpen(false);
+    setLaunched(true);
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setLaunched(false), 7000);
+  }
+
+  function acceptCsv(file?: File) {
+    if (!file) return;
+    if (!/\.csv$/i.test(file.name)) {
+      setCsvError("Choose a .csv file to preview this audience.");
+      return;
+    }
+    setCsvFile(file);
+    setCsvError("");
+  }
+
+  function dropCsv(event: DragEvent<HTMLDivElement>) {
+    event.preventDefault();
+    setDragging(false);
+    acceptCsv(event.dataTransfer.files[0]);
+  }
+
+  function toggleList(name: string) {
+    setSelectedLists((current) => current.includes(name) ? current.filter((item) => item !== name) : [...current, name]);
+  }
 
   return (
     <div className={`cb${fit ? " cb--fit" : ""}`}>
@@ -186,21 +382,21 @@ export default function CampaignBuilder({ fit = false }: { fit?: boolean }) {
 
         <div className="cb-head">
           <h4 className="cb-title">New Campaign</h4>
-          {/* Shown for layout; not wired up in this demo. */}
-          <div className="cb-actions" aria-hidden="true">
+          <div className="cb-actions">
             <span className="cb-btn cb-btn--text">Cancel</span>
             <span className="cb-btn">Save Draft</span>
             <span className="cb-actions-sep" />
             <span className="cb-btn">Send Test (2)</span>
-            <span className="cb-btn cb-btn--primary">Review &amp; Launch</span>
+            <button type="button" className="cb-btn cb-btn--primary" onClick={openReview}>Review &amp; Launch</button>
           </div>
         </div>
 
         <div className="cb-body">
           <div className="cb-form">
+            {reviewError && <p className="cb-review-error" role="alert">{reviewError}</p>}
             <div className="cb-field">
-              <Label required>Name</Label>
-              <Box>Q3 Password Expiry</Box>
+              <label htmlFor={`${uid}-name`}><Label required>Name</Label></label>
+              <input ref={nameInput} id={`${uid}-name`} className="cb-text-input" value={campaignName} onChange={(event) => { setCampaignName(event.target.value); setReviewError(""); }} />
             </div>
 
             <div className="cb-field">
@@ -208,27 +404,44 @@ export default function CampaignBuilder({ fit = false }: { fit?: boolean }) {
                 Start
               </Label>
               <div className="cb-row">
-                <Box className="cb-date" icon={<Calendar className="cb-input-icon" aria-hidden="true" strokeWidth={2} />}>
-                  Sep 29, 2026
-                </Box>
-                <Box className="cb-time" icon={chevron}>
-                  9:00 AM
-                </Box>
+                <div className="cb-date-control">
+                  <button type="button" className="cb-picker-button" aria-label="Start date" aria-expanded={calendarOpen} onClick={() => setCalendarOpen((open) => !open)}>
+                    <span>{dateLabel(startDate)}</span><Calendar className="cb-input-icon" aria-hidden="true" strokeWidth={2} />
+                  </button>
+                  {calendarOpen && (
+                    <div className="cb-calendar" role="group" aria-label="Choose start date">
+                      <div className="cb-calendar-head">
+                        <button type="button" aria-label="Previous month" onClick={() => setCalendarMonth(new Date(calendarYear, calendarMonthIndex - 1, 1))}><ChevronLeft /></button>
+                        <strong>{new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric" }).format(calendarMonth)}</strong>
+                        <button type="button" aria-label="Next month" onClick={() => setCalendarMonth(new Date(calendarYear, calendarMonthIndex + 1, 1))}><ChevronRight /></button>
+                      </div>
+                      <div className="cb-calendar-grid">
+                        {(["S", "M", "T", "W", "T", "F", "S"] as const).map((day, index) => <span className="cb-calendar-weekday" key={index}>{day}</span>)}
+                        {Array.from({ length: firstWeekday }, (_, index) => <span key={`blank-${index}`} />)}
+                        {Array.from({ length: daysInMonth }, (_, index) => {
+                          const value = dateValue(calendarYear, calendarMonthIndex, index + 1);
+                          return <button key={value} type="button" aria-label={dateLabel(value)} aria-pressed={startDate === value} onClick={() => { setStartDate(value); setCalendarOpen(false); }}>{index + 1}</button>;
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <SelectField id={`${uid}-time`} ariaLabel="Start time" className="cb-time" value={startTime} onChange={setStartTime} options={timeOptions.map((time) => ({ value: time, label: time }))} />
               </div>
             </div>
 
             <div className="cb-field">
-              <Label required info>
+              <label htmlFor={`${uid}-duration`}><Label required info>
                 Duration
-              </Label>
-              <Box icon={chevron}>2 weeks</Box>
+              </Label></label>
+              <SelectField id={`${uid}-duration`} ariaLabel="Duration" value={durationHours} onChange={setDurationHours} options={durationOptions} />
             </div>
 
             <div className="cb-field">
-              <Label required info>
+              <label htmlFor={`${uid}-delivery`}><Label required info>
                 Delivery Mode
-              </Label>
-              <Box icon={chevron}>Send immediately</Box>
+              </Label></label>
+              <SelectField id={`${uid}-delivery`} ariaLabel="Delivery Mode" value={deliveryMode} onChange={setDeliveryMode} options={deliveryOptions} />
             </div>
 
             <hr className="cb-rule" />
@@ -236,11 +449,11 @@ export default function CampaignBuilder({ fit = false }: { fit?: boolean }) {
             <h5 className="cb-section">Audience</h5>
 
             <div className="cb-field">
-              <Label required>Audience Type</Label>
-              <Box icon={chevron}>Sublime Lists</Box>
+              <label htmlFor={`${uid}-audience`}><Label required>Audience Type</Label></label>
+              <SelectField id={`${uid}-audience`} ariaLabel="Audience Type" value={audienceType} onChange={(value) => { setAudienceType(value); setListsOpen(false); setReviewError(""); }} options={audienceOptions} />
             </div>
 
-            <div className="cb-field">
+            {audienceType === "lists" ? <div className="cb-field">
               <div className="cb-label-row">
                 <span className="cb-label cb-label--lg">
                   Lists
@@ -248,20 +461,31 @@ export default function CampaignBuilder({ fit = false }: { fit?: boolean }) {
                     *
                   </span>
                 </span>
-                <span className="cb-link">
+                <button type="button" className="cb-link" onClick={() => setListsOpen(true)}>
                   View All Lists
                   <SquareArrowOutUpRight aria-hidden="true" strokeWidth={2} />
-                </span>
+                </button>
               </div>
-              <Box className="cb-multi" icon={chevron}>
-                {["finance", "sales", "marketing"].map((l) => (
-                  <span key={l} className="cb-chip">
-                    {l}
-                    <X aria-hidden="true" strokeWidth={2} />
+              <div className="cb-list-picker">
+                <div className="cb-multi-control">
+                  <span className="cb-selected-lists">
+                    {selectedLists.length ? selectedLists.map((name) => <span key={name} className="cb-chip">{name}<button type="button" aria-label={`Remove ${name}`} onClick={() => toggleList(name)}><X aria-hidden="true" strokeWidth={2} /></button></span>) : <span className="cb-placeholder">Select lists</span>}
                   </span>
-                ))}
-              </Box>
-            </div>
+                  <button type="button" className="cb-list-toggle" aria-label="Choose lists" aria-expanded={listsOpen} onClick={() => setListsOpen((open) => !open)}><ChevronDown className="cb-input-icon" aria-hidden="true" /></button>
+                </div>
+                {listsOpen && <div className="cb-list-options" role="group" aria-label="Available Sublime lists">
+                  {listOptions.map((name) => <label key={name} className="cb-list-option"><input type="checkbox" checked={selectedLists.includes(name)} onChange={() => toggleList(name)} /><span>{name}</span></label>)}
+                </div>}
+              </div>
+            </div> : <div className="cb-field">
+              <Label required>CSV audience</Label>
+              <input ref={fileInput} className="cb-visually-hidden" type="file" accept=".csv,text/csv" aria-label="Upload audience CSV" onChange={(event) => acceptCsv(event.target.files?.[0])} />
+              <div className={`cb-dropzone${dragging ? " is-dragging" : ""}`} onDragOver={(event) => { event.preventDefault(); setDragging(true); }} onDragLeave={() => setDragging(false)} onDrop={dropCsv}>
+                <Upload aria-hidden="true" strokeWidth={1.6} />
+                {csvFile ? <><strong>{csvFile.name}</strong><span>{(csvFile.size / 1024).toFixed(1)} KB · CSV selected</span><button type="button" onClick={() => { setCsvFile(null); if (fileInput.current) fileInput.current.value = ""; }}>Remove file</button></> : <><strong>Drop a CSV here</strong><span>or choose a file from your device</span><button type="button" onClick={() => fileInput.current?.click()}>Choose CSV file</button></>}
+              </div>
+              {csvError && <p className="cb-field-error" role="alert">{csvError}</p>}
+            </div>}
 
             <hr className="cb-rule" />
 
@@ -269,15 +493,15 @@ export default function CampaignBuilder({ fit = false }: { fit?: boolean }) {
               Templates
               <Info className="cb-info" aria-hidden="true" strokeWidth={1.5} />
             </h5>
-            <div className="cb-small-btns" aria-hidden="true">
+            <div className="cb-small-btns">
               <span className="cb-small-btn">
                 <Sparkles strokeWidth={1.75} />
                 Generate
               </span>
-              <span className="cb-small-btn">Add From Library</span>
+              <button type="button" className="cb-small-btn" onClick={openLibrary}>Add From Library</button>
             </div>
             <div className="cb-list" role="radiogroup" aria-label="Templates">
-              {builderTemplates.map((x) => (
+              {templates.map((x) => (
                 <button
                   key={x.id}
                   type="button"
@@ -300,7 +524,7 @@ export default function CampaignBuilder({ fit = false }: { fit?: boolean }) {
             </h5>
             <div className="cb-field">
               <Label required>Notice Page</Label>
-              <Box icon={chevron}>Sublime default notice</Box>
+              <Box icon={chevron}>Default training notice</Box>
             </div>
             <div className="cb-toggle-row">
               <button
@@ -318,7 +542,7 @@ export default function CampaignBuilder({ fit = false }: { fit?: boolean }) {
                   Training
                 </span>
                 <span className="cb-muted">
-                  {training ? "Employees who click take a 5-question quiz" : "Employees who click see the notice only"}
+                  {training ? "Employees who click take a 4-question quiz" : "Employees who click see the notice only"}
                 </span>
               </span>
             </div>
@@ -370,6 +594,57 @@ export default function CampaignBuilder({ fit = false }: { fit?: boolean }) {
           </div>
         </div>
       </div>
+      {reviewOpen && createPortal(<div className="cb-review-overlay" onKeyDown={(event) => { if (event.key === "Escape") setReviewOpen(false); }} onMouseDown={(event) => { if (event.target === event.currentTarget) setReviewOpen(false); }}>
+        <section className="cb-review-modal" role="dialog" aria-modal="true" aria-labelledby={`${uid}-review-title`}>
+          <div className="cb-review-header">
+            <h4 id={`${uid}-review-title`}>Review &amp; Launch Campaign</h4>
+            <button type="button" aria-label="Close review" autoFocus onClick={() => setReviewOpen(false)}><X aria-hidden="true" /></button>
+          </div>
+          <div className="cb-review-content">
+            <p className="cb-review-intro">Simulation emails will begin sending according to your delivery settings. Results are tracked through 11:59 PM on the end date.</p>
+            <div className="cb-review-summary">
+              <h5>Campaign settings</h5>
+              <div className="cb-review-row"><span>Campaign</span><strong>{campaignName.trim()}</strong></div>
+              <div className="cb-review-row"><span>Schedule</span><strong>{new Intl.DateTimeFormat("en-US", { month: "long", day: "numeric", year: "numeric" }).format(localDate(startDate))} at {scheduleTime(startTime)} <span className="cb-review-arrow">→</span> {endLabel}{Number(durationHours) < 24 ? ` at ${endTimeLabel}` : ""} <small>· {durationLabel}</small></strong></div>
+              <div className="cb-review-row"><span>Delivery</span><strong>{deliveryLabel}</strong></div>
+              <div className="cb-review-row"><span>Recipients</span><strong>{audienceType === "csv" ? <>{csvFile?.name} <small>· Uploaded CSV</small></> : <>{selectedLists.join(", ")} <small>· {selectedLists.length} {selectedLists.length === 1 ? "list" : "lists"}</small></>}</strong></div>
+              <h5>Templates</h5>
+              <div className="cb-review-row"><span>Templates</span><strong>{templates.map((item) => item.name).join(", ")}<small className="cb-review-secondary">{templates.length === 1 ? "Each recipient receives this sample template." : `Each recipient is randomly assigned 1 of ${templates.length} sample templates.`}</small></strong></div>
+              <h5>Training</h5>
+              <div className="cb-review-row"><span>Post-click</span><strong>{training ? "On, show training after a simulated click" : "Off, show the notice only"}</strong></div>
+              <div className="cb-review-row"><span>Headline</span><strong>This was a phishing simulation</strong></div>
+            </div>
+          </div>
+          <div className="cb-review-footer">
+            <button type="button" className="cb-review-back" onClick={() => setReviewOpen(false)}>Back</button>
+            <button type="button" className="cb-review-launch" onClick={launchCampaign}>Launch Campaign <span aria-hidden="true">→</span></button>
+          </div>
+        </section>
+      </div>, document.body)}
+      {libraryOpen && createPortal(<div className="cb-review-overlay" onKeyDown={(event) => { if (event.key === "Escape") setLibraryOpen(false); }} onMouseDown={(event) => { if (event.target === event.currentTarget) setLibraryOpen(false); }}>
+        <section className="cb-library-modal" role="dialog" aria-modal="true" aria-labelledby={`${uid}-library-title`}>
+          <div className="cb-review-header"><h4 id={`${uid}-library-title`}>Add From Library</h4><button type="button" aria-label="Close library" onClick={() => setLibraryOpen(false)}><X aria-hidden="true" /></button></div>
+          <div className="cb-library-content">
+            <p>Choose existing templates to add to this campaign.</p>
+            <label className="cb-library-search"><Search aria-hidden="true" /><input type="search" value={libraryQuery} onChange={(event) => setLibraryQuery(event.target.value)} placeholder="Search templates" aria-label="Search templates" /></label>
+            {libraryGroups.map((group) => {
+              const entries = libraryEntries.filter((entry) => entry.group === group && entry.name.toLowerCase().includes(libraryQuery.trim().toLowerCase()));
+              if (!entries.length) return null;
+              return <div className="cb-library-group" key={group}>
+                <h5>{group} ({group === "All Templates" ? libraryEntries.length : entries.length})</h5>
+                {entries.map((entry) => <label key={entry.id} className="cb-library-row">
+                  <input type="checkbox" checked={librarySelection.includes(entry.id)} onChange={() => toggleLibrary(entry.id)} />
+                  <span className="cb-library-name">{entry.name}</span>
+                  <span className="cb-library-category">{entry.category === "Credential Phishing" ? <IdCard aria-hidden="true" /> : entry.category === "BEC / Fraud" ? <BriefcaseBusiness aria-hidden="true" /> : <Phone aria-hidden="true" />}{entry.category}</span>
+                </label>)}
+              </div>;
+            })}
+            {!libraryEntries.some((entry) => entry.name.toLowerCase().includes(libraryQuery.trim().toLowerCase())) && <p className="cb-library-empty">No templates match that search.</p>}
+          </div>
+          <div className="cb-library-footer"><button type="button" disabled={!librarySelection.length} onClick={addFromLibrary}>Add{librarySelection.length ? ` (${librarySelection.length})` : ""}</button></div>
+        </section>
+      </div>, document.body)}
+      {launched && createPortal(<div className="cb-success-toast" role="status"><span className="cb-success-mark" aria-hidden="true">✓</span><span><strong>Campaign Created</strong><small>{campaignName.trim()} is scheduled to send.</small></span><button type="button" aria-label="Dismiss confirmation" onClick={() => setLaunched(false)}><X aria-hidden="true" /></button></div>, document.body)}
     </div>
   );
 }
