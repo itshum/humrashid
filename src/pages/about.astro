@@ -5,6 +5,12 @@ import Analytics from "@vercel/analytics/astro";
 import signatureSvg from "../assets/humayun-signature-strokes.svg?raw";
 
 const polishedSignatureSvg = signatureSvg.replace('viewBox="0 0 1000 364"', 'viewBox="220 125 650 185"');
+
+const online = [
+  { label: "Twitter", handle: "@humrashid", href: "https://x.com/humrashid" },
+  { label: "GitHub", handle: "itshum", href: "https://github.com/itshum" },
+  { label: "LinkedIn", handle: "humayunrashid", href: "https://www.linkedin.com/in/humayunrashid/" },
+];
 ---
 
 <!doctype html>
@@ -140,7 +146,7 @@ const polishedSignatureSvg = signatureSvg.replace('viewBox="0 0 1000 364"', 'vie
       }
 
       .about-hero {
-        padding: 5.25rem 0 1rem;
+        padding: 8rem 0 1rem;
       }
 
       .about-hero .eyebrow {
@@ -172,7 +178,7 @@ const polishedSignatureSvg = signatureSvg.replace('viewBox="0 0 1000 364"', 'vie
 
       /* The original trackpad drawing stays vector-sharp at every size. */
       .sign-off {
-        padding: 2.75rem 0 5rem;
+        padding: 2.75rem 0 0;
         display: flex;
         flex-direction: column;
         align-items: flex-start;
@@ -216,6 +222,113 @@ const polishedSignatureSvg = signatureSvg.replace('viewBox="0 0 1000 364"', 'vie
         transition: stroke-dashoffset var(--draw-duration) linear var(--draw-delay);
       }
 
+      /* The portrait sits left after the opening paragraph, wrapped by
+         the next ones like a figure in a feature story. */
+      .prose::after {
+        content: "";
+        display: table;
+        clear: both;
+      }
+
+      .photo {
+        float: left;
+        width: 40%;
+        margin: 0.4rem 2.25rem 1.25rem 0;
+      }
+
+      .photo img {
+        display: block;
+        width: 100%;
+        height: auto;
+        aspect-ratio: 3 / 4;
+        object-fit: cover;
+        object-position: 50% 30%;
+        border-radius: 3px;
+        background: var(--hover-bg);
+      }
+
+      .photo figcaption {
+        margin-top: 0.6rem;
+        font-size: 0.78rem;
+        line-height: 1.4;
+        color: var(--label);
+      }
+
+      @media (max-width: 600px) {
+        .about-hero {
+          padding-top: 6rem;
+        }
+
+        .photo {
+          float: none;
+          width: 100%;
+          margin: 0.25rem 0 1.75rem;
+        }
+      }
+
+      /* Online: a short stacked list under the signature, set apart
+         from the footer's single row of links. */
+      .online {
+        padding: 4.5rem 0 6.5rem;
+      }
+
+      .online-label {
+        margin: 0 0 1rem;
+        font-size: 0.8rem;
+        color: var(--label);
+      }
+
+      .online ul {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .online li + li {
+        margin-top: 0.55rem;
+      }
+
+      .online a {
+        display: inline-grid;
+        grid-template-columns: 5.5rem auto auto;
+        align-items: baseline;
+        gap: 0.5rem;
+        font-size: 1rem;
+        color: var(--title);
+        text-decoration: none;
+      }
+
+      .online .handle {
+        color: var(--label);
+        transition: color 0.2s ease;
+      }
+
+      .online .arrow {
+        font-size: 0.8rem;
+        color: var(--label);
+        opacity: 0;
+        transform: translate(-2px, 1px);
+        transition: opacity 0.2s ease, transform 0.2s ease;
+      }
+
+      .online a:hover .handle,
+      .online a:focus-visible .handle {
+        color: var(--title);
+      }
+
+      .online a:hover .arrow,
+      .online a:focus-visible .arrow {
+        opacity: 1;
+        transform: translate(0, 0);
+      }
+
+      @media (hover: none) {
+        .online .arrow {
+          opacity: 1;
+          transform: none;
+        }
+      }
+
       @media (prefers-reduced-motion: reduce) {
         .signature { transition: none; }
         .signature path { stroke-dashoffset: 0; transition: none; }
@@ -238,6 +351,10 @@ const polishedSignatureSvg = signatureSvg.replace('viewBox="0 0 1000 364"', 'vie
           Digest and Dynamic Phishing Simulations. Before that, I founded and led Nessa Labs, a studio
           where I advised founders and designed digital products for early-stage startups.
         </p>
+        <figure class="photo">
+          <img src="/about/headshot.webp" alt="Portrait of Humayun Rashid" width="900" height="1350" />
+          <figcaption>Humayun Rashid</figcaption>
+        </figure>
         <p>
           I've also built and exited digital agencies, and worked alongside founders to take their
           products from nothing to acquisition. That's given me a real sense of what it takes to build
@@ -263,6 +380,23 @@ const polishedSignatureSvg = signatureSvg.replace('viewBox="0 0 1000 364"', 'vie
         <p class="sign-off-line">Stay curious,</p>
         <div class="signature" data-reveal role="img" aria-label="Handwritten signature of Humayun Rashid" set:html={polishedSignatureSvg}></div>
       </div>
+
+      <nav class="online" aria-labelledby="online-label">
+        <p class="online-label" id="online-label">Online</p>
+        <ul>
+          {
+            online.map((o) => (
+              <li>
+                <a href={o.href} target="_blank" rel="noopener">
+                  <span>{o.label}</span>
+                  <span class="handle">{o.handle}</span>
+                  <span class="arrow" aria-hidden="true">↗</span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
     </div>
 
     <Footer />
