@@ -29,7 +29,7 @@ export default defineConfig({
     react(),
     sitemap({
       // /work/sublime-security stays out until its password gate is in place.
-      filter: (page) => !page.includes('/design-system') && !page.includes('/work/sublime-security'),
+      filter: (page) => !page.includes('/design-system') && !page.includes('/work/sublime-security') && !page.includes('/previews/'),
     }),
   ]
 });

@@ -12,7 +12,7 @@ const rankedGroups = [...groups].sort((a, b) => clickRate(b) - clickRate(a));
 const mostVulnerable = rankedGroups[0];
 const safest = rankedGroups[rankedGroups.length - 1];
 
-function GroupLeaderboard() {
+export function GroupLeaderboard() {
   return (
     <div className="su-card rl-card">
       <div className="su-card-head">
@@ -125,7 +125,7 @@ function MoreCampaigns({ person }: { person: RepeatClicker }) {
   );
 }
 
-function RepeatClickers() {
+export function RepeatClickers() {
   return (
     <div className="su-card rl-card">
       <div className="su-card-head">

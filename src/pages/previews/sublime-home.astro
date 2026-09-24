@@ -1,0 +1,125 @@
+---
+// Source for the homepage's Sublime Security hover preview. Not linked
+// from anywhere and kept out of the sitemap: it's rendered to
+// public/case-studies/sublime-security/home-preview.webp with
+// scripts/render-sublime-preview.sh, which screenshots this page at
+// the preview's 43:26 ratio.
+//
+// Always light, whatever the site's time-based theme, so the image
+// reads the same on the homepage day or night.
+import SimulationOverview from "../../components/case-study/sublime/SimulationOverview.tsx";
+import { GroupLeaderboard, RepeatClickers } from "../../components/case-study/sublime/ResultsLeaderboard.tsx";
+import "../../components/case-study/sublime/ResultsLeaderboard.css";
+---
+
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Sublime preview</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" />
+    <style is:global>
+      html,
+      body {
+        margin: 0;
+        /* Sublime's --green-light, from sublime.security. */
+        background: #e8f9f4;
+      }
+
+      /* 43:26, the homepage preview's crop. */
+      .canvas {
+        position: relative;
+        width: 1720px;
+        height: 1040px;
+        overflow: hidden;
+      }
+
+      /* Off center: a wide left margin, a narrow right one, and the
+         window running off the bottom edge. */
+      .window {
+        position: absolute;
+        top: 88px;
+        left: 300px;
+        width: 1380px;
+        height: 1100px;
+        border-radius: 14px;
+        background: #ffffff;
+        box-shadow:
+          0 0 0 1px rgba(6, 35, 29, 0.06),
+          0 2px 6px rgba(6, 35, 29, 0.04),
+          0 24px 64px rgba(6, 35, 29, 0.1);
+        overflow: hidden;
+      }
+
+      .window-bar {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 48px;
+        border-bottom: 1px solid #ececec;
+        background: #f7f7f7;
+      }
+
+      .window-dots {
+        position: absolute;
+        left: 20px;
+        display: flex;
+        gap: 8px;
+      }
+
+      .window-dots span {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #dedede;
+      }
+
+      .window-url {
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 14px;
+        color: #7a7a7a;
+      }
+
+      /* Panels sit on the white window with a soft shadow for depth. */
+      .group {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+        padding: 40px;
+        --su-shadow: 0 0 0 1px rgba(0, 0, 0, 0.04), 0 2px 4px rgba(0, 0, 0, 0.03), 0 10px 30px rgba(0, 0, 0, 0.07);
+      }
+
+      .group > .su-card:first-child {
+        grid-column: 1 / -1;
+      }
+
+      .group .rl-card {
+        align-self: start;
+      }
+
+      /* Keep Astro's dev toolbar out of the screenshot. */
+      astro-dev-toolbar {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="canvas">
+      <div class="window">
+        <div class="window-bar">
+          <span class="window-dots"><span></span><span></span><span></span></span>
+          <span class="window-url">security.acmecorp.example/reports/simulations</span>
+        </div>
+        <div class="group su">
+          <SimulationOverview />
+          <RepeatClickers />
+          <GroupLeaderboard />
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

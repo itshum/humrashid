@@ -979,7 +979,15 @@ import Analytics from "@vercel/analytics/astro";
         <p class="section-heading" data-load-reveal>Select Work</p>
 
         <div class="work-list">
-          <button type="button" class="work-row" data-load-reveal id="sublimeGateTrigger" aria-haspopup="dialog">
+          <button
+            type="button"
+            class="work-row"
+            data-load-reveal
+            data-preview-img="/case-studies/sublime-security/home-preview.webp"
+            data-preview-alt="Phishing simulation overview with repeat clickers and a group leaderboard"
+            id="sublimeGateTrigger"
+            aria-haspopup="dialog"
+          >
             <span class="row-top">
               <span class="title">Sublime Security</span>
               <span class="meta">
@@ -1270,7 +1278,7 @@ import Analytics from "@vercel/analytics/astro";
 
       // --- Work-list hover preview ---
       // Same Upstatement-style cursor-follow as .name-photo above, on
-      // three specific rows (Pack, PPVP, Inveterate - set via
+      // specific rows (Sublime, Pack, PPVP, Inveterate - set via
       // data-preview-img on the row itself). One shared image element
       // instead of one per row: on enter, it's repositioned to that
       // row's own rect and re-sourced; while hovered, only its y
@@ -1278,7 +1286,7 @@ import Analytics from "@vercel/analytics/astro";
       const workList = document.querySelector<HTMLElement>(".work-list");
       const workPreview = document.getElementById("workPreview") as HTMLAnchorElement | null;
       const workPreviewImg = document.getElementById("workPreviewImg") as HTMLImageElement | null;
-      const previewRows = document.querySelectorAll<HTMLAnchorElement>("[data-preview-img]");
+      const previewRows = document.querySelectorAll<HTMLElement>("[data-preview-img]");
 
       // Anchored to each row's own meta column (the year + arrow),
       // not to where the description text happens to end - the row
@@ -1302,10 +1310,10 @@ import Analytics from "@vercel/analytics/astro";
       let previewFollowY = 0;
       let previewEntranceT = 0;
       let previewRafId: number | null = null;
-      let activePreviewRow: HTMLAnchorElement | null = null;
+      let activePreviewRow: HTMLElement | null = null;
       let previewBaseTop = 0;
 
-      function positionPreview(row: HTMLAnchorElement) {
+      function positionPreview(row: HTMLElement) {
         if (!workPreview || !workList) return;
         const metaEl = row.querySelector<HTMLElement>(".meta");
         const anchorRect = (metaEl ?? row).getBoundingClientRect();
@@ -1396,14 +1404,25 @@ import Analytics from "@vercel/analytics/astro";
         }, 120);
       }
 
-      function showPreview(row: HTMLAnchorElement) {
+      function showPreview(row: HTMLElement) {
         if (!workPreview || !workPreviewImg) return;
         cancelPreviewHide();
         const alreadyShowingRow = activePreviewRow === row && workPreview.classList.contains("is-visible");
         activePreviewRow = row;
         workPreviewImg.src = row.dataset.previewImg ?? "";
         workPreviewImg.alt = row.dataset.previewAlt ?? "";
-        workPreview.href = row.getAttribute("href") ?? "#";
+        // Link rows lend the preview their destination. Sublime's row is
+        // a button (it opens the password gate), so the preview's click
+        // is forwarded to it instead - see the click handler below.
+        if (row instanceof HTMLAnchorElement) {
+          workPreview.href = row.href;
+          workPreview.target = row.target;
+          workPreview.rel = row.rel;
+        } else {
+          workPreview.removeAttribute("href");
+          workPreview.removeAttribute("target");
+          workPreview.removeAttribute("rel");
+        }
         positionPreview(row);
         if (!alreadyShowingRow) {
           previewEntranceT = prefersReducedMotion ? 1 : 0;
@@ -1429,6 +1448,11 @@ import Analytics from "@vercel/analytics/astro";
         if (workPreview) {
           workPreview.addEventListener("mouseenter", cancelPreviewHide);
           workPreview.addEventListener("mouseleave", schedulePreviewHide);
+          workPreview.addEventListener("click", (event) => {
+            if (!activePreviewRow || activePreviewRow instanceof HTMLAnchorElement) return;
+            event.preventDefault();
+            activePreviewRow.click();
+          });
           if (!prefersReducedMotion) {
             workPreview.addEventListener("mousemove", (event) => {
               updatePreviewFollowTarget(event.clientX, event.clientY);
