@@ -716,7 +716,7 @@ const summary =
             </div>
             <div class="meta-item">
               <span class="meta-label">Year</span>
-              <span class="meta-value">2026</span>
+              <span class="meta-value">2025–2026</span>
             </div>
           </div>
         </div>
@@ -746,24 +746,20 @@ const summary =
           <p class="label">Challenge</p>
           <h2>Customers were paying for a second tool to test what Sublime already knew</h2>
           <p>
-            Phishing simulations let a security team find out whether employees will fall for a phish
-            before a real attacker does. The team sends a harmless fake phish to a group of employees,
-            then tracks who clicks, who reports it, and who ignores it.
+            Security teams run phishing simulations to learn who will fall for a phish before an
+            attacker does. Our customers were already running them, just not in Sublime. They paid for
+            a separate tool that sent generic templates on a quarterly calendar, disconnected from the
+            attacks actually hitting their inboxes. It was one of our most requested features.
           </p>
           <p>
-            Sublime customers were already doing this, just not in Sublime. They paid for a separate
-            tool, ran it on a quarterly content calendar, and tested employees against generic
-            templates that had little to do with the attacks hitting their inboxes. Simulations were
-            one of our most requested features, and the ask was always the same: fewer tools, one
-            place to work.
+            The strategic case was clear. Sublime sits inside the email stack and already knows which
+            attacks each customer faces. A standalone tool has to guess. We didn't. Our detections
+            close gaps in the filter; simulations could close gaps in people, using the same data.
           </p>
           <p>
-            Sublime was built on a simple belief: stopping the next attack matters more than cleaning
-            up this one. Our detections close gaps in the filter. Simulations could close gaps in
-            people. And because Sublime sits inside the email stack, we already knew which attacks
-            each customer was facing. A standalone tool has to guess. We didn't.
+            I led design from first concept through private beta, public beta, and GA readiness,
+            partnering closely with our PM, engineering, and ML team.
           </p>
-          <p>I led design from the first concept through private beta, public beta, and GA readiness.</p>
         </section>
       </div>
 
@@ -772,26 +768,20 @@ const summary =
         <div class="divider"></div>
         <section id="approach" data-reveal>
           <p class="label">Approach</p>
-          <h2>A campaign in under a minute</h2>
+          <h2>The builder is step one. The answer is the product.</h2>
           <p>
-            I started with the PRD and the analyst's jobs to be done, mapping every flow a campaign
-            needed. From that came one goal: an analyst should be able to launch a campaign in under a
-            minute. The catch was that every campaign still needed several steps, each with its own
-            settings. So the rule was simple: cut the flow as far as possible without taking away the
-            controls analysts actually need.
-          </p>
-
-          <h3>The assumption I got wrong</h3>
-          <p>
-            I assumed analysts would want deep control, maybe even an editor to redesign the phishing
-            email itself. Early concepts and prototypes shown to customers proved otherwise. Analysts
-            didn't want to design emails. They wanted to launch fast and get to the part that mattered.
+            I set one goal early: an analyst should be able to launch a campaign in under a minute,
+            even though every campaign needs several steps with their own settings.
           </p>
           <p>
-            That part came after launch: who in my organization is most likely to fall for this, and
-            what can I do about it? The builder was step one. The real value was the analysis
-            afterward. That reframe shaped everything that followed: keep the builder lean, and put
-            the depth into results.
+            I also got an important assumption wrong. I expected analysts to want deep control, even an
+            editor to redesign the phishing email. Prototypes with customers proved otherwise. Analysts
+            don't want to design emails. They want to know who in their organization is most likely to
+            fall for a phish, and what to do about it.
+          </p>
+          <p>
+            That reframe set the strategy for every phase: keep the builder lean, and put the depth into
+            results.
           </p>
         </section>
       </div>
@@ -801,11 +791,7 @@ const summary =
         <div class="divider"></div>
         <section id="phases" data-reveal>
           <h2>Three phases, one idea</h2>
-          <p>
-            The product grew in three phases, each shaped by what customers told us in the last. The
-            thread running through all three: tie every campaign more closely to the real attacks
-            Sublime sees.
-          </p>
+          <p>Each phase tied campaigns more closely to the real attacks Sublime sees.</p>
         </section>
       </div>
 
@@ -818,22 +804,11 @@ const summary =
         <div class="divider"></div>
         <section id="phase-1" data-reveal>
           <p class="label">Phase 1: Private beta</p>
-          <h2>Start small, test assumptions</h2>
+          <h2>Validate the core loop</h2>
           <p>
-            We had a bigger vision, but wanted to test it with a handful of trusted customers before
-            building it. Private beta shipped the basics.
-          </p>
-          <ol>
-            <li><strong>Campaign details.</strong> Name, start date and time, and how long it runs.</li>
-            <li><strong>Audience.</strong> Email lists customers already had in Sublime.</li>
-            <li>
-              <strong>Template.</strong> A short list of static templates, like password resets and CEO
-              invoice requests, sorted by attack type.
-            </li>
-          </ol>
-          <p>
-            After launch, analysts could see every active campaign, and drill into each one to see who
-            opened, clicked, replied, forwarded, or reported.
+            I scoped private beta deliberately small: a three-step builder (details, audience,
+            template), a handful of static templates, and per-recipient reporting, shipped to a few
+            trusted customers. The goal was to prove the core loop before building the vision.
           </p>
         </section>
       </div>
@@ -849,8 +824,8 @@ const summary =
 
       <div class="col" data-reveal>
         <p>
-          The biggest gap was deliberate. These templates were isolated from the rest of Sublime,
-          disconnected from the attack data we already had. Closing that gap became the next phase.
+          The biggest gap was intentional. Templates were generic and isolated from Sublime's attack
+          data. Closing that gap defined the next phase.
         </p>
       </div>
 
@@ -859,18 +834,11 @@ const summary =
         <div class="divider"></div>
         <section id="phase-2" data-reveal>
           <p class="label">Phase 2: Public beta</p>
-          <h2>From standalone tool to part of Sublime</h2>
+          <h2>Ground it in Sublime</h2>
           <p>
-            Beta customers brought a wish list. The biggest shift wasn't any single feature. It was
-            grounding every campaign in the real threats Sublime already saw in each customer's inbox.
-          </p>
-          <p>
-            <strong>A smarter builder.</strong> Templates were now built from attacks found in the
-            customer's own environment. The top of the template list showed what Sublime had seen in the
-            last month, like password resets, new employee onboarding, and invoice requests, and
-            suggested building a campaign around them. Analysts could also stagger sends, so employees
-            couldn't warn each other at the water cooler, and target Google Workspace or Microsoft 365
-            groups, or upload their own list.
+            This is where simulations became a Sublime product rather than a copy of a competitor's.
+            Every template now traced back to a detection rule, so the template picker could lead with
+            the attacks most active in each customer's environment.
           </p>
         </section>
       </div>
@@ -892,16 +860,14 @@ const summary =
 
       <div class="col" data-reveal>
         <p>
-          <strong>From data to decisions.</strong> Analysts kept asking: great, what do I do with this?
-          Campaign reports now flagged <strong>repeat clickers</strong>, people who fell for multiple
-          simulations, and <strong>top targets</strong>, a list of 50 people in the organization. A new
-          simulations dashboard brought every campaign into one place, showing which worked and which
-          didn't.
+          We also shipped what beta customers asked for: staggered sends, so employees can't warn each
+          other at the water cooler, plus Google Workspace, Microsoft 365, and CSV audiences.
         </p>
         <p>
-          It would have been easy to slap a few extra panels on a dashboard. Instead, ongoing customer
-          conversations and rounds of prototypes decided what earned a spot. One request became a core
-          feature: a leaderboard of the most vulnerable and the safest employees.
+          On the results side, reporting started answering "so what?" I added repeat clickers, top
+          targets, and a simulations dashboard with a leaderboard of the most vulnerable and safest
+          groups. It would have been easy to bolt on panels. Instead, I let customer conversations and
+          prototypes decide what earned a spot.
         </p>
       </div>
 
@@ -921,26 +887,21 @@ const summary =
         <div class="divider"></div>
         <section id="phase-3" data-reveal>
           <p class="label">Phase 3: GA</p>
-          <h2>Closing the loop without breaking the flow</h2>
+          <h2>Close the loop without breaking the flow</h2>
           <p>
-            GA added the two pieces that completed the story: training for people who fall for a
-            simulation, and AI that writes templates from each customer's own threat data. Both made the
-            product more powerful. Both also threatened to turn a simple builder into a mess.
+            GA added training and AI. Both made the product complete. Both threatened to bury the
+            builder.
           </p>
 
-          <h3>Training, without a fourth hurdle</h3>
+          <h3>Adding a product without adding a step</h3>
           <p>
-            Training was a separate product. When an employee fails a simulation, they're prompted to
-            complete a set of multiple-choice questions the security team can fully customize. It came
-            with its own settings, and it had to live inside the campaign builder. Our three-step flow
-            was about to become four, and the under-a-minute goal was at risk.
+            Training was its own product, with its own settings, and it had to live inside the builder.
+            Three steps were about to become four, and the under-a-minute goal was at risk.
           </p>
           <p>
-            I worked through it with my PM using three levers: cut scope, reduce steps, and consolidate.
-            Consolidation did the most work. After many rounds of iteration with my PM and head of
-            design, we dropped the step-by-step wizard for a single form that reveals settings only when
-            they need attention. Training became an optional toggle, there when you want it and out of
-            the way when you don't.
+            With my PM, I pulled three levers: cut scope, reduce steps, and consolidate. Consolidation
+            did the most work. After many rounds of navigation exploration, I dropped the wizard for a
+            single form with a live preview, and made training an optional toggle.
           </p>
         </section>
       </div>
@@ -977,34 +938,16 @@ const summary =
       </div>
 
       <div class="col" data-reveal>
-        <h3>AI as a starting point, not a separate tool</h3>
+        <h3>AI that doesn't feel bolted on</h3>
         <p>
-          For GA, we worked with the ML and AI teams on an engine that generates a template from
-          scratch, shaped by the threats Sublime has already seen at that company. The result is
-          one-to-one with the customer, not a template any other organization could receive.
+          With the ML team, we built an engine that generates templates from each customer's own threat
+          data, starting from a scenario or a real attack Sublime caught.
         </p>
         <p>
-          My first designs put it in a separate AI template manager, a modal with a detailed list view,
-          filters, and metadata. I saw AI generation as its own experience. Through iteration, I
-          realized it wasn't. It was just another way to pick a template. That version got cut and
-          folded back into the builder.
-        </p>
-        <p>The final design reuses the template picker analysts already knew. They choose a starting point:</p>
-        <ul>
-          <li>
-            <strong>From a scenario,</strong> like the attacks most active in their environment or seen
-            most recently.
-          </li>
-          <li>
-            <strong>From a message sample.</strong> Every message group in Sublime has a unique ID. Paste
-            it in, and the generator turns that real attack into a simulation, with personal and
-            sensitive information stripped out.
-          </li>
-        </ul>
-        <p>
-          The live preview works exactly as before. AI also adds a wait, and waits need designing. The
-          builder promises a template in 30 seconds or less, and the loading state uses Sublime's own
-          visual language so it feels native.
+          My first design gave AI its own template manager, with filters and metadata. I was wrong
+          again, for the same reason. Generation wasn't a new experience; it was another way to pick a
+          template. I folded it into the existing picker, with refinements that appear only after an
+          attack type is chosen, and a promise of a template in 30 seconds or less.
         </p>
       </div>
 
@@ -1017,57 +960,37 @@ const summary =
       </div>
 
       <div class="col" data-reveal>
+        <h3>A phishing generator that can't phish</h3>
         <p>
-          <strong>Guardrails, built into the flow.</strong> A tool that writes convincing phishing
-          emails can't be allowed to become a real phishing tool. So the rules lived in the design, not
-          in a policy page:
+          A tool that writes convincing phishing emails can't become a real phishing tool, so I built
+          the guardrails into the interaction model:
         </p>
         <ul class="guardrails">
           <li>
             <span class="guardrail-title">No copying.</span>
-            Generated emails reuse a real attack's structure, never its words.
+            Generated emails reuse an attack's structure, never its words.
           </li>
           <li>
             <span class="guardrail-title">No real people.</span>
-            Names and company details only appear as dynamic variables.
+            Names and company details only appear as variables.
           </li>
           <li>
             <span class="guardrail-title">No free-text editing.</span>
-            Analysts can tweak variables inline or regenerate, but they can't rewrite the body by hand.
+            Analysts regenerate or edit variables, but can't rewrite the body.
           </li>
           <li>
             <span class="guardrail-title">Graceful fallback.</span>
-            When a customer's detection history is too thin, environment-based options switch off, and
-            analysts can still generate from the rest.
+            Thin detection history switches off environment-based options.
           </li>
         </ul>
-        <p>The full template editor I once pitched ended up as a deliberate no.</p>
+        <p>The template editor I once pitched became a deliberate no.</p>
 
-        <h3>A dashboard that tells a story</h3>
+        <h3>A dashboard for leadership</h3>
         <p>
-          By GA, a new audience had appeared: executives. Analysts were pulling numbers from across the
-          product to answer one leadership question: is our simulation program working?
+          The GA dashboard answers the question executives actually ask: is our program working? It
+          shows campaign performance over time, the most vulnerable groups, and a recommended action,
+          like building a campaign for a group that keeps failing.
         </p>
-        <p>
-          The GA dashboard merges simulation and training data into a quick, top-down read built around
-          three questions:
-        </p>
-        <ol>
-          <li>
-            <strong>How are my campaigns performing?</strong> Emails sent, active and total campaigns,
-            and how it all trends over time.
-          </li>
-          <li>
-            <strong>Who is most vulnerable?</strong> A leaderboard of the groups most likely to fall for
-            a phish.
-          </li>
-          <li>
-            <strong>Should I act on any of this?</strong> Sublime turns results into next steps. If a
-            group or person keeps failing, the dashboard suggests building a campaign just for them, so
-            every insight comes with an action attached.
-          </li>
-        </ol>
-        <p>Every panel is a clear, digestible data point an analyst can share with leadership as-is.</p>
       </div>
 
       <div class="demo-stage" data-reveal>
@@ -1084,14 +1007,9 @@ const summary =
           <p class="label">What I learned</p>
           <h2>Less control, closer to the flow</h2>
           <p>
-            Twice on this project, my first instinct was to give analysts more control in a separate
-            space: a template editor in private beta, an AI template manager at GA. Both times, the
-            better answer was less, folded into the workflow they already knew.
-          </p>
-          <p>
-            Security analysts don't want another tool to master. They want to get a campaign out the
-            door and get to the answer. The best version of each feature was the one they barely noticed
-            was new.
+            Twice, my instinct was to give analysts more control in a separate space. Both times, the
+            better answer was less, inside the flow they already knew. Analysts don't want another tool
+            to master. They want the answer.
           </p>
         </section>
       </div>
@@ -1102,24 +1020,11 @@ const summary =
         <section id="outcome" data-reveal>
           <p class="label">Outcome</p>
           <p>
-            I left Sublime shortly before the GA launch, after designing the product through GA
-            readiness. I can't share post-launch numbers, but I can share the stakes.
+            I left Sublime shortly before GA launched, so I can't share post-launch numbers. What I can
+            share: simulations was a top-three roadmap priority, expected to contribute to ARR, help win
+            new deals, and keep customers from buying a separate tool. It also made Sublime stickier. The
+            same data that stops attacks now tests and trains the people who might fall for them.
           </p>
-          <ul>
-            <li>
-              <strong>A top-three roadmap priority,</strong> and one of the most requested features from
-              customers.
-            </li>
-            <li>
-              <strong>Built to move revenue.</strong> The business expected it to contribute to ARR, help
-              win new deals, and keep long-time customers from buying a separate tool.
-            </li>
-            <li>
-              <strong>A stickier platform.</strong> The same data that stops attacks now tests and trains
-              the people who might fall for them.
-            </li>
-            <li><strong>Shaped by customers at every phase,</strong> through private and public beta.</li>
-          </ul>
         </section>
       </div>
 
