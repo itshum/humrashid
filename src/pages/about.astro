@@ -6,10 +6,13 @@ import signatureSvg from "../assets/humayun-signature-strokes.svg?raw";
 
 const polishedSignatureSvg = signatureSvg.replace('viewBox="0 0 1000 364"', 'viewBox="220 125 650 185"');
 
+// Email shows "Contact" and has no address in the markup; the click
+// handler below assembles the mailto so scrapers can't pick it up.
 const online = [
   { label: "Twitter", handle: "@humrashid", href: "https://x.com/humrashid" },
-  { label: "GitHub", handle: "itshum", href: "https://github.com/itshum" },
   { label: "LinkedIn", handle: "humayunrashid", href: "https://www.linkedin.com/in/humayunrashid/" },
+  { label: "Email", handle: "Contact", href: "#contact", email: ["hum", "nessalab.com"] },
+  { label: "GitHub", handle: "itshum", href: "https://github.com/itshum" },
 ];
 ---
 
@@ -298,6 +301,16 @@ const online = [
         text-decoration: none;
       }
 
+      /* Resume has no link, so it lays out like a link row without one. */
+      .online-row {
+        display: grid;
+        grid-template-columns: 5.5rem auto;
+        align-items: baseline;
+        gap: 0.5rem;
+        font-size: 1rem;
+        color: var(--title);
+      }
+
       .online .handle {
         color: var(--label);
         transition: color 0.2s ease;
@@ -387,7 +400,13 @@ const online = [
           {
             online.map((o) => (
               <li>
-                <a href={o.href} target="_blank" rel="noopener">
+                <a
+                  href={o.href}
+                  target={o.email ? undefined : "_blank"}
+                  rel="noopener"
+                  data-user={o.email?.[0]}
+                  data-domain={o.email?.[1]}
+                >
                   <span>{o.label}</span>
                   <span class="handle">{o.handle}</span>
                   <span class="arrow" aria-hidden="true">↗</span>
@@ -395,6 +414,10 @@ const online = [
               </li>
             ))
           }
+          <li class="online-row">
+            <span>Resume</span>
+            <span class="handle">Available upon request</span>
+          </li>
         </ul>
       </nav>
     </div>
@@ -402,6 +425,13 @@ const online = [
     <Footer />
 
     <script>
+      document.querySelectorAll<HTMLAnchorElement>("a[data-user]").forEach((link) => {
+        link.addEventListener("click", (event) => {
+          event.preventDefault();
+          window.location.href = `mailto:${link.dataset.user}@${link.dataset.domain}`;
+        });
+      });
+
       const signature = document.querySelector<HTMLElement>(".signature[data-reveal]");
       if (signature) {
         const playbackSpeed = 0.62;
