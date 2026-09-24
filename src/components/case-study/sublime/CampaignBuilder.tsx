@@ -293,6 +293,7 @@ export default function CampaignBuilder({ fit = false }: { fit?: boolean }) {
   const [launched, setLaunched] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
   const nameInput = useRef<HTMLInputElement>(null);
+  const builderRoot = useRef<HTMLDivElement>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const t = templates.find((x) => x.id === templateId) ?? templates[0] ?? builderTemplates[0];
   const uid = useId();
@@ -308,10 +309,18 @@ export default function CampaignBuilder({ fit = false }: { fit?: boolean }) {
   const durationLabel = durationOptions.find((item) => item.value === durationHours)?.label;
   const libraryGroups = ["Most active in your Sublime environment", "Recently Seen", "All Templates"] as const;
 
+  function showBuilderForDialog() {
+    const rect = builderRoot.current?.getBoundingClientRect();
+    if (!rect) return;
+    const top = Math.max(8, (window.innerHeight - rect.height) / 2);
+    window.scrollBy({ top: rect.top - top, behavior: "auto" });
+  }
+
   function openLibrary() {
     setLibrarySelection(templates.map((template) => template.id));
     setLibraryQuery("");
     setLibraryOpen(true);
+    showBuilderForDialog();
   }
 
   function toggleLibrary(id: string) {
@@ -324,6 +333,12 @@ export default function CampaignBuilder({ fit = false }: { fit?: boolean }) {
     setTemplates(next);
     if (!next.some((entry) => entry.id === templateId)) setTemplateId(next[0].id);
     setLibraryOpen(false);
+  }
+
+  function removeTemplate(id: string) {
+    const remaining = templates.filter((template) => template.id !== id);
+    setTemplates(remaining);
+    if (templateId === id) setTemplateId(remaining[0]?.id ?? "");
   }
 
   useEffect(() => () => { if (toastTimer.current) clearTimeout(toastTimer.current); }, []);
@@ -342,8 +357,13 @@ export default function CampaignBuilder({ fit = false }: { fit?: boolean }) {
       setReviewError("Choose a CSV audience before reviewing.");
       return;
     }
+    if (templates.length === 0) {
+      setReviewError("Add at least one template before reviewing.");
+      return;
+    }
     setReviewError("");
     setReviewOpen(true);
+    showBuilderForDialog();
   }
 
   function launchCampaign() {
@@ -374,7 +394,7 @@ export default function CampaignBuilder({ fit = false }: { fit?: boolean }) {
   }
 
   return (
-    <div className={`cb${fit ? " cb--fit" : ""}`}>
+    <div ref={builderRoot} className={`cb${fit ? " cb--fit" : ""}`}>
       <div className="cb-app">
         <div className="cb-crumbs">
           <span className="cb-crumb">Phishing Simulations</span>
@@ -502,18 +522,15 @@ export default function CampaignBuilder({ fit = false }: { fit?: boolean }) {
             </div>
             <div className="cb-list" role="radiogroup" aria-label="Templates">
               {templates.map((x) => (
-                <button
-                  key={x.id}
-                  type="button"
-                  role="radio"
-                  aria-checked={x.id === templateId}
-                  className="cb-list-row"
-                  onClick={() => setTemplateId(x.id)}
-                >
-                  <Mail aria-hidden="true" strokeWidth={1.5} />
-                  {x.name}
-                </button>
+                <div key={x.id} className="cb-list-row" data-selected={x.id === templateId}>
+                  <button type="button" role="radio" aria-checked={x.id === templateId} className="cb-list-select" onClick={() => setTemplateId(x.id)}>
+                    <Mail aria-hidden="true" strokeWidth={1.5} />
+                    <span>{x.name}</span>
+                  </button>
+                  <button type="button" className="cb-list-remove" aria-label={`Remove ${x.name}`} onClick={() => removeTemplate(x.id)}><X aria-hidden="true" /></button>
+                </div>
               ))}
+              {templates.length === 0 && <p className="cb-list-empty">No templates selected. Add one from the library.</p>}
             </div>
 
             <hr className="cb-rule" />
@@ -549,7 +566,7 @@ export default function CampaignBuilder({ fit = false }: { fit?: boolean }) {
           </div>
 
           <div className="cb-preview">
-            <div className="cb-preview-inner" aria-live="polite">
+            {templates.length > 0 ? <div className="cb-preview-inner" aria-live="polite">
               <h5 className="cb-preview-title">{t.name}</h5>
 
               <div className="cb-row cb-row--even">
@@ -590,11 +607,11 @@ export default function CampaignBuilder({ fit = false }: { fit?: boolean }) {
                 </div>
                 <EmailPreview t={t} view={view} />
               </div>
-            </div>
+            </div> : <div className="cb-preview-empty">Add a template to see its preview.</div>}
           </div>
         </div>
       </div>
-      {reviewOpen && createPortal(<div className="cb-review-overlay" onKeyDown={(event) => { if (event.key === "Escape") setReviewOpen(false); }} onMouseDown={(event) => { if (event.target === event.currentTarget) setReviewOpen(false); }}>
+      {reviewOpen && <div className="cb-review-overlay" onKeyDown={(event) => { if (event.key === "Escape") setReviewOpen(false); }} onMouseDown={(event) => { if (event.target === event.currentTarget) setReviewOpen(false); }}>
         <section className="cb-review-modal" role="dialog" aria-modal="true" aria-labelledby={`${uid}-review-title`}>
           <div className="cb-review-header">
             <h4 id={`${uid}-review-title`}>Review &amp; Launch Campaign</h4>
@@ -620,8 +637,8 @@ export default function CampaignBuilder({ fit = false }: { fit?: boolean }) {
             <button type="button" className="cb-review-launch" onClick={launchCampaign}>Launch Campaign <span aria-hidden="true">→</span></button>
           </div>
         </section>
-      </div>, document.body)}
-      {libraryOpen && createPortal(<div className="cb-review-overlay" onKeyDown={(event) => { if (event.key === "Escape") setLibraryOpen(false); }} onMouseDown={(event) => { if (event.target === event.currentTarget) setLibraryOpen(false); }}>
+      </div>}
+      {libraryOpen && <div className="cb-review-overlay" onKeyDown={(event) => { if (event.key === "Escape") setLibraryOpen(false); }} onMouseDown={(event) => { if (event.target === event.currentTarget) setLibraryOpen(false); }}>
         <section className="cb-library-modal" role="dialog" aria-modal="true" aria-labelledby={`${uid}-library-title`}>
           <div className="cb-review-header"><h4 id={`${uid}-library-title`}>Add From Library</h4><button type="button" aria-label="Close library" onClick={() => setLibraryOpen(false)}><X aria-hidden="true" /></button></div>
           <div className="cb-library-content">
@@ -643,7 +660,7 @@ export default function CampaignBuilder({ fit = false }: { fit?: boolean }) {
           </div>
           <div className="cb-library-footer"><button type="button" disabled={!librarySelection.length} onClick={addFromLibrary}>Add{librarySelection.length ? ` (${librarySelection.length})` : ""}</button></div>
         </section>
-      </div>, document.body)}
+      </div>}
       {launched && createPortal(<div className="cb-success-toast" role="status"><span className="cb-success-mark" aria-hidden="true">✓</span><span><strong>Campaign Created</strong><small>{campaignName.trim()} is scheduled to send.</small></span><button type="button" aria-label="Dismiss confirmation" onClick={() => setLaunched(false)}><X aria-hidden="true" /></button></div>, document.body)}
     </div>
   );
