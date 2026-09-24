@@ -1,8 +1,10 @@
-import { Fragment, useEffect, useId, useRef, useState, type DragEvent, type KeyboardEvent, type ReactNode } from "react";
+import { Fragment, Suspense, lazy, useEffect, useId, useRef, useState, type DragEvent, type KeyboardEvent, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { BriefcaseBusiness, Calendar, ChevronDown, ChevronLeft, ChevronRight, IdCard, Info, Mail, Phone, Search, Sparkles, SquareArrowOutUpRight, Upload, X } from "lucide-react";
 import { sampleRecipient } from "./acmeMock";
 import "./CampaignBuilder.css";
+
+const AiGenerateModal = lazy(() => import("./AiGenerateModal"));
 
 // The GA campaign builder, rebuilt 1:1 from the product. It's drawn on a
 // fixed 1200 x 844 canvas and scaled to its container (see the --px unit
@@ -273,6 +275,7 @@ export default function CampaignBuilder({ fit = false }: { fit?: boolean }) {
   const [libraryOpen, setLibraryOpen] = useState(false);
   const [libraryQuery, setLibraryQuery] = useState("");
   const [librarySelection, setLibrarySelection] = useState<string[]>(["password", "mfa"]);
+  const [generateOpen, setGenerateOpen] = useState(false);
   const [view, setView] = useState<View>("template");
   const [training, setTraining] = useState(true);
   const [campaignName, setCampaignName] = useState("Sample campaign");
@@ -317,10 +320,22 @@ export default function CampaignBuilder({ fit = false }: { fit?: boolean }) {
   }
 
   function openLibrary() {
-    setLibrarySelection(templates.map((template) => template.id));
+    setLibrarySelection(templates.filter((template) => !template.id.startsWith("generated-")).map((template) => template.id));
     setLibraryQuery("");
     setLibraryOpen(true);
     showBuilderForDialog();
+  }
+
+  function openGenerate() {
+    setGenerateOpen(true);
+    showBuilderForDialog();
+  }
+
+  function addGeneratedTemplate(template: BuilderTemplate) {
+    setTemplates((current) => [...current, template]);
+    setTemplateId(template.id);
+    setReviewError("");
+    setGenerateOpen(false);
   }
 
   function toggleLibrary(id: string) {
@@ -328,7 +343,10 @@ export default function CampaignBuilder({ fit = false }: { fit?: boolean }) {
   }
 
   function addFromLibrary() {
-    const next = libraryEntries.filter((entry) => librarySelection.includes(entry.id)).map(templateFromLibrary);
+    const next = [
+      ...libraryEntries.filter((entry) => librarySelection.includes(entry.id)).map(templateFromLibrary),
+      ...templates.filter((template) => template.id.startsWith("generated-")),
+    ];
     if (!next.length) return;
     setTemplates(next);
     if (!next.some((entry) => entry.id === templateId)) setTemplateId(next[0].id);
@@ -514,10 +532,10 @@ export default function CampaignBuilder({ fit = false }: { fit?: boolean }) {
               <Info className="cb-info" aria-hidden="true" strokeWidth={1.5} />
             </h5>
             <div className="cb-small-btns">
-              <span className="cb-small-btn">
+              <button type="button" className="cb-small-btn" onClick={openGenerate}>
                 <Sparkles strokeWidth={1.75} />
                 Generate
-              </span>
+              </button>
               <button type="button" className="cb-small-btn" onClick={openLibrary}>Add From Library</button>
             </div>
             <div className="cb-list" role="radiogroup" aria-label="Templates">
@@ -611,6 +629,11 @@ export default function CampaignBuilder({ fit = false }: { fit?: boolean }) {
           </div>
         </div>
       </div>
+      {generateOpen && <div className="cb-review-overlay cb-generate-overlay" onKeyDown={(event) => { if (event.key === "Escape") setGenerateOpen(false); }} onMouseDown={(event) => { if (event.target === event.currentTarget) setGenerateOpen(false); }}>
+        <Suspense fallback={<div className="cb-generate-loading" role="status">Opening template generator…</div>}>
+          <AiGenerateModal onClose={() => setGenerateOpen(false)} onUse={addGeneratedTemplate} />
+        </Suspense>
+      </div>}
       {reviewOpen && <div className="cb-review-overlay" onKeyDown={(event) => { if (event.key === "Escape") setReviewOpen(false); }} onMouseDown={(event) => { if (event.target === event.currentTarget) setReviewOpen(false); }}>
         <section className="cb-review-modal" role="dialog" aria-modal="true" aria-labelledby={`${uid}-review-title`}>
           <div className="cb-review-header">

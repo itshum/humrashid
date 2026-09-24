@@ -175,7 +175,7 @@ function RadioCard({
 
 // --- Main -----------------------------------------------------------------
 
-export default function AiGenerateModal() {
+export default function AiGenerateModal({ onClose, onUse }: { onClose?: () => void; onUse?: (template: BuilderTemplate) => void } = {}) {
   const uid = useId();
   const arrowId = `gm-arrow-${uid.replace(/:/g, "")}`;
   const [step, setStep] = useState<Step>(1);
@@ -207,6 +207,7 @@ export default function AiGenerateModal() {
   useEffect(() => {
     if (firstRender.current) {
       firstRender.current = false;
+      if (onClose) headingRef.current?.focus();
       return;
     }
     headingRef.current?.focus();
@@ -246,6 +247,19 @@ export default function AiGenerateModal() {
     setResult((r) => (r ? { ...r, [field]: value } : r));
   }
 
+  function useInCampaign() {
+    if (!result) return;
+    if (onUse) {
+      onUse({
+        ...result,
+        id: `generated-${Date.now()}`,
+        name: `AI: ${fromSpecific ? "Sample message" : (theme?.name ?? result.name)}`,
+      });
+    } else {
+      setAdded(true);
+    }
+  }
+
   const attackField = (
     <div className="cb-field">
       <Label required>Attack type</Label>
@@ -263,13 +277,13 @@ export default function AiGenerateModal() {
   );
 
   return (
-    <div className="cb">
-      <div className="cb-app gm-app">
+    <div className="cb" role={onClose ? "dialog" : undefined} aria-modal={onClose ? true : undefined} aria-labelledby={onClose ? `${uid}-title` : undefined}>
+      <div className={`cb-app gm-app${onUse ? " gm-app--embedded" : ""}`}>
         {/* Left: the Generate Template modal */}
         <div className="gm-modal" role="group" aria-labelledby={`${uid}-title`}>
           <div className="gm-modal-head">
             <h5 id={`${uid}-title`}>Generate Template</h5>
-            <button type="button" className="gm-icon-btn" aria-label="Start over" onClick={startOver}>
+            <button type="button" className="gm-icon-btn" aria-label={onClose ? "Close generation" : "Start over"} onClick={onClose ?? startOver}>
               <X strokeWidth={1.75} />
             </button>
           </div>
@@ -451,7 +465,7 @@ export default function AiGenerateModal() {
                     type="button"
                     className="cb-btn cb-btn--primary"
                     disabled={generating || !result || added}
-                    onClick={() => setAdded(true)}
+                    onClick={useInCampaign}
                   >
                     {added ? (
                       <>
@@ -468,8 +482,8 @@ export default function AiGenerateModal() {
           </div>
         </div>
 
-        {/* Same connector as the case study's diagrams: a hairline with a
-            small filled head. */}
+        {!onUse && <>
+        {/* Same connector as the case study's diagrams: a hairline with a small filled head. */}
         <svg className={`gm-arrow${generating ? " is-active" : ""}`} viewBox="0 0 80 8" aria-hidden="true">
           <defs>
             <marker id={arrowId} viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
@@ -526,6 +540,7 @@ export default function AiGenerateModal() {
             )}
           </div>
         </div>
+        </>}
       </div>
     </div>
   );
