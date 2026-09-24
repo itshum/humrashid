@@ -675,7 +675,15 @@ import Analytics from "@vercel/analytics/astro";
         <p class="section-heading" data-load-reveal>Select Work</p>
 
         <div class="work-list">
-          <a class="work-row" data-load-reveal href="https://sublime.security/" target="_blank" rel="noopener">
+          <a
+            class="work-row"
+            data-load-reveal
+            data-preview-img="/case-studies/sublime-security/home-preview.webp"
+            data-preview-alt="Phishing simulation overview with repeat clickers and a group leaderboard"
+            href="https://sublime.security/"
+            target="_blank"
+            rel="noopener"
+          >
             <span class="row-top">
               <span class="title">Sublime Security</span>
               <span class="meta">
@@ -979,7 +987,7 @@ import Analytics from "@vercel/analytics/astro";
 
       // --- Work-list hover preview ---
       // Same Upstatement-style cursor-follow as .name-photo above, on
-      // three specific rows (Pack, PPVP, Inveterate - set via
+      // specific rows (Sublime, Pack, PPVP, Inveterate - set via
       // data-preview-img on the row itself). One shared image element
       // instead of one per row: on enter, it's repositioned to that
       // row's own rect and re-sourced; while hovered, only its y
@@ -1110,6 +1118,9 @@ import Analytics from "@vercel/analytics/astro";
         workPreviewImg.src = row.dataset.previewImg ?? "";
         workPreviewImg.alt = row.dataset.previewAlt ?? "";
         workPreview.href = row.getAttribute("href") ?? "#";
+        // Sublime's row opens its site in a new tab; the preview should too.
+        workPreview.target = row.target;
+        workPreview.rel = row.rel;
         positionPreview(row);
         if (!alreadyShowingRow) {
           previewEntranceT = prefersReducedMotion ? 1 : 0;
