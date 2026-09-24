@@ -250,11 +250,21 @@ const online = [
         background: var(--hover-bg);
       }
 
-      .photo figcaption {
-        margin-top: 0.6rem;
-        font-size: 0.78rem;
-        line-height: 1.4;
-        color: var(--label);
+      /* Ink illustration on white: multiply drops the white into the page
+         in light mode; in dark mode it sits on a white card instead. */
+      .photo img.is-illustration {
+        aspect-ratio: auto;
+        object-fit: contain;
+        border-radius: 0;
+        background: none;
+        mix-blend-mode: multiply;
+      }
+
+      :root[data-theme="dark"] .photo img.is-illustration {
+        padding: 0.75rem;
+        border-radius: 4px;
+        background: #ffffff;
+        mix-blend-mode: normal;
       }
 
       @media (max-width: 600px) {
@@ -365,8 +375,7 @@ const online = [
           where I advised founders and designed digital products for early-stage startups.
         </p>
         <figure class="photo">
-          <img src="/about/headshot.webp" alt="Portrait of Humayun Rashid" width="900" height="1350" />
-          <figcaption>Humayun Rashid</figcaption>
+          <img class="is-illustration" src="/about/headshot-illustration.webp" alt="Illustrated portrait of Humayun Rashid" width="800" height="1120" />
         </figure>
         <p>
           I've also built and exited digital agencies, and worked alongside founders to take their
