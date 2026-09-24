@@ -352,10 +352,6 @@
 
 .gm-app input.cb-input:focus,
 .gm-app textarea.cb-input:focus,
-.gm-select:focus-within {
-  border-color: var(--cb-blue);
-  box-shadow: 0 0 0 calc(2 * var(--px)) rgba(52, 115, 219, 0.15);
-}
 
 .gm-app input.cb-input:disabled {
   background: #f6f6f4;
@@ -374,35 +370,8 @@
   resize: none;
 }
 
-.gm-select {
-  position: relative;
-  padding: 0;
-}
-
-.gm-select select {
-  appearance: none;
-  flex: 1;
-  min-width: 0;
-  height: 100%;
-  padding: 0 calc(32 * var(--px)) 0 calc(12 * var(--px));
-  border: 0;
-  background: none;
-  font: inherit;
-  font-size: calc(13.5 * var(--px));
-  color: inherit;
-  outline: none;
-  cursor: pointer;
-}
-
-.gm-select.is-empty select {
-  color: #8d8d8a;
-}
-
-.gm-select .cb-input-icon {
-  position: absolute;
-  right: calc(11 * var(--px));
-  pointer-events: none;
-}
+.gm-app .cb-select-wrap { height: calc(32 * var(--px)); }
+.gm-app .cb-select-wrap.is-empty .cb-select-trigger { color: #8d8d8a; }
 
 .gm-seg {
   display: flex;

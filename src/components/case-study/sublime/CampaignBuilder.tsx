@@ -187,13 +187,14 @@ function scheduleTime(value: string) {
   return new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit", hour12: true }).format(new Date(2026, 0, 1, hour, minute));
 }
 
-function SelectField({ id, value, onChange, options, className = "", ariaLabel }: {
+export function SelectField({ id, value, onChange, options, className = "", ariaLabel, placeholder }: {
   id: string;
   value: string;
   onChange: (value: string) => void;
   options: { value: string; label: string }[];
   className?: string;
   ariaLabel?: string;
+  placeholder?: string;
 }) {
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
@@ -210,15 +211,15 @@ function SelectField({ id, value, onChange, options, className = "", ariaLabel }
       event.preventDefault();
       if (!open) { setOpen(true); return; }
       const current = options.findIndex((item) => item.value === value);
-      const next = (current + (event.key === "ArrowDown" ? 1 : -1) + options.length) % options.length;
+      const next = current < 0 ? (event.key === "ArrowDown" ? 0 : options.length - 1) : (current + (event.key === "ArrowDown" ? 1 : -1) + options.length) % options.length;
       onChange(options[next].value);
     }
   }
 
   return (
-    <div ref={root} className={`cb-select-wrap ${className}`}>
+    <div ref={root} className={`cb-select-wrap ${value ? "" : "is-empty "}${className}`}>
       <button id={id} type="button" className="cb-select-trigger" aria-label={ariaLabel} aria-haspopup="listbox" aria-expanded={open} onClick={() => setOpen((current) => !current)} onKeyDown={onKeyDown}>
-        <span>{options.find((item) => item.value === value)?.label}</span>
+        <span>{options.find((item) => item.value === value)?.label ?? placeholder}</span>
         <ChevronDown className="cb-input-icon" aria-hidden="true" strokeWidth={2} />
       </button>
       {open && <div className="cb-select-menu" role="listbox" aria-label={ariaLabel ?? "Options"}>
@@ -276,6 +277,10 @@ export default function CampaignBuilder({ fit = false }: { fit?: boolean }) {
   const [libraryQuery, setLibraryQuery] = useState("");
   const [librarySelection, setLibrarySelection] = useState<string[]>(["password", "mfa"]);
   const [generateOpen, setGenerateOpen] = useState(false);
+  const [testOpen, setTestOpen] = useState(false);
+  const [testAddresses, setTestAddresses] = useState("");
+  const [testError, setTestError] = useState("");
+  const [testSent, setTestSent] = useState<{ count: number; template: string } | null>(null);
   const [view, setView] = useState<View>("template");
   const [training, setTraining] = useState(true);
   const [campaignName, setCampaignName] = useState("Sample campaign");
@@ -297,7 +302,10 @@ export default function CampaignBuilder({ fit = false }: { fit?: boolean }) {
   const fileInput = useRef<HTMLInputElement>(null);
   const nameInput = useRef<HTMLInputElement>(null);
   const builderRoot = useRef<HTMLDivElement>(null);
+  const testPopover = useRef<HTMLDivElement>(null);
+  const testInput = useRef<HTMLInputElement>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const testToastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const t = templates.find((x) => x.id === templateId) ?? templates[0] ?? builderTemplates[0];
   const uid = useId();
   const [calendarYear, calendarMonthIndex] = [calendarMonth.getFullYear(), calendarMonth.getMonth()];
@@ -359,7 +367,47 @@ export default function CampaignBuilder({ fit = false }: { fit?: boolean }) {
     if (templateId === id) setTemplateId(remaining[0]?.id ?? "");
   }
 
-  useEffect(() => () => { if (toastTimer.current) clearTimeout(toastTimer.current); }, []);
+  useEffect(() => () => {
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    if (testToastTimer.current) clearTimeout(testToastTimer.current);
+  }, []);
+
+  useEffect(() => {
+    if (!testOpen) return;
+    testInput.current?.focus();
+    function dismiss(event: PointerEvent) {
+      if (!testPopover.current?.contains(event.target as Node)) setTestOpen(false);
+    }
+    function escape(event: globalThis.KeyboardEvent) {
+      if (event.key === "Escape") setTestOpen(false);
+    }
+    document.addEventListener("pointerdown", dismiss);
+    document.addEventListener("keydown", escape);
+    return () => {
+      document.removeEventListener("pointerdown", dismiss);
+      document.removeEventListener("keydown", escape);
+    };
+  }, [testOpen]);
+
+  function sendTest(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const addresses = [...new Set(testAddresses.split(/[\s,;]+/).map((address) => address.trim()).filter(Boolean))];
+    if (!addresses.length) {
+      setTestError("Enter at least one email address.");
+      testInput.current?.focus();
+      return;
+    }
+    if (addresses.some((address) => !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(address))) {
+      setTestError("Check the email addresses and separate them with commas.");
+      testInput.current?.focus();
+      return;
+    }
+    setTestError("");
+    setTestOpen(false);
+    setTestSent({ count: addresses.length, template: t.name });
+    if (testToastTimer.current) clearTimeout(testToastTimer.current);
+    testToastTimer.current = setTimeout(() => setTestSent(null), 6000);
+  }
 
   function openReview() {
     if (!campaignName.trim()) {
@@ -424,7 +472,21 @@ export default function CampaignBuilder({ fit = false }: { fit?: boolean }) {
             <span className="cb-btn cb-btn--text">Cancel</span>
             <span className="cb-btn">Save Draft</span>
             <span className="cb-actions-sep" />
-            <span className="cb-btn">Send Test (2)</span>
+            <div className="cb-test-wrap" ref={testPopover}>
+              <button type="button" className="cb-btn cb-btn--test" aria-expanded={testOpen} aria-controls={`${uid}-test-popover`} onClick={() => { setTestOpen((open) => !open); setTestError(""); }}>Send Test</button>
+              {testOpen && <div className="cb-test-popover" id={`${uid}-test-popover`} role="dialog" aria-labelledby={`${uid}-test-title`}>
+                <form onSubmit={sendTest} noValidate>
+                  <h5 id={`${uid}-test-title`}>Send test preview</h5>
+                  <p>Send a preview of the selected template to these addresses before sharing it with your organization.</p>
+                  <span className="cb-test-template">Template: <strong>{t.name}</strong></span>
+                  <label htmlFor={`${uid}-test-addresses`}>Email addresses</label>
+                  <input ref={testInput} id={`${uid}-test-addresses`} type="text" inputMode="email" autoComplete="email" placeholder="name@example.com, another@example.com" value={testAddresses} aria-invalid={!!testError} aria-describedby={`${uid}-test-help${testError ? ` ${uid}-test-error` : ""}`} onChange={(event) => { setTestAddresses(event.target.value); setTestError(""); }} />
+                  <small id={`${uid}-test-help`}>Separate multiple addresses with commas.</small>
+                  {testError && <span className="cb-test-error" id={`${uid}-test-error`} role="alert">{testError}</span>}
+                  <div className="cb-test-footer"><button type="button" onClick={() => setTestOpen(false)}>Cancel</button><button type="submit" disabled={!templates.length}>Send</button></div>
+                </form>
+              </div>}
+            </div>
             <button type="button" className="cb-btn cb-btn--primary" onClick={openReview}>Review &amp; Launch</button>
           </div>
         </div>
@@ -685,6 +747,7 @@ export default function CampaignBuilder({ fit = false }: { fit?: boolean }) {
         </section>
       </div>}
       {launched && createPortal(<div className="cb-success-toast" role="status"><span className="cb-success-mark" aria-hidden="true">✓</span><span><strong>Campaign Created</strong><small>{campaignName.trim()} is scheduled to send.</small></span><button type="button" aria-label="Dismiss confirmation" onClick={() => setLaunched(false)}><X aria-hidden="true" /></button></div>, document.body)}
+      {testSent && createPortal(<div className="cb-success-toast cb-test-toast" role="status"><span className="cb-success-mark" aria-hidden="true">✓</span><span><strong>Test preview sent</strong><small>{testSent.template} · {testSent.count} {testSent.count === 1 ? "address" : "addresses"}</small></span><button type="button" aria-label="Dismiss test confirmation" onClick={() => setTestSent(null)}><X aria-hidden="true" /></button></div>, document.body)}
     </div>
   );
 }
