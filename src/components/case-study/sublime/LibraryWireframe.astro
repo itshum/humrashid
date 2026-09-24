@@ -1,0 +1,159 @@
+---
+// "Before": the early template library concept as a grayscale sketch.
+// Row content is drawn as bars; the layout is the point.
+const rows = [62, 48, 55, 40];
+---
+
+<div class="lw" role="img" aria-label="Early wireframe of the template library: search field, a plain list, and Cancel and Add to campaign buttons">
+  <div class="lw-modal" aria-hidden="true">
+    <div class="lw-head">
+      <span>Template library</span>
+      <span class="lw-x">×</span>
+    </div>
+    <div class="lw-body">
+      <span class="lw-bar" style="width: 70%"></span>
+      <div class="lw-search">Search...</div>
+      <div class="lw-list">
+        {
+          rows.map((w) => (
+            <div class="lw-row">
+              <span class="lw-check" />
+              <span class="lw-thumb" />
+              <span class="lw-lines">
+                <span class="lw-bar lw-bar--dark" style={`width: ${w}%`} />
+                <span class="lw-bar" style={`width: ${w - 22}%`} />
+              </span>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+    <div class="lw-foot">
+      <span class="lw-btn">Cancel</span>
+      <span class="lw-btn lw-btn--dark">Add to campaign</span>
+    </div>
+  </div>
+</div>
+
+<style>
+  .lw {
+    display: grid;
+    place-items: center;
+    /* Square, matching the After slot beside it. */
+    aspect-ratio: 1 / 1;
+    padding: 1.5rem;
+    border-radius: 6px;
+    background: #e9e9e7;
+    font-family: "Architects Daughter", "Comic Sans MS", cursive;
+    color: #3a3a3a;
+  }
+
+  .lw-modal {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 360px;
+    border: 1.5px solid #4a4a4a;
+    border-radius: 6px;
+    background: #fdfdfc;
+  }
+
+  .lw-head {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.8rem 1rem;
+    border-bottom: 1.5px dashed #9a9a9a;
+    font-size: 0.95rem;
+  }
+
+  .lw-x {
+    font-size: 1.2rem;
+    line-height: 1;
+  }
+
+  .lw-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 0.9rem 1rem;
+  }
+
+  .lw-search {
+    padding: 0.45rem 0.65rem;
+    border: 1.5px dashed #6a6a6a;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    color: #8a8a8a;
+  }
+
+  .lw-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    padding: 0.75rem;
+    border: 1.5px dashed #b0b0b0;
+    border-radius: 6px;
+  }
+
+  .lw-row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .lw-check {
+    flex: none;
+    width: 13px;
+    height: 13px;
+    border: 1.5px solid #8a8a8a;
+    border-radius: 3px;
+  }
+
+  .lw-thumb {
+    flex: none;
+    width: 26px;
+    height: 26px;
+    border: 1.5px dashed #b0b0b0;
+    border-radius: 3px;
+  }
+
+  .lw-lines {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .lw-bar {
+    display: block;
+    height: 6px;
+    border-radius: 3px;
+    background: #d4d4d2;
+  }
+
+  .lw-bar--dark {
+    height: 8px;
+    background: #9a9a98;
+  }
+
+  .lw-foot {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-top: 1.5px dashed #9a9a9a;
+  }
+
+  .lw-btn {
+    padding: 0.3rem 0.7rem;
+    border: 1.5px solid #6a6a6a;
+    border-radius: 4px;
+    font-size: 0.78rem;
+  }
+
+  .lw-btn--dark {
+    border-color: #2a2a2a;
+    background: #2a2a2a;
+    color: #fafafa;
+  }
+</style>
