@@ -1,84 +1,184 @@
+/* Employee notice page, sampled from the product's notice and training
+   screenshots. The toggle above follows the site theme; the browser
+   window and page inside are always light, like the product. */
+
 .tt-frame {
-  max-width: 640px;
+  --tt-text: #1c1c1b;
+  --tt-muted: #6b6b68;
+  --tt-icon: #3d3d3b;
+  --tt-line: #e6e6e3;
+  --tt-page: #f8f8f6;
+  --tt-blue: #4574d6;
+
+  max-width: 600px;
   margin: 0 auto;
+  border-radius: 9px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.06),
+    0 12px 36px rgba(0, 0, 0, 0.1);
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  color: var(--tt-text);
+  color-scheme: light;
+  -webkit-font-smoothing: antialiased;
+}
+
+.tt-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 34px;
+  border-bottom: 1px solid var(--tt-line);
+  background: #f3f3f1;
+}
+
+.tt-dots {
+  position: absolute;
+  left: 14px;
+  display: flex;
+  gap: 6px;
+}
+
+.tt-dots span {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #dcdcd9;
+}
+
+.tt-url {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.68rem;
+  color: #7a7a77;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: calc(100% - 120px);
 }
 
 .tt-page {
-  padding: 2rem 2.25rem 2.25rem;
+  /* Sized to the taller training state so toggling doesn't make the
+     window jump. */
+  min-height: 560px;
+  padding: 1.9rem 1.25rem 2.3rem;
+  background: var(--tt-page);
+}
+
+.tt-card {
+  max-width: 380px;
+  margin: 0 auto;
+  padding: 1.4rem 1.65rem 1.65rem;
+  border: 1px solid var(--tt-line);
+  border-radius: 12px;
+  background: #fff;
 }
 
 @media (max-width: 600px) {
   .tt-page {
-    padding: 1.5rem 1.25rem;
+    min-height: 0;
+    padding: 1.25rem 0.9rem 1.5rem;
+  }
+
+  .tt-card {
+    padding: 1.25rem 1.2rem 1.4rem;
   }
 }
 
+/* Shield in two soft rings */
+.tt-icon {
+  display: grid;
+  place-items: center;
+  width: 62px;
+  height: 62px;
+  margin-left: -0.35rem;
+  border-radius: 50%;
+  background: #f1f1ef;
+}
+
+.tt-icon-inner {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #e7e7e4;
+  color: var(--tt-icon);
+}
+
+.tt-icon svg {
+  width: 17px;
+  height: 17px;
+}
+
 .tt-heading {
-  font-size: 1.25rem;
-  font-weight: 500;
-  color: var(--title);
-  margin: 0.9rem 0 0.6rem;
+  margin: 1.1rem 0 0.7rem;
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: -0.012em;
+  line-height: 1.25;
+  color: var(--tt-text);
 }
 
-.tt-lede {
-  margin: 0 0 1.5rem;
-  color: var(--text-secondary);
+.tt-copy {
+  margin: 0 0 0.65rem;
+  font-size: 0.8rem;
+  line-height: 1.55;
 }
 
-.tt-label {
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: var(--label);
-  margin: 0 0 0.5rem;
+.tt-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 1.2rem 0 1.3rem;
+  padding: 0;
+  list-style: none;
+  font-size: 0.8rem;
+  line-height: 1.45;
 }
 
-.tt-tells {
-  margin: 0 0 1.75rem;
-  padding-left: 1.1rem;
-  color: var(--text-secondary);
+.tt-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
 }
 
-.tt-tells li {
-  margin-bottom: 0.35rem;
+.tt-list svg {
+  flex: none;
+  width: 15px;
+  height: 15px;
+  margin-top: 1px;
+  color: var(--tt-icon);
 }
 
-.tt-tells li::marker {
-  color: var(--label);
-}
-
-.tt-tells code {
-  font-family: ui-monospace, "SF Mono", Menlo, monospace;
-  font-size: 0.85em;
-  word-break: break-all;
-}
-
-.tt-training {
+.tt-cta {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  flex-wrap: wrap;
-  padding: 1rem 1.1rem;
-  border-radius: 6px;
-  background: var(--sd-accent-soft);
-  border: 1px solid color-mix(in srgb, #4fae82 40%, var(--bg));
-}
-
-.tt-training-title {
-  margin: 0;
+  justify-content: center;
+  height: 36px;
+  border-radius: 4px;
+  background: var(--tt-blue);
+  color: #fff;
+  font-size: 0.875rem;
   font-weight: 500;
-  color: var(--title);
 }
 
-.tt-training-meta {
-  margin: 0.15rem 0 0;
-  font-size: 0.8rem;
-  color: var(--label);
+.tt-note {
+  margin: 0.8rem 0 0;
+  font-size: 0.68rem;
+  line-height: 1.5;
+  color: var(--tt-muted);
+  text-align: center;
 }
 
-.tt-done {
+.tt-footer {
   margin: 0;
-  padding: 1rem 0 0;
-  border-top: 1px solid var(--border);
-  color: var(--label);
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--tt-line);
+  border-radius: 3px;
+  background: var(--tt-page);
+  font-size: 0.68rem;
+  line-height: 1.6;
+  text-align: center;
 }
