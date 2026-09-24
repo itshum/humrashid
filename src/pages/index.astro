@@ -623,6 +623,295 @@ import Analytics from "@vercel/analytics/astro";
         transform: translateX(2px);
       }
 
+      /* --- Sublime row: password-gated case study --- */
+      /* Same .work-row treatment as the other rows, just a <button>
+         instead of an <a> since it opens the gate modal rather than
+         navigating directly. */
+      button.work-row {
+        display: block;
+        width: 100%;
+        background: none;
+        border: none;
+        font-family: inherit;
+        text-align: left;
+        color: inherit;
+        cursor: pointer;
+      }
+
+      button.work-row:focus-visible {
+        outline: 2px solid var(--label);
+        outline-offset: -2px;
+      }
+
+      button.work-row:hover .icon.internal,
+      button.work-row:focus-visible .icon.internal {
+        opacity: 1;
+        color: var(--icon-hover);
+        transform: translateX(2px);
+      }
+
+      /* --- Password gate modal --- */
+      .gate-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(10, 10, 10, 0.6);
+        backdrop-filter: blur(3px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.25s ease;
+        z-index: 100;
+        padding: 1.5rem;
+      }
+
+      .gate-backdrop.is-open {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .gate-modal {
+        width: 100%;
+        max-width: 380px;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 1.5rem;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+        transform: translateY(8px) scale(0.98);
+        transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      :root[data-theme="dark"] .gate-modal {
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+      }
+
+      .gate-backdrop.is-open .gate-modal {
+        transform: translateY(0) scale(1);
+      }
+
+      .gate-modal.is-shaking {
+        animation: gate-shake 0.4s ease;
+      }
+
+      @keyframes gate-shake {
+        10%, 90% { transform: translateX(-1px); }
+        20%, 80% { transform: translateX(2px); }
+        30%, 50%, 70% { transform: translateX(-4px); }
+        40%, 60% { transform: translateX(4px); }
+      }
+
+      .gate-modal .modal-title {
+        font-size: 1.15rem;
+        font-weight: 500;
+        color: var(--title);
+        margin: 0 0 0.4rem;
+      }
+
+      .gate-modal .modal-sub {
+        font-size: 0.9rem;
+        color: var(--label);
+        margin: 0 0 1.4rem;
+        line-height: 1.5;
+      }
+
+      .gate-field-wrap {
+        position: relative;
+      }
+
+      /* Covers both type="password" and the type="text" the eye
+         toggle switches to - unscoped by type so showing/hiding the
+         password never changes the field's own appearance, only the
+         masking. */
+      .gate-field-wrap input {
+        width: 100%;
+        background: var(--hover-bg);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 0.7rem 2.6rem 0.7rem 0.85rem;
+        color: var(--text);
+        font-size: 1.05rem;
+        font-family: inherit;
+        outline: none;
+        transition: border-color 0.15s ease;
+      }
+
+      /* Masked-dot spacing only - letter-spacing alone (no font-size
+         change) so the box never resizes when the eye toggle
+         switches type. The placeholder is real text, not dots, so it
+         gets its own rule below resetting spacing back to normal -
+         otherwise the placeholder itself visibly stretched out in
+         the masked state. */
+      .gate-field-wrap input[type="password"] {
+        letter-spacing: 0.14em;
+      }
+
+      .gate-field-wrap input[type="password"]::placeholder {
+        letter-spacing: normal;
+      }
+
+      .gate-field-wrap input:focus {
+        border-color: var(--label);
+      }
+
+      .gate-field-wrap input.is-error {
+        border-color: var(--danger);
+      }
+
+      .gate-eye-toggle {
+        position: absolute;
+        top: 50%;
+        right: 0.5rem;
+        transform: translateY(-50%);
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: none;
+        border: none;
+        outline: none;
+        border-radius: 5px;
+        color: var(--label);
+        cursor: pointer;
+        padding: 0;
+        transition: background 0.15s ease, color 0.15s ease;
+      }
+
+      .gate-eye-toggle:hover {
+        background: var(--border);
+        color: var(--text);
+      }
+
+      /* Quiet, in-palette focus indicator for keyboard users tabbing
+         to the button - a plain browser outline (often a bright
+         system color) doesn't match anything else here. Mouse clicks
+         never see this: the click handler returns focus to the input
+         right after toggling. */
+      .gate-eye-toggle:focus-visible {
+        background: var(--border);
+        color: var(--text);
+        box-shadow: 0 0 0 2px var(--label);
+      }
+
+      .gate-eye-toggle svg {
+        width: 17px;
+        height: 17px;
+        display: block;
+      }
+
+      .gate-eye-toggle .eye-off {
+        display: none;
+      }
+
+      .gate-eye-toggle.is-visible .eye-on {
+        display: none;
+      }
+
+      .gate-eye-toggle.is-visible .eye-off {
+        display: block;
+      }
+
+      /* Collapsed to zero height by default - not just invisible -
+         so the gap it would otherwise reserve between the field and
+         the buttons doesn't show up until there's actually an error. */
+      .gate-error-msg {
+        font-size: 0.8rem;
+        color: var(--danger);
+        margin: 0;
+        height: 0;
+        overflow: hidden;
+        opacity: 0;
+        transition: opacity 0.15s ease;
+      }
+
+      .gate-error-msg.is-shown {
+        margin: 0.5rem 0 0;
+        height: auto;
+        opacity: 1;
+      }
+
+      .gate-btn {
+        appearance: none;
+        border: none;
+        border-radius: 6px;
+        padding: 0.7rem 1.1rem;
+        font-family: inherit;
+        font-size: 0.95rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: opacity 0.15s ease, background 0.15s ease, color 0.15s ease;
+      }
+
+      /* Monochrome "primary" - high-contrast fill/text swap rather
+         than a hue, matching the site's all-neutral palette. */
+      .gate-btn-primary {
+        background: var(--text);
+        color: var(--bg);
+        display: inline-flex;
+        align-items: center;
+      }
+
+      .gate-btn-primary:hover {
+        opacity: 0.85;
+      }
+
+      .gate-btn-primary:disabled {
+        opacity: 0.6;
+        cursor: default;
+      }
+
+      .gate-btn-primary .spinner {
+        display: none;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        border: 2px solid rgba(255, 255, 255, 0.35);
+        border-top-color: var(--bg);
+        animation: gate-spin 0.6s linear infinite;
+        margin-right: 0.5rem;
+      }
+
+      :root:not([data-theme="dark"]) .gate-btn-primary .spinner {
+        border: 2px solid rgba(0, 0, 0, 0.2);
+        border-top-color: var(--bg);
+      }
+
+      .gate-btn-primary.is-loading .spinner {
+        display: inline-block;
+      }
+
+      .gate-btn-primary.is-loading .btn-label {
+        opacity: 0.85;
+      }
+
+      @keyframes gate-spin {
+        to { transform: rotate(360deg); }
+      }
+
+      /* Ghost button - same treatment as the site's back-link/nav
+         links: transparent by default, fills with --hover-bg on
+         hover, text brightens to --title. No border/box at rest. */
+      .gate-btn-ghost {
+        background: transparent;
+        color: var(--label);
+        padding: 0.7rem 0.9rem;
+      }
+
+      .gate-btn-ghost:hover {
+        background: var(--hover-bg);
+        color: var(--title);
+      }
+
+      .gate-actions {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 0.4rem;
+        margin-top: 0.9rem;
+      }
+
       /* On-load entrance, not scroll-triggered like the case study
          template's [data-reveal] (that one uses an IntersectionObserver
          since its content is far down a long page). This content sits
@@ -675,16 +964,24 @@ import Analytics from "@vercel/analytics/astro";
         <p class="section-heading" data-load-reveal>Select Work</p>
 
         <div class="work-list">
-          <a class="work-row" data-load-reveal href="https://sublime.security/" target="_blank" rel="noopener">
+          <button
+            type="button"
+            class="work-row"
+            data-load-reveal
+            data-preview-img="/case-studies/sublime-security/home-preview.webp"
+            data-preview-alt="Phishing simulation overview with repeat clickers and a group leaderboard"
+            id="sublimeGateTrigger"
+            aria-haspopup="dialog"
+          >
             <span class="row-top">
               <span class="title">Sublime Security</span>
               <span class="meta">
                 <span class="year">2026</span>
-                <span class="icon external">↗</span>
+                <span class="icon internal">→</span>
               </span>
             </span>
             <span class="desc">Led product design for email security teams to stop malicious threats.</span>
-          </a>
+          </button>
 
           <div class="work-row" data-load-reveal>
             <span class="row-top">
@@ -765,6 +1062,35 @@ import Analytics from "@vercel/analytics/astro";
         </div>
       </section>
 
+    </div>
+
+    <div class="gate-backdrop" id="gateBackdrop">
+      <div class="gate-modal">
+        <p class="modal-title">Password required</p>
+        <p class="modal-sub">This project is confidential.</p>
+        <label class="sr-only" for="gatePw">Password</label>
+        <div class="gate-field-wrap">
+          <input type="password" id="gatePw" placeholder="Enter password" autocomplete="off" />
+          <button class="gate-eye-toggle" id="gateEyeToggle" type="button" aria-label="Show password">
+            <svg class="eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1.5 12s3.5-7 10.5-7 10.5 7 10.5 7-3.5 7-10.5 7-10.5-7-10.5-7Z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+            <svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 3l18 18" />
+              <path d="M10.6 5.2A10.6 10.6 0 0 1 12 5c7 0 10.5 7 10.5 7a13.6 13.6 0 0 1-3.1 4.1M6.6 6.6C3.7 8.4 1.5 12 1.5 12s3.5 7 10.5 7a10.4 10.4 0 0 0 4.8-1.1" />
+              <path d="M9.9 9.9a3 3 0 0 0 4.2 4.2" />
+            </svg>
+          </button>
+        </div>
+        <p class="gate-error-msg" id="gateError">Incorrect password. Try again.</p>
+        <div class="gate-actions">
+          <button class="gate-btn gate-btn-ghost" id="gateCancelBtn" type="button">Cancel</button>
+          <button class="gate-btn gate-btn-primary" id="gateUnlockBtn" type="button">
+            <span class="spinner" aria-hidden="true"></span><span class="btn-label">Unlock</span>
+          </button>
+        </div>
+      </div>
     </div>
 
     <Footer />
@@ -979,7 +1305,7 @@ import Analytics from "@vercel/analytics/astro";
 
       // --- Work-list hover preview ---
       // Same Upstatement-style cursor-follow as .name-photo above, on
-      // three specific rows (Pack, PPVP, Inveterate - set via
+      // specific rows (Sublime, Pack, PPVP, Inveterate - set via
       // data-preview-img on the row itself). One shared image element
       // instead of one per row: on enter, it's repositioned to that
       // row's own rect and re-sourced; while hovered, only its y
@@ -987,7 +1313,7 @@ import Analytics from "@vercel/analytics/astro";
       const workList = document.querySelector<HTMLElement>(".work-list");
       const workPreview = document.getElementById("workPreview") as HTMLAnchorElement | null;
       const workPreviewImg = document.getElementById("workPreviewImg") as HTMLImageElement | null;
-      const previewRows = document.querySelectorAll<HTMLAnchorElement>("[data-preview-img]");
+      const previewRows = document.querySelectorAll<HTMLElement>("[data-preview-img]");
 
       // Anchored to each row's own meta column (the year + arrow),
       // not to where the description text happens to end - the row
@@ -1008,10 +1334,10 @@ import Analytics from "@vercel/analytics/astro";
       let previewFollowY = 0;
       let previewEntranceT = 0;
       let previewRafId: number | null = null;
-      let activePreviewRow: HTMLAnchorElement | null = null;
+      let activePreviewRow: HTMLElement | null = null;
       let previewBaseTop = 0;
 
-      function positionPreview(row: HTMLAnchorElement) {
+      function positionPreview(row: HTMLElement) {
         if (!workPreview || !workList) return;
         const metaEl = row.querySelector<HTMLElement>(".meta");
         const anchorRect = (metaEl ?? row).getBoundingClientRect();
@@ -1102,14 +1428,25 @@ import Analytics from "@vercel/analytics/astro";
         }, 120);
       }
 
-      function showPreview(row: HTMLAnchorElement) {
+      function showPreview(row: HTMLElement) {
         if (!workPreview || !workPreviewImg) return;
         cancelPreviewHide();
         const alreadyShowingRow = activePreviewRow === row && workPreview.classList.contains("is-visible");
         activePreviewRow = row;
         workPreviewImg.src = row.dataset.previewImg ?? "";
         workPreviewImg.alt = row.dataset.previewAlt ?? "";
-        workPreview.href = row.getAttribute("href") ?? "#";
+        // Link rows lend the preview their destination. Sublime's row
+        // is a button (it opens the password gate), so the preview's
+        // click is forwarded to it instead - see the handler below.
+        if (row instanceof HTMLAnchorElement) {
+          workPreview.href = row.href;
+          workPreview.target = row.target;
+          workPreview.rel = row.rel;
+        } else {
+          workPreview.removeAttribute("href");
+          workPreview.removeAttribute("target");
+          workPreview.removeAttribute("rel");
+        }
         positionPreview(row);
         if (!alreadyShowingRow) {
           previewEntranceT = prefersReducedMotion ? 1 : 0;
@@ -1135,6 +1472,11 @@ import Analytics from "@vercel/analytics/astro";
         if (workPreview) {
           workPreview.addEventListener("mouseenter", cancelPreviewHide);
           workPreview.addEventListener("mouseleave", schedulePreviewHide);
+          workPreview.addEventListener("click", (event) => {
+            if (!activePreviewRow || activePreviewRow instanceof HTMLAnchorElement) return;
+            event.preventDefault();
+            activePreviewRow.click();
+          });
           if (!prefersReducedMotion) {
             workPreview.addEventListener("mousemove", (event) => {
               updatePreviewFollowTarget(event.clientX, event.clientY);
@@ -1146,6 +1488,110 @@ import Analytics from "@vercel/analytics/astro";
           if (activePreviewRow) positionPreview(activePreviewRow);
         });
       }
+
+      // --- Sublime password gate ---
+      // The case study isn't public yet, so the gate always refuses:
+      // there's no password in this code and nothing to unlock into.
+      // Every attempt gets the same check-then-error as a wrong one.
+
+      const gateTriggerBtn = document.getElementById("sublimeGateTrigger");
+      const gateBackdrop = document.getElementById("gateBackdrop");
+      const gateModal = document.querySelector<HTMLElement>(".gate-modal");
+      const gateCancelBtn = document.getElementById("gateCancelBtn");
+      const gateUnlockBtn = document.getElementById("gateUnlockBtn") as HTMLButtonElement | null;
+      const gatePw = document.getElementById("gatePw") as HTMLInputElement | null;
+      const gateError = document.getElementById("gateError");
+      const gateEyeToggle = document.getElementById("gateEyeToggle");
+
+      let gateChecking = false;
+
+      function resetGateField() {
+        gatePw?.classList.remove("is-error");
+        gateError?.classList.remove("is-shown");
+      }
+
+      function openGate() {
+        if (!gatePw || !gateBackdrop) return;
+        gatePw.value = "";
+        resetGateField();
+        gateBackdrop.classList.add("is-open");
+        setTimeout(() => gatePw.focus(), 150);
+      }
+
+      function closeGate() {
+        gateBackdrop?.classList.remove("is-open");
+      }
+
+      gateTriggerBtn?.addEventListener("click", openGate);
+      gateCancelBtn?.addEventListener("click", closeGate);
+      gateBackdrop?.addEventListener("click", (event) => {
+        if (event.target === gateBackdrop) closeGate();
+      });
+      document.addEventListener("keydown", (event) => {
+        if (
+          event.key === "Escape" &&
+          gateBackdrop?.classList.contains("is-open") &&
+          !gateChecking
+        ) {
+          closeGate();
+        }
+      });
+
+      gateEyeToggle?.addEventListener("click", () => {
+        if (!gatePw) return;
+        const showing = gateEyeToggle.classList.toggle("is-visible");
+        const caret = gatePw.selectionStart;
+        gatePw.type = showing ? "text" : "password";
+        gateEyeToggle.setAttribute("aria-label", showing ? "Hide password" : "Show password");
+        // Return focus to the input instead of leaving it on the
+        // toggle button - keeps the field looking consistently
+        // focused and avoids ever showing the button's own focus
+        // ring on a mouse click, restoring the caret position it had
+        // before the type swap.
+        gatePw.focus();
+        gatePw.setSelectionRange(caret, caret);
+      });
+
+      function setGateLoading(isLoading: boolean) {
+        gateChecking = isLoading;
+        gateUnlockBtn?.classList.toggle("is-loading", isLoading);
+        if (gateUnlockBtn) gateUnlockBtn.disabled = isLoading;
+        if (gateCancelBtn) (gateCancelBtn as HTMLButtonElement).disabled = isLoading;
+        if (gatePw) gatePw.disabled = isLoading;
+      }
+
+      function attemptGateUnlock() {
+        if (gateChecking || !gatePw || !gateError || !gateModal) return;
+        if (gatePw.value.trim().length === 0) {
+          gatePw.classList.add("is-error");
+          gateError.textContent = "Enter a password to continue.";
+          gateError.classList.add("is-shown");
+          return;
+        }
+
+        resetGateField();
+        setGateLoading(true);
+
+        setTimeout(() => {
+          setGateLoading(false);
+          gatePw.classList.add("is-error");
+          gateError.textContent = "Incorrect password. Try again.";
+          gateError.classList.add("is-shown");
+          gateModal.classList.remove("is-shaking");
+          void gateModal.offsetWidth;
+          gateModal.classList.add("is-shaking");
+          gatePw.focus();
+          gatePw.select();
+        }, 500);
+      }
+
+      gateUnlockBtn?.addEventListener("click", attemptGateUnlock);
+      gatePw?.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") attemptGateUnlock();
+      });
+      gatePw?.addEventListener("input", () => {
+        if (gatePw.classList.contains("is-error")) resetGateField();
+      });
     </script>
   </body>
 </html>
