@@ -28,7 +28,8 @@ export default defineConfig({
   integrations: [
     react(),
     sitemap({
-      filter: (page) => !page.includes('/design-system'),
+      // The Sublime case study is password-gated, so it stays out of search.
+      filter: (page) => !page.includes('/design-system') && !page.includes('/work/sublime-security'),
     }),
   ]
 });

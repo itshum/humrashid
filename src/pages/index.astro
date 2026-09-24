@@ -50,7 +50,7 @@ import Analytics from "@vercel/analytics/astro";
         color: #eeede8;
       }
       html:not([data-theme="dark"]) {
-        background: #f6f6f3;
+        background: #fafaf9;
         color: #262626;
       }
     </style>
@@ -100,17 +100,17 @@ import Analytics from "@vercel/analytics/astro";
          script, both keyed off NYC local time) - an off dark grey,
          never pure black, mirroring the light palette's warmth. */
       :root {
-        --bg: #f6f6f3;
+        --bg: #fafaf9;
         --text: #262626;
         --text-secondary: #2b2b2b;
         --label: #7a7a7a;
         --label-cool: #76787d;
-        --hover-bg: #e8e7e2;
+        --hover-bg: #efefed;
         --title: #262626;
-        --year: #8a8984;
-        --icon: #c9c7c0;
+        --year: #8a8a86;
+        --icon: #cacac6;
         --icon-hover: #6b6b6b;
-        --border: #e0ded7;
+        --border: #e6e6e3;
         --selection-bg: #1f3d2e;
         --selection-text: #f8f8f6;
         --photo-shadow: 0 16px 40px rgba(0, 0, 0, 0.16), 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -1490,9 +1490,20 @@ import Analytics from "@vercel/analytics/astro";
       }
 
       // --- Sublime password gate ---
-      // The case study isn't public yet, so the gate always refuses:
-      // there's no password in this code and nothing to unlock into.
-      // Every attempt gets the same check-then-error as a wrong one.
+      // Static site, no backend: this is a soft gate, not real access
+      // control. Only a SHA-256 hash of the password ships, so it can't be
+      // read off the page, and a correct entry is remembered in
+      // localStorage, which the case study page checks before showing.
+      const GATE_HASH = "2e678bda8969b9f5249fc236429ad8e44268e18579334a1dddb0bc958ebbc44c";
+      const GATE_UNLOCK_KEY = "sublime-case-study-unlocked";
+      const GATE_UNLOCK_HREF = "/work/sublime-security";
+
+      async function matchesGate(value: string) {
+        if (!window.crypto?.subtle) return false;
+        const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
+        const hex = [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");
+        return hex === GATE_HASH;
+      }
 
       const gateTriggerBtn = document.getElementById("sublimeGateTrigger");
       const gateBackdrop = document.getElementById("gateBackdrop");
@@ -1572,7 +1583,18 @@ import Analytics from "@vercel/analytics/astro";
         resetGateField();
         setGateLoading(true);
 
-        setTimeout(() => {
+        const attempt = gatePw.value.trim();
+        setTimeout(async () => {
+          const correct = await matchesGate(attempt);
+          if (correct) {
+            try {
+              localStorage.setItem(GATE_UNLOCK_KEY, "1");
+            } catch {
+              // Storage blocked: the page will ask again, nothing breaks.
+            }
+            window.location.href = GATE_UNLOCK_HREF;
+            return;
+          }
           setGateLoading(false);
           gatePw.classList.add("is-error");
           gateError.textContent = "Incorrect password. Try again.";

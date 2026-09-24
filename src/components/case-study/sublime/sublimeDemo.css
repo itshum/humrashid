@@ -1,0 +1,287 @@
+/* Shared styles for the Sublime case study's interactive demos. Built on
+   the case study page's own tokens so they follow its light/dark theme. */
+
+.sd {
+  --sd-accent: var(--selection-bg);
+  --sd-accent-soft: color-mix(in srgb, #4fae82 14%, var(--bg));
+  --sd-panel: color-mix(in srgb, var(--hover-bg) 55%, var(--bg));
+  --sd-radius: 8px;
+  color: var(--text);
+  /* Sublime's product UI font. The page around it stays Instrument Sans. */
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+.sd *,
+.sd *::before,
+.sd *::after {
+  box-sizing: border-box;
+}
+
+.sd-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* A product window: hairline border, soft chrome bar on top. */
+.sd-frame {
+  border: 1px solid var(--border);
+  border-radius: var(--sd-radius);
+  background: var(--bg);
+  overflow: hidden;
+}
+
+.sd-frame-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.9rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--sd-panel);
+  font-size: 0.75rem;
+  color: var(--label);
+}
+
+.sd-dots {
+  display: inline-flex;
+  gap: 5px;
+}
+
+.sd-dots span {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--border);
+}
+
+.sd-url {
+  flex: 1;
+  text-align: center;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.72rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Controls */
+.sd-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.sd-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  appearance: none;
+  border: none;
+  background: none;
+  padding: 0.25rem;
+  font: inherit;
+  font-size: 0.85rem;
+  color: var(--title);
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.sd-switch-track {
+  position: relative;
+  flex: none;
+  width: 34px;
+  height: 20px;
+  border-radius: 999px;
+  background: var(--border);
+  transition: background 0.2s ease;
+}
+
+.sd-switch-track::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--bg);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease;
+}
+
+.sd-switch[aria-checked="true"] .sd-switch-track {
+  background: var(--sd-accent);
+}
+
+.sd-switch[aria-checked="true"] .sd-switch-track::after {
+  transform: translateX(14px);
+}
+
+.sd-seg {
+  display: inline-flex;
+  padding: 2px;
+  gap: 2px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--sd-panel);
+}
+
+.sd-seg button {
+  appearance: none;
+  border: none;
+  background: transparent;
+  font: inherit;
+  font-size: 0.78rem;
+  color: var(--label);
+  padding: 0.3rem 0.65rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.sd-seg button:hover {
+  color: var(--title);
+}
+
+.sd-seg button[aria-pressed="true"] {
+  background: var(--bg);
+  color: var(--title);
+  box-shadow: 0 0 0 1px var(--border);
+}
+
+.sd-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  appearance: none;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--title);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 0.45rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease, opacity 0.15s ease;
+}
+
+.sd-btn:hover {
+  background: var(--hover-bg);
+}
+
+.sd-btn--primary {
+  background: var(--title);
+  border-color: var(--title);
+  color: var(--bg);
+}
+
+.sd-btn--primary:hover {
+  background: var(--title);
+  opacity: 0.85;
+}
+
+.sd-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Non-interactive stand-ins for product buttons inside a mock screen. */
+span.sd-btn {
+  cursor: default;
+}
+
+span.sd-btn:hover {
+  background: var(--bg);
+}
+
+span.sd-btn--primary:hover {
+  background: var(--title);
+  opacity: 1;
+}
+
+.sd-tag {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.7rem;
+  font-weight: 500;
+  padding: 0.12rem 0.45rem;
+  border-radius: 4px;
+  background: var(--hover-bg);
+  color: var(--label);
+  white-space: nowrap;
+}
+
+.sd-tag--accent {
+  background: var(--sd-accent-soft);
+  color: var(--title);
+}
+
+.sd-avatar {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--hover-bg);
+  border: 1px solid var(--border);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--title);
+}
+
+/* Dynamic tags in the template view. */
+.sd-var {
+  display: inline-block;
+  padding: 0 0.35rem;
+  border-radius: 4px;
+  background: var(--sd-accent-soft);
+  border: 1px solid color-mix(in srgb, #4fae82 40%, var(--bg));
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.78em;
+  color: var(--title);
+  white-space: nowrap;
+}
+
+.sd button:focus-visible,
+.sd [tabindex]:focus-visible,
+.sd input:focus-visible,
+.sd select:focus-visible {
+  outline: 2px solid var(--label);
+  outline-offset: 2px;
+}
+
+.sd-fade {
+  animation: sd-fade-in 0.25s ease;
+}
+
+@keyframes sd-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sd *,
+  .sd *::before,
+  .sd *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

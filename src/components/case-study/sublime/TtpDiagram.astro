@@ -1,0 +1,229 @@
+---
+// How Sublime's TTP framework turns into simulation templates. Static,
+// so plain inline SVG rather than a React island. Colors come from the
+// site's existing pastel palette (logo cells, footer shimmer), mixed
+// against the page tokens so both themes stay legible.
+---
+
+<figure class="ttp">
+  <div class="ttp-scroll" tabindex="0" role="region" aria-label="TTP to template diagram">
+    <svg
+      viewBox="0 0 624 588"
+      xmlns="http://www.w3.org/2000/svg"
+      role="img"
+      aria-labelledby="ttp-title ttp-desc"
+    >
+      <title id="ttp-title">From TTP framework to simulation template</title>
+      <desc id="ttp-desc">
+        The TTP framework, tactic, technique, and procedure, splits into attack type, the goal, and
+        technique, the method. Both feed a detection rule that carries both labels. Each rule is tied to
+        a template, the simulation sent. Rule firings produce prevalence, which shows what is most
+        active and last seen. Prevalence feeds an AI generator, which writes new templates.
+      </desc>
+
+      <defs>
+        <marker id="ttp-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M0,0 L8,4 L0,8 z" class="ttp-arrowhead" />
+        </marker>
+        <marker id="ttp-arrow-ga" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M0,0 L8,4 L0,8 z" class="ttp-arrowhead-ga" />
+        </marker>
+      </defs>
+
+      <g class="ttp-edges">
+        <line x1="260" y1="76" x2="140" y2="138" marker-end="url(#ttp-arrow)" />
+        <line x1="260" y1="76" x2="380" y2="138" marker-end="url(#ttp-arrow)" />
+        <line x1="140" y1="200" x2="260" y2="262" marker-end="url(#ttp-arrow)" />
+        <line x1="380" y1="200" x2="260" y2="262" marker-end="url(#ttp-arrow)" />
+        <line x1="260" y1="324" x2="260" y2="386" marker-end="url(#ttp-arrow)" />
+        <line x1="260" y1="448" x2="260" y2="510" marker-end="url(#ttp-arrow)" />
+      </g>
+
+      <g class="ttp-edges ttp-edges--ga">
+        <path d="M360,542 H504 V512" marker-end="url(#ttp-arrow-ga)" />
+        <path d="M504,450 V418 H362" marker-end="url(#ttp-arrow-ga)" />
+      </g>
+
+      <g class="ttp-node">
+        <rect x="150" y="16" width="220" height="60" rx="4" />
+        <text x="260" y="42" class="ttp-name">TTP framework</text>
+        <text x="260" y="60" class="ttp-sub">Tactic, technique, procedure</text>
+      </g>
+
+      <g class="ttp-node ttp-node--attack">
+        <rect x="40" y="140" width="200" height="60" rx="4" />
+        <text x="140" y="166" class="ttp-name">Attack type</text>
+        <text x="140" y="184" class="ttp-sub">The goal: why</text>
+      </g>
+
+      <g class="ttp-node ttp-node--technique">
+        <rect x="280" y="140" width="200" height="60" rx="4" />
+        <text x="380" y="166" class="ttp-name">Technique</text>
+        <text x="380" y="184" class="ttp-sub">The method: how</text>
+      </g>
+
+      <g class="ttp-node">
+        <rect x="160" y="264" width="200" height="60" rx="4" />
+        <text x="260" y="290" class="ttp-name">Detection rule</text>
+        <text x="260" y="308" class="ttp-sub">Carries both labels</text>
+      </g>
+
+      <g class="ttp-node">
+        <rect x="160" y="388" width="200" height="60" rx="4" />
+        <text x="260" y="414" class="ttp-name">Template</text>
+        <text x="260" y="432" class="ttp-sub">The simulation sent</text>
+      </g>
+
+      <g class="ttp-node ttp-node--ga">
+        <rect x="160" y="512" width="200" height="60" rx="4" />
+        <text x="260" y="538" class="ttp-name">Prevalence</text>
+        <text x="260" y="556" class="ttp-sub">Most active, last seen</text>
+      </g>
+
+      <g class="ttp-node ttp-node--ga">
+        <rect x="412" y="450" width="184" height="60" rx="4" />
+        <text x="504" y="476" class="ttp-name">AI generator</text>
+        <text x="504" y="494" class="ttp-sub">Writes new templates</text>
+      </g>
+    </svg>
+  </div>
+
+  <ul class="ttp-legend" aria-label="Legend">
+    <li><span class="ttp-swatch ttp-swatch--attack" aria-hidden="true"></span>Attack type</li>
+    <li><span class="ttp-swatch ttp-swatch--technique" aria-hidden="true"></span>Technique</li>
+    <li><span class="ttp-swatch ttp-swatch--ga" aria-hidden="true"></span>Added toward GA</li>
+  </ul>
+</figure>
+
+<style>
+  .ttp {
+    --ttp-attack: rgb(120, 190, 200);
+    --ttp-technique: rgb(150, 130, 210);
+    --ttp-ga: rgb(200, 190, 130);
+    margin: 0;
+    padding: clamp(1rem, 2.5vw, 2rem);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+  }
+
+  .ttp-scroll {
+    overflow-x: auto;
+    overflow-y: hidden;
+    border-radius: 4px;
+  }
+
+  .ttp-scroll:focus-visible {
+    outline: 2px solid var(--label);
+    outline-offset: 2px;
+  }
+
+  svg {
+    display: block;
+    width: 100%;
+    max-width: 624px;
+    min-width: 520px;
+    height: auto;
+    margin: 0 auto;
+    font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  }
+
+  .ttp-edges line,
+  .ttp-edges path {
+    fill: none;
+    stroke: var(--label);
+    stroke-width: 1;
+  }
+
+  .ttp-edges--ga path {
+    stroke: color-mix(in srgb, var(--ttp-ga) 60%, var(--text));
+    stroke-width: 1.25;
+  }
+
+  .ttp-arrowhead {
+    fill: var(--label);
+  }
+
+  .ttp-arrowhead-ga {
+    fill: color-mix(in srgb, var(--ttp-ga) 60%, var(--text));
+  }
+
+  .ttp-node rect {
+    fill: var(--bg);
+    stroke: color-mix(in srgb, var(--text) 45%, var(--bg));
+    stroke-width: 1;
+  }
+
+  .ttp-name {
+    fill: var(--title);
+    font-size: 14px;
+    font-weight: 600;
+    text-anchor: middle;
+  }
+
+  .ttp-sub {
+    fill: var(--label);
+    font-size: 12px;
+    text-anchor: middle;
+  }
+
+  .ttp-node--attack {
+    --hue: var(--ttp-attack);
+  }
+
+  .ttp-node--technique {
+    --hue: var(--ttp-technique);
+  }
+
+  .ttp-node--ga {
+    --hue: var(--ttp-ga);
+  }
+
+  .ttp-node--attack rect,
+  .ttp-node--technique rect,
+  .ttp-node--ga rect {
+    fill: color-mix(in srgb, var(--hue) 18%, var(--bg));
+    stroke: color-mix(in srgb, var(--hue) 60%, var(--text));
+  }
+
+  .ttp-node--attack .ttp-sub,
+  .ttp-node--technique .ttp-sub,
+  .ttp-node--ga .ttp-sub {
+    fill: color-mix(in srgb, var(--hue) 40%, var(--text));
+  }
+
+  .ttp-legend {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem 1.75rem;
+    margin: 1.5rem 0 0;
+    padding: 0;
+    font-size: 0.8rem;
+    color: var(--label);
+  }
+
+  .ttp-legend li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .ttp-swatch {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+  }
+
+  .ttp-swatch--attack {
+    background: var(--ttp-attack);
+  }
+
+  .ttp-swatch--technique {
+    background: var(--ttp-technique);
+  }
+
+  .ttp-swatch--ga {
+    background: var(--ttp-ga);
+  }
+</style>
