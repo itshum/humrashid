@@ -278,6 +278,10 @@ const summary =
         margin: 0 auto;
       }
 
+      .demo-stage--hero .demo-stage-inner > * {
+        max-width: 1200px;
+      }
+
       /* One or two sentences on what the demo above does, left-aligned
          to the stage's edge like a figure caption. */
       .demo-caption {
@@ -718,15 +722,11 @@ const summary =
         </div>
       </div>
 
-      <figure class="hero-media" data-reveal>
-        <MediaSlot
-          src={`${IMG}/hero-dashboard.webp`}
-          alt="Simulation overview dashboard with click, failure, and report rates, repeat clickers, and a group leaderboard"
-          eager
-        />
-        {/* TODO: optional credit line, depends on whether Sublime marketing made the graphic.
-        <figcaption class="media-credit">Graphic by ...</figcaption> */}
-      </figure>
+      <div class="demo-stage demo-stage--hero" data-reveal>
+        <div class="demo-stage-inner">
+          <CampaignBuilder client:load fit />
+        </div>
+      </div>
 
       <nav class="toc" aria-label="Case study sections">
         <a href="#challenge" class="toc-line" data-toc="challenge" aria-label="Challenge"></a>
