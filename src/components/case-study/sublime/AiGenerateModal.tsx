@@ -312,7 +312,7 @@ export default function AiGenerateModal() {
                     <RadioCard
                       checked={seed === "specific"}
                       title="Specific message"
-                      desc="Paste a Sublime message URL to remix that exact message."
+                      desc="Use a sample message link to preview the flow."
                       onSelect={() => setSeed("specific")}
                     >
                       <div className="cb-field">
@@ -364,7 +364,7 @@ export default function AiGenerateModal() {
                     id={`${uid}-prompt`}
                     className="cb-input gm-textarea"
                     rows={2}
-                    placeholder="e.g. Make it feel like it came from our finance team"
+                    placeholder="e.g. Use a generic training theme"
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
                   />
@@ -509,7 +509,7 @@ export default function AiGenerateModal() {
             ) : generating ? (
               <div className="gm-loading" role="status">
                 <Sparkle />
-                <p className="gm-loading-title">Reviewing threats in your Sublime environment...</p>
+                <p className="gm-loading-title">Reviewing sample data...</p>
                 <p className="gm-loading-sub">
                   We're tailoring this to the threats and brands your team actually sees. Hang tight while we put the
                   finishing touches.

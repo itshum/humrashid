@@ -1,0 +1,236 @@
+---
+// A fictional, compact version of the final template library. The list
+// scrolls inside the modal so its outer height matches the Before sketch.
+type Category = "Identity" | "Business process" | "Document share" | "Support";
+type Entry = { name: string; category: Category };
+
+const templates: Entry[] = [
+  { name: "Account access sample", category: "Identity" },
+  { name: "Sign-in activity sample", category: "Identity" },
+  { name: "Security settings sample", category: "Identity" },
+  { name: "Team request sample", category: "Business process" },
+  { name: "Shared document sample", category: "Document share" },
+  { name: "Help desk sample", category: "Support" },
+  { name: "Payment process sample", category: "Business process" },
+  { name: "Project file sample", category: "Document share" },
+  { name: "Device support sample", category: "Support" },
+  { name: "Policy update sample", category: "Business process" },
+  { name: "Benefits process sample", category: "Business process" },
+  { name: "Payroll process sample", category: "Business process" },
+  { name: "Invoice process sample", category: "Business process" },
+  { name: "Workspace access sample", category: "Identity" },
+  { name: "Account review sample", category: "Identity" },
+  { name: "File review sample", category: "Document share" },
+  { name: "Scheduling sample", category: "Business process" },
+  { name: "Service request sample", category: "Support" },
+  { name: "Profile change sample", category: "Identity" },
+  { name: "Access request sample", category: "Identity" },
+  { name: "Team announcement sample", category: "Business process" },
+  { name: "Document approval sample", category: "Document share" },
+  { name: "Operations update sample", category: "Business process" },
+  { name: "Support ticket sample", category: "Support" },
+  { name: "Training reminder sample", category: "Business process" },
+];
+
+const sections = [
+  { heading: "Most active in sample environment", entries: templates.slice(0, 5) },
+  { heading: "Recently seen", entries: templates.slice(5, 10) },
+  { heading: "All templates", entries: templates },
+];
+---
+
+<div class="lf-stage" role="img" aria-label="Final template library with a search field, fictional templates grouped by activity, category labels, and an Add button">
+  <div class="lf-modal" aria-hidden="true">
+    <div class="lf-head">
+      <span class="lf-title">Add From Library</span>
+      <span class="lf-close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12" /></svg></span>
+    </div>
+    <div class="lf-body">
+      <p>Choose existing templates to add to this campaign.</p>
+      <div class="lf-search">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="8.5" cy="8.5" r="5.6"/><path d="m13 13 4.5 4.5"/></svg>
+        <span>Search templates</span>
+      </div>
+      <div class="lf-scroll">
+        {sections.map((section) => (
+          <div class="lf-section">
+            <p class="lf-section-title">{section.heading} ({section.entries.length})</p>
+            {section.entries.map((entry, index) => (
+              <div class="lf-row">
+                <span class:list={["lf-check", index === 0 && section.heading === "Recently seen" && "is-checked"]}>
+                  {index === 0 && section.heading === "Recently seen" && <span>✓</span>}
+                </span>
+                <span class="lf-name">{entry.name}</span>
+                <span class="lf-category">{entry.category}</span>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+    <div class="lf-foot"><span class="lf-add">Add</span></div>
+  </div>
+</div>
+
+<style>
+  .lf-stage {
+    position: relative;
+    display: grid;
+    place-items: center;
+    aspect-ratio: 1 / 1;
+    padding: 1.5rem;
+    overflow: hidden;
+    border-radius: 6px;
+    background: #dededc;
+    color: #202124;
+    font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+    color-scheme: light;
+  }
+
+  .lf-modal {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 360px;
+    height: min(360px, 100%);
+    overflow: hidden;
+    background: #fff;
+    border-radius: 6px;
+    box-shadow: 0 12px 32px #0002;
+  }
+
+  .lf-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex: none;
+    min-height: 46px;
+    padding: 0 14px 0 20px;
+    border-bottom: 1px solid #e9e9e7;
+  }
+
+  .lf-title { font-size: 14px; font-weight: 600; }
+  .lf-close { display: grid; place-items: center; width: 26px; height: 26px; color: #5b5b5b; }
+  .lf-close svg { width: 16px; height: 16px; }
+
+  .lf-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    padding: 13px 20px 0;
+  }
+
+  .lf-body > p {
+    flex: none;
+    margin: 0 0 12px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+
+  .lf-search {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    flex: none;
+    height: 30px;
+    padding: 0 9px;
+    border: 1px solid #d5d6d4;
+    border-radius: 3px;
+    color: #777a78;
+    font-size: 11px;
+  }
+
+  .lf-search svg { width: 14px; height: 14px; }
+
+  .lf-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    margin: 13px -8px 0 0;
+    padding-right: 7px;
+    scrollbar-width: thin;
+    scrollbar-color: #c7c9c7 transparent;
+  }
+
+  .lf-section + .lf-section { margin-top: 11px; }
+
+  .lf-section-title {
+    margin: 0 0 5px;
+    color: #6b6d6b;
+    font-size: 10px;
+    font-weight: 500;
+  }
+
+  .lf-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 29px;
+    font-size: 10.5px;
+  }
+
+  .lf-check {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 13px;
+    height: 13px;
+    border: 1px solid #d1d3d1;
+    border-radius: 3px;
+  }
+
+  .lf-check.is-checked {
+    border-color: #3473db;
+    background: #3473db;
+    color: #fff;
+    font-size: 10px;
+  }
+
+  .lf-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .lf-category {
+    flex: none;
+    max-width: 38%;
+    padding: 2px 6px;
+    overflow: hidden;
+    border: 1px solid #d9dad8;
+    border-radius: 20px;
+    color: #555855;
+    font-size: 9px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .lf-foot {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    flex: none;
+    min-height: 43px;
+    padding: 0 13px;
+    border-top: 1px solid #e9e9e7;
+  }
+
+  .lf-add {
+    padding: 5px 12px;
+    border-radius: 3px;
+    background: #3473db;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 500;
+  }
+
+  @media (max-width: 600px) {
+    .lf-stage { padding: 1rem; }
+    .lf-modal { height: min(360px, 100%); }
+  }
+</style>

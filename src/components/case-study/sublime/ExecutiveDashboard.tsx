@@ -1,159 +1,80 @@
 import { useState } from "react";
-import { campaignHistory, featured, groups, pct, repeatClickers, templateById } from "./acmeMock";
+import { BarChart3, ChevronRight, Mail, MousePointerClick, Send, ShieldCheck } from "lucide-react";
+import { campaignHistory, company, featured, groups, pct, repeatClickers } from "./acmeMock";
+import { GroupLeaderboard, RepeatClickers } from "./ResultsLeaderboard";
 import "./sublimeDemo.css";
+import "./sublimeUi.css";
 import "./ExecutiveDashboard.css";
 
-const Y_MAX = 30; // percent, top of the chart
-const shortName = (name: string) => name.replace(/ (portal update|approval|enrollment)$/, "").replace("shared file", "file");
-
-const rate = (part: number, whole: number) => (part / whole) * 100;
-const points = campaignHistory.map((c, i) => ({
-  label: shortName(c.name),
-  x: (i / (campaignHistory.length - 1)) * 100,
-  clicked: rate(c.clicked, c.sent),
-  reported: rate(c.reported, c.sent),
-}));
-const toY = (v: number) => 100 - (v / Y_MAX) * 100;
-const line = (key: "clicked" | "reported") => points.map((p) => `${p.x},${toY(p[key])}`).join(" ");
-
-const totalSent = campaignHistory.reduce((s, c) => s + c.sent, 0);
-const activeCount = campaignHistory.filter((c) => c.active).length;
-const latest = campaignHistory[campaignHistory.length - 1];
-const first = campaignHistory[0];
-
+type Window = "7d" | "30d" | "60d" | "90d";
+const windows: Window[] = ["7d", "30d", "60d", "90d"];
+const campaignCount: Record<Window, number> = { "7d": 1, "30d": 2, "60d": 3, "90d": 4 };
 const ranked = [...groups].sort((a, b) => b.clicked / b.recipients - a.clicked / a.recipients);
-const worst = ranked[0];
-const worstRepeat = repeatClickers.filter((p) => p.group === worst.name).length;
-// The follow-up reuses the lure this group already fell for most.
-const followUp = templateById("invoice");
-
-function PerformanceChart() {
-  const last = points[points.length - 1];
-  return (
-    <div className="ed-chart">
-      <p className="sd-sr-only">
-        Click rate fell from {pct(first.clicked, first.sent)} to {pct(latest.clicked, latest.sent)} across{" "}
-        {campaignHistory.length} campaigns, while report rate rose from {pct(first.reported, first.sent)} to{" "}
-        {pct(latest.reported, latest.sent)}.
-      </p>
-      <div className="ed-plot" aria-hidden="true">
-        {[0, 10, 20, 30].map((t) => (
-          <span key={t} className="ed-tick" style={{ top: `${toY(t)}%` }}>
-            {t}%
-          </span>
-        ))}
-        <svg viewBox="0 0 100 100" preserveAspectRatio="none">
-          {[0, 10, 20, 30].map((t) => (
-            <line key={t} x1="0" x2="100" y1={toY(t)} y2={toY(t)} className="ed-grid" vectorEffect="non-scaling-stroke" />
-          ))}
-          <polyline points={line("clicked")} className="ed-line ed-line--clicked" vectorEffect="non-scaling-stroke" />
-          <polyline points={line("reported")} className="ed-line ed-line--reported" vectorEffect="non-scaling-stroke" />
-        </svg>
-        {points.map((p) => (
-          <span key={`c-${p.label}`} className="ed-dot ed-dot--clicked" style={{ left: `${p.x}%`, top: `${toY(p.clicked)}%` }} />
-        ))}
-        {points.map((p) => (
-          <span key={`r-${p.label}`} className="ed-dot ed-dot--reported" style={{ left: `${p.x}%`, top: `${toY(p.reported)}%` }} />
-        ))}
-        <span className="ed-end ed-end--reported" style={{ top: `${toY(last.reported)}%` }}>
-          Reported {pct(latest.reported, latest.sent)}
-        </span>
-        <span className="ed-end ed-end--clicked" style={{ top: `${toY(last.clicked)}%` }}>
-          Clicked {pct(latest.clicked, latest.sent)}
-        </span>
-        {points.map((p) => (
-          <span key={`x-${p.label}`} className="ed-x" style={{ left: `${p.x}%` }}>
-            {p.label}
-          </span>
-        ))}
-      </div>
-    </div>
-  );
-}
+const mostVulnerable = ranked[0];
+const repeatCount = repeatClickers.filter((person) => person.group === mostVulnerable.name).length;
 
 export default function ExecutiveDashboard() {
-  const [created, setCreated] = useState(false);
+  const [window, setWindow] = useState<Window>("30d");
+  const [draft, setDraft] = useState(false);
+  const visibleCampaigns = campaignHistory.slice(-campaignCount[window]);
+  const recipients = visibleCampaigns.reduce((sum, item) => sum + item.sent, 0);
+  const clicks = visibleCampaigns.reduce((sum, item) => sum + item.clicked, 0);
+  const reports = visibleCampaigns.reduce((sum, item) => sum + item.reported, 0);
+  const metrics = [
+    { label: "Total campaigns run", value: visibleCampaigns.length.toLocaleString("en-US"), icon: ShieldCheck, tone: "sky" },
+    { label: "Total recipients simulated", value: recipients.toLocaleString("en-US"), icon: Mail, tone: "charcoal" },
+    { label: "Overall click rate", value: pct(clicks, recipients), icon: MousePointerClick, tone: "blue" },
+    { label: "Overall user report rate", value: pct(reports, recipients), icon: Send, tone: "orange" },
+  ];
 
   return (
-    <div className="sd ed">
-      <div className="sd-frame">
-        <div className="ed-head">
-          <p className="ed-title">Simulations overview</p>
-          <span className="sd-tag">Acme Corp</span>
+    <div className="sd su ed">
+      <div className="sd-frame ed-shell">
+        <div className="ed-breadcrumb"><BarChart3 size={15} aria-hidden="true" /><span>Reports</span><ChevronRight size={14} aria-hidden="true" /><strong>Phishing Simulation Overview</strong></div>
+        <div className="ed-toolbar">
+          <div className="ed-toolbar-facts"><span>{visibleCampaigns.length} campaigns run</span><i aria-hidden="true" /><span>{recipients.toLocaleString("en-US")} recipients simulated</span></div>
+          <div className="ed-time" role="group" aria-label="Reporting period">
+            {windows.map((value) => (
+              <button type="button" key={value} aria-pressed={window === value} onClick={() => { setWindow(value); setDraft(false); }}>{value}</button>
+            ))}
+          </div>
         </div>
+        <div className="ed-content">
+          <header className="ed-intro">
+            <div><h4>Phishing Simulation Overview</h4><p>Breakdown of simulation data across {visibleCampaigns.length} sample {visibleCampaigns.length === 1 ? "campaign" : "campaigns"} in this view</p></div>
+            <span className="ed-org">{company.name}</span>
+          </header>
 
-        <div className="ed-grid-layout">
-          <section className="ed-panel ed-panel--performance" aria-labelledby="ed-q1">
-            <h4 id="ed-q1" className="ed-q">
-              How are my campaigns performing?
-            </h4>
-            <dl className="ed-stats">
-              <div>
-                <dt>Emails sent</dt>
-                <dd>{totalSent.toLocaleString("en-US")}</dd>
+          <div className="ed-metrics" aria-live="polite">
+            {metrics.map(({ label, value, icon: Icon, tone }) => (
+              <div className="ed-metric" key={label}>
+                <span className={`ed-metric-icon ed-metric-icon--${tone}`}><Icon size={15} strokeWidth={2} aria-hidden="true" /></span>
+                <strong>{value}</strong>
+                <span>{label}</span>
               </div>
-              <div>
-                <dt>Active campaigns</dt>
-                <dd>{activeCount}</dd>
-              </div>
-              <div>
-                <dt>Total campaigns</dt>
-                <dd>{campaignHistory.length}</dd>
-              </div>
-            </dl>
-            <PerformanceChart />
-          </section>
+            ))}
+          </div>
 
-          <section className="ed-panel" aria-labelledby="ed-q2">
-            <h4 id="ed-q2" className="ed-q">
-              Who is most vulnerable?
-            </h4>
-            <p className="ed-note">Click rate by group, {featured.campaignName}</p>
-            <ol className="ed-bars">
-              {ranked.map((g) => {
-                const r = rate(g.clicked, g.recipients);
-                return (
-                  <li key={g.name} className={g === worst ? "is-worst" : ""}>
-                    <span className="ed-bar-label">{g.name}</span>
-                    <span className="ed-bar-track" aria-hidden="true">
-                      <span className="ed-bar-fill" style={{ width: `${(r / Y_MAX) * 100}%` }} />
-                    </span>
-                    <span className="ed-bar-value">
-                      {pct(g.clicked, g.recipients)}
-                      <span className="sd-sr-only">
-                        , {g.clicked} of {g.recipients} clicked
-                      </span>
-                    </span>
-                  </li>
-                );
-              })}
-            </ol>
-          </section>
+          <div className="ed-results">
+            <section aria-label="Repeat clickers across sample campaigns">
+              <p className="ed-result-context">Across all sample campaigns</p>
+              <RepeatClickers />
+            </section>
+            <section aria-label="Group leaderboard for latest campaign">
+              <p className="ed-result-context">Latest campaign: {featured.campaignName}</p>
+              <GroupLeaderboard />
+            </section>
+          </div>
 
-          <section className="ed-panel ed-panel--action" aria-labelledby="ed-q3">
-            <h4 id="ed-q3" className="ed-q">
-              Should I act on any of this?
-            </h4>
-            <div className="ed-rec">
-              <div>
-                <p className="ed-rec-title">{worst.name} keeps failing</p>
-                <p className="ed-rec-body">
-                  {worst.name} had the highest click rate in {featured.campaignName},{" "}
-                  {pct(worst.clicked, worst.recipients)}, and {worstRepeat} of its people are repeat clickers.
-                  Create a campaign just for them.
-                </p>
+          <section className="ed-action" aria-labelledby="ed-action-title">
+            <div className="ed-action-head"><h4 id="ed-action-title">Should I act on any of this?</h4><span>Recommended next step</span></div>
+            <div className="ed-action-body">
+              <div className="ed-action-copy">
+                <span className="ed-action-kicker">Group insight · Latest campaign</span>
+                <h5>{mostVulnerable.name} needs a closer look</h5>
+                <p>{mostVulnerable.name} had the highest click rate in {featured.campaignName}: {pct(mostVulnerable.clicked, mostVulnerable.recipients)} of {mostVulnerable.recipients} recipients clicked. {repeatCount} people in the group clicked in multiple sample campaigns. Consider a focused follow-up for this group.</p>
               </div>
-              <div className="ed-rec-action" aria-live="polite">
-                {created ? (
-                  <p className="ed-rec-done sd-fade">
-                    Draft saved: {worst.name} {followUp.name.toLowerCase()}, {worst.recipients} people
-                  </p>
-                ) : (
-                  <button type="button" className="sd-btn sd-btn--primary" onClick={() => setCreated(true)}>
-                    Create campaign for {worst.name}
-                  </button>
-                )}
-              </div>
+              {draft ? <p className="ed-draft" role="status">Draft preview ready for {mostVulnerable.name} · {mostVulnerable.recipients} recipients</p> : <button className="ed-action-button" type="button" onClick={() => setDraft(true)}>Create campaign for {mostVulnerable.name}</button>}
             </div>
           </section>
         </div>

@@ -1,0 +1,256 @@
+---
+// Navigation exploration, redrawn with fictional campaign details.
+// The selected consolidated direction gets the most space in the frame.
+---
+
+<div class="bn-stage" role="img" aria-label="Five campaign builder navigation explorations: centered steps, underline tabs, segmented control, selected consolidated toolbar, and stacked labels">
+  <div class="bn-board" aria-hidden="true">
+    <div class="bn-option bn-option--centered">
+      <div class="bn-option-head">
+        <span class="bn-label">Centered steps</span>
+        <span class="bn-status"><span class="bn-check">✓</span> Draft saved</span>
+      </div>
+      <div class="bn-centered-nav">
+        <span>Campaign</span><span class="bn-chevron">›</span>
+        <span>Template</span><span class="bn-chevron">›</span>
+        <strong>Training</strong>
+      </div>
+    </div>
+
+    <div class="bn-option bn-option--tabs">
+      <div class="bn-option-head">
+        <span class="bn-label">Underline tabs</span>
+        <span class="bn-status"><span class="bn-check">✓</span> Draft saved</span>
+      </div>
+      <div class="bn-tabs-nav">
+        <span>Campaign</span><span>Template</span><strong>Training</strong>
+      </div>
+    </div>
+
+    <div class="bn-option bn-option--segmented">
+      <div class="bn-option-head">
+        <span class="bn-label">Segmented control</span>
+        <span class="bn-status"><span class="bn-check">✓</span> Draft saved</span>
+      </div>
+      <div class="bn-segmented-nav">
+        <span>Campaign</span><span>Template</span><strong>Training</strong>
+      </div>
+    </div>
+
+    <div class="bn-option bn-option--selected">
+      <div class="bn-option-head">
+        <span class="bn-label">Consolidated toolbar <span class="bn-picked">Selected</span></span>
+        <span class="bn-actions"><span class="bn-status"><span class="bn-check">✓</span> Draft saved</span><span class="bn-cancel">Cancel</span><span class="bn-launch">Launch</span></span>
+      </div>
+      <div class="bn-toolbar-nav">
+        <span class="bn-step"><span class="bn-step-icon">⚙</span>Campaign</span>
+        <span class="bn-chevron">›</span>
+        <span class="bn-step"><span class="bn-step-icon">▣</span>Template</span>
+        <span class="bn-chevron">›</span>
+        <strong class="bn-step bn-step--active"><span class="bn-step-icon">▰</span>Training</strong>
+      </div>
+    </div>
+
+    <div class="bn-option bn-option--stacked">
+      <div class="bn-option-head">
+        <span class="bn-label">Stacked labels</span>
+        <span class="bn-status"><span class="bn-check">✓</span> Draft saved</span>
+      </div>
+      <div class="bn-stacked-nav">
+        <span><strong>Campaign</strong><small>Settings & audience</small></span>
+        <span class="bn-chevron">›</span>
+        <span><strong>Template</strong><small>Select a sample</small></span>
+        <span class="bn-chevron">›</span>
+        <span class="bn-stacked-active"><strong>Training</strong><small>After a click</small></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .bn-stage {
+    container-type: inline-size;
+    display: grid;
+    place-items: center;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    border-radius: 4px;
+    background: #eaf8f4;
+    color: #252827;
+    font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+    color-scheme: light;
+  }
+
+  .bn-board {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2cqw;
+    width: 86%;
+  }
+
+  .bn-option {
+    flex: none;
+    overflow: hidden;
+    border: 1px solid #dfe4e2;
+    border-radius: 0.8cqw;
+    background: #fff;
+    box-shadow: 0 0.6cqw 1.6cqw #20352e0a;
+  }
+
+  .bn-option--selected {
+    border-color: #cddbd5;
+    box-shadow: 0 1.2cqw 3.2cqw #20352e16;
+  }
+
+  .bn-option-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1cqw;
+    min-height: 6.5cqw;
+    padding: 0 2.2cqw;
+    border-bottom: 1px solid #ebeeec;
+  }
+
+  .bn-label {
+    font-size: max(11px, 2.55cqw);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .bn-status {
+    color: #777c79;
+    font-size: max(9px, 1.8cqw);
+    font-weight: 400;
+    white-space: nowrap;
+  }
+
+  .bn-check { color: #2fa878; margin-right: 0.4cqw; }
+
+  .bn-centered-nav,
+  .bn-tabs-nav,
+  .bn-toolbar-nav,
+  .bn-segmented-nav,
+  .bn-stacked-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2.1cqw;
+    height: 8cqw;
+    color: #6e7270;
+    font-size: max(10px, 2.3cqw);
+    white-space: nowrap;
+  }
+
+  .bn-chevron { color: #a8acaa; font-size: 2.7cqw; line-height: 1; }
+
+  .bn-centered-nav strong {
+    padding: 0.75cqw 1.35cqw;
+    border-radius: 0.7cqw;
+    background: #f3f4f3;
+    color: #282b29;
+    font-weight: 500;
+  }
+
+  .bn-tabs-nav { gap: 3cqw; }
+
+  .bn-tabs-nav strong {
+    display: grid;
+    place-items: center;
+    align-self: stretch;
+    border-bottom: 0.35cqw solid #282b29;
+    color: #282b29;
+    font-weight: 600;
+  }
+
+  .bn-segmented-nav {
+    gap: 0;
+    width: max-content;
+    height: 7cqw;
+    margin: 0.5cqw auto;
+    padding: 0.25cqw;
+    border-radius: 0.7cqw;
+    background: #f3f4f3;
+  }
+
+  .bn-segmented-nav span,
+  .bn-segmented-nav strong {
+    padding: 0.45cqw 1.3cqw;
+    font-weight: 400;
+  }
+
+  .bn-segmented-nav strong {
+    border: 1px solid #e1e4e1;
+    border-radius: 0.55cqw;
+    background: #fff;
+    box-shadow: 0 0.2cqw 0.5cqw #0001;
+    color: #282b29;
+    font-weight: 500;
+  }
+
+  .bn-picked {
+    display: inline-block;
+    margin-left: 0.5cqw;
+    padding: 0.35cqw 0.8cqw;
+    border-radius: 99px;
+    background: #eaf7f0;
+    color: #247956;
+    font-size: 1.5cqw;
+    font-weight: 500;
+    vertical-align: middle;
+  }
+
+  .bn-actions { display: flex; align-items: center; gap: 1.2cqw; }
+
+  .bn-cancel,
+  .bn-launch {
+    padding: 0.55cqw 0.9cqw;
+    border: 1px solid #dde1de;
+    border-radius: 0.45cqw;
+    font-size: 1.75cqw;
+    white-space: nowrap;
+  }
+
+  .bn-launch { border-color: #3473db; background: #3473db; color: #fff; }
+
+  .bn-toolbar-nav { height: 8.5cqw; }
+
+  .bn-step {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6cqw;
+  }
+
+  .bn-step-icon { font-size: 2.4cqw; line-height: 1; }
+
+  .bn-step--active {
+    padding: 0.75cqw 1.3cqw;
+    border: 0.25cqw solid #ef9b29;
+    border-radius: 0.8cqw;
+    color: #282b29;
+    font-weight: 600;
+  }
+
+  .bn-stacked-nav { gap: 1.5cqw; height: 9cqw; }
+
+  .bn-stacked-nav > span:not(.bn-chevron) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.1cqw;
+  }
+
+  .bn-stacked-nav strong { color: #515653; font-weight: 500; }
+  .bn-stacked-nav small { color: #919692; font-size: max(8px, 1.8cqw); }
+
+  .bn-stacked-nav .bn-stacked-active {
+    padding: 0.4cqw 1.3cqw;
+    border: 1px solid #dfe3df;
+    border-radius: 0.8cqw;
+    box-shadow: 0 0.2cqw 0.8cqw #0001;
+  }
+
+  .bn-stacked-nav .bn-stacked-active strong { color: #282b29; font-weight: 600; }
+</style>

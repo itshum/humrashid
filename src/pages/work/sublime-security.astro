@@ -9,10 +9,13 @@
 // can wrap or replace it later without restructuring the page.
 import Topbar from "../../components/Topbar.astro";
 import Footer from "../../components/Footer.astro";
-import MediaSlot from "../../components/case-study/sublime/MediaSlot.astro";
+import CoreLoop from "../../components/case-study/sublime/CoreLoop.tsx";
 import FeatureEvolutionGrid from "../../components/case-study/sublime/FeatureEvolutionGrid.tsx";
 import TtpDiagram from "../../components/case-study/sublime/TtpDiagram.astro";
 import LibraryWireframe from "../../components/case-study/sublime/LibraryWireframe.astro";
+import LibraryFinal from "../../components/case-study/sublime/LibraryFinal.astro";
+import BuilderNavVariants from "../../components/case-study/sublime/BuilderNavVariants.astro";
+import BuilderWireframe from "../../components/case-study/sublime/BuilderWireframe.astro";
 import TrainingToggle from "../../components/case-study/sublime/TrainingToggle.tsx";
 import ResultsLeaderboard from "../../components/case-study/sublime/ResultsLeaderboard.tsx";
 import CampaignBuilder from "../../components/case-study/sublime/CampaignBuilder.tsx";
@@ -21,9 +24,7 @@ import ExecutiveDashboard from "../../components/case-study/sublime/ExecutiveDas
 import Analytics from "@vercel/analytics/astro";
 import { getCollection } from "astro:content";
 
-const IMG = "/case-studies/sublime";
-
-const moreWorkOrder = ["pack", "inveterate", "ppvp"];
+const moreWorkOrder = ["pack", "inveterate"];
 const moreWork = (await getCollection("caseStudies"))
   .filter((cs) => moreWorkOrder.includes(cs.id))
   .sort((a, b) => moreWorkOrder.indexOf(a.id) - moreWorkOrder.indexOf(b.id));
@@ -330,21 +331,7 @@ const summary =
         border-radius: 4px;
       }
 
-      /* Three frames of the builder's evolution, left to right. */
-      .strip {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: clamp(1rem, 2vw, 1.5rem);
-      }
-
-      .strip img {
-        display: block;
-        width: 100%;
-        border-radius: 4px;
-      }
-
-      .pair figure,
-      .strip figure {
+      .pair figure {
         margin: 0;
       }
 
@@ -357,8 +344,7 @@ const summary =
       }
 
       @media (max-width: 700px) {
-        .pair,
-        .strip {
+        .pair {
           grid-template-columns: 1fr;
         }
       }
@@ -506,28 +492,10 @@ const summary =
         }
       }
 
-      .quote-section {
-        max-width: 700px;
-        margin-left: auto;
-        margin-right: auto;
-        padding-left: 1.5rem;
-        padding-right: 1.5rem;
-      }
-
-      .quote-placeholder {
-        text-align: center;
-        font-size: 1rem;
-        color: var(--label);
-        border: 1px dashed color-mix(in srgb, var(--label) 45%, var(--bg));
-        border-radius: 4px;
-        padding: 2rem 1.5rem;
-        margin: 0;
-      }
-
       #more-work {
-        max-width: 1100px;
+        max-width: 718px;
         margin: 0 auto;
-        padding: 1.5rem 2rem 5rem;
+        padding: 1.5rem 1.5rem 5rem;
       }
 
       #more-work .label {
@@ -536,8 +504,19 @@ const summary =
 
       .next-work {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 0.75rem;
+      }
+
+      @media (max-width: 600px) {
+        #more-work {
+          padding-left: 2rem;
+          padding-right: 2rem;
+        }
+
+        .next-work {
+          grid-template-columns: 1fr;
+        }
       }
 
       .next-work-row {
@@ -814,13 +793,8 @@ const summary =
         </section>
       </div>
 
-      <div class="wide pair" data-reveal>
-        <figure>
-          <MediaSlot src={`${IMG}/campaign-list.webp`} alt="Private beta campaign list" todo="campaign-list.webp (data needs fixing)" />
-        </figure>
-        <figure>
-          <MediaSlot src={`${IMG}/campaign-detail.webp`} alt="Private beta campaign detail with per-recipient results" todo="campaign-detail.webp (data needs fixing)" />
-        </figure>
+      <div class="wide" data-reveal>
+        <CoreLoop client:visible />
       </div>
 
       <div class="col" data-reveal>
@@ -854,7 +828,7 @@ const summary =
           <figcaption>Before</figcaption>
         </figure>
         <figure>
-          <MediaSlot src={`${IMG}/library-final.webp`} alt="Template library grouped by most active and recently seen" aspect="1 / 1" />
+          <LibraryFinal />
           <figcaption>After</figcaption>
         </figure>
       </div>
@@ -878,10 +852,6 @@ const summary =
         </div>
         <p class="demo-caption">Campaign results can be read by person or by team. Repeat clickers shows who fell for more than one simulation, and the group leaderboard ranks teams by click rate, flagging the most vulnerable and the safest.</p>
       </div>
-
-      <figure class="hero-media" data-reveal>
-        <MediaSlot src={`${IMG}/champions.webp`} alt="Leaderboard ranking employees by report rate" />
-      </figure>
 
       <!-- Phase 3 -->
       <div class="col">
@@ -907,18 +877,14 @@ const summary =
         </section>
       </div>
 
-      <div class="wide strip" data-reveal>
+      <div class="wide pair" data-reveal>
         <figure>
-          <MediaSlot src={`${IMG}/builder-lofi.webp`} alt="Low-fidelity campaign builder wireframe" />
+          <BuilderWireframe />
           <figcaption>Low-fidelity builder</figcaption>
         </figure>
         <figure>
-          <MediaSlot src={`${IMG}/builder-nav-variants.webp`} alt="Exploration of stage navigation variants" />
+          <BuilderNavVariants />
           <figcaption>Stage navigation variants</figcaption>
-        </figure>
-        <figure>
-          <MediaSlot src={`${IMG}/builder-final.webp`} alt="Final builder: form on the left, live email preview on the right" />
-          <figcaption>Final builder</figcaption>
         </figure>
       </div>
 
@@ -935,7 +901,7 @@ const summary =
         <div class="demo-stage-inner">
           <TrainingToggle client:visible />
         </div>
-        <p class="demo-caption">Employees who click land on a notice that tells them it was a test and their data is safe. Turning on training assigns a short course from the same page, without adding a step to the builder.</p>
+        <p class="demo-caption">Employees who click land on a notice that tells them it was a test and their data is safe. Turning on training opens a four-question course from the same page, without adding a step to the builder.</p>
       </div>
 
       <div class="col" data-reveal>
@@ -976,21 +942,28 @@ const summary =
             Names and company details only appear as variables.
           </li>
           <li>
+            <span class="guardrail-title">Structured inputs.</span>
+            Attack type, theme, sender persona, audience, and difficulty give analysts control over generation.
+          </li>
+          <li>
+            <span class="guardrail-title">Regenerate and refine.</span>
+            Try again with the same or revised inputs, then edit dynamic variables inline.
+          </li>
+          <li>
             <span class="guardrail-title">No free-text editing.</span>
-            Analysts regenerate or edit variables, but can't rewrite the body.
+            The email body changes through regeneration, never direct editing.
           </li>
           <li>
             <span class="guardrail-title">Graceful fallback.</span>
             Thin detection history switches off environment-based options.
           </li>
         </ul>
-        <p>The template editor I once pitched became a deliberate no.</p>
 
         <h3>A dashboard for leadership</h3>
         <p>
           The GA dashboard answers the question executives actually ask: is our program working? It
-          shows campaign performance over time, the most vulnerable groups, and a recommended action,
-          like building a campaign for a group that keeps failing.
+          shows campaign reach, click and report rates for a selected period, the latest campaign's
+          group results, repeat clickers, and a recommended follow-up.
         </p>
       </div>
 
@@ -998,7 +971,7 @@ const summary =
         <div class="demo-stage-inner">
           <ExecutiveDashboard client:visible />
         </div>
-        <p class="demo-caption">The dashboard answers three leadership questions at a glance: how campaigns are trending, which teams are most vulnerable, and what to do next. The recommendation turns the weakest team into a campaign draft.</p>
+        <p class="demo-caption">Choose a reporting period to compare campaign totals and rates. The tables show repeat clickers across sample campaigns and group results for the latest campaign. The recommendation points to a focused follow-up.</p>
       </div>
 
       <!-- What I learned -->
@@ -1029,13 +1002,6 @@ const summary =
         </section>
       </div>
 
-      <!-- Quote: TODO, placeholder until a real quote and attribution exist. -->
-      <div class="col">
-        <div class="divider"></div>
-      </div>
-      <section id="quote" class="quote-section" data-reveal>
-        <p class="quote-placeholder">TODO: quote and attribution (PM, engineering lead, or a beta customer)</p>
-      </section>
     </main>
 
     <div class="col">
