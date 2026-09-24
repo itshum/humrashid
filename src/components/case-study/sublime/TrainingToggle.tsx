@@ -58,8 +58,8 @@ function NoticeIcon() {
   );
 }
 
-export default function TrainingToggle() {
-  const [training, setTraining] = useState(true);
+export default function TrainingToggle({ preview = false, trainingEnabled = true }: { preview?: boolean; trainingEnabled?: boolean } = {}) {
+  const [training, setTraining] = useState(trainingEnabled);
   const [stage, setStage] = useState<"notice" | "quiz" | "complete">("notice");
   const [questionIndex, setQuestionIndex] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
@@ -84,8 +84,8 @@ export default function TrainingToggle() {
   }
 
   return (
-    <div className="sd tt">
-      <div className="sd-controls">
+    <div className={`sd tt${preview ? " tt--preview" : ""}`}>
+      {!preview && <div className="sd-controls">
         <button
           type="button"
           role="switch"
@@ -100,17 +100,21 @@ export default function TrainingToggle() {
           <span className="sd-switch-track" aria-hidden="true" />
           <span id={labelId}>Assign training after a click</span>
         </button>
-      </div>
+      </div>}
+
+      {preview && <div className="tt-preview-tabs" role="tablist" aria-label="Training preview pages">
+        {(["notice", "quiz", "complete"] as const).map((page) => <button key={page} type="button" role="tab" aria-selected={stage === page} onClick={() => setStage(page)}>{page === "quiz" ? "Training" : page === "complete" ? "Completion" : "Notice"}</button>)}
+      </div>}
 
       <div className="tt-frame">
-        <div className="tt-bar" aria-hidden="true">
+        {!preview && <div className="tt-bar" aria-hidden="true">
           <span className="tt-dots">
             <span />
             <span />
             <span />
           </span>
           <span className="tt-url">security.{company.domain}/simulation</span>
-        </div>
+        </div>}
 
         <div className="tt-page" aria-live="polite">
           {stage === "notice" && <div className="tt-card">
@@ -156,7 +160,7 @@ export default function TrainingToggle() {
             )}
           </div>}
 
-          {stage === "quiz" && training && (
+          {stage === "quiz" && (training || preview) && (
             <div className="tt-card tt-card--quiz" key={questionIndex}>
               <div className="tt-progress-top"><span>Spot the signals</span><span>{questionIndex + 1} of {questions.length}</span></div>
               <div className="tt-progress" aria-label={`Question ${questionIndex + 1} of ${questions.length}`}>
@@ -193,7 +197,7 @@ export default function TrainingToggle() {
             </div>
           )}
 
-          {stage === "complete" && training && (
+          {stage === "complete" && (training || preview) && (
             <div className="tt-card tt-card--complete">
               <span className="tt-success-icon" aria-hidden="true"><Check size={28} strokeWidth={2.4} /></span>
               <span className="tt-complete-kicker">Training complete</span>

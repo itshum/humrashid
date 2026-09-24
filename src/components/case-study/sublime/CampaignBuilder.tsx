@@ -1,7 +1,8 @@
 import { Fragment, Suspense, lazy, useEffect, useId, useRef, useState, type DragEvent, type KeyboardEvent, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { BriefcaseBusiness, Calendar, ChevronDown, ChevronLeft, ChevronRight, IdCard, Info, Mail, Phone, Search, Sparkles, SquareArrowOutUpRight, Upload, X } from "lucide-react";
+import { BriefcaseBusiness, Calendar, ChevronDown, ChevronLeft, ChevronRight, Eye, IdCard, Info, Mail, Phone, Search, Sparkles, SquareArrowOutUpRight, Upload, X } from "lucide-react";
 import { sampleRecipient } from "./acmeMock";
+import TrainingToggle from "./TrainingToggle";
 import "./CampaignBuilder.css";
 
 const AiGenerateModal = lazy(() => import("./AiGenerateModal"));
@@ -297,6 +298,7 @@ export default function CampaignBuilder({ fit = false }: { fit?: boolean }) {
   const [csvError, setCsvError] = useState("");
   const [dragging, setDragging] = useState(false);
   const [reviewOpen, setReviewOpen] = useState(false);
+  const [trainingPreviewOpen, setTrainingPreviewOpen] = useState(false);
   const [reviewError, setReviewError] = useState("");
   const [launched, setLaunched] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
@@ -643,6 +645,7 @@ export default function CampaignBuilder({ fit = false }: { fit?: boolean }) {
                 </span>
               </span>
             </div>
+            <button type="button" className="cb-training-preview-link" onClick={() => { setTrainingPreviewOpen(true); showBuilderForDialog(); }}><Eye aria-hidden="true" strokeWidth={1.7} /> Preview notice &amp; training</button>
           </div>
 
           <div className="cb-preview">
@@ -695,6 +698,12 @@ export default function CampaignBuilder({ fit = false }: { fit?: boolean }) {
         <Suspense fallback={<div className="cb-generate-loading" role="status">Opening template generator…</div>}>
           <AiGenerateModal onClose={() => setGenerateOpen(false)} onUse={addGeneratedTemplate} />
         </Suspense>
+      </div>}
+      {trainingPreviewOpen && <div className="cb-review-overlay" onKeyDown={(event) => { if (event.key === "Escape") setTrainingPreviewOpen(false); }} onMouseDown={(event) => { if (event.target === event.currentTarget) setTrainingPreviewOpen(false); }}>
+        <section className="cb-training-modal" role="dialog" aria-modal="true" aria-labelledby={`${uid}-training-preview-title`}>
+          <div className="cb-training-modal-head"><h4 id={`${uid}-training-preview-title`}>Preview notice &amp; training</h4><button type="button" aria-label="Close training preview" autoFocus onClick={() => setTrainingPreviewOpen(false)}><X aria-hidden="true" /></button></div>
+          <TrainingToggle preview trainingEnabled={training} />
+        </section>
       </div>}
       {reviewOpen && <div className="cb-review-overlay" onKeyDown={(event) => { if (event.key === "Escape") setReviewOpen(false); }} onMouseDown={(event) => { if (event.target === event.currentTarget) setReviewOpen(false); }}>
         <section className="cb-review-modal" role="dialog" aria-modal="true" aria-labelledby={`${uid}-review-title`}>
