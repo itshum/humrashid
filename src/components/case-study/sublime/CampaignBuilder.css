@@ -555,6 +555,28 @@
 
 .cb--fit .cb-review-overlay { --px: calc(100cqw / 1200); }
 
+.cb-generate-overlay > .cb {
+  width: 100%;
+  min-width: 0;
+}
+
+.cb-generate-overlay .gm-app {
+  --px: min(1px, 100cqw / 950);
+}
+
+.cb-generate-overlay .gm-app--embedded {
+  width: calc(470 * var(--px));
+  max-width: 100%;
+  justify-content: center;
+}
+
+.cb-generate-loading {
+  padding: calc(16 * var(--px)) calc(24 * var(--px));
+  border-radius: calc(4 * var(--px));
+  background: #fff;
+  font-size: calc(14 * var(--px));
+}
+
 .cb-review-modal {
   display: flex;
   flex-direction: column;
