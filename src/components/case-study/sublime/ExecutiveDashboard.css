@@ -1,3 +1,21 @@
+/* App UI is always light, like the product, even when the site is in
+   dark mode: pin the page tokens this demo reads to their light values. */
+.ed {
+  --bg: #ffffff;
+  --text: #262626;
+  --text-secondary: #2b2b2b;
+  --label: #7a7a7a;
+  --hover-bg: #eeeeea;
+  --title: #262626;
+  --year: #8a8984;
+  --icon: #c9c7c0;
+  --icon-hover: #6b6b6b;
+  --border: #e6e6e3;
+  --selection-bg: #1f3d2e;
+  --selection-text: #f8f8f6;
+  color-scheme: light;
+}
+
 /* Chart styling follows chart-notes/style-guide.md: hairlines, no
    gridline clutter, one accent (report rate, the trend worth noticing),
    and direct labels instead of a legend. */
