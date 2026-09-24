@@ -1,7 +1,7 @@
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { Check, RotateCcw, X } from "lucide-react";
 import { templateById } from "./acmeMock";
-import { EmailPreview, Label, builderTemplates, chevron, type BuilderTemplate, type View } from "./CampaignBuilder";
+import { EmailPreview, Label, SelectField, builderTemplates, type BuilderTemplate, type View } from "./CampaignBuilder";
 import "./CampaignBuilder.css";
 import "./AiGenerateModal.css";
 
@@ -108,23 +108,8 @@ function Select({
   options: readonly string[];
   onChange: (v: string) => void;
 }) {
-  return (
-    <span className={`cb-input gm-select${value ? "" : " is-empty"}`}>
-      <select aria-label={label} value={value} onChange={(e) => onChange(e.target.value)}>
-        {placeholder && (
-          <option value="" disabled>
-            {placeholder}
-          </option>
-        )}
-        {options.map((o) => (
-          <option key={o} value={o}>
-            {o}
-          </option>
-        ))}
-      </select>
-      {chevron}
-    </span>
-  );
+  const id = useId();
+  return <SelectField id={id} ariaLabel={label} className="gm-select" value={value} placeholder={placeholder} options={options.map((option) => ({ value: option, label: option }))} onChange={onChange} />;
 }
 
 function Sparkle({ className = "" }: { className?: string }) {
