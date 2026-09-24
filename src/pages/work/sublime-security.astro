@@ -12,6 +12,7 @@ import Footer from "../../components/Footer.astro";
 import MediaSlot from "../../components/case-study/sublime/MediaSlot.astro";
 import FeatureEvolutionGrid from "../../components/case-study/sublime/FeatureEvolutionGrid.tsx";
 import TtpDiagram from "../../components/case-study/sublime/TtpDiagram.astro";
+import LibraryWireframe from "../../components/case-study/sublime/LibraryWireframe.astro";
 import TrainingToggle from "../../components/case-study/sublime/TrainingToggle.tsx";
 import ResultsLeaderboard from "../../components/case-study/sublime/ResultsLeaderboard.tsx";
 import CampaignBuilder from "../../components/case-study/sublime/CampaignBuilder.tsx";
@@ -78,7 +79,7 @@ const summary =
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Inter:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Architects+Daughter&family=Instrument+Sans:wght@400;500;600&family=Inter:wght@400;500;600&display=swap"
     />
     <style is:global>
       /* Same tokens as [slug].astro and the homepage. */
@@ -849,11 +850,11 @@ const summary =
 
       <div class="wide pair" data-reveal>
         <figure>
-          <MediaSlot src={`${IMG}/library-lofi.webp`} alt="Early wireframe of the template library as a plain list" />
+          <LibraryWireframe />
           <figcaption>Before</figcaption>
         </figure>
         <figure>
-          <MediaSlot src={`${IMG}/library-final.webp`} alt="Template library grouped by most active and recently seen" />
+          <MediaSlot src={`${IMG}/library-final.webp`} alt="Template library grouped by most active and recently seen" aspect="1 / 1" />
           <figcaption>After</figcaption>
         </figure>
       </div>
