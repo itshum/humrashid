@@ -7,7 +7,7 @@ import "./CampaignBuilder.css";
 // fixed 1200 x 844 canvas and scaled to its container (see the --px unit
 // in CampaignBuilder.css), so it reads like a screenshot at any width.
 
-interface BuilderTemplate {
+export interface BuilderTemplate {
   id: string;
   name: string;
   alias: string;
@@ -19,7 +19,7 @@ interface BuilderTemplate {
   ctaStyle: "brand" | "dark";
 }
 
-const templates: BuilderTemplate[] = [
+export const builderTemplates: BuilderTemplate[] = [
   {
     id: "password",
     name: "Acme Password Expiry",
@@ -52,7 +52,7 @@ const templates: BuilderTemplate[] = [
 
 const sendDate = "Sep 29, 2026, 9:00 AM";
 
-type View = "template" | "user";
+export type View = "template" | "user";
 
 function tagValues(t: BuilderTemplate): Record<string, string> {
   return {
@@ -61,12 +61,13 @@ function tagValues(t: BuilderTemplate): Record<string, string> {
     sender_alias: t.alias,
     sender_email: t.email,
     date: sendDate,
+    company_name: company.name,
   };
 }
 
 // {{tags}} render as code chips in the template view and as real values
 // in the user view.
-function Tagged({ text, view, t }: { text: string; view: View; t: BuilderTemplate }) {
+export function Tagged({ text, view, t }: { text: string; view: View; t: BuilderTemplate }) {
   const values = tagValues(t);
   const parts = text.split(/(\{\{[^}]+\}\})/g);
   return (
@@ -95,7 +96,7 @@ function AcmeMark() {
   );
 }
 
-function Label({ children, required, info }: { children: ReactNode; required?: boolean; info?: boolean }) {
+export function Label({ children, required, info }: { children: ReactNode; required?: boolean; info?: boolean }) {
   return (
     <span className="cb-label">
       {children}
@@ -109,7 +110,7 @@ function Label({ children, required, info }: { children: ReactNode; required?: b
   );
 }
 
-function Box({ children, icon, className = "" }: { children: ReactNode; icon?: ReactNode; className?: string }) {
+export function Box({ children, icon, className = "" }: { children: ReactNode; icon?: ReactNode; className?: string }) {
   return (
     <span className={`cb-input ${className}`}>
       <span className="cb-input-value">{children}</span>
@@ -118,9 +119,9 @@ function Box({ children, icon, className = "" }: { children: ReactNode; icon?: R
   );
 }
 
-const chevron = <ChevronDown className="cb-input-icon" aria-hidden="true" strokeWidth={2} />;
+export const chevron = <ChevronDown className="cb-input-icon" aria-hidden="true" strokeWidth={2} />;
 
-function EmailPreview({ t, view }: { t: BuilderTemplate; view: View }) {
+export function EmailPreview({ t, view }: { t: BuilderTemplate; view: View }) {
   return (
     <div className="cb-email">
       <div className="cb-email-meta">
@@ -155,7 +156,9 @@ function EmailPreview({ t, view }: { t: BuilderTemplate; view: View }) {
           Hi <Tagged text="{{recipient_first_name}}" view={view} t={t} />,
         </p>
         {t.body.map((p) => (
-          <p key={p}>{p}</p>
+          <p key={p}>
+            <Tagged text={p} view={view} t={t} />
+          </p>
         ))}
         <span className={`cb-cta cb-cta--${t.ctaStyle}`}>{t.cta}</span>
       </div>
@@ -171,7 +174,7 @@ export default function CampaignBuilder({ fit = false }: { fit?: boolean }) {
   const [templateId, setTemplateId] = useState("password");
   const [view, setView] = useState<View>("template");
   const [training, setTraining] = useState(true);
-  const t = templates.find((x) => x.id === templateId) ?? templates[0];
+  const t = builderTemplates.find((x) => x.id === templateId) ?? builderTemplates[0];
   const uid = useId();
 
   return (
@@ -274,7 +277,7 @@ export default function CampaignBuilder({ fit = false }: { fit?: boolean }) {
               <span className="cb-small-btn">Add From Library</span>
             </div>
             <div className="cb-list" role="radiogroup" aria-label="Templates">
-              {templates.map((x) => (
+              {builderTemplates.map((x) => (
                 <button
                   key={x.id}
                   type="button"

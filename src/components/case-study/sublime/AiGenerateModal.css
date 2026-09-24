@@ -1,0 +1,594 @@
+/* The product's Generate Template modal with its three steps, an arrow,
+   and the email preview it fills. Built on CampaignBuilder.css tokens
+   and its --px design unit, on a 1200-wide canvas instead of the full
+   builder. No builder shell: the stage behind it shows through. */
+
+.gm-app {
+  /* Capped at 0.85 of a real pixel so it sits at about the size of the
+     other demos instead of filling the stage; it only shrinks further on
+     narrow screens, then scrolls sideways below ~720px. */
+  --px: max(0.6px, min(0.85px, 100cqw / 1200));
+  /* The preview is drawn larger so the email reads at a glance. */
+  --gm-px-lg: calc(var(--px) * 1.35);
+  --gm-green: #2fa878;
+
+  width: calc(1200 * var(--px));
+  height: auto;
+  margin: 0 auto;
+  flex-direction: row;
+  align-items: center;
+  gap: calc(28 * var(--px));
+  overflow: visible;
+  background: none;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+/* Real buttons: restore what .cb-app's button reset strips. */
+.gm-app button.cb-btn {
+  gap: calc(5 * var(--px));
+  height: calc(30 * var(--px));
+  padding: 0 calc(13 * var(--px));
+  margin: 0;
+  border: 1px solid var(--cb-btn-border);
+  background: var(--cb-btn-bg);
+  font-size: calc(13 * var(--px));
+}
+
+.gm-app button.cb-btn:hover {
+  background: #eaeae8;
+}
+
+.gm-app button.cb-btn--primary {
+  border-color: var(--cb-blue);
+  background: var(--cb-blue);
+  color: #fff;
+}
+
+.gm-app button.cb-btn--primary:hover {
+  background: #2c64c4;
+}
+
+.gm-app button.cb-btn:disabled {
+  border-color: #e4e4e2;
+  background: #e9e9e7;
+  color: #8d8d8a;
+  cursor: default;
+}
+
+.gm-btn-icon {
+  width: calc(13 * var(--px));
+  height: calc(13 * var(--px));
+}
+
+/* Modal */
+
+.gm-modal {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  width: calc(470 * var(--px));
+  height: calc(530 * var(--px));
+  border-radius: calc(8 * var(--px));
+  background: #fff;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.05),
+    0 calc(16 * var(--px)) calc(44 * var(--px)) rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+}
+
+.gm-modal-head {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: calc(50 * var(--px));
+  padding: 0 calc(14 * var(--px)) 0 calc(22 * var(--px));
+  border-bottom: 1px solid var(--cb-line);
+}
+
+.gm-modal-head h5 {
+  font-size: calc(16 * var(--px));
+  font-weight: 600;
+  letter-spacing: -0.005em;
+}
+
+.gm-app .gm-icon-btn {
+  display: grid;
+  place-items: center;
+  width: calc(28 * var(--px));
+  height: calc(28 * var(--px));
+  border-radius: calc(4 * var(--px));
+}
+
+.gm-app .gm-icon-btn:hover {
+  background: #f1f1ef;
+}
+
+.gm-icon-btn svg {
+  width: calc(18 * var(--px));
+  height: calc(18 * var(--px));
+}
+
+.gm-bars {
+  flex: none;
+  display: flex;
+  gap: calc(3 * var(--px));
+}
+
+.gm-bars span {
+  flex: 1;
+  height: calc(3 * var(--px));
+  background: #ececea;
+  transition: background-color 0.25s ease;
+}
+
+.gm-bars span.is-on {
+  background: var(--gm-green);
+}
+
+.gm-modal-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: calc(13 * var(--px));
+  padding: calc(18 * var(--px)) calc(22 * var(--px));
+  scrollbar-width: thin;
+  scrollbar-color: #d4d4d2 transparent;
+}
+
+.gm-modal-body > * {
+  flex-shrink: 0;
+}
+
+.gm-modal-foot {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(12 * var(--px)) calc(22 * var(--px));
+  border-top: 1px solid var(--cb-line);
+}
+
+.gm-count {
+  font-size: calc(12 * var(--px));
+  color: var(--cb-muted);
+}
+
+.gm-actions {
+  display: flex;
+  gap: calc(8 * var(--px));
+}
+
+/* Step 1: source tabs and seed cards */
+
+.gm-tabs {
+  display: flex;
+}
+
+.gm-app .gm-tabs button {
+  flex: 1;
+  height: calc(34 * var(--px));
+  border: 1px solid #d9d9d6;
+  background: #f2f2f0;
+  font-size: calc(14 * var(--px));
+  font-weight: 500;
+}
+
+.gm-app .gm-tabs button:first-child {
+  border-radius: calc(4 * var(--px)) 0 0 calc(4 * var(--px));
+}
+
+.gm-app .gm-tabs button:last-child {
+  border-left: 0;
+  border-radius: 0 calc(4 * var(--px)) calc(4 * var(--px)) 0;
+}
+
+.gm-app .gm-tabs button[aria-checked="true"] {
+  position: relative;
+  border-color: var(--cb-blue);
+  background: var(--cb-selected);
+}
+
+.gm-app .gm-tabs button:last-child[aria-checked="true"] {
+  box-shadow: -1px 0 0 var(--cb-blue);
+}
+
+.gm-lede {
+  font-size: calc(14 * var(--px));
+}
+
+.gm-lede:focus,
+.gm-step-title:focus {
+  outline: none;
+}
+
+.gm-cards {
+  display: flex;
+  flex-direction: column;
+  gap: calc(10 * var(--px));
+  margin-top: calc(4 * var(--px));
+}
+
+.gm-card {
+  border: 1px solid #e4e4e2;
+  border-radius: calc(8 * var(--px));
+  background: #fff;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.gm-card.is-checked {
+  border-color: var(--cb-blue);
+  background: #f9fbfe;
+}
+
+.gm-app .gm-card-head {
+  display: flex;
+  align-items: flex-start;
+  gap: calc(11 * var(--px));
+  width: 100%;
+  padding: calc(14 * var(--px)) calc(16 * var(--px));
+  text-align: left;
+}
+
+.gm-app .gm-card-head:focus-visible {
+  outline-offset: -2px;
+  border-radius: calc(8 * var(--px));
+}
+
+.gm-radio {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: calc(18 * var(--px));
+  height: calc(18 * var(--px));
+  margin-top: calc(1 * var(--px));
+  border: 1.5px solid #c9cac6;
+  border-radius: 50%;
+  background: #fff;
+  color: #fff;
+}
+
+.gm-radio svg {
+  width: calc(10 * var(--px));
+  height: calc(10 * var(--px));
+  opacity: 0;
+}
+
+.gm-card.is-checked .gm-radio {
+  border-color: var(--cb-blue);
+  background: var(--cb-blue);
+}
+
+.gm-card.is-checked .gm-radio svg {
+  opacity: 1;
+}
+
+.gm-card-text {
+  display: flex;
+  flex-direction: column;
+  gap: calc(5 * var(--px));
+}
+
+.gm-card-title {
+  font-size: calc(14.5 * var(--px));
+  font-weight: 500;
+}
+
+.gm-card-desc {
+  font-size: calc(12 * var(--px));
+  line-height: 1.45;
+  color: var(--cb-muted);
+}
+
+.gm-card-body {
+  padding: 0 calc(16 * var(--px)) calc(16 * var(--px)) calc(45 * var(--px));
+}
+
+.gm-scenario {
+  margin-top: calc(4 * var(--px));
+}
+
+/* Step 2 and 3 */
+
+.gm-step-title {
+  font-size: calc(15 * var(--px));
+  font-weight: 600;
+}
+
+.gm-summary {
+  margin-top: calc(-8 * var(--px)) !important;
+  font-size: calc(12 * var(--px));
+  color: var(--cb-muted);
+}
+
+.gm-hint {
+  font-size: calc(11.5 * var(--px));
+  line-height: 1.45;
+  color: var(--cb-muted);
+}
+
+.gm-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(5 * var(--px));
+  margin-top: calc(-4 * var(--px));
+}
+
+.gm-tag {
+  display: inline-flex;
+  align-items: center;
+  height: calc(22 * var(--px));
+  padding: 0 calc(8 * var(--px));
+  border-radius: calc(3 * var(--px));
+  background: var(--cb-chip-bg);
+  font-size: calc(11 * var(--px));
+  color: var(--cb-muted);
+}
+
+.gm-tag--ai {
+  background: #e8f7f0;
+  color: #17704d;
+  font-weight: 500;
+}
+
+/* Real inputs styled as the builder's field boxes */
+
+.gm-app .cb-input {
+  height: calc(32 * var(--px));
+  background: #fff;
+}
+
+.gm-app input.cb-input,
+.gm-app textarea.cb-input {
+  width: 100%;
+  font: inherit;
+  font-size: calc(13.5 * var(--px));
+  color: var(--cb-text);
+  outline: none;
+  text-overflow: ellipsis;
+}
+
+.gm-app input.cb-input:focus,
+.gm-app textarea.cb-input:focus,
+.gm-select:focus-within {
+  border-color: var(--cb-blue);
+  box-shadow: 0 0 0 calc(2 * var(--px)) rgba(52, 115, 219, 0.15);
+}
+
+.gm-app input.cb-input:disabled {
+  background: #f6f6f4;
+}
+
+.gm-app input.cb-input::placeholder,
+.gm-app textarea.cb-input::placeholder {
+  color: #9a9a97;
+}
+
+.gm-app .gm-textarea {
+  height: auto;
+  min-height: calc(54 * var(--px));
+  padding: calc(8 * var(--px)) calc(11 * var(--px));
+  line-height: 1.4;
+  resize: none;
+}
+
+.gm-select {
+  position: relative;
+  padding: 0;
+}
+
+.gm-select select {
+  appearance: none;
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0 calc(32 * var(--px)) 0 calc(12 * var(--px));
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: calc(13.5 * var(--px));
+  color: inherit;
+  outline: none;
+  cursor: pointer;
+}
+
+.gm-select.is-empty select {
+  color: #8d8d8a;
+}
+
+.gm-select .cb-input-icon {
+  position: absolute;
+  right: calc(11 * var(--px));
+  pointer-events: none;
+}
+
+.gm-seg {
+  display: flex;
+  padding: calc(2 * var(--px));
+  border: 1px solid var(--cb-field-border);
+  border-radius: calc(4 * var(--px));
+  background: #f4f4f2;
+}
+
+.gm-app .gm-seg button {
+  flex: 1;
+  height: calc(26 * var(--px));
+  padding: 0 calc(6 * var(--px));
+  border-radius: calc(3 * var(--px));
+  font-size: calc(12 * var(--px));
+  color: var(--cb-muted);
+  white-space: nowrap;
+}
+
+.gm-app .gm-seg button[aria-checked="true"] {
+  background: #fff;
+  color: var(--cb-text);
+  font-weight: 500;
+  box-shadow: 0 0 0 1px var(--cb-field-border), 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+/* Arrow between the modal and the preview: the case study's diagram
+   connector (TtpDiagram), in the page's --label color since it sits on
+   the stage, not inside the product UI. */
+
+.gm-arrow {
+  flex: none;
+  width: calc(80 * var(--px));
+  height: calc(8 * var(--px));
+  overflow: visible;
+}
+
+.gm-arrow line {
+  stroke: var(--label);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+  transition: stroke 0.2s ease;
+}
+
+.gm-arrowhead {
+  fill: var(--label);
+  transition: fill 0.2s ease;
+}
+
+.gm-arrow.is-active line {
+  stroke: var(--gm-green);
+}
+
+.gm-arrow.is-active .gm-arrowhead {
+  fill: var(--gm-green);
+}
+
+/* Preview: the email card only */
+
+.gm-preview {
+  --px: var(--gm-px-lg);
+  flex: 1;
+  min-width: 0;
+}
+
+.gm-preview .cb-card {
+  margin-top: 0;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 calc(10 * var(--px)) calc(30 * var(--px)) rgba(0, 0, 0, 0.08);
+}
+
+.gm-app .gm-preview .cb-tab:disabled {
+  color: #9a9a97;
+  cursor: default;
+}
+
+.gm-idle,
+.gm-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(8 * var(--px));
+  height: calc(320 * var(--px));
+  padding: 0 calc(28 * var(--px));
+  text-align: center;
+}
+
+.gm-idle {
+  font-size: calc(11 * var(--px));
+  color: var(--cb-muted);
+}
+
+.gm-loading {
+  background:
+    radial-gradient(120% 80% at 0% 0%, #eefaf4 0%, transparent 55%),
+    radial-gradient(90% 70% at 100% 100%, #fbf4f6 0%, transparent 60%),
+    #fdfdfd;
+  box-shadow: inset 0 0 0 1px #a9e2c9;
+}
+
+.gm-sparkle {
+  width: calc(50 * var(--px));
+  height: calc(50 * var(--px));
+  margin-bottom: calc(6 * var(--px));
+  animation: gm-float 2.4s ease-in-out infinite;
+}
+
+.gm-sparkle.is-idle {
+  width: calc(36 * var(--px));
+  height: calc(36 * var(--px));
+  opacity: 0.35;
+  filter: grayscale(1);
+  animation: none;
+}
+
+.gm-loading-title {
+  font-size: calc(11.5 * var(--px));
+  font-weight: 600;
+  background: linear-gradient(90deg, #6f86c7, #22335f 70%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.gm-loading-sub {
+  max-width: calc(300 * var(--px));
+  font-size: calc(9.5 * var(--px));
+  line-height: 1.5;
+  color: var(--cb-muted);
+}
+
+.gm-progress {
+  position: relative;
+  width: calc(220 * var(--px));
+  height: calc(4 * var(--px));
+  margin-top: calc(10 * var(--px));
+  border-radius: 999px;
+  background: #efefed;
+  overflow: hidden;
+}
+
+.gm-progress span {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--cb-blue);
+  transform-origin: left;
+  animation: gm-fill 2.8s cubic-bezier(0.3, 0.6, 0.4, 1) forwards;
+}
+
+@keyframes gm-fill {
+  from {
+    transform: scaleX(0.03);
+  }
+  to {
+    transform: scaleX(0.94);
+  }
+}
+
+@keyframes gm-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+  50% {
+    transform: translateY(calc(-4 * var(--px))) rotate(4deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gm-sparkle,
+  .gm-progress span {
+    animation: none;
+  }
+
+  .gm-progress span {
+    transform: scaleX(0.6);
+  }
+
+  .gm-bars span,
+  .gm-card,
+  .gm-arrow line,
+  .gm-arrowhead {
+    transition: none;
+  }
+}

@@ -15,7 +15,7 @@ import TtpDiagram from "../../components/case-study/sublime/TtpDiagram.astro";
 import TrainingToggle from "../../components/case-study/sublime/TrainingToggle.tsx";
 import ResultsLeaderboard from "../../components/case-study/sublime/ResultsLeaderboard.tsx";
 import CampaignBuilder from "../../components/case-study/sublime/CampaignBuilder.tsx";
-import AiGenerateStepper from "../../components/case-study/sublime/AiGenerateStepper.tsx";
+import AiGenerateModal from "../../components/case-study/sublime/AiGenerateModal.tsx";
 import ExecutiveDashboard from "../../components/case-study/sublime/ExecutiveDashboard.tsx";
 import Analytics from "@vercel/analytics/astro";
 import { getCollection } from "astro:content";
@@ -951,12 +951,12 @@ const summary =
         </p>
       </div>
 
-      <!-- Stands in for ai-generating.webp: the template picker with an AI template generating. -->
+      <!-- Stands in for ai-generating.webp: the Generate Template modal's steps on the left, the email preview it fills on the right. -->
       <div class="demo-stage" data-reveal>
         <div class="demo-stage-inner">
-          <AiGenerateStepper client:visible />
+          <AiGenerateModal client:visible />
         </div>
-        <p class="demo-caption">AI generation lives inside the template picker analysts already use. Pick an attack type, refine it, and get a template built from threats seen in the customer's own environment, with names left as variables.</p>
+        <p class="demo-caption">Generate from a real message in the customer's environment or from a scenario, refine it, and watch the email fill in. Sender details stay editable, but the body only changes by regenerating.</p>
       </div>
 
       <div class="col" data-reveal>
