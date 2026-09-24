@@ -332,103 +332,6 @@ import Analytics from "@vercel/analytics/astro";
         text-decoration: none;
       }
 
-      /* Headshot reveal on hovering the name - a small photo card that
-         fades/lifts into view. The pixelation is the blur itself: the
-         photo is sliced into a 10x10 grid of tiles, each showing its
-         own piece of the image (via background-position), each
-         individually blurred and staggered so they sharpen into focus
-         out of order rather than as one flat crossfade. No color
-         overlay - the blur alone reads as "pixelated". */
-      .name-trigger {
-        position: relative;
-        display: inline-block;
-        cursor: pointer;
-      }
-
-      /* Touch devices have no real :hover, so tapping the name relies
-         on iOS's flaky "sticky hover" simulation instead - unreliable
-         to trigger and skips the transition entirely. On these
-         devices the reveal is driven by a tap-toggled .is-active
-         class from the script below instead (see the click handler).
-         The tap target is enlarged via an invisible ::before rather
-         than real padding, so the hit area grows without changing
-         .name-trigger's own box (padding would push the ::after
-         underline, positioned bottom: -2px off that same box, down
-         with it). */
-      @media (hover: none) {
-        .name-trigger {
-          -webkit-tap-highlight-color: transparent;
-        }
-
-        .name-trigger::before {
-          content: "";
-          position: absolute;
-          inset: -0.5rem;
-        }
-      }
-
-      .name-trigger::after {
-        content: "";
-        position: absolute;
-        left: 0;
-        bottom: -2px;
-        width: 100%;
-        height: 1px;
-        background: currentColor;
-        transform: scaleX(0);
-        transform-origin: left;
-        transition: transform 0.45s ease;
-      }
-
-      .name-trigger:hover::after,
-      .name-trigger.is-active::after {
-        transform: scaleX(1);
-      }
-
-      /* Positioned via JS (top/left set inline, computed from
-         .name-trigger's own bounding rect - see the script below),
-         not CSS anchored to .name-trigger directly. It used to be a
-         DOM descendant of .name-trigger (an inline-block on line 1
-         of the paragraph), overflowing 306px down across several of
-         the paragraph's own wrapped lines below it. Chromium would
-         intermittently paint some of those wrapped sibling lines
-         above this card instead of beneath it - reproducible even at
-         z-index: 9999, so not a stacking-context/z-index problem at
-         all, but something specific to an absolutely positioned
-         element overflowing out of an inline-block into its own
-         paragraph's wrapped lines. Moving it out to be a plain
-         sibling of the paragraphs (still inside position: relative
-         .intro) sidesteps that pattern entirely. */
-      .name-photo {
-        position: absolute;
-        /* Fallback only - positionPhoto() in the script below always
-           sets explicit width/height matching the underline's width
-           (preserving this 263:306 aspect ratio) before the photo can
-           ever become visible. */
-        width: 263px;
-        height: 306px;
-        border-radius: 2px;
-        overflow: hidden;
-        opacity: 0;
-        transform: translateY(-6px) scale(0.97);
-        transition: opacity 0.3s ease;
-        pointer-events: none;
-        z-index: 30;
-        box-shadow: var(--photo-shadow);
-        background: var(--hover-bg);
-      }
-
-      .name-photo.is-visible {
-        opacity: 1;
-      }
-
-      .name-photo-img {
-        display: block;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
-
       section {
         padding: 4.55rem 0;
       }
@@ -447,8 +350,7 @@ import Analytics from "@vercel/analytics/astro";
         position: relative;
       }
 
-      /* Upstatement-style hover preview (same cursor-follow technique
-         as .name-photo above, reused for the work list) - one shared
+      /* Upstatement-style hover preview (a cursor-follow card) - one shared
          image, repositioned/re-sourced per row instead of one image
          per row, positioned in the negative space after each row's
          own (short) description text rather than parked far in the
@@ -916,14 +818,8 @@ import Analytics from "@vercel/analytics/astro";
       }
 
       /* transform: none (not translateY(0)) at rest - translateY(0)
-         is still a non-"none" transform value, which establishes a
-         new stacking context on the element for as long as it's set.
-         The first intro paragraph contains .name-trigger's absolutely
-         positioned, z-indexed photo card - trapped inside that
-         stacking context, its z-index only wins against siblings
-         inside this paragraph, not the page content around it, so it
-         was rendering the surrounding text on top of the photo
-         instead of under it once the reveal settled. */
+         is still a non-"none" transform value, which would keep a new
+         stacking context on every revealed element for no reason. */
       [data-load-reveal].is-in {
         opacity: 1;
         transform: none;
@@ -943,7 +839,7 @@ import Analytics from "@vercel/analytics/astro";
 
     <div class="col">
       <div class="intro">
-        <h1 class="intro-h1" data-load-reveal><span class="name-trigger">Humayun Rashid</span> is a designer <span class="amp" aria-hidden="true"><svg viewBox="0 -730 525 739" xmlns="http://www.w3.org/2000/svg">
+        <h1 class="intro-h1" data-load-reveal>Humayun Rashid is a designer <span class="amp" aria-hidden="true"><svg viewBox="0 -730 525 739" xmlns="http://www.w3.org/2000/svg">
               <defs>
                 <mask id="amp-reveal-mask" maskUnits="userSpaceOnUse" x="-100" y="-830" width="725" height="950">
                   <path class="amp-mask-stroke" pathLength="1" d="M473.0,-398.0 L504.0,-373.0 L514.0,-319.0 L421.0,-291.0 L429.0,-161.0 L370.0,-60.0 L302.0,-19.0 L219.0,-8.0 L104.0,-61.0 L56.0,-186.0 L91.0,-344.0 L140.0,-402.0 L212.0,-441.0 L293.0,-431.0 L213.0,-441.0 L188.0,-497.0 L187.0,-589.0 L237.0,-672.0 L334.0,-708.0 L408.0,-684.0 L429.0,-656.0 L423.0,-509.0 L429.0,-656.0 L396.0,-693.0 L295.0,-703.0 L209.0,-640.0 L183.0,-531.0 L212.0,-441.0 L106.0,-367.0 L63.0,-266.0 L61.0,-149.0 L104.0,-61.0 L219.0,-8.0 L302.0,-19.0 L370.0,-60.0 L429.0,-161.0 L421.0,-292.0 L320.0,-298.0 L272.0,-260.0 L266.0,-210.0 L310.0,-180.0 L265.0,-214.0 L293.0,-286.0 L501.0,-303.0 L512.0,-356.0 L473.0,-398.0" />
@@ -970,9 +866,6 @@ import Analytics from "@vercel/analytics/astro";
           Great design is deciding what to leave out.
         </p>
 
-        <span class="name-photo" role="img" aria-label="Headshot of Humayun Rashid">
-          <img class="name-photo-img" src="/headshot.jpg" alt="" />
-        </span>
       </div>
 
       <section>
@@ -1143,141 +1036,8 @@ import Analytics from "@vercel/analytics/astro";
         }
       }
 
-      const nameTrigger = document.querySelector<HTMLElement>(".name-trigger");
-      const namePhoto = document.querySelector<HTMLElement>(".name-photo");
-      const introEl = document.querySelector<HTMLElement>(".intro");
-
-      // .name-photo is a plain sibling of the paragraphs now (see the
-      // markup above and the comment on .name-photo's CSS) rather
-      // than a descendant of .name-trigger, so its position has to be
-      // computed from .name-trigger's own rect instead of anchored
-      // via CSS top/left.
-      // Original design's aspect ratio (263:306), preserved when the
-      // photo is resized to match the underline's width instead of
-      // using a fixed size.
-      const NAME_PHOTO_ASPECT = 306 / 263;
-
-      function positionPhoto() {
-        if (!nameTrigger || !namePhoto || !introEl) return;
-        const triggerRect = nameTrigger.getBoundingClientRect();
-        const introRect = introEl.getBoundingClientRect();
-        const width = triggerRect.width;
-        namePhoto.style.width = `${width}px`;
-        namePhoto.style.height = `${width * NAME_PHOTO_ASPECT}px`;
-        namePhoto.style.top = `${triggerRect.bottom - introRect.top + 5}px`;
-        namePhoto.style.left = `${triggerRect.left - introRect.left}px`;
-      }
-
-      // Cursor-follow, à la Upstatement's hover-teases (upstatement.com) -
-      // inspected live: theirs isn't CSS-transition-driven (the hover
-      // figure computes to transition-duration: 0s), it's a
-      // requestAnimationFrame loop lerping toward the cursor. This is
-      // the same technique, sized down for a name-width card instead
-      // of a full media tease: the photo's base position/size still
-      // comes from positionPhoto() above (anchored to the underline),
-      // and a small clamped offset on top of that drifts toward
-      // wherever the cursor sits within the name, so the card feels
-      // loosely attached to the pointer without ever leaving the
-      // name's own footprint.
-      const FOLLOW_RANGE_X = 22;
-      const FOLLOW_RANGE_Y = 12;
-      const FOLLOW_LERP = 0.16;
-      const ENTRANCE_LERP = 0.22;
-
-      let targetFollowX = 0;
-      let targetFollowY = 0;
-      let followX = 0;
-      let followY = 0;
-      let entranceT = 0; // 0 = just-revealed pose, 1 = settled
-      let followRafId: number | null = null;
-
-      function followTick() {
-        followX += (targetFollowX - followX) * FOLLOW_LERP;
-        followY += (targetFollowY - followY) * FOLLOW_LERP;
-        entranceT += (1 - entranceT) * ENTRANCE_LERP;
-
-        const scale = 0.97 + 0.03 * entranceT;
-        const entranceY = -6 * (1 - entranceT);
-
-        if (namePhoto) {
-          namePhoto.style.transform = `translate(${followX.toFixed(2)}px, ${(followY + entranceY).toFixed(2)}px) scale(${scale.toFixed(4)})`;
-        }
-
-        const settled =
-          Math.abs(targetFollowX - followX) < 0.05 &&
-          Math.abs(targetFollowY - followY) < 0.05 &&
-          entranceT > 0.999;
-
-        if (!settled) {
-          followRafId = requestAnimationFrame(followTick);
-        } else {
-          followRafId = null;
-        }
-      }
-
-      function ensureFollowLoop() {
-        if (followRafId == null) followRafId = requestAnimationFrame(followTick);
-      }
-
-      function updateFollowTarget(clientX: number, clientY: number) {
-        if (!nameTrigger) return;
-        const rect = nameTrigger.getBoundingClientRect();
-        const relX = (clientX - rect.left) / rect.width;
-        const relY = (clientY - rect.top) / rect.height;
-        targetFollowX = (Math.min(1, Math.max(0, relX)) - 0.5) * 2 * FOLLOW_RANGE_X;
-        targetFollowY = (Math.min(1, Math.max(0, relY)) - 0.5) * 2 * FOLLOW_RANGE_Y;
-        ensureFollowLoop();
-      }
-
-      function showPhoto() {
-        positionPhoto();
-        entranceT = prefersReducedMotion ? 1 : 0;
-        namePhoto?.classList.add("is-visible");
-        ensureFollowLoop();
-      }
-
-      function hidePhoto() {
-        namePhoto?.classList.remove("is-visible");
-        targetFollowX = 0;
-        targetFollowY = 0;
-        ensureFollowLoop();
-      }
-
-      if (nameTrigger && window.matchMedia("(hover: none)").matches) {
-        // Touch devices have no real hover, so the reveal is driven by
-        // a tap-toggled class instead of relying on iOS's sticky-hover
-        // simulation (unreliable to trigger, and skips the
-        // transition/stagger entirely - see the (hover: none) padding
-        // rule above for the matching tap-target fix). No cursor to
-        // follow here either, so the photo just settles at center.
-        nameTrigger.addEventListener("click", () => {
-          const isActive = nameTrigger.classList.toggle("is-active");
-          if (isActive) showPhoto();
-          else hidePhoto();
-        });
-
-        document.addEventListener("click", (event) => {
-          if (!nameTrigger.contains(event.target as Node)) {
-            nameTrigger.classList.remove("is-active");
-            hidePhoto();
-          }
-        });
-      } else {
-        nameTrigger?.addEventListener("mouseenter", showPhoto);
-        if (!prefersReducedMotion) {
-          nameTrigger?.addEventListener("mousemove", (event) => {
-            updateFollowTarget(event.clientX, event.clientY);
-          });
-        }
-        nameTrigger?.addEventListener("mouseleave", hidePhoto);
-      }
-
-      window.addEventListener("resize", () => {
-        if (namePhoto?.classList.contains("is-visible")) positionPhoto();
-      });
-
       // --- Work-list hover preview ---
-      // Same Upstatement-style cursor-follow as .name-photo above, on
+      // Upstatement-style cursor-follow (upstatement.com), on
       // specific rows (Sublime, Pack, PPVP, Inveterate - set via
       // data-preview-img on the row itself). One shared image element
       // instead of one per row: on enter, it's repositioned to that
