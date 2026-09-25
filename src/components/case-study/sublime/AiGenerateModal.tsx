@@ -30,14 +30,20 @@ function fromAcme(id: string): BuilderTemplate {
   };
 }
 
-const bases: Record<string, BuilderTemplate> = {
-  password: builderTemplates[0],
-  mfa: builderTemplates[1],
-  payroll: fromAcme("payroll"),
-  benefits: fromAcme("benefits"),
-  invoice: fromAcme("invoice"),
-  fileshare: fromAcme("fileshare"),
-};
+// Built on first use rather than at module load: CampaignBuilder and this
+// file import each other, so builderTemplates isn't defined yet when this
+// module first evaluates.
+function baseTemplate(id: string): BuilderTemplate {
+  const bases: Record<string, () => BuilderTemplate> = {
+    password: () => builderTemplates[0],
+    mfa: () => builderTemplates[1],
+    payroll: () => fromAcme("payroll"),
+    benefits: () => fromAcme("benefits"),
+    invoice: () => fromAcme("invoice"),
+    fileshare: () => fromAcme("fileshare"),
+  };
+  return bases[id]();
+}
 
 // --- Inputs ---------------------------------------------------------------
 
@@ -201,7 +207,7 @@ export default function AiGenerateModal({ onClose, onUse }: { onClose?: () => vo
   useEffect(() => {
     if (!generating) return;
     const timer = window.setTimeout(() => {
-      setResult({ ...bases[baseId] });
+      setResult({ ...baseTemplate(baseId) });
       setGenerating(false);
     }, GENERATE_MS);
     return () => window.clearTimeout(timer);
