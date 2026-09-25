@@ -1226,11 +1226,20 @@ import Analytics from "@vercel/analytics/astro";
       }
 
       // --- Sublime password gate ---
-      // Static site, no backend - this is a soft deterrent against
-      // casual clicks, not real access control. The password lives in
-      // this shipped JS and is trivially readable by anyone who looks.
-      const GATE_PASSWORD = "hum2027";
+      // Static site, no backend: this is a soft gate, not real access
+      // control. Only a SHA-256 hash of the password ships, so it can't be
+      // read off the page, and a correct entry is remembered in
+      // localStorage, which the case study page checks before showing.
+      const GATE_HASH = "2e678bda8969b9f5249fc236429ad8e44268e18579334a1dddb0bc958ebbc44c";
+      const GATE_UNLOCK_KEY = "sublime-case-study-unlocked";
       const GATE_UNLOCK_HREF = "/work/sublime-security";
+
+      async function matchesGate(value: string) {
+        if (!window.crypto?.subtle) return false;
+        const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
+        const hex = [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");
+        return hex === GATE_HASH;
+      }
 
       const gateTriggerBtn = document.getElementById("sublimeGateTrigger");
       const gateBackdrop = document.getElementById("gateBackdrop");
@@ -1310,21 +1319,27 @@ import Analytics from "@vercel/analytics/astro";
         resetGateField();
         setGateLoading(true);
 
-        setTimeout(() => {
-          setGateLoading(false);
-          const correct = gatePw.value.trim() === GATE_PASSWORD;
+        const attempt = gatePw.value.trim();
+        setTimeout(async () => {
+          const correct = await matchesGate(attempt);
           if (correct) {
+            try {
+              localStorage.setItem(GATE_UNLOCK_KEY, "1");
+            } catch {
+              // Storage blocked: the page will ask again, nothing breaks.
+            }
             window.location.href = GATE_UNLOCK_HREF;
-          } else {
-            gatePw.classList.add("is-error");
-            gateError.textContent = "Incorrect password. Try again.";
-            gateError.classList.add("is-shown");
-            gateModal.classList.remove("is-shaking");
-            void gateModal.offsetWidth;
-            gateModal.classList.add("is-shaking");
-            gatePw.focus();
-            gatePw.select();
+            return;
           }
+          setGateLoading(false);
+          gatePw.classList.add("is-error");
+          gateError.textContent = "Incorrect password. Try again.";
+          gateError.classList.add("is-shown");
+          gateModal.classList.remove("is-shaking");
+          void gateModal.offsetWidth;
+          gateModal.classList.add("is-shaking");
+          gatePw.focus();
+          gatePw.select();
         }, 500);
       }
 

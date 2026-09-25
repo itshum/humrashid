@@ -1,11 +1,10 @@
-import { Fragment, Suspense, lazy, useEffect, useId, useRef, useState, type DragEvent, type KeyboardEvent, type ReactNode } from "react";
+import { Fragment, useEffect, useId, useRef, useState, type DragEvent, type KeyboardEvent, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { BriefcaseBusiness, Calendar, ChevronDown, ChevronLeft, ChevronRight, Eye, IdCard, Info, Mail, Phone, Search, Sparkles, SquareArrowOutUpRight, Upload, X } from "lucide-react";
 import { sampleRecipient } from "./acmeMock";
 import TrainingToggle from "./TrainingToggle";
+import AiGenerateModal from "./AiGenerateModal";
 import "./CampaignBuilder.css";
-
-const AiGenerateModal = lazy(() => import("./AiGenerateModal"));
 
 // The GA campaign builder, rebuilt 1:1 from the product. It's drawn on a
 // fixed 1200 x 844 canvas and scaled to its container (see the --px unit
@@ -695,9 +694,7 @@ export default function CampaignBuilder({ fit = false }: { fit?: boolean }) {
         </div>
       </div>
       {generateOpen && <div className="cb-review-overlay cb-generate-overlay" onKeyDown={(event) => { if (event.key === "Escape") setGenerateOpen(false); }} onMouseDown={(event) => { if (event.target === event.currentTarget) setGenerateOpen(false); }}>
-        <Suspense fallback={<div className="cb-generate-loading" role="status">Opening template generator…</div>}>
-          <AiGenerateModal onClose={() => setGenerateOpen(false)} onUse={addGeneratedTemplate} />
-        </Suspense>
+        <AiGenerateModal onClose={() => setGenerateOpen(false)} onUse={addGeneratedTemplate} />
       </div>}
       {trainingPreviewOpen && <div className="cb-review-overlay" onKeyDown={(event) => { if (event.key === "Escape") setTrainingPreviewOpen(false); }} onMouseDown={(event) => { if (event.target === event.currentTarget) setTrainingPreviewOpen(false); }}>
         <section className="cb-training-modal" role="dialog" aria-modal="true" aria-labelledby={`${uid}-training-preview-title`}>
