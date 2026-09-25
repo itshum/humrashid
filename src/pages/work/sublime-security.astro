@@ -8,6 +8,7 @@
 // inline script in <head> sends anyone who hasn't unlocked it back home.
 // Also noindex and excluded from the sitemap.
 import Topbar from "../../components/Topbar.astro";
+import Carousel from "../../components/Carousel.astro";
 import Footer from "../../components/Footer.astro";
 import CoreLoop from "../../components/case-study/sublime/CoreLoop.tsx";
 import FeatureEvolutionGrid from "../../components/case-study/sublime/FeatureEvolutionGrid.tsx";
@@ -894,7 +895,33 @@ const summary =
             template personalization. Both made the product complete, but both threatened to bury the
             builder with more complexity and functionality.
           </p>
+        </section>
+      </div>
 
+      <!-- Phase 3 slideshow -->
+      <Carousel
+        framed
+        slides={[
+          {
+            src: "/case-studies/sublime-security/slide-design-studio.webp",
+            alt: "Prototype workspace canvas with GA builds, explorations and archived versions grouped by phase",
+            caption: "Design Studio, our internal prototype workspace. Every screen and feature was prototyped extensively, GA build included, with every explored and archived version laid out on one free-flowing canvas, grouped by iteration and phase.",
+          },
+          {
+            src: "/case-studies/sublime-security/slide-campaign-list.webp",
+            alt: "Phishing Simulations campaign list with audience, recipients, send date, open rate, click rate and status",
+            caption: "The campaign list, where analysts start. Every simulation lives here with its status and high-level results, and new campaigns begin from the same page.",
+          },
+          {
+            src: "/case-studies/sublime-security/slide-campaign-detail.webp",
+            alt: "Campaign detail page with open, click and report rates, the template used, and a per-recipient results table",
+            caption: "Campaign details, where analysts see how a simulation actually performed: open, click and report rates, the template used, and results for every recipient.",
+          },
+        ]}
+      />
+
+      <div class="col" data-reveal>
+        <section>
           <h3>Adding a product without adding a step</h3>
           <p>
             Training was its own product, with its own settings, and it had to live inside the builder.
