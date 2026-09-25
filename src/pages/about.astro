@@ -2,6 +2,18 @@
 import Topbar from "../components/Topbar.astro";
 import Footer from "../components/Footer.astro";
 import Analytics from "@vercel/analytics/astro";
+import signatureSvg from "../assets/humayun-signature-strokes.svg?raw";
+
+const polishedSignatureSvg = signatureSvg.replace('viewBox="0 0 1000 364"', 'viewBox="220 125 650 185"');
+
+// Email shows "Contact" and has no address in the markup; the click
+// handler below assembles the mailto so scrapers can't pick it up.
+const online = [
+  { label: "Twitter", handle: "@humrashid", href: "https://x.com/humrashid" },
+  { label: "LinkedIn", handle: "humayunrashid", href: "https://www.linkedin.com/in/humayunrashid/" },
+  { label: "Email", handle: "Contact", href: "#contact", email: ["hum", "nessalab.com"] },
+  { label: "GitHub", handle: "itshum", href: "https://github.com/itshum" },
+];
 ---
 
 <!doctype html>
@@ -34,19 +46,8 @@ import Analytics from "@vercel/analytics/astro";
       })();
     </script>
     <style is:inline>
-      /* Critical, inline copy of the two colors the theme rule above
-         needs to paint correctly on the very first frame - the full
-         palette lives in an externally-linked stylesheet below, which
-         needs a network round trip before the browser can apply it.
-         Without this, the page paints with the browser's own default
-         (white) background for however long that fetch takes, then
-         snaps to the real color once it arrives - a flash that was
-         apparently small enough to miss on the old host, but is
-         plainly visible on this one. Same specificity/selector as the
-         real rule in the linked stylesheet, so that one silently
-         takes over once it's ready - no visible handoff. */
       html[data-theme="dark"] {
-        background: #0d0d0c;
+        background: #16171c;
         color: #eeede8;
       }
       html:not([data-theme="dark"]) {
@@ -55,17 +56,20 @@ import Analytics from "@vercel/analytics/astro";
       }
     </style>
     <title>About · Humayun Rashid</title>
-    <meta
-      name="description"
-      content="Humayun Rashid is a product designer and founder based in New York City with a decade of experience building products that solve real problems."
-    />
+    <meta name="description" content="A bit about me — how I think about design, and what I'm doing now." />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Humayun Rashid" />
+    <meta property="og:title" content="About · Humayun Rashid" />
+    <meta property="og:url" content="https://www.humrashid.com/about" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&display=swap"
     />
     <style is:global>
+      /* same tokens as the case-study template — this page follows the
+         exact same shell (Topbar back-arrow format, dark mode, fonts) */
       :root {
         --bg: #fafaf9;
         --text: #262626;
@@ -79,8 +83,6 @@ import Analytics from "@vercel/analytics/astro";
         --border: #e6e6e3;
         --selection-bg: #1f3d2e;
         --selection-text: #f8f8f6;
-        --photo-shadow: 0 16px 40px rgba(0, 0, 0, 0.16), 0 2px 8px rgba(0, 0, 0, 0.08);
-        --theme-progress: 1;
       }
 
       :root[data-theme="dark"] {
@@ -96,8 +98,6 @@ import Analytics from "@vercel/analytics/astro";
         --border: #252423;
         --selection-bg: #4fae82;
         --selection-text: #171715;
-        --photo-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.06);
-        --theme-progress: 0;
       }
 
       * {
@@ -106,6 +106,7 @@ import Analytics from "@vercel/analytics/astro";
 
       html {
         scroll-behavior: smooth;
+        scrollbar-color: var(--border) var(--bg);
       }
 
       html,
@@ -117,27 +118,14 @@ import Analytics from "@vercel/analytics/astro";
         transition: background 0.3s ease, color 0.3s ease;
       }
 
-      /* On-brand scrollbar in place of the stock OS one - color only,
-         no custom width, so it never forces the browser out of
-         overlay mode into a reserved-gutter one (that switch shifts
-         page content and was a real regression the last time this was
-         tried elsewhere on the site). */
-      html {
-        scrollbar-color: var(--border) var(--bg);
+      body {
+        min-height: 100svh;
+        display: flex;
+        flex-direction: column;
       }
 
-      html::-webkit-scrollbar-track {
-        background: var(--bg);
-      }
-
-      html::-webkit-scrollbar-thumb {
-        background: var(--border);
-        border-radius: 8px;
-      }
-
-      html::-webkit-scrollbar-thumb:hover {
-        background: var(--label);
-      }
+      body > .col { flex: 1; }
+      body > .site-footer { margin-top: auto; }
 
       a {
         color: inherit;
@@ -149,7 +137,7 @@ import Analytics from "@vercel/analytics/astro";
       }
 
       .col {
-        max-width: 700px;
+        max-width: 718px;
         margin: 0 auto;
         padding: 0 1.5rem;
       }
@@ -160,151 +148,311 @@ import Analytics from "@vercel/analytics/astro";
         }
       }
 
-      .hero {
-        padding: 4.2rem 0 0;
+      .about-hero {
+        padding: 8rem 0 1rem;
       }
 
-      /* var(--label) reads at 3.97:1 against the light-mode --bg here,
-         under the 4.5:1 minimum for normal-size text (dark mode is
-         fine at 6.2:1) - #6b6b6b (already in the palette as
-         --icon-hover) clears 4.5:1 in light mode, so this uses it
-         directly and only falls back to --label once dark mode's own
-         value is already safe. */
-      .hero .eyebrow {
-        font-size: 0.75rem;
-        font-weight: 500;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: #6b6b6b;
+      .about-hero .eyebrow {
+        font-size: 0.8rem;
+        color: var(--label);
         margin: 0 0 1.25rem;
       }
 
-      :root[data-theme="dark"] .hero .eyebrow {
-        color: var(--label);
-      }
-
-      .hero h1 {
-        font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
-        font-size: 2rem;
+      .about-hero h1 {
+        font-size: 2.25rem;
         font-weight: 500;
         letter-spacing: -0.015em;
-        line-height: 1.25;
-        color: var(--title);
-        max-width: 20ch;
         margin: 0;
-        text-wrap: balance;
       }
 
-      /* Placeholder for now - a single portrait until more photos are
-         in (Hum's sending additional ones to round this section out).
-         Sized generously since this is the page meant to slow down
-         and look, unlike the small hover-triggered version on the
-         homepage. */
-      .about-photo {
-        margin: 2.5rem 0 3rem;
-        border-radius: 8px;
-        overflow: hidden;
-        box-shadow: var(--photo-shadow);
-      }
-
-      .about-photo img {
-        display: block;
-        width: 100%;
-        height: auto;
-        aspect-ratio: 4 / 3;
-        object-fit: cover;
-      }
-
-      .about-body {
-        padding-bottom: 8rem;
-      }
-
-      .about-body p {
-        font-size: 1.05rem;
-        line-height: 1.6;
+      .prose {
+        padding: 1rem 0 2rem;
+        font-size: 1.08rem;
+        line-height: 1.75;
         color: var(--text-secondary);
-        margin: 0 0 1.5rem;
       }
 
-      .about-body p:last-child {
+      .prose p {
+        margin: 0 0 1.4rem;
+      }
+      .prose p:last-child {
         margin-bottom: 0;
       }
 
-      /* Subtle fade-up on scroll, same feel as the case study
-         template and the Principles page. Fires once. */
-      [data-reveal] {
-        opacity: 0;
-        transform: translateY(24px);
-        transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      /* The original trackpad drawing stays vector-sharp at every size. */
+      .sign-off {
+        padding: 2.75rem 0 0;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: flex-start;
       }
 
-      [data-reveal].is-revealed {
+      .sign-off-line {
+        margin: 0 0 1.25rem;
+        font-size: 1.08rem;
+        line-height: 1.75;
+        color: var(--text-secondary);
+      }
+
+      .signature {
+        width: min(100%, 218px);
+        opacity: 0;
+        transform: translateY(18px);
+        transition: opacity 0.55s ease, transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .signature svg {
+        display: block;
+        width: 100%;
+        height: auto;
+        overflow: visible;
+      }
+
+      .signature path {
+        stroke: var(--title);
+        stroke-dasharray: var(--path-length);
+        stroke-dashoffset: var(--path-length);
+      }
+
+      .signature.is-revealed {
         opacity: 1;
         transform: translateY(0);
       }
 
-      @media (prefers-reduced-motion: reduce) {
-        [data-reveal] {
+      .signature.is-revealed path {
+        stroke-dashoffset: 0;
+        transition: stroke-dashoffset var(--draw-duration) linear var(--draw-delay);
+      }
+
+      /* The portrait sits left after the opening paragraph, wrapped by
+         the next ones like a figure in a feature story. */
+      .prose::after {
+        content: "";
+        display: table;
+        clear: both;
+      }
+
+      .photo {
+        float: left;
+        width: 40%;
+        margin: 0.4rem 2.25rem 1.25rem 0;
+      }
+
+      .photo img {
+        display: block;
+        width: 100%;
+        height: auto;
+        aspect-ratio: 3 / 4;
+        object-fit: cover;
+        object-position: 50% 30%;
+        border-radius: 3px;
+        background: var(--hover-bg);
+      }
+
+      @media (max-width: 600px) {
+        .about-hero {
+          padding-top: 6rem;
+        }
+
+        .photo {
+          float: none;
+          width: 100%;
+          margin: 0.25rem 0 1.75rem;
+        }
+      }
+
+      /* Online: a short stacked list under the signature, set apart
+         from the footer's single row of links. */
+      .online {
+        padding: 4.5rem 0 6.5rem;
+      }
+
+      .online-label {
+        margin: 0 0 1rem;
+        font-size: 0.8rem;
+        color: var(--label);
+      }
+
+      .online ul {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .online li + li {
+        margin-top: 0.55rem;
+      }
+
+      .online a {
+        display: inline-grid;
+        grid-template-columns: 5.5rem auto auto;
+        align-items: baseline;
+        gap: 0.5rem;
+        font-size: 1rem;
+        color: var(--title);
+        text-decoration: none;
+      }
+
+      /* Resume has no link, so it lays out like a link row without one. */
+      .online-row {
+        display: grid;
+        grid-template-columns: 5.5rem auto;
+        align-items: baseline;
+        gap: 0.5rem;
+        font-size: 1rem;
+        color: var(--title);
+      }
+
+      .online .handle {
+        color: var(--label);
+        transition: color 0.2s ease;
+      }
+
+      .online .arrow {
+        font-size: 0.8rem;
+        color: var(--label);
+        opacity: 0;
+        transform: translate(-2px, 1px);
+        transition: opacity 0.2s ease, transform 0.2s ease;
+      }
+
+      .online a:hover .handle,
+      .online a:focus-visible .handle {
+        color: var(--title);
+      }
+
+      .online a:hover .arrow,
+      .online a:focus-visible .arrow {
+        opacity: 1;
+        transform: translate(0, 0);
+      }
+
+      @media (hover: none) {
+        .online .arrow {
           opacity: 1;
           transform: none;
-          transition: none;
         }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .signature { transition: none; }
+        .signature path { stroke-dashoffset: 0; transition: none; }
       }
     </style>
   </head>
   <body>
-    <Topbar showBack />
+    <Topbar showBack iconOnlyBack hideLogo />
 
     <div class="col">
-      <div class="hero" data-reveal>
-        <p class="eyebrow">About</p>
-        <h1>Humayun Rashid is a designer &amp; founder in New York City.</h1>
+      <div class="about-hero">
+        <h1>Hi, I'm Humayun</h1>
       </div>
 
-      <div class="about-photo" data-reveal style="transition-delay: 90ms">
-        <img src="/headshot.jpg" alt="Portrait of Humayun Rashid" />
-      </div>
-
-      <div class="about-body" data-reveal style="transition-delay: 180ms">
+      <div class="prose">
         <p>
           I've spent over a decade designing and building products across B2B SaaS and eCommerce.
           Most recently, I was on the early design team at Sublime Security, the fastest-growing
-          cybersecurity email startup in the US. I led design on crucial launches like
-          quarantine digests and dynamic phishing simulations. Before that, I founded and led
-          Nessa Labs, a studio where I advised founders and designed digital products for
-          early-stage startups.
+          cybersecurity email startup in the US, where I led design on launches like Quarantine
+          Digest and Dynamic Phishing Simulations. Before that, I founded and led Nessa Labs, a studio
+          where I advised founders and designed digital products for early-stage startups.
+        </p>
+        <figure class="photo">
+          <img src="/about/headshot.webp" alt="Portrait of Humayun Rashid" width="900" height="1350" />
+        </figure>
+        <p>
+          I've also built and exited digital agencies, and worked alongside founders to take their
+          products from nothing to acquisition. That's given me a real sense of what it takes to build
+          something people actually use, not just design around one.
         </p>
         <p>
-          I care about what never makes it onto the screen: the onboarding flow nobody notices,
-          the empty state that quietly loses the user, the setting that should've been the
-          default all along. Getting those subtle details right starts with talking to users
-          first, understanding where they get stuck before assuming you know the fix. That's
-          where the real work happens, and where most teams give up.
+          I care about how things connect, and how that shapes the smallest details. The people using
+          what I design are real, with real needs, not abstractions. That's what draws me to the parts
+          of a product nobody notices: the empty state that quietly loses someone, the setting that
+          should've been the default all along. Getting those right starts with talking to users,
+          understanding where they get stuck before assuming I know the fix. That's where the real work
+          happens, and where most teams stop looking. Great design is deciding what to leave out.
+        </p>
+        <p>
+          Beyond work, I'm an avid marathoner, usually running alongside my three-year-old Vizsla,
+          Mars. In the kitchen, I'm reconstructing Bangladeshi classics from scratch and digging into
+          the food science behind them. Travel is where those interests collide: I explore a city
+          through its food, culture, and art, doing my best Anthony Bourdain impression along the way.
         </p>
       </div>
+
+      <div class="sign-off">
+        <p class="sign-off-line">Stay curious,</p>
+        <div class="signature" data-reveal role="img" aria-label="Handwritten signature of Humayun Rashid" set:html={polishedSignatureSvg}></div>
+      </div>
+
+      <nav class="online" aria-labelledby="online-label">
+        <p class="online-label" id="online-label">Online</p>
+        <ul>
+          {
+            online.map((o) => (
+              <li>
+                <a
+                  href={o.href}
+                  target={o.email ? undefined : "_blank"}
+                  rel="noopener"
+                  data-user={o.email?.[0]}
+                  data-domain={o.email?.[1]}
+                >
+                  <span>{o.label}</span>
+                  <span class="handle">{o.handle}</span>
+                  <span class="arrow" aria-hidden="true">↗</span>
+                </a>
+              </li>
+            ))
+          }
+          <li class="online-row">
+            <span>Resume</span>
+            <span class="handle">Available upon request</span>
+          </li>
+        </ul>
+      </nav>
     </div>
 
     <Footer />
 
     <script>
-      const revealEls = document.querySelectorAll<HTMLElement>("[data-reveal]");
-      if (revealEls.length > 0) {
+      document.querySelectorAll<HTMLAnchorElement>("a[data-user]").forEach((link) => {
+        link.addEventListener("click", (event) => {
+          event.preventDefault();
+          window.location.href = `mailto:${link.dataset.user}@${link.dataset.domain}`;
+        });
+      });
+
+      const signature = document.querySelector<HTMLElement>(".signature[data-reveal]");
+      if (signature) {
+        const playbackSpeed = 0.62;
+        signature.querySelectorAll<SVGPathElement>("path").forEach((path) => {
+          const length = path.getTotalLength();
+          const duration = Number(path.dataset.duration || 700) * playbackSpeed;
+          const delay = Number(path.dataset.delay || 0) * playbackSpeed;
+          path.style.setProperty("--path-length", `${length}`);
+          path.style.setProperty("--draw-duration", `${duration}ms`);
+          path.style.setProperty("--draw-delay", `${delay + 120}ms`);
+        });
+
         if ("IntersectionObserver" in window) {
-          const revealObserver = new IntersectionObserver(
+          const observer = new IntersectionObserver(
             (entries) => {
               entries.forEach((entry) => {
                 if (!entry.isIntersecting) return;
                 entry.target.classList.add("is-revealed");
-                revealObserver.unobserve(entry.target);
+                observer.unobserve(entry.target);
               });
             },
-            { threshold: 0.25, rootMargin: "0px 0px -15% 0px" }
+            { threshold: 0.6 }
           );
-          revealEls.forEach((el) => revealObserver.observe(el));
+          observer.observe(signature);
         } else {
-          revealEls.forEach((el) => el.classList.add("is-revealed"));
+          signature.classList.add("is-revealed");
         }
       }
+
     </script>
   </body>
 </html>
