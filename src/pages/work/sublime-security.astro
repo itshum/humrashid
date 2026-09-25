@@ -295,6 +295,11 @@ const summary =
         margin: 0 auto;
       }
 
+      /* Same pale green as the homepage hover preview, in both themes. */
+      .demo-stage--hero .demo-stage-inner {
+        background: #e8f9f3;
+      }
+
       .demo-stage--hero .demo-stage-inner > * {
         max-width: 1200px;
       }
@@ -756,7 +761,7 @@ const summary =
           </p>
           <p>
             The strategic case was clear. Sublime sits inside the email stack, so it already knows
-            which attacks each customer faces. A standalone tool has to guess. Our detections close
+            which attacks each customer faces. A third-party app had to guess. Our detections close
             gaps in the filter. Simulations could close gaps in people, using the same data.
           </p>
           <p>
@@ -773,12 +778,12 @@ const summary =
           <p class="label">Approach</p>
           <h2>Keep the builder lean. Put the depth in the results.</h2>
           <p>
-            I set one goal early: an analyst should be able to launch a campaign in under a minute,
-            even though every campaign needs several steps with their own settings.
+            I set one goal early: an analyst should be able to launch a campaign as quickly as
+            possible, even though every campaign needs several steps with their own settings.
           </p>
           <p>
             I also got an important assumption wrong. I expected analysts to want deep control, even an
-            editor to redesign the phishing email. Prototypes with customers proved otherwise. Analysts
+            editor to redesign the phishing email. Early prototypes with beta customers proved otherwise. Analysts
             don't want to design emails. They want to know who in their organization is most likely to
             fall for a phish, and what to do about it.
           </p>
@@ -809,9 +814,9 @@ const summary =
           <p class="label">Phase 1: Private beta</p>
           <h2>Validate the core loop</h2>
           <p>
-            I scoped private beta deliberately small: a three-step builder (details, audience,
+            Private beta was scoped deliberately small: a three-step builder (details, audience,
             template), a handful of static templates, and per-recipient reporting, shipped to a few
-            trusted customers. The goal was to prove the core loop before building the vision.
+            trusted customers. The goal was to prove the core loop before building the full vision.
           </p>
         </section>
       </div>
@@ -861,10 +866,10 @@ const summary =
       <div class="col" data-reveal>
         <p>
           We also shipped what beta customers asked for: staggered sends, so employees can't warn each
-          other at the water cooler, plus Google Workspace, Microsoft 365, and CSV audiences.
+          other at the water cooler. Plus, support for Sublime lists, Google Workspace, and Microsoft 365.
         </p>
         <p>
-          Reporting started answering "so what?" I added repeat clickers, the people who fall for more
+          Reporting started answering "What do I do with this information?" I added repeat clickers, the people who fall for more
           than one simulation, and a leaderboard of the most vulnerable and safest groups. It would
           have been easy to bolt on panels. Instead, customer conversations and prototypes decided
           what earned a spot.
@@ -885,19 +890,21 @@ const summary =
           <p class="label">Phase 3: GA</p>
           <h2>Close the loop without breaking the flow</h2>
           <p>
-            GA added training and AI. Both made the product complete. Both threatened to bury the
-            builder.
+            GA added training simulations (a separate but related product we were launching) and AI
+            template personalization. Both made the product complete, but both threatened to bury the
+            builder with more complexity and functionality.
           </p>
 
           <h3>Adding a product without adding a step</h3>
           <p>
             Training was its own product, with its own settings, and it had to live inside the builder.
-            Three steps were about to become four, and the under-a-minute goal was at risk.
+            Three steps were about to become four, and keeping the builder intuitive for analysts was at risk.
           </p>
           <p>
-            With my PM, I pulled three levers: cut scope, reduce steps, and consolidate. I explored five
-            ways to navigate the steps before realizing the steps were the problem. I dropped the wizard
-            for a single form with a live preview, and made training an optional toggle.
+            With my PM, I pulled three levers: cut scope, reduce steps, and consolidate. I explored numerous
+            iterations and ways to navigate the steps before realizing that the steps were the problem. I
+            dropped the wizard builder for a single form with a live preview, and made training an
+            optional toggle for security analysts.
           </p>
         </section>
       </div>
@@ -926,7 +933,9 @@ const summary =
         <div class="demo-stage-inner">
           <TrainingToggle client:visible />
         </div>
-        <p class="demo-caption">Employees who click land on a notice that tells them it was a test and their data is safe. Turning on training opens a four-question course from the same page, without adding a step to the builder.</p>
+        <p class="demo-caption">Employees who click on a phishing link land on a security notice that tells them it was a
+          test and that their data is safe. Turning on training as a feature opens a multiple-choice
+          question course from the same page, without adding a step to the builder.</p>
       </div>
 
       <div class="col" data-reveal>
@@ -954,41 +963,44 @@ const summary =
       <div class="col" data-reveal>
         <h3>A phishing generator that can't phish</h3>
         <p>
-          A tool that writes convincing phishing emails can't become a real phishing tool, so I built
+          A tool that writes convincing phishing emails can't become a real phishing tool. So I designed
           the guardrails into the interaction model:
         </p>
         <ul class="guardrails">
           <li>
-            <span class="guardrail-title">No copying.</span>
+            <span class="guardrail-title">No copying</span>
             Generated emails reuse an attack's structure, never its words.
           </li>
           <li>
-            <span class="guardrail-title">No real people.</span>
-            Names and company details only appear as variables.
+            <span class="guardrail-title">No real people</span>
+            Names and company details are sanitized and only appear as variables.
           </li>
           <li>
-            <span class="guardrail-title">Structured inputs.</span>
+            <span class="guardrail-title">Structured inputs</span>
             Attack type, theme, sender persona, audience, and difficulty give analysts control over generation.
           </li>
           <li>
-            <span class="guardrail-title">Regenerate and refine.</span>
+            <span class="guardrail-title">Regenerate and refine</span>
             Try again with the same or revised inputs, then edit dynamic variables inline.
           </li>
           <li>
-            <span class="guardrail-title">No free-text editing.</span>
+            <span class="guardrail-title">No free-text editing</span>
             The email body changes through regeneration, never direct editing.
           </li>
           <li>
-            <span class="guardrail-title">Graceful fallback.</span>
+            <span class="guardrail-title">Graceful fallback</span>
             Thin detection history switches off environment-based options.
           </li>
         </ul>
 
         <h3>A dashboard for leadership</h3>
         <p>
-          The GA dashboard answers the question executives actually ask: is our program working? It
-          shows campaign reach, click and report rates for a selected period, the latest campaign's
-          group results, repeat clickers, and a recommended follow-up.
+          In GA, all of this came together in a dashboard that answers the question executives routinely
+          ask: is our phishing simulation program actually working? Security teams get a macro view of
+          campaign reach and click and report rates for any period, then drill into a team or an
+          individual to see the impact. The data also drives action: a recommended next campaign, with
+          templates generated from the threats we've seen in their environment. That closed the loop.
+          Analysts build campaigns, read the results, and now see the whole program and what to do next.
         </p>
       </div>
 
@@ -996,7 +1008,7 @@ const summary =
         <div class="demo-stage-inner">
           <ExecutiveDashboard client:visible />
         </div>
-        <p class="demo-caption">One screen answers leadership's question: is the program working? Totals and rates for any period, who keeps clicking, and a recommended next campaign.</p>
+        <p class="demo-caption">An org-level read on how well simulations are working. Analysts use it to plan the next campaign, and executives use it to track the company's security posture over time.</p>
       </div>
 
       <!-- What I learned -->

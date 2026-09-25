@@ -40,8 +40,8 @@ export const rows: FeatureRow[] = [
   {
     area: "Audience",
     cells: {
-      private: { state: "new", items: ["Sublime email lists"] },
-      public: { state: "new", items: ["Google Workspace and Microsoft 365 groups", "CSV upload"] },
+      private: { state: "new", items: ["CSV upload"] },
+      public: { state: "new", items: ["Sublime email lists", "Google Workspace and Microsoft 365 groups"] },
       ga: { state: "carry" },
     },
   },
