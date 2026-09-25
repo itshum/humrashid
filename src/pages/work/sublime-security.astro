@@ -31,7 +31,7 @@ const moreWork = (await getCollection("caseStudies"))
 
 const title = "Dynamic Phishing Simulations";
 const summary =
-  "Turning a standalone phishing test into a product grounded in the attacks each customer actually faces.";
+  "Turning a standalone phishing test into a product built on the attacks each customer actually faces.";
 ---
 
 <!doctype html>
@@ -227,12 +227,13 @@ const summary =
         margin: 0 auto;
       }
 
+      /* One row above phone width: the gap shrinks before anything wraps,
+         so no item is left orphaned on its own line. */
       .meta-row {
         display: flex;
         justify-content: center;
-        gap: 3.5rem;
+        gap: clamp(1.5rem, 4vw, 3.5rem);
         margin-top: 2.5rem;
-        flex-wrap: wrap;
       }
 
       @media (max-width: 600px) {
@@ -347,6 +348,14 @@ const summary =
 
       .pair figure {
         margin: 0;
+      }
+
+      .figure-note {
+        margin: 0.75rem 0 0;
+        font-size: 0.8rem;
+        line-height: 1.45;
+        color: var(--label);
+        text-align: center;
       }
 
       figcaption {
@@ -746,9 +755,9 @@ const summary =
             attacks actually hitting their inboxes. It was one of our most requested features.
           </p>
           <p>
-            The strategic case was clear. Sublime sits inside the email stack and already knows which
-            attacks each customer faces. A standalone tool has to guess. We didn't. Our detections
-            close gaps in the filter; simulations could close gaps in people, using the same data.
+            The strategic case was clear. Sublime sits inside the email stack, so it already knows
+            which attacks each customer faces. A standalone tool has to guess. Our detections close
+            gaps in the filter. Simulations could close gaps in people, using the same data.
           </p>
           <p>
             I led design from first concept through private beta, public beta, and GA readiness,
@@ -762,7 +771,7 @@ const summary =
         <div class="divider"></div>
         <section id="approach" data-reveal>
           <p class="label">Approach</p>
-          <h2>The builder is step one. The answer is the product.</h2>
+          <h2>Keep the builder lean. Put the depth in the results.</h2>
           <p>
             I set one goal early: an analyst should be able to launch a campaign in under a minute,
             even though every campaign needs several steps with their own settings.
@@ -809,6 +818,7 @@ const summary =
 
       <div class="wide" data-reveal>
         <CoreLoop client:visible />
+        <p class="figure-note">The private beta loop: build, send, read results.</p>
       </div>
 
       <div class="col" data-reveal>
@@ -825,25 +835,26 @@ const summary =
           <p class="label">Phase 2: Public beta</p>
           <h2>Ground it in Sublime</h2>
           <p>
-            This is where simulations became a Sublime product rather than a copy of a competitor's.
-            Every template now traced back to a detection rule, so the template picker could lead with
-            the attacks most active in each customer's environment.
+            This is where simulations became Sublime's own. Every template traced back to a detection
+            rule, so the picker could lead with the attacks most active in each customer's
+            environment.
           </p>
         </section>
       </div>
 
       <div class="wide" data-reveal>
         <TtpDiagram />
+        <p class="figure-note">Every template maps to a detection rule, so prevalence data can rank what to simulate.</p>
       </div>
 
       <div class="wide pair" data-reveal>
         <figure>
           <LibraryWireframe />
-          <figcaption>Before</figcaption>
+          <figcaption>Before: a flat, generic list</figcaption>
         </figure>
         <figure>
           <LibraryFinal />
-          <figcaption>After</figcaption>
+          <figcaption>After: grouped by what's active in your environment</figcaption>
         </figure>
       </div>
 
@@ -853,10 +864,10 @@ const summary =
           other at the water cooler, plus Google Workspace, Microsoft 365, and CSV audiences.
         </p>
         <p>
-          On the results side, reporting started answering "so what?" I added repeat clickers, top
-          targets, and a simulations dashboard with a leaderboard of the most vulnerable and safest
-          groups. It would have been easy to bolt on panels. Instead, I let customer conversations and
-          prototypes decide what earned a spot.
+          Reporting started answering "so what?" I added repeat clickers, the people who fall for more
+          than one simulation, and a leaderboard of the most vulnerable and safest groups. It would
+          have been easy to bolt on panels. Instead, customer conversations and prototypes decided
+          what earned a spot.
         </p>
       </div>
 
@@ -884,9 +895,9 @@ const summary =
             Three steps were about to become four, and the under-a-minute goal was at risk.
           </p>
           <p>
-            With my PM, I pulled three levers: cut scope, reduce steps, and consolidate. Consolidation
-            did the most work. After many rounds of navigation exploration, I dropped the wizard for a
-            single form with a live preview, and made training an optional toggle.
+            With my PM, I pulled three levers: cut scope, reduce steps, and consolidate. I explored five
+            ways to navigate the steps before realizing the steps were the problem. I dropped the wizard
+            for a single form with a live preview, and made training an optional toggle.
           </p>
         </section>
       </div>
@@ -985,7 +996,7 @@ const summary =
         <div class="demo-stage-inner">
           <ExecutiveDashboard client:visible />
         </div>
-        <p class="demo-caption">Choose a reporting period to compare campaign totals and rates. The tables show repeat clickers across sample campaigns and group results for the latest campaign. The recommendation points to a focused follow-up.</p>
+        <p class="demo-caption">One screen answers leadership's question: is the program working? Totals and rates for any period, who keeps clicking, and a recommended next campaign.</p>
       </div>
 
       <!-- What I learned -->
@@ -1008,10 +1019,10 @@ const summary =
         <section id="outcome" data-reveal>
           <p class="label">Outcome</p>
           <p>
-            I left Sublime shortly before GA launched, so I can't share post-launch numbers. What I can
-            share: simulations was a top-three roadmap priority, expected to contribute to ARR, help win
-            new deals, and keep customers from buying a separate tool. It also made Sublime stickier. The
-            same data that stops attacks now tests and trains the people who might fall for them.
+            Simulations was a top-three roadmap priority, expected to contribute to ARR, win new deals,
+            and keep customers from buying a separate tool. It also made Sublime stickier: the same data
+            that stops attacks now tests and trains the people who might fall for them. I left shortly
+            before GA, so post-launch numbers aren't mine to share.
           </p>
         </section>
       </div>

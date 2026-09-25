@@ -53,6 +53,10 @@ const rows = [62, 48, 55, 40];
     flex-direction: column;
     width: 100%;
     max-width: 360px;
+    /* Same sizing as the After modal beside it, so both panels stay
+       square and the two modals match at every width. */
+    height: min(360px, 100%);
+    overflow: hidden;
     border: 1.5px solid #4a4a4a;
     border-radius: 6px;
     background: #fdfdfc;
@@ -72,6 +76,8 @@ const rows = [62, 48, 55, 40];
   }
 
   .lw-body {
+    flex: 1;
+    min-height: 0;
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
@@ -87,6 +93,9 @@ const rows = [62, 48, 55, 40];
   }
 
   .lw-list {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
     gap: 0.65rem;
