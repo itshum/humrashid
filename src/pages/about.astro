@@ -9,10 +9,8 @@ const polishedSignatureSvg = signatureSvg.replace('viewBox="0 0 1000 364"', 'vie
 // Email shows "Contact" and has no address in the markup; the click
 // handler below assembles the mailto so scrapers can't pick it up.
 const online = [
-  { label: "Twitter", handle: "@humrashid", href: "https://x.com/humrashid" },
-  { label: "LinkedIn", handle: "humayunrashid", href: "https://www.linkedin.com/in/humayunrashid/" },
+  { label: "Twitter/X", handle: "@humrashid", href: "https://x.com/humrashid" },
   { label: "Email", handle: "Contact", href: "#contact", email: ["hum", "nessalab.com"] },
-  { label: "GitHub", handle: "itshum", href: "https://github.com/itshum" },
 ];
 ---
 
@@ -294,16 +292,6 @@ const online = [
         text-decoration: none;
       }
 
-      /* Resume has no link, so it lays out like a link row without one. */
-      .online-row {
-        display: grid;
-        grid-template-columns: 5.5rem auto;
-        align-items: baseline;
-        gap: 0.5rem;
-        font-size: 1rem;
-        color: var(--title);
-      }
-
       .online .handle {
         color: var(--label);
         transition: color 0.2s ease;
@@ -406,10 +394,6 @@ const online = [
               </li>
             ))
           }
-          <li class="online-row">
-            <span>Resume</span>
-            <span class="handle">Available upon request</span>
-          </li>
         </ul>
       </nav>
     </div>
@@ -417,7 +401,7 @@ const online = [
     <Footer />
 
     <script>
-      document.querySelectorAll<HTMLAnchorElement>("a[data-user]").forEach((link) => {
+      document.querySelectorAll<HTMLAnchorElement>(".online a[data-user]").forEach((link) => {
         link.addEventListener("click", (event) => {
           event.preventDefault();
           window.location.href = `mailto:${link.dataset.user}@${link.dataset.domain}`;
