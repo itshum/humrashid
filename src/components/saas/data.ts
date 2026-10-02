@@ -69,6 +69,11 @@ export interface WorkItem {
   role?: string;
   kind: "case-study" | "experience";
   cover?: string;
+  // A logo to show in place of the colored dot (the project's own mark).
+  // iconMask means the file is a one-color shape, drawn in the text color
+  // so it works in light and dark.
+  icon?: string;
+  iconMask?: boolean;
   // Link to the full case study on the live site.
   href?: string;
   // Password-protected, so there is no public link from here.
@@ -88,6 +93,7 @@ export const work: WorkItem[] = [
     role: "Lead Product Designer",
     kind: "case-study",
     cover: "/case-studies/sublime-security/home-preview.webp",
+    icon: "/case-studies/sublime-security/sublime-eye.svg",
     locked: true,
     tone: "#7c6fd6",
   },
@@ -112,6 +118,7 @@ export const work: WorkItem[] = [
     role: "Design Director",
     kind: "case-study",
     cover: "/case-studies/pack/01-hero-a.webp",
+    icon: "/case-studies/pack/pack-icon.svg",
     href: "/work/pack",
     tone: "#d6a24f",
   },
@@ -125,6 +132,8 @@ export const work: WorkItem[] = [
     role: "Design Director",
     kind: "case-study",
     cover: "/case-studies/ppvp/01-hero-desktop.webp",
+    icon: "/case-studies/ppvp/ppvp-mark.png",
+    iconMask: true,
     href: "/work/ppvp",
     tone: "#4f9fd6",
   },
@@ -138,6 +147,7 @@ export const work: WorkItem[] = [
     role: "Design Director",
     kind: "case-study",
     cover: "/case-studies/inveterate/01-hero-desktop.webp",
+    icon: "/case-studies/inveterate/inveterate-mark.png",
     href: "/work/inveterate",
     tone: "#d66f9a",
   },

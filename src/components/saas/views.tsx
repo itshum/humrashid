@@ -41,7 +41,7 @@ function NotFound({ section, go }: { section: "work" | "ideas"; go: Go }) {
 function Home({ go }: { go: Go }) {
   return (
     <>
-      <h1 className="text-balance text-xl font-semibold tracking-tight sm:text-2xl">
+      <h1 className="mt-4 text-balance text-xl font-semibold tracking-tight sm:mt-12 sm:text-2xl">
         Humayun Rashid is a product designer and founder in NYC
       </h1>
 

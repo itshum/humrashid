@@ -22,16 +22,15 @@ const NAV = [
   { id: "quote", label: "In their words" },
 ];
 
-const PIXEL = "#d6a24f"; // Pack's color in the work list
-
-function Eyebrow({ children, n }: { children: ReactNode; n?: string }) {
+// A small label above a heading. A number gets a chip, the "Case study"
+// label carries Pack's own logo, and the rest are plain text.
+function Eyebrow({ children, n, logo }: { children: ReactNode; n?: string; logo?: string }) {
   return (
     <p className="flex items-center gap-2 text-[13px] font-medium text-foreground/55">
-      {n ? (
+      {n && (
         <span className="grid size-[18px] place-items-center rounded-[4px] bg-[var(--surface-2)] text-[11px] tabular-nums text-foreground/70">{n}</span>
-      ) : (
-        <span aria-hidden="true" className="size-2.5 rounded-[3px]" style={{ background: PIXEL }} />
       )}
+      {logo && <img src={logo} alt="" aria-hidden="true" className="size-[18px] rounded-[4px]" />}
       {children}
     </p>
   );
@@ -176,7 +175,7 @@ export default function PackCaseStudy({ go }: { go: Go }) {
       <div className="mx-auto grid max-w-[1120px] gap-x-16 px-5 pb-20 pt-9 sm:px-8 xl:grid-cols-[minmax(0,1fr)_180px]">
         <article className="min-w-0">
           {/* Header */}
-          <Eyebrow>Case study</Eyebrow>
+          <Eyebrow logo="/case-studies/pack/pack-icon.svg">Case study</Eyebrow>
           <h1 className="mt-2.5 text-[36px] font-semibold leading-none tracking-[-0.025em] sm:text-[44px]">{pack.title}</h1>
           <p className="mt-4 max-w-[40rem] text-pretty text-[18px] leading-[1.55] text-foreground/65">{pack.summary}</p>
 

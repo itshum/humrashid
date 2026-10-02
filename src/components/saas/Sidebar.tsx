@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { caseStudies, primaryNav, secondaryNav, type NavItem, type Route, type SectionId } from "./data";
+import { caseStudies, primaryNav, secondaryNav, type NavItem, type Route, type SectionId, type WorkItem } from "./data";
 
 // Four-by-four pixel grid, the same mark as the site's logo, in the
 // site's pastel palette.
@@ -35,6 +35,35 @@ const rowBase =
   "group relative flex h-8 w-full items-center gap-2.5 rounded-md px-2 text-left text-[13px] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring/60";
 const rowIdle = "text-foreground/70 hover:bg-foreground/[0.05] hover:text-foreground";
 const rowActive = "bg-foreground/[0.07] font-medium text-foreground";
+
+// A project's mark in a fixed 14px slot: its logo, a one-color logo drawn
+// in the text color, or (with no logo) the colored dot. The same slot for
+// all of them keeps the labels lined up.
+function ProjectMark({ w }: { w: WorkItem }) {
+  return (
+    <span aria-hidden="true" className="grid size-3.5 shrink-0 place-items-center">
+      {w.icon && w.iconMask ? (
+        <span
+          className="block size-3.5 bg-current"
+          style={{
+            maskImage: `url(${w.icon})`,
+            WebkitMaskImage: `url(${w.icon})`,
+            maskSize: "contain",
+            WebkitMaskSize: "contain",
+            maskRepeat: "no-repeat",
+            WebkitMaskRepeat: "no-repeat",
+            maskPosition: "center",
+            WebkitMaskPosition: "center",
+          }}
+        />
+      ) : w.icon ? (
+        <img src={w.icon} alt="" className="size-3.5 rounded-[3px] object-contain" />
+      ) : (
+        <span className="size-2.5 rounded-[3px]" style={{ background: w.tone }} />
+      )}
+    </span>
+  );
+}
 
 function ActiveMarker() {
   return <span aria-hidden="true" className="absolute -left-2 top-1.5 h-5 w-0.5 rounded-full bg-foreground" />;
@@ -106,7 +135,7 @@ function WorkGroup({ item, route, onGo }: { item: NavItem; route: Route; onGo: (
                   aria-current={active ? "page" : undefined}
                   className={cn(rowBase, "h-7", active ? rowActive : rowIdle)}
                 >
-                  <span aria-hidden="true" className="size-2.5 shrink-0 rounded-[3px]" style={{ background: w.tone }} />
+                  <ProjectMark w={w} />
                   <span className="truncate">{w.name}</span>
                 </button>
               </li>
