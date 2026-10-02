@@ -14,7 +14,7 @@ problem: |
 
   After closing their seed round, Pack needed to become a product. The same team, the same expertise, but now serving hundreds of merchants instead of a handful of clients. That's a harder design problem than it sounds like. The instincts that make one-off custom work great don't automatically translate into something a stranger can pick up and use without you standing over their shoulder.
 
-  I led design on this transition, working directly with Pack's product and engineering team, including CEO Cory Cummings, to define what "productized" actually meant for this business.
+  I led design on this transition, working directly with Pack's product and engineering team, including CEO Cory Cummings, to define what “productized” actually meant for this business.
 challengeSideBySide:
   left:
     src: "/case-studies/pack/pack-dev-setup.png"
@@ -87,7 +87,7 @@ designSystemImage:
   src: "/case-studies/pack/20-s04-iconography-desktop.webp"
   alt: "Design system: typography, components, shadows, and color tokens"
 quote:
-  text: "The new Pack platform gives brands and agencies powerful front‑end tools to communicate with customers more easily. We're incredibly proud of Nessa's design work. Collaborating with their team allowed us to simplify the headless build process into a cutting edge software product designed for brand operators and developers."
+  text: "The new Pack platform gives brands and agencies powerful front‑end tools to communicate with customers more easily. We’re incredibly proud of Nessa's design work. Collaborating with their team allowed us to simplify the headless build process into a cutting edge software product designed for brand operators and developers."
   attribution: "Cory Cummings, CEO at Pack"
 outcomeHeading: "Qualitative — copy pending"
 outcome: |
