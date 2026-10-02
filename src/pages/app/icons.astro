@@ -1,0 +1,31 @@
+---
+import IconSheet from "../../components/saas/IconSheet.tsx";
+import "../../styles/global.css";
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Humayun Rashid · Icons</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <script is:inline>
+      // Same New York day/night rule as the shell.
+      (function () {
+        function isNight() {
+          var parts = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "numeric", hour12: false }).formatToParts(new Date());
+          var hour = Number(parts.filter(function (p) { return p.type === "hour"; })[0].value);
+          return hour >= 19 || hour < 6;
+        }
+        document.documentElement.classList.toggle("dark", isNight());
+      })();
+    </script>
+  </head>
+  <body>
+    <IconSheet client:load />
+  </body>
+</html>

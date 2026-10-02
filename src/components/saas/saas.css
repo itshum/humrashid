@@ -1,0 +1,78 @@
+/* Shell tokens. Light: a quiet grey frame around a white panel.
+   Dark: a near-black frame around a slightly lifted panel. Text,
+   borders and rings come from the project's shadcn tokens. */
+
+.saas {
+  --shell: oklch(0.965 0.002 270);
+  --panel: oklch(1 0 0);
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-feature-settings: "cv11", "ss01";
+  -webkit-font-smoothing: antialiased;
+}
+
+.dark .saas,
+.dark.saas {
+  --shell: oklch(0.165 0.003 270);
+  --panel: oklch(0.2 0.003 270);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .saas * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* Wrong password: a quick side-to-side shake, as on the homepage gate. */
+@keyframes saas-shake {
+  10%, 90% { translate: -1px 0; }
+  20%, 80% { translate: 2px 0; }
+  30%, 50%, 70% { translate: -4px 0; }
+  40%, 60% { translate: 4px 0; }
+}
+
+.saas-shake {
+  animation: saas-shake 0.4s ease;
+}
+
+/* Home panels: dots and grid cells pop in, and the sun or moon
+   breathes. All of it stops under reduced
+   motion, and when the page loads hidden (animations never advance
+   there, which would leave the drawings stuck invisible). */
+@keyframes saas-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+}
+
+@keyframes saas-breathe {
+  50% {
+    transform: scale(1.18);
+    opacity: 0.7;
+  }
+}
+
+.saas-pop {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: saas-pop 420ms cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+}
+
+.saas-breathe {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: saas-breathe 3.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .saas-pop,
+  .saas-breathe {
+    animation: none;
+  }
+}
+
+html.motion-skip .saas * {
+  animation: none !important;
+  transition: none !important;
+}
