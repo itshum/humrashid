@@ -2,19 +2,17 @@
 interface Props {
   showBack?: boolean;
   showNav?: boolean;
-  iconOnlyBack?: boolean;
   hideLogo?: boolean;
 }
 
-const { showBack = false, showNav = false, iconOnlyBack = false, hideLogo = false } = Astro.props;
+const { showBack = false, showNav = false, hideLogo = false } = Astro.props;
 ---
 
 <div class="topbar">
   {
     showBack && (
-      <a class={`back-link${iconOnlyBack ? " is-icon-only" : ""}`} href="/" id="back-link" aria-label="Back to home">
-        <span class="arrow">←</span>
-        {!iconOnlyBack && "Back"}
+      <a class="back-link" href="/" id="back-link" aria-label="Back to home" title="Back to home">
+        <span class="arrow" aria-hidden="true">←</span>
       </a>
     )
   }
@@ -171,15 +169,24 @@ const { showBack = false, showNav = false, iconOnlyBack = false, hideLogo = fals
      variable-driven so it matches whichever page it's on (case study
      pages now carry the same dark-mode tokens as the homepage). */
   .topbar .back-link {
+    position: relative;
     display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
-    padding: 0.5rem 0.75rem;
+    padding: 0.5rem;
     border-radius: 4px;
-    font-size: 0.85rem;
+    font-size: 1rem;
     color: var(--label, #8a8a8a);
     text-decoration: none;
     transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  /* Invisible hit area: the arrow's visible box is ~30x36, so pad the
+     tappable region out to the 44x44 minimum without changing how the
+     link looks. */
+  .topbar .back-link::after {
+    content: "";
+    position: absolute;
+    inset: -4px -7px;
   }
 
   .topbar .back-link:hover,
@@ -195,14 +202,6 @@ const { showBack = false, showNav = false, iconOnlyBack = false, hideLogo = fals
 
   .topbar .back-link:hover .arrow {
     transform: translateX(-2px);
-  }
-
-  /* Case-study format: no "Back" label, just the arrow - the logo is
-     hidden alongside it (see hideLogo) so this is the only way home
-     and doesn't need a word to explain itself. */
-  .topbar .back-link.is-icon-only {
-    padding: 0.5rem;
-    font-size: 1rem;
   }
 
   /* Same ghost-button treatment as .back-link (ends up on the same
