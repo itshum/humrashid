@@ -144,12 +144,12 @@
     gap: 0.4rem;
   }
 
-  /* Crossfades with the same --theme-progress the page background's
-     dawn/dusk sweep uses (see Topbar.astro), so the footer carries a
-     small, always-visible readout of the same transition rather than
-     just the clock ticking underneath it. Falls back to a static
-     light/dark swap (via :root[data-theme]) before that script runs,
-     or permanently under prefers-reduced-motion. */
+  /* Sun by day, moon by night, crossfading when the theme flips
+     (Topbar.astro sets :root[data-theme] from NYC time). Driven by
+     data-theme alone, so it reads the same on every page that has
+     the footer - it used to depend on a --theme-progress variable
+     that only a few pages defined, which left the others showing
+     the sun at night. */
   .site-footer .sun-moon {
     position: relative;
     align-self: center;
@@ -167,11 +167,25 @@
   }
 
   .site-footer .sun-moon .icon-sun {
-    opacity: var(--theme-progress, 1);
+    opacity: 1;
   }
 
   .site-footer .sun-moon .icon-moon {
-    opacity: calc(1 - var(--theme-progress, 1));
+    opacity: 0;
+  }
+
+  :root[data-theme="dark"] .site-footer .sun-moon .icon-sun {
+    opacity: 0;
+  }
+
+  :root[data-theme="dark"] .site-footer .sun-moon .icon-moon {
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .site-footer .sun-moon svg {
+      transition: none;
+    }
   }
 
   .site-footer .blink {
