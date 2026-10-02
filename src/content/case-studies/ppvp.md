@@ -61,7 +61,7 @@ item4Grid:
   - src: "/case-studies/ppvp/33-s02-investor-profiles-3.webp"
     alt: "Investor users table with status, invited by, and join date columns"
 quote:
-  text: "Nessa has done an incredible job from a design standpoint, providing us with unique and innovative designs that are rooted in research, not just aesthetics. We've also enjoyed working with their team; they feel like a true partner."
+  text: "Nessa has done an incredible job from a design standpoint, providing us with unique and innovative designs that are rooted in research, not just aesthetics. We’ve also enjoyed working with their team; they feel like a true partner."
   attribution: "Julia Gudish Krieger, Managing Partner at PPVP"
 postQuoteGrid:
   - src: "/case-studies/ppvp/29-s02-publishing-powerhouse-1.webp"

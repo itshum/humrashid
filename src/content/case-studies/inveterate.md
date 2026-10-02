@@ -71,7 +71,7 @@ solutionItems:
     body: |
       At the center of the platform is the builder: the tool merchants actually use to stand up a program. We designed it for real flexibility (tiered pricing, benefit activation, a custom landing page) so a brand could either launch fast through self-service or work hand-in-hand with Inveterate's team for a fully white-glove build.
 quote:
-  text: "It's rare to find a design partner who can take a raw idea with a very specific and unique vision, yet turn out a beautiful user experience that can support both our self service and enterprise customers. Every element provided by the Nessa team was purpose-driven towards providing a frictionless experience for our users, but more importantly, a scalable one."
+  text: "It’s rare to find a design partner who can take a raw idea with a very specific and unique vision, yet turn out a beautiful user experience that can support both our self service and enterprise customers. Every element provided by the Nessa team was purpose-driven towards providing a frictionless experience for our users, but more importantly, a scalable one."
   attribution: "Andy Muntean, Head of Product at Inveterate"
 postQuoteGrid:
   - src: "/case-studies/inveterate/05-s02-brand-identity-desktop.png"
