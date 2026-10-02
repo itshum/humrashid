@@ -118,7 +118,6 @@ import Analytics from "@vercel/analytics/astro";
         /* Static fallback for the footer's sun/moon crossfade, before
            Topbar's gradual-transition script overrides it inline (or
            permanently, under prefers-reduced-motion). */
-        --theme-progress: 1;
       }
 
       :root[data-theme="dark"] {
@@ -141,7 +140,6 @@ import Analytics from "@vercel/analytics/astro";
            of lift. */
         --photo-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.06);
         --danger: #e2867a;
-        --theme-progress: 0;
       }
 
       * {
