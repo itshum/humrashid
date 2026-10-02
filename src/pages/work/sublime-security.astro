@@ -10,6 +10,7 @@
 import Topbar from "../../components/Topbar.astro";
 import Carousel from "../../components/Carousel.astro";
 import Footer from "../../components/Footer.astro";
+import "../../styles/reveal.css";
 import CoreLoop from "../../components/case-study/sublime/CoreLoop.tsx";
 import FeatureEvolutionGrid from "../../components/case-study/sublime/FeatureEvolutionGrid.tsx";
 import TtpDiagram from "../../components/case-study/sublime/TtpDiagram.astro";
@@ -613,26 +614,9 @@ const summary =
         margin-top: 0;
       }
 
-      [data-reveal] {
-        opacity: 0;
-        transform: translateY(28px);
-        transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-      }
-
-      [data-reveal].is-revealed {
-        opacity: 1;
-        transform: translateY(0);
-      }
-
       @media (prefers-reduced-motion: reduce) {
         html {
           scroll-behavior: auto;
-        }
-
-        [data-reveal] {
-          opacity: 1;
-          transform: none;
-          transition: none;
         }
       }
 
@@ -1161,23 +1145,10 @@ const summary =
         { rootMargin: "-40% 0px -50% 0px", threshold: 0 }
       );
       sections.forEach((section) => tocObserver.observe(section));
-
-      const revealEls = document.querySelectorAll<HTMLElement>("[data-reveal]");
-      if ("IntersectionObserver" in window) {
-        const revealObserver = new IntersectionObserver(
-          (entries) => {
-            entries.forEach((entry) => {
-              if (!entry.isIntersecting) return;
-              entry.target.classList.add("is-revealed");
-              revealObserver.unobserve(entry.target);
-            });
-          },
-          { threshold: 0.15, rootMargin: "0px 0px -8% 0px" }
-        );
-        revealEls.forEach((el) => revealObserver.observe(el));
-      } else {
-        revealEls.forEach((el) => el.classList.add("is-revealed"));
-      }
+    </script>
+    <script>
+      import { initReveal } from "../../scripts/reveal";
+      initReveal();
     </script>
   </body>
 </html>

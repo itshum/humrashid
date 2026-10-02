@@ -14,7 +14,7 @@ const { images } = Astro.props;
 <div class="quad">
   {
     images.map((image, i) => (
-      <div class="quad-item" data-reveal style={`transition-delay: ${i * 90}ms;`}>
+      <div class="quad-item" data-reveal style={`transition-delay: ${Math.min(i, 3) * 40}ms;`}>
         <img src={image.src} alt={image.alt} />
       </div>
     ))

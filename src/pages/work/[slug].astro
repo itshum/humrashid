@@ -8,6 +8,7 @@ import Quad from "../../components/Quad.astro";
 import CompareReveal from "../../components/CompareReveal.astro";
 import DetailSplit from "../../components/DetailSplit.astro";
 import Analytics from "@vercel/analytics/astro";
+import "../../styles/reveal.css";
 import { getCollection } from "astro:content";
 
 export async function getStaticPaths() {
@@ -600,30 +601,6 @@ const paragraphs = (text: string) =>
         margin-top: 0;
       }
 
-      /* Subtle fade-up on scroll, applied to every major copy/media
-         block via the data-reveal attribute (set in this file and in
-         each media component) - same feel as Nessa's own case study
-         site: content sits slightly below and transparent until it
-         scrolls into view, then settles into place. Fires once. */
-      [data-reveal] {
-        opacity: 0;
-        transform: translateY(28px);
-        transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-      }
-
-      [data-reveal].is-revealed {
-        opacity: 1;
-        transform: translateY(0);
-      }
-
-      @media (prefers-reduced-motion: reduce) {
-        [data-reveal] {
-          opacity: 1;
-          transform: none;
-          transition: none;
-        }
-      }
-
       /* Tap-to-expand lightbox for content screenshots - on mobile
          especially, a full-width screenshot scaled down to a ~340px
          column is too small to read any UI detail inside it. Any
@@ -1059,25 +1036,10 @@ const paragraphs = (text: string) =>
       );
 
       sections.forEach((section) => observer.observe(section));
-
-      const revealEls = document.querySelectorAll<HTMLElement>("[data-reveal]");
-      if (revealEls.length > 0) {
-        if ("IntersectionObserver" in window) {
-          const revealObserver = new IntersectionObserver(
-            (entries) => {
-              entries.forEach((entry) => {
-                if (!entry.isIntersecting) return;
-                entry.target.classList.add("is-revealed");
-                revealObserver.unobserve(entry.target);
-              });
-            },
-            { threshold: 0.15, rootMargin: "0px 0px -8% 0px" }
-          );
-          revealEls.forEach((el) => revealObserver.observe(el));
-        } else {
-          revealEls.forEach((el) => el.classList.add("is-revealed"));
-        }
-      }
+    </script>
+    <script>
+      import { initReveal } from "../../scripts/reveal";
+      initReveal();
     </script>
   </body>
 </html>
