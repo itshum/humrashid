@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { apps, caseStudyFor, photos, profile, work, type Route, type WorkItem } from "./data";
 import { CaseStudyFrame } from "./CaseStudyFrame";
 import { HomePanels } from "./HomePanels";
+import PackCaseStudy from "./pack/PackCaseStudy";
 import { ideas, principles, principlesIntro } from "./content";
 import { EmptyPanel, principleVisuals } from "./principleVisuals";
 import { Cover, PageHeader, Segmented, Tag, formatDate } from "./ui";
@@ -27,23 +28,9 @@ export function WorkModeToggle({ value, onChange }: { value: WorkMode; onChange:
   );
 }
 
-function BackLink({ label, onClick }: { label: string; onClick: () => void }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="-ml-2 mb-6 inline-flex h-8 items-center gap-1.5 rounded-md px-2 text-[13px] text-foreground/60 outline-none transition-colors hover:bg-foreground/[0.06] hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/60"
-    >
-      <ArrowLeft className="size-3.5" aria-hidden="true" />
-      {label}
-    </button>
-  );
-}
-
 function NotFound({ section, go }: { section: "work" | "ideas"; go: Go }) {
   return (
     <>
-      <BackLink label={section === "work" ? "Work" : "Ideas"} onClick={() => go({ section })} />
       <PageHeader title="Not found" description="That page doesn't exist in this shell yet." />
     </>
   );
@@ -286,7 +273,6 @@ function IdeaPost({ slug, go }: { slug: string; go: Go }) {
   const older = ideas[i + 1];
   return (
     <>
-      <BackLink label="Ideas" onClick={() => go({ section: "ideas" })} />
       <article className="max-w-2xl">
         <header>
           <time dateTime={post.date} className="text-[13px] text-foreground/50">
@@ -494,6 +480,9 @@ export function View({ route, go, workMode }: { route: Route; go: Go; workMode: 
       return <Home go={go} />;
     case "work":
       if (!route.slug) return <WorkIndex go={go} mode={workMode} />;
+      // Pack has been redesigned natively for the shell; the others still
+      // open their original pages in a frame.
+      if (route.slug === "pack") return <PackCaseStudy go={go} />;
       return caseStudyFor(route) ? <CaseStudyFrame work={caseStudyFor(route)!} go={go} /> : <NotFound section="work" go={go} />;
     case "ideas":
       return route.slug ? <IdeaPost slug={route.slug} go={go} /> : <IdeasIndex go={go} />;

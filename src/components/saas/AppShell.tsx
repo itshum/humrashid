@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Dialog } from "radix-ui";
-import { ArrowUpRight, Menu, PanelLeft } from "lucide-react";
+import { Menu, PanelLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { allNav, caseStudies, caseStudyFor, parseHash, routeToHash, type Route } from "./data";
 import { ideas } from "./content";
@@ -81,7 +81,14 @@ export default function AppShell() {
       : route.section === "ideas"
         ? ideas.find((p) => p.slug === route.slug)?.title
         : undefined;
-  const crumbs = [section.label, ...(route.slug && record ? [record] : [])];
+  // Every crumb but the last is a link: the name goes Home, and the
+  // section goes to its own index.
+  const deep = !!(route.slug && record);
+  const crumbs: Array<{ label: string; to?: Route }> = [
+    { label: "Humayun Rashid", to: route.section === "home" ? undefined : { section: "home" } },
+    { label: section.label, to: deep ? { section: route.section } : undefined },
+    ...(deep ? [{ label: record as string }] : []),
+  ];
 
   return (
     <div className="saas flex h-dvh bg-[var(--shell)] text-foreground antialiased">
@@ -132,35 +139,36 @@ export default function AppShell() {
               <PanelLeft className="size-4" strokeWidth={1.75} />
             </button>
             <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-1.5 text-[13px]">
-              <span className="shrink-0 text-foreground/50">Humayun Rashid</span>
-              {crumbs.map((c, i) => (
-                <span key={c} className="flex min-w-0 items-center gap-1.5">
-                  <span aria-hidden="true" className="text-foreground/25">/</span>
-                  <span
-                    className={cn("truncate", i === crumbs.length - 1 ? "font-medium" : "text-foreground/50")}
-                    aria-current={i === crumbs.length - 1 ? "page" : undefined}
-                  >
-                    {c}
+              {crumbs.map((c, i) => {
+                const last = i === crumbs.length - 1;
+                return (
+                  <span key={c.label} className={cn("flex items-center gap-1.5", last ? "min-w-0" : "shrink-0")}>
+                    {i > 0 && (
+                      <span aria-hidden="true" className="text-foreground/25">
+                        /
+                      </span>
+                    )}
+                    {c.to ? (
+                      <button
+                        type="button"
+                        onClick={() => go(c.to!)}
+                        className="-mx-1 rounded px-1 text-foreground/50 outline-none transition-colors hover:bg-foreground/[0.06] hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/60"
+                      >
+                        {c.label}
+                      </button>
+                    ) : (
+                      <span className={cn("truncate", last ? "font-medium" : "text-foreground/50")} aria-current={last ? "page" : undefined}>
+                        {c.label}
+                      </span>
+                    )}
                   </span>
-                </span>
-              ))}
+                );
+              })}
             </nav>
             {route.section === "work" && !route.slug && (
               <div className="ml-auto shrink-0">
                 <WorkModeToggle value={workMode} onChange={setWorkMode} />
               </div>
-            )}
-            {study?.href && (
-              <a
-                href={study.href}
-                aria-label="Open page in a new tab"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="ml-auto inline-flex h-8 shrink-0 items-center gap-1 whitespace-nowrap rounded-md px-2.5 text-[13px] text-foreground/60 outline-none transition-colors hover:bg-foreground/[0.06] hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/60"
-              >
-                <span className="hidden sm:inline" aria-hidden="true">Open page</span>
-                <ArrowUpRight className="size-3.5" aria-hidden="true" />
-              </a>
             )}
           </header>
 
