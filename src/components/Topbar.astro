@@ -10,9 +10,8 @@ const { showBack = false, showNav = false } = Astro.props;
 <div class="topbar">
   {
     showBack && (
-      <a class="back-link" href="/">
-        <span class="arrow">←</span>
-        Back
+      <a class="back-link" href="/" aria-label="Back to home" title="Back to home">
+        <span class="arrow" aria-hidden="true">←</span>
       </a>
     )
   }
@@ -169,15 +168,24 @@ const { showBack = false, showNav = false } = Astro.props;
      variable-driven so it matches whichever page it's on (case study
      pages now carry the same dark-mode tokens as the homepage). */
   .topbar .back-link {
+    position: relative;
     display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
-    padding: 0.5rem 0.75rem;
+    padding: 0.5rem;
     border-radius: 4px;
-    font-size: 0.85rem;
+    font-size: 1rem;
     color: var(--label, #8a8a8a);
     text-decoration: none;
     transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  /* Invisible hit area: the arrow's visible box is ~30x36, so pad the
+     tappable region out to the 44x44 minimum without changing how the
+     link looks. */
+  .topbar .back-link::after {
+    content: "";
+    position: absolute;
+    inset: -4px -7px;
   }
 
   .topbar .back-link:hover,
