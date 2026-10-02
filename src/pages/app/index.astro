@@ -31,8 +31,14 @@ import "../../styles/global.css";
           );
           return hour >= 19 || hour < 6;
         }
+        // A choice made with the sidebar toggle wins over the clock.
         function apply() {
-          document.documentElement.classList.toggle("dark", isNight());
+          var saved = null;
+          try {
+            saved = localStorage.getItem("site-theme");
+          } catch (e) {}
+          var dark = saved ? saved === "dark" : isNight();
+          document.documentElement.classList.toggle("dark", dark);
         }
         apply();
         setInterval(apply, 60000);

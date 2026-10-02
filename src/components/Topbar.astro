@@ -259,8 +259,20 @@ const { showBack = false, showNav = false, hideLogo = false } = Astro.props;
     return hour >= 19 || hour < 6;
   }
 
+  // The /app shell can store a manual choice under "site-theme"; when
+  // there is one it wins, and a change made in the parent window (the
+  // sidebar toggle) reaches a framed case study through "storage".
+  function savedTheme() {
+    try {
+      const v = localStorage.getItem("site-theme");
+      return v === "dark" || v === "light" ? v : null;
+    } catch {
+      return null;
+    }
+  }
+
   function applyTheme() {
-    const theme = isNightInNYC() ? "dark" : "light";
+    const theme = savedTheme() ?? (isNightInNYC() ? "dark" : "light");
     if (document.documentElement.dataset.theme !== theme) {
       document.documentElement.dataset.theme = theme;
       window.dispatchEvent(new CustomEvent("themechange", { detail: { theme } }));
@@ -269,6 +281,9 @@ const { showBack = false, showNav = false, hideLogo = false } = Astro.props;
 
   applyTheme();
   setInterval(applyTheme, 60000);
+  window.addEventListener("storage", (e) => {
+    if (e.key === "site-theme") applyTheme();
+  });
 
   // Touch devices have no real hover, so the back link's ghost-button
   // state (transparent until hover) never gets a visible boundary on

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Moon, Sun } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { caseStudies, primaryNav, secondaryNav, type NavItem, type Route, type SectionId, type WorkItem } from "./data";
 
@@ -62,6 +62,43 @@ function ProjectMark({ w }: { w: WorkItem }) {
         <span className="size-2.5 rounded-[3px]" style={{ background: w.tone }} />
       )}
     </span>
+  );
+}
+
+// Light and dark switch. The shell follows New York time until you
+// choose; the choice is stored under "site-theme" (the framed case
+// studies read the same key) and the root class is the source of truth,
+// so the button also tracks the clock's own changes.
+function ThemeToggle() {
+  const [dark, setDark] = useState(false);
+  useEffect(() => {
+    const root = document.documentElement;
+    const read = () => setDark(root.classList.contains("dark"));
+    read();
+    const obs = new MutationObserver(read);
+    obs.observe(root, { attributes: true, attributeFilter: ["class"] });
+    return () => obs.disconnect();
+  }, []);
+
+  const toggle = () => {
+    const next = !document.documentElement.classList.contains("dark");
+    document.documentElement.classList.toggle("dark", next);
+    try {
+      localStorage.setItem("site-theme", next ? "dark" : "light");
+    } catch {}
+  };
+
+  const Icon = dark ? Sun : Moon;
+  return (
+    <button
+      type="button"
+      onClick={toggle}
+      aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
+      title={dark ? "Light mode" : "Dark mode"}
+      className="ml-auto grid size-7 shrink-0 place-items-center rounded-md text-foreground/55 outline-none transition-colors hover:bg-foreground/[0.07] hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/60"
+    >
+      <Icon className="size-[15px]" strokeWidth={1.75} />
+    </button>
   );
 }
 
@@ -191,6 +228,7 @@ export function Sidebar({ route, onGo }: { route: Route; onGo: (r: Route) => voi
             <span className="block truncate text-[13px] font-medium">Humayun Rashid</span>
             <span className="block truncate text-xs text-foreground/50">Designer and founder, NYC</span>
           </span>
+          <ThemeToggle />
         </div>
       </div>
     </div>
