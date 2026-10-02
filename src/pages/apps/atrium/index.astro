@@ -1197,23 +1197,30 @@ const footerArtInner = [
          it's the last thing to settle in, subtly. Only newly-revealed
          cards (initial load, or a scroll-triggered batch) animate -
          switching filters shows/hides instantly. */
-      .atrium-card[data-reveal] {
-        opacity: 0;
-        transform: translateX(-8px);
-        transition: opacity 0.5s ease, transform 0.5s ease;
-      }
+      @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+        .atrium-card[data-reveal] {
+          opacity: 0;
+          transform: translateX(-8px);
+          transition: opacity 0.28s ease-out, transform 0.28s ease-out;
+        }
 
-      .atrium-card[data-reveal].is-shown {
-        opacity: 1;
-        transform: none;
-      }
+        .atrium-card[data-reveal].is-shown {
+          opacity: 1;
+          transform: none;
+        }
 
-      .atrium-card[data-reveal] .atrium-cover {
-        opacity: 0;
-      }
+        .atrium-card[data-reveal] .atrium-cover {
+          opacity: 0;
+        }
 
-      .atrium-card[data-reveal].is-shown .atrium-cover {
-        opacity: 1;
+        .atrium-card[data-reveal].is-shown .atrium-cover {
+          opacity: 1;
+        }
+
+        html.motion-skip .atrium-card[data-reveal],
+        html.motion-skip .atrium-card[data-reveal] .atrium-cover {
+          transition: none !important;
+        }
       }
 
       /* Completes a short last row with blank ruled cells instead of
@@ -1949,6 +1956,10 @@ const footerArtInner = [
       // sentinel at the bottom of the grid scrolls into view - a
       // client-side "infinite scroll" that works against a fully
       // static, build-time list rather than a real paginated API.
+      import { skipMotionWhenHidden } from "../../../scripts/reveal";
+
+      skipMotionWhenHidden();
+
       const BATCH_SIZE = 12;
       const cards = Array.from(document.querySelectorAll<HTMLElement>("[data-reveal]"));
       const fillers = Array.from(document.querySelectorAll<HTMLElement>("[data-filler]"));
@@ -2045,18 +2056,20 @@ const footerArtInner = [
         const columnCount = getComputedStyle(grid).gridTemplateColumns.split(" ").length;
         cardsToReveal.forEach((card, i) => {
           if (card.classList.contains("is-shown")) return;
-          const delay = (i % columnCount) * 70;
+          const delay = (i % columnCount) * 30;
           card.style.transitionDelay = `${delay}ms`;
           const cover = card.querySelector<HTMLElement>(".atrium-cover");
-          if (cover) cover.style.transitionDelay = `${delay + 220}ms`;
+          if (cover) cover.style.transitionDelay = `${delay + 80}ms`;
         });
         // Force a reflow so the delay above is committed before the
         // class flips - otherwise the browser can coalesce both style
         // changes into one paint and skip the transition entirely.
         void grid.offsetHeight;
-        requestAnimationFrame(() => {
-          cardsToReveal.forEach((card) => card.classList.add("is-shown"));
-        });
+        const flip = () => cardsToReveal.forEach((card) => card.classList.add("is-shown"));
+        // rAF never fires in a hidden document, which would leave the
+        // whole grid invisible.
+        if (document.hidden) flip();
+        else requestAnimationFrame(flip);
       }
 
       applyVisibility();
@@ -2069,7 +2082,7 @@ const footerArtInner = [
         initialLoader?.classList.add("is-hidden");
         grid.classList.remove("is-priming");
         revealCardsWithStagger(cards.filter((c) => c.style.display !== "none"));
-      }, 500);
+      }, 250);
 
       let resizeTimer: ReturnType<typeof setTimeout>;
       window.addEventListener("resize", () => {

@@ -814,34 +814,37 @@ import Analytics from "@vercel/analytics/astro";
         margin-top: 0.9rem;
       }
 
-      /* On-load entrance, not scroll-triggered like the case study
-         template's [data-reveal] (that one uses an IntersectionObserver
-         since its content is far down a long page). This content sits
-         at/near the fold, so it should always animate in immediately
-         on every load/refresh instead of waiting on scroll. Kept
-         short and subtle - a small lift, not the case study's bigger
-         28px/0.8s version - since this fires unprompted on every
-         visit rather than once as the user scrolls to it. */
-      [data-load-reveal] {
-        opacity: 0;
-        transform: translateY(8px);
-        transition: opacity 0.55s ease, transform 0.55s ease;
+      /* On-load entrance for the intro and work list. Pure CSS, so
+         there is no script to wait on or fail: the content is in
+         the page and a short keyframe lifts it in. `backwards` fill
+         means an element only takes the keyframe's opacity-0 start
+         while its delay runs, then drops back to its normal styles
+         (so the row hover states aren't overridden afterwards).
+         --i is the item's position, set inline. Each step is 40ms,
+         with a slightly longer beat after the headline, so the whole
+         list is in place in well under a second. */
+      @keyframes load-reveal {
+        from {
+          opacity: 0;
+          transform: translateY(6px);
+        }
       }
 
-      /* transform: none (not translateY(0)) at rest - translateY(0)
-         is still a non-"none" transform value, which would keep a new
-         stacking context on every revealed element for no reason. */
-      [data-load-reveal].is-in {
-        opacity: 1;
-        transform: none;
+      [data-load-reveal] {
+        animation: load-reveal 280ms ease-out backwards;
+        animation-delay: calc(var(--i, 0) * 40ms);
       }
 
       @media (prefers-reduced-motion: reduce) {
         [data-load-reveal] {
-          opacity: 1;
-          transform: none;
-          transition: none;
+          animation: none;
         }
+      }
+
+      /* Loaded in a hidden tab or headless capture, where animations
+         never advance: skip it so the content isn't frozen invisible. */
+      html.motion-skip [data-load-reveal] {
+        animation: none;
       }
     </style>
   </head>
@@ -850,17 +853,17 @@ import Analytics from "@vercel/analytics/astro";
 
     <div class="col">
       <div class="intro">
-        <h1 class="intro-h1" data-load-reveal>Humayun Rashid is a designer and founder in <span class="nyc-word" aria-label="NYC">NYC</span></h1>
+        <h1 class="intro-h1" data-load-reveal style="--i: 0">Humayun Rashid is a designer and founder in <span class="nyc-word" aria-label="NYC">NYC</span></h1>
       </div>
 
       <section>
-        <p class="section-heading" data-load-reveal>Select Work</p>
+        <p class="section-heading" data-load-reveal style="--i: 3">Select Work</p>
 
         <div class="work-list">
           <button
             type="button"
             class="work-row"
-            data-load-reveal
+            data-load-reveal style="--i: 4"
             data-preview-img="/case-studies/sublime-security/home-preview.webp"
             data-preview-alt="Phishing simulation overview with repeat clickers and a group leaderboard"
             id="sublimeGateTrigger"
@@ -876,7 +879,7 @@ import Analytics from "@vercel/analytics/astro";
             <span class="desc">Led product design for email security teams to stop malicious threats.</span>
           </button>
 
-          <div class="work-row" data-load-reveal>
+          <div class="work-row" data-load-reveal style="--i: 5">
             <span class="row-top">
               <span class="title">Nessa Labs</span>
               <span class="meta">
@@ -889,7 +892,7 @@ import Analytics from "@vercel/analytics/astro";
 
           <a
             class="work-row"
-            data-load-reveal
+            data-load-reveal style="--i: 6"
             data-preview-img="/case-studies/pack/01-hero-a.webp"
             data-preview-alt="Pack platform interface"
             href="/work/pack"
@@ -906,7 +909,7 @@ import Analytics from "@vercel/analytics/astro";
 
           <a
             class="work-row"
-            data-load-reveal
+            data-load-reveal style="--i: 7"
             data-preview-img="/case-studies/ppvp/01-hero-desktop.webp"
             data-preview-alt="PPVP investment app home screen shown on a phone, held in hand"
             href="/work/ppvp"
@@ -923,7 +926,7 @@ import Analytics from "@vercel/analytics/astro";
 
           <a
             class="work-row"
-            data-load-reveal
+            data-load-reveal style="--i: 8"
             data-preview-img="/case-studies/inveterate/01-hero-desktop.webp"
             data-preview-alt="Inveterate membership dashboard on a laptop"
             href="/work/inveterate"
@@ -938,7 +941,7 @@ import Analytics from "@vercel/analytics/astro";
             <span class="desc">Zero to one design and launch for loyalty and membership platform.</span>
           </a>
 
-          <a class="work-row" data-load-reveal href="https://www.shoppinggives.com/" target="_blank" rel="noopener">
+          <a class="work-row" data-load-reveal style="--i: 9" href="https://www.shoppinggives.com/" target="_blank" rel="noopener">
             <span class="row-top">
               <span class="title">Shopping Gives</span>
               <span class="meta">
@@ -989,19 +992,9 @@ import Analytics from "@vercel/analytics/astro";
     <Footer />
 
     <script>
-      // On-load entrance for the intro paragraphs and work list -
-      // always fires on every load/refresh (not gated behind scroll
-      // the way the case study template's reveal is), staggered in
-      // DOM order: headline first, then a deliberately longer pause
-      // (HEADLINE_GAP_MS, bigger than the normal per-item step) so it
-      // has room to breathe before the paragraphs start, then the
-      // paragraphs and work rows step in one by one after that. Two
-      // rAFs so the initial opacity:0 state actually paints before
-      // the transition starts, or the first item would just snap
-      // straight to visible.
-      const loadRevealEls = document.querySelectorAll<HTMLElement>("[data-load-reveal]");
-      const LOAD_REVEAL_STEP_MS = 110;
-      const LOAD_REVEAL_HEADLINE_GAP_MS = 340;
+      import { skipMotionWhenHidden } from "../scripts/reveal";
+
+      skipMotionWhenHidden();
 
       const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -1044,22 +1037,6 @@ import Analytics from "@vercel/analytics/astro";
             }
           };
           window.setTimeout(cycleEmoji, 120);
-        }
-      }
-
-      if (loadRevealEls.length > 0) {
-        if (prefersReducedMotion) {
-          loadRevealEls.forEach((el) => el.classList.add("is-in"));
-        } else {
-          requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-              loadRevealEls.forEach((el, i) => {
-                const delay =
-                  i === 0 ? 0 : LOAD_REVEAL_HEADLINE_GAP_MS + (i - 1) * LOAD_REVEAL_STEP_MS;
-                setTimeout(() => el.classList.add("is-in"), delay);
-              });
-            });
-          });
         }
       }
 

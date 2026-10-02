@@ -195,9 +195,17 @@ const online = [
 
       .signature {
         width: min(100%, 218px);
-        opacity: 0;
-        transform: translateY(18px);
-        transition: opacity 0.55s ease, transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      /* Hidden only when a script will reveal it and the visitor
+         hasn't asked for reduced motion, so it can never be stranded
+         invisible. */
+      @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+        .signature {
+          opacity: 0;
+          transform: translateY(12px);
+          transition: opacity 0.28s ease-out, transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+        }
       }
 
       .signature svg {
@@ -323,6 +331,13 @@ const online = [
         }
       }
 
+      /* Loaded hidden (background tab, headless capture): transitions
+         never advance there, so skip the draw-in and show it. */
+      html.motion-skip .signature,
+      html.motion-skip .signature path {
+        transition: none;
+      }
+
       @media (prefers-reduced-motion: reduce) {
         .signature { transition: none; }
         .signature path { stroke-dashoffset: 0; transition: none; }
@@ -401,6 +416,8 @@ const online = [
     <Footer />
 
     <script>
+      import { initReveal } from "../scripts/reveal";
+
       document.querySelectorAll<HTMLAnchorElement>(".online a[data-user]").forEach((link) => {
         link.addEventListener("click", (event) => {
           event.preventDefault();
@@ -420,21 +437,7 @@ const online = [
           path.style.setProperty("--draw-delay", `${delay + 120}ms`);
         });
 
-        if ("IntersectionObserver" in window) {
-          const observer = new IntersectionObserver(
-            (entries) => {
-              entries.forEach((entry) => {
-                if (!entry.isIntersecting) return;
-                entry.target.classList.add("is-revealed");
-                observer.unobserve(entry.target);
-              });
-            },
-            { threshold: 0.6 }
-          );
-          observer.observe(signature);
-        } else {
-          signature.classList.add("is-revealed");
-        }
+        initReveal({ selector: ".signature[data-reveal]", lookahead: 0.1 });
       }
 
     </script>

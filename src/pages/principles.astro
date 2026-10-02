@@ -2,6 +2,7 @@
 import Topbar from "../components/Topbar.astro";
 import Footer from "../components/Footer.astro";
 import Analytics from "@vercel/analytics/astro";
+import "../styles/reveal.css";
 
 const principles = [
   {
@@ -292,28 +293,6 @@ const principles = [
         margin: 4rem auto;
         border-top: 1px solid var(--border);
       }
-
-      /* Subtle fade-up on scroll, same feel as the case study
-         template - content sits slightly below and transparent until
-         it scrolls into view, then settles into place. Fires once. */
-      [data-reveal] {
-        opacity: 0;
-        transform: translateY(24px);
-        transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-      }
-
-      [data-reveal].is-revealed {
-        opacity: 1;
-        transform: translateY(0);
-      }
-
-      @media (prefers-reduced-motion: reduce) {
-        [data-reveal] {
-          opacity: 1;
-          transform: none;
-          transition: none;
-        }
-      }
     </style>
   </head>
   <body>
@@ -334,7 +313,7 @@ const principles = [
         {
           principles.map((p, i) => (
             <>
-              <div class="principle" data-reveal style={`transition-delay: ${i * 90}ms`}>
+              <div class="principle" data-reveal style={`transition-delay: ${Math.min(i, 3) * 40}ms`}>
                 <span class="principle-num" aria-hidden="true">
                   {p.num}
                 </span>
@@ -353,24 +332,8 @@ const principles = [
     <Footer />
 
     <script>
-      const revealEls = document.querySelectorAll<HTMLElement>("[data-reveal]");
-      if (revealEls.length > 0) {
-        if ("IntersectionObserver" in window) {
-          const revealObserver = new IntersectionObserver(
-            (entries) => {
-              entries.forEach((entry) => {
-                if (!entry.isIntersecting) return;
-                entry.target.classList.add("is-revealed");
-                revealObserver.unobserve(entry.target);
-              });
-            },
-            { threshold: 0.25, rootMargin: "0px 0px -15% 0px" }
-          );
-          revealEls.forEach((el) => revealObserver.observe(el));
-        } else {
-          revealEls.forEach((el) => el.classList.add("is-revealed"));
-        }
-      }
+      import { initReveal } from "../scripts/reveal";
+      initReveal();
     </script>
   </body>
 </html>
