@@ -10,7 +10,7 @@ import { formatDate } from "./ui";
 // One Ideas post as an article. Text keeps the same measure as a case
 // study (44rem); the title and any figures sit inside it, the section
 // index appears at the edge once the first heading has scrolled up, and
-// a Back button returns to the list. A post written as `blocks` can mix
+// an "Ideas" button (arrow and name) returns to the list. A post written as `blocks` can mix
 // paragraphs (with *italic* and **bold**), headings, a pull quote, a list,
 // a centered image, and an image slideshow.
 
@@ -153,7 +153,7 @@ export function IdeaArticle({
           className="size-3.5 transition-transform duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-x-[3px] group-focus-visible:-translate-x-[3px] motion-reduce:transition-none"
           aria-hidden="true"
         />{" "}
-        Back
+        Ideas
       </button>
 
       <div

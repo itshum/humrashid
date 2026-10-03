@@ -27,7 +27,7 @@ function Brand({ d }: { d: string }) {
 export const PROFILE_LINKS = [
   { label: "LinkedIn", handle: "humayunrashid", href: "https://www.linkedin.com/in/humayunrashid/", icon: <Brand d={BRAND.linkedin} /> },
   { label: "GitHub", handle: "itshum", href: "https://github.com/itshum", icon: <Brand d={BRAND.github} /> },
-  { label: "X", handle: "@humrashid", href: "https://x.com/humrashid", icon: <Brand d={BRAND.x} /> },
+  { label: "fka Twitter", handle: "@humrashid", href: "https://x.com/humrashid", icon: <Brand d={BRAND.x} /> },
 ];
 
 const row =
@@ -121,7 +121,7 @@ export function ProfileMenu({ onGo, compact = false }: { onGo: (r: Route) => voi
                     {l.icon}
                     <span>{l.label}</span>
                     <span className="ml-auto truncate text-xs text-foreground/65">{l.handle}</span>
-                    <ArrowUpRight className="size-3.5 shrink-0 text-foreground/45 transition-colors group-hover:text-foreground" aria-hidden="true" />
+                    <ArrowUpRight className="size-3.5 shrink-0 -translate-x-1 translate-y-px text-foreground/65 opacity-0 transition-[opacity,transform] duration-200 group-hover:translate-x-0 group-hover:translate-y-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:translate-y-0 group-focus-visible:opacity-100 motion-reduce:transition-none [@media(hover:none)]:translate-x-0 [@media(hover:none)]:translate-y-0 [@media(hover:none)]:opacity-100" aria-hidden="true" />
                   </a>
                 </li>
               ))}
@@ -129,7 +129,7 @@ export function ProfileMenu({ onGo, compact = false }: { onGo: (r: Route) => voi
                 <button type="button" onClick={composeMail} className={row}>
                   <Mail className="size-4 shrink-0" strokeWidth={1.75} aria-hidden="true" />
                   <span>Email</span>
-                  <ArrowUpRight className="ml-auto size-3.5 shrink-0 text-foreground/45 transition-colors group-hover:text-foreground" aria-hidden="true" />
+                  <ArrowUpRight className="ml-auto size-3.5 shrink-0 -translate-x-1 translate-y-px text-foreground/65 opacity-0 transition-[opacity,transform] duration-200 group-hover:translate-x-0 group-hover:translate-y-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:translate-y-0 group-focus-visible:opacity-100 motion-reduce:transition-none [@media(hover:none)]:translate-x-0 [@media(hover:none)]:translate-y-0 [@media(hover:none)]:opacity-100" aria-hidden="true" />
                 </button>
               </li>
             </ul>

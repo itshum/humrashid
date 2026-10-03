@@ -54,8 +54,19 @@ import "../../styles/global.css";
         } catch (e) {}
       })();
     </script>
+    <style is:global>
+      /* The shell draws itself once the script has loaded; until then the
+         page is the shell's own frame color, light or dark. */
+      body {
+        margin: 0;
+        background: oklch(0.965 0.002 270);
+      }
+      html.dark body {
+        background: oklch(0.215 0.004 270);
+      }
+    </style>
   </head>
   <body>
-    <AppShell client:load />
+    <AppShell client:only="react" />
   </body>
 </html>

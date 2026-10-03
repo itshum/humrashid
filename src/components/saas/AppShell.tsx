@@ -24,7 +24,14 @@ import "./saas.css";
 // panel on the right that swaps views. Layout from Catalyst, density
 // from Linear, restraint from Cursor.
 export default function AppShell() {
-  const [route, setRoute] = useState<Route>({ section: "home" });
+  // Read the page's address on the first render, so a refresh opens the
+  // page you are on instead of showing Home first. (The shell renders in
+  // the browser only, so the address is always there.)
+  const [route, setRoute] = useState<Route>(() =>
+    typeof window === "undefined"
+      ? { section: "home" }
+      : parseHash(window.location.hash),
+  );
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [workMode, setWorkMode] = useState<WorkMode>("list");
