@@ -14,7 +14,7 @@ const MARK_CELLS: Array<string | null> = [
 
 function LogoMark() {
   return (
-    <svg viewBox="0 0 26 26" className="size-7 shrink-0 rounded-md bg-foreground/[0.06]" aria-hidden="true">
+    <svg viewBox="0 0 26 26" className="size-7 shrink-0" aria-hidden="true">
       {MARK_CELLS.map((fill, i) => (
         <rect
           key={i}
@@ -195,10 +195,7 @@ export function Sidebar({ route, onGo }: { route: Route; onGo: (r: Route) => voi
           className="flex w-full items-center gap-2.5 rounded-md p-1 text-left outline-none transition-colors hover:bg-foreground/[0.05] focus-visible:ring-2 focus-visible:ring-ring/60"
         >
           <LogoMark />
-          <span className="min-w-0 leading-tight">
-            <span className="block truncate text-[13px] font-medium">Humayun Rashid</span>
-            <span className="block truncate text-xs text-foreground/50">Portfolio</span>
-          </span>
+          <span className="min-w-0 truncate text-[13px] font-medium">Humayun Rashid</span>
         </button>
       </div>
 
@@ -221,12 +218,10 @@ export function Sidebar({ route, onGo }: { route: Route; onGo: (r: Route) => voi
           ))}
         </nav>
         <div className="mt-2 flex items-center gap-2.5 rounded-md p-1">
-          <span className="grid size-7 shrink-0 place-items-center rounded-full bg-foreground/[0.08] text-[11px] font-medium" aria-hidden="true">
-            HR
-          </span>
+          <img src="/about/avatar.jpg" alt="" width="28" height="28" className="size-7 shrink-0 rounded-full bg-foreground/[0.08] object-cover" />
           <span className="min-w-0 leading-tight">
             <span className="block truncate text-[13px] font-medium">Humayun Rashid</span>
-            <span className="block truncate text-xs text-foreground/50">Designer and founder, NYC</span>
+            <span className="block truncate text-xs text-foreground/50">Designer &amp; founder</span>
           </span>
           <ThemeToggle />
         </div>

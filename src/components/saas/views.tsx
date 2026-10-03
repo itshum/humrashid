@@ -5,6 +5,8 @@ import { apps, caseStudyFor, photos, profile, work, type Route, type WorkItem } 
 import { CaseStudyFrame } from "./CaseStudyFrame";
 import { HomePanels } from "./HomePanels";
 import PackCaseStudy from "./pack/PackCaseStudy";
+import PpvpCaseStudy from "./ppvp/PpvpCaseStudy";
+import InveterateCaseStudy from "./inveterate/InveterateCaseStudy";
 import { ideas, principles, principlesIntro } from "./content";
 import { EmptyPanel, principleVisuals } from "./principleVisuals";
 import { Cover, PageHeader, Segmented, Tag, formatDate } from "./ui";
@@ -480,9 +482,11 @@ export function View({ route, go, workMode }: { route: Route; go: Go; workMode: 
       return <Home go={go} />;
     case "work":
       if (!route.slug) return <WorkIndex go={go} mode={workMode} />;
-      // Pack has been redesigned natively for the shell; the others still
+      // Pack, PPVP and Inveterate have been redesigned natively for the shell; the others still
       // open their original pages in a frame.
       if (route.slug === "pack") return <PackCaseStudy go={go} />;
+      if (route.slug === "ppvp") return <PpvpCaseStudy go={go} />;
+      if (route.slug === "inveterate") return <InveterateCaseStudy go={go} />;
       return caseStudyFor(route) ? <CaseStudyFrame work={caseStudyFor(route)!} go={go} /> : <NotFound section="work" go={go} />;
     case "ideas":
       return route.slug ? <IdeaPost slug={route.slug} go={go} /> : <IdeasIndex go={go} />;

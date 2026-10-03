@@ -81,17 +81,16 @@ export default function AppShell() {
       : route.section === "ideas"
         ? ideas.find((p) => p.slug === route.slug)?.title
         : undefined;
-  // Every crumb but the last is a link: the name goes Home, and the
-  // section goes to its own index.
+  // Starts at the page itself (the sidebar already says whose site this
+  // is). Every crumb but the last is a link back to the section index.
   const deep = !!(route.slug && record);
   const crumbs: Array<{ label: string; to?: Route }> = [
-    { label: "Humayun Rashid", to: route.section === "home" ? undefined : { section: "home" } },
     { label: section.label, to: deep ? { section: route.section } : undefined },
     ...(deep ? [{ label: record as string }] : []),
   ];
 
   return (
-    <div className="saas flex h-dvh bg-[var(--shell)] text-foreground antialiased">
+    <div className="saas fixed inset-0 flex bg-[var(--shell)] text-foreground antialiased">
       {/* Desktop sidebar */}
       <aside className={cn("hidden w-64 shrink-0 lg:block", !sidebarOpen && "lg:hidden")} aria-label="Sidebar">
         <Sidebar route={route} onGo={go} />
