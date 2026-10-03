@@ -170,3 +170,53 @@ html.saas-intro .saas-panel > :not(.saas-loader) {
     opacity: 1;
   }
 }
+
+/* The profile signature: three strokes drawn one after another, the same
+   draw-in as the About page (each stroke's length, duration and delay are
+   set from script). Hidden only when a script will reveal it and motion
+   is allowed, so it can never be stranded invisible. */
+.profile-signature svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.profile-signature path {
+  stroke: currentColor;
+  stroke-dasharray: var(--path-length);
+  stroke-dashoffset: var(--path-length);
+}
+
+@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+  .profile-signature {
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.28s ease-out, transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+
+.profile-signature.is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.profile-signature.is-revealed path {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset var(--draw-duration) linear var(--draw-delay);
+}
+
+html.motion-skip .profile-signature,
+html.motion-skip .profile-signature path {
+  transition: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .profile-signature,
+  .profile-signature path {
+    transition: none;
+  }
+  .profile-signature path {
+    stroke-dashoffset: 0;
+  }
+}

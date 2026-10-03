@@ -13,6 +13,9 @@ export interface Shot {
   src: string;
   alt: string;
   caption: string;
+  // Intrinsic size, for shots shown as plain figures or in a grid.
+  width?: number;
+  height?: number;
 }
 
 export const pack = {
@@ -104,12 +107,14 @@ export const pack = {
     body: [
       "Modern headless builds mean wrangling a pile of apps just to get started. We stripped the setup down so developers could plug into Git with their own API keys and start building without an opinionated workflow forced on them, with real visibility into deploys and status instead of a black box.",
     ],
+    // Shown as a two by two grid, in this reading order.
     shots: [
+      { id: "profile", label: "Profile", src: `${IMG}/08-s01-collection-building-desktop.webp`, alt: "A store owner’s profile settings", caption: "A store owner’s profile: name, email, image, and password." },
+      { id: "team", label: "Team and roles", src: `${IMG}/09-s01-dev-onboarding-desktop.webp`, alt: "Members grouped by role, with a change-role menu", caption: "Members grouped by role (admin, store owner, developer), with seats, status, and per-person access." },
       { id: "git", label: "Git and API keys", src: `${IMG}/10-s01-git-integration-desktop.webp`, alt: "Developer settings with a connected Git repository and API keys", caption: "Developer settings: a connected Git repository, API keys, and the storefront starter variables, each one copyable." },
       { id: "deploys", label: "Deploys", src: `${IMG}/11-s01-deploy-logs-desktop.webp`, alt: "Deploy history with published and failed statuses", caption: "Deploys: auto-deploy on every change, with a history that shows what published and what failed." },
-      { id: "team", label: "Team and roles", src: `${IMG}/09-s01-dev-onboarding-desktop.webp`, alt: "Members grouped by role, with a change-role menu", caption: "Members grouped by role (admin, store owner, developer), with seats, status, and per-person access." },
-      { id: "profile", label: "Profile", src: `${IMG}/08-s01-collection-building-desktop.webp`, alt: "A store owner’s profile settings", caption: "A store owner’s profile: name, email, image, and password." },
     ] as Shot[],
+    caption: "Clockwise from top left: a store owner’s profile, members grouped by role, deploys with their history, and developer settings with Git and API keys.",
   },
 
   customizer: {

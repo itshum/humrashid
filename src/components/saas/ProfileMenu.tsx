@@ -23,7 +23,7 @@ function Brand({ d }: { d: string }) {
   );
 }
 
-const LINKS = [
+export const PROFILE_LINKS = [
   { label: "LinkedIn", handle: "humayunrashid", href: "https://www.linkedin.com/in/humayunrashid/", icon: <Brand d={BRAND.linkedin} /> },
   { label: "GitHub", handle: "itshum", href: "https://github.com/itshum", icon: <Brand d={BRAND.github} /> },
   { label: "X", handle: "@humrashid", href: "https://x.com/humrashid", icon: <Brand d={BRAND.x} /> },
@@ -34,7 +34,7 @@ const row =
 
 // The address is put together on click, so it never sits in the markup
 // for a scraper to read (the About page does the same).
-function composeMail() {
+export function composeMail() {
   window.location.href = `mailto:${["hum", "nessalab.com"].join("@")}`;
 }
 
@@ -101,7 +101,7 @@ export function ProfileMenu({ onGo, compact = false }: { onGo: (r: Route) => voi
 
           <div className="mt-1.5 border-t border-[var(--line)] pt-1.5">
             <ul>
-              {LINKS.map((l) => (
+              {PROFILE_LINKS.map((l) => (
                 <li key={l.label}>
                   <a href={l.href} target="_blank" rel="noreferrer noopener" className={row}>
                     {l.icon}

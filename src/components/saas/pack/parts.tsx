@@ -1,4 +1,11 @@
-import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent, type ReactNode } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type PointerEvent,
+  type ReactNode,
+} from "react";
 import { Dialog } from "radix-ui";
 import { Maximize2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -10,7 +17,15 @@ import type { Shot } from "./packContent";
 
 // Dense UI screenshots are hard to read at column width, so every one
 // can open at full size.
-export function Expandable({ src, alt, children }: { src: string; alt: string; children: ReactNode }) {
+export function Expandable({
+  src,
+  alt,
+  children,
+}: {
+  src: string;
+  alt: string;
+  children: ReactNode;
+}) {
   return (
     <Dialog.Root>
       <div className="group relative">
@@ -30,10 +45,19 @@ export function Expandable({ src, alt, children }: { src: string; alt: string; c
         <Dialog.Content
           aria-describedby={undefined}
           className="saas fixed inset-0 z-50 grid place-items-center p-4 outline-none sm:p-8"
-          onClick={(e) => e.target === e.currentTarget && e.currentTarget.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }))}
+          onClick={(e) =>
+            e.target === e.currentTarget &&
+            e.currentTarget.dispatchEvent(
+              new KeyboardEvent("keydown", { key: "Escape", bubbles: true }),
+            )
+          }
         >
           <Dialog.Title className="sr-only">{alt}</Dialog.Title>
-          <img src={src} alt={alt} className="max-h-full max-w-full rounded-[4px] object-contain shadow-2xl" />
+          <img
+            src={src}
+            alt={alt}
+            className="max-h-full max-w-full rounded-[4px] object-contain shadow-2xl"
+          />
           <Dialog.Close
             aria-label="Close"
             className="absolute right-4 top-4 grid size-9 place-items-center rounded-[4px] bg-white/15 text-white outline-none backdrop-blur hover:bg-white/25 focus-visible:ring-2 focus-visible:ring-white"
@@ -64,7 +88,7 @@ export function Figure({
   className?: string;
 }) {
   return (
-    <figure className={className}>
+    <figure data-reveal className={className}>
       <Expandable src={src} alt={alt}>
         <img
           src={src}
@@ -72,10 +96,12 @@ export function Figure({
           width={width}
           height={height}
           loading="lazy"
-          className="h-auto w-full rounded-[4px] border border-[var(--line)]"
+          className="h-auto w-full rounded-[4px]"
         />
       </Expandable>
-      <figcaption className="mt-2.5 max-w-[44rem] text-[13px] leading-[1.45] text-foreground/55">{caption}</figcaption>
+      <figcaption className="mt-2.5 max-w-[44rem] text-[13px] leading-[1.45] text-foreground/55">
+        {caption}
+      </figcaption>
     </figure>
   );
 }
@@ -84,7 +110,15 @@ export function Figure({
 
 // A set of related screens, one at a time at a readable size, in a
 // fixed-height frame so switching never shifts the page.
-export function ShotTabs({ id, label, shots }: { id: string; label: string; shots: Shot[] }) {
+export function ShotTabs({
+  id,
+  label,
+  shots,
+}: {
+  id: string;
+  label: string;
+  shots: Shot[];
+}) {
   const [active, setActive] = useState(0);
   const refs = useRef<Array<HTMLButtonElement | null>>([]);
   const shot = shots[active];
@@ -99,8 +133,13 @@ export function ShotTabs({ id, label, shots }: { id: string; label: string; shot
   };
 
   return (
-    <figure className="mt-8">
-      <div role="tablist" aria-label={label} onKeyDown={onKeyDown} className="flex flex-wrap gap-1">
+    <figure data-reveal className="mt-8">
+      <div
+        role="tablist"
+        aria-label={label}
+        onKeyDown={onKeyDown}
+        className="flex flex-wrap gap-1"
+      >
         {shots.map((s, i) => (
           <button
             key={s.id}
@@ -115,7 +154,9 @@ export function ShotTabs({ id, label, shots }: { id: string; label: string; shot
             onClick={() => setActive(i)}
             className={cn(
               "h-8 rounded-[4px] px-3 text-[13px] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring/60",
-              i === active ? "bg-[var(--surface-2)] font-medium text-foreground" : "text-foreground/55 hover:bg-[var(--surface)] hover:text-foreground",
+              i === active
+                ? "bg-[var(--surface-2)] font-medium text-foreground"
+                : "text-foreground/55 hover:bg-[var(--surface)] hover:text-foreground",
             )}
           >
             {s.label}
@@ -127,7 +168,7 @@ export function ShotTabs({ id, label, shots }: { id: string; label: string; shot
         role="tabpanel"
         id={`${id}-panel`}
         aria-labelledby={`${id}-tab-${shot.id}`}
-        className="mt-3 rounded-[4px] border border-[var(--line)] bg-[var(--surface)] p-3 sm:p-4"
+        className="mt-3 rounded-[4px] bg-[var(--surface)] p-3 sm:p-4"
       >
         <Expandable src={shot.src} alt={shot.alt}>
           {/* A fixed-height flex box: its height is definite, so the image's
@@ -139,14 +180,61 @@ export function ShotTabs({ id, label, shots }: { id: string; label: string; shot
               src={shot.src}
               alt={shot.alt}
               loading="lazy"
-              className="saas-fade h-auto max-h-full w-auto min-h-0 max-w-full rounded-[4px] border border-[var(--line)] object-contain"
+              className="saas-fade h-auto max-h-full w-auto min-h-0 max-w-full rounded-[4px] object-contain"
             />
           </div>
         </Expandable>
       </div>
-      <figcaption className="mt-2.5 max-w-[44rem] text-[13px] leading-[1.45] text-foreground/55" aria-live="polite">
+      <figcaption
+        className="mt-2.5 max-w-[44rem] text-[13px] leading-[1.45] text-foreground/55"
+        aria-live="polite"
+      >
         {shot.caption}
       </figcaption>
+    </figure>
+  );
+}
+
+/* ------------------------------ ShotGrid --------------------------- */
+
+// Several screens at once, two across, each a click away from full size.
+// For a set that reads best seen together rather than one at a time.
+export function ShotGrid({
+  shots,
+  caption,
+  className,
+}: {
+  shots: Shot[];
+  caption?: string;
+  className?: string;
+}) {
+  return (
+    <figure className={className}>
+      <div className="grid gap-3 sm:grid-cols-2">
+        {shots.map((s, i) => (
+          <div
+            key={s.id}
+            data-reveal
+            style={{ transitionDelay: `${Math.min(i, 3) * 40}ms` }}
+          >
+            <Expandable src={s.src} alt={s.alt}>
+              <img
+                src={s.src}
+                alt={s.alt}
+                width={1350}
+                height={1200}
+                loading="lazy"
+                className="h-auto w-full rounded-[4px]"
+              />
+            </Expandable>
+          </div>
+        ))}
+      </div>
+      {caption && (
+        <figcaption className="mt-2.5 max-w-[44rem] text-[13px] leading-[1.45] text-foreground/55">
+          {caption}
+        </figcaption>
+      )}
     </figure>
   );
 }
@@ -183,7 +271,8 @@ export function Compare({
   // A small nudge when it scrolls into view, so it reads as draggable.
   useEffect(() => {
     const el = box.current;
-    if (!el || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!el || window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+      return;
     let raf = 0;
     const io = new IntersectionObserver(([entry]) => {
       if (!entry.isIntersecting) return;
@@ -205,16 +294,22 @@ export function Compare({
   }, []);
 
   return (
-    <figure className="mt-8">
+    <figure data-reveal className="mt-8">
       <div
         ref={box}
         onPointerDown={onDown}
         onPointerMove={(e) => dragging.current && move(e.clientX)}
         onPointerUp={() => (dragging.current = false)}
         onPointerCancel={() => (dragging.current = false)}
-        className="relative aspect-[2760/1500] w-full cursor-ew-resize touch-pan-y select-none overflow-hidden rounded-[4px] border border-[var(--line)] focus-within:ring-2 focus-within:ring-ring/60"
+        className="relative aspect-[2760/1500] w-full cursor-ew-resize touch-pan-y select-none overflow-hidden rounded-[4px] focus-within:ring-2 focus-within:ring-ring/60"
       >
-        <img src={after.src} alt={alt} loading="lazy" draggable={false} className="absolute inset-0 size-full object-cover" />
+        <img
+          src={after.src}
+          alt={alt}
+          loading="lazy"
+          draggable={false}
+          className="absolute inset-0 size-full object-cover"
+        />
         <img
           src={before.src}
           alt=""
@@ -223,17 +318,35 @@ export function Compare({
           className="absolute inset-0 size-full object-cover"
           style={{ clipPath: `inset(0 ${100 - pos}% 0 0)` }}
         />
-        <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 w-px bg-white/90 shadow-[0_0_0_1px_rgba(0,0,0,0.25)]" style={{ left: `${pos}%` }}>
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-y-0 w-px bg-white/90 shadow-[0_0_0_1px_rgba(0,0,0,0.25)]"
+          style={{ left: `${pos}%` }}
+        >
           <span className="absolute left-1/2 top-1/2 grid size-8 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-white text-black shadow-md ring-1 ring-black/10">
-            <svg viewBox="0 0 20 20" className="size-4" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              viewBox="0 0 20 20"
+              className="size-4"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.7"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <path d="M7.5 5 3 10l4.5 5M12.5 5 17 10l-4.5 5" />
             </svg>
           </span>
         </div>
-        <span className="pointer-events-none absolute left-2.5 top-2.5 rounded-[3px] bg-black/60 px-2 py-0.5 text-[11px] font-medium text-white backdrop-blur" style={{ opacity: pos > 14 ? 1 : 0, transition: "opacity 150ms" }}>
+        <span
+          className="pointer-events-none absolute left-2.5 top-2.5 rounded-[3px] bg-black/60 px-2 py-0.5 text-[11px] font-medium text-white backdrop-blur"
+          style={{ opacity: pos > 14 ? 1 : 0, transition: "opacity 150ms" }}
+        >
           {before.label}
         </span>
-        <span className="pointer-events-none absolute right-2.5 top-2.5 rounded-[3px] bg-black/60 px-2 py-0.5 text-[11px] font-medium text-white backdrop-blur" style={{ opacity: pos < 86 ? 1 : 0, transition: "opacity 150ms" }}>
+        <span
+          className="pointer-events-none absolute right-2.5 top-2.5 rounded-[3px] bg-black/60 px-2 py-0.5 text-[11px] font-medium text-white backdrop-blur"
+          style={{ opacity: pos < 86 ? 1 : 0, transition: "opacity 150ms" }}
+        >
           {after.label}
         </span>
         <input
@@ -246,7 +359,9 @@ export function Compare({
           className="sr-only"
         />
       </div>
-      <figcaption className="mt-2.5 max-w-[44rem] text-[13px] leading-[1.45] text-foreground/55">{caption}</figcaption>
+      <figcaption className="mt-2.5 max-w-[44rem] text-[13px] leading-[1.45] text-foreground/55">
+        {caption}
+      </figcaption>
     </figure>
   );
 }

@@ -38,10 +38,12 @@ export function skipMotionWhenHidden() {
   if (document.hidden) document.documentElement.classList.add("motion-skip");
 }
 
-export function initReveal({ selector = SELECTOR, lookahead = LOOKAHEAD } = {}) {
+// Returns a function that stops listening, for pages that mount and
+// unmount their content (the /app shell's case studies).
+export function initReveal({ selector = SELECTOR, lookahead = LOOKAHEAD } = {}): () => void {
   skipMotionWhenHidden();
   const pending = new Set(document.querySelectorAll<HTMLElement>(selector));
-  if (pending.size === 0) return;
+  if (pending.size === 0) return () => {};
 
   const show = (el: HTMLElement) => {
     el.classList.add(REVEALED);
@@ -52,7 +54,7 @@ export function initReveal({ selector = SELECTOR, lookahead = LOOKAHEAD } = {}) 
 
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
     showAll();
-    return;
+    return () => {};
   }
 
   let frame = 0;
@@ -74,6 +76,9 @@ export function initReveal({ selector = SELECTOR, lookahead = LOOKAHEAD } = {}) 
   };
 
   window.addEventListener("scroll", request, { passive: true });
+  // Scroll events don't bubble, so a page that scrolls inside a panel
+  // rather than the window is only heard through the capture phase.
+  document.addEventListener("scroll", request, { passive: true, capture: true });
   window.addEventListener("resize", request, { passive: true });
   window.addEventListener("hashchange", sweep);
   window.addEventListener("pageshow", sweep);
@@ -81,7 +86,7 @@ export function initReveal({ selector = SELECTOR, lookahead = LOOKAHEAD } = {}) 
   document.addEventListener("visibilitychange", sweep);
   window.addEventListener("beforeprint", showAll);
 
-  STARTUP_SWEEPS_MS.forEach((ms) => window.setTimeout(sweep, ms));
+  const timers = STARTUP_SWEEPS_MS.map((ms) => window.setTimeout(sweep, ms));
 
   // A hidden document gets neither scroll events nor animation
   // frames, so something driving it (a headless capture that scrolls
@@ -91,4 +96,18 @@ export function initReveal({ selector = SELECTOR, lookahead = LOOKAHEAD } = {}) 
     if (pending.size === 0) window.clearInterval(hiddenPoll);
     else if (document.hidden) sweep();
   }, HIDDEN_POLL_MS);
+
+  return () => {
+    window.removeEventListener("scroll", request);
+    document.removeEventListener("scroll", request, { capture: true });
+    window.removeEventListener("resize", request);
+    window.removeEventListener("hashchange", sweep);
+    window.removeEventListener("pageshow", sweep);
+    window.removeEventListener("load", sweep);
+    document.removeEventListener("visibilitychange", sweep);
+    window.removeEventListener("beforeprint", showAll);
+    timers.forEach((t) => window.clearTimeout(t));
+    window.clearInterval(hiddenPoll);
+    if (frame) cancelAnimationFrame(frame);
+  };
 }

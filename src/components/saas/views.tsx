@@ -1,12 +1,31 @@
 import { useState } from "react";
-import { ArrowLeft, ArrowRight, ArrowUpRight, ImageIcon, LayoutGrid, LayoutList, Lock, Rows3, Grid2x2 } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  ArrowUpRight,
+  ImageIcon,
+  LayoutGrid,
+  LayoutList,
+  Lock,
+  Rows3,
+  Grid2x2,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
-import { apps, caseStudyFor, photos, profile, work, type Route, type WorkItem } from "./data";
+import {
+  apps,
+  caseStudyFor,
+  photos,
+  profile,
+  work,
+  type Route,
+  type WorkItem,
+} from "./data";
 import { CaseStudyFrame } from "./CaseStudyFrame";
 import { HomePanels } from "./HomePanels";
 import PackCaseStudy from "./pack/PackCaseStudy";
 import PpvpCaseStudy from "./ppvp/PpvpCaseStudy";
 import InveterateCaseStudy from "./inveterate/InveterateCaseStudy";
+import { ProfilePage } from "./ProfilePage";
 import { ideas, principles, principlesIntro } from "./content";
 import { EmptyPanel, principleVisuals } from "./principleVisuals";
 import { useWebTabs, wantsBrowserTab } from "./webTabs";
@@ -16,15 +35,29 @@ type Go = (r: Route) => void;
 export type WorkMode = "list" | "cards";
 
 // List | Cards switch for the Work page, on the right of its heading.
-export function WorkModeToggle({ value, onChange }: { value: WorkMode; onChange: (m: WorkMode) => void }) {
+export function WorkModeToggle({
+  value,
+  onChange,
+}: {
+  value: WorkMode;
+  onChange: (m: WorkMode) => void;
+}) {
   return (
     <Segmented
       label="View work as"
       value={value}
       onChange={onChange}
       options={[
-        { value: "list", label: "List", icon: <LayoutList className="size-3.5" aria-hidden="true" /> },
-        { value: "cards", label: "Cards", icon: <LayoutGrid className="size-3.5" aria-hidden="true" /> },
+        {
+          value: "list",
+          label: "List",
+          icon: <LayoutList className="size-3.5" aria-hidden="true" />,
+        },
+        {
+          value: "cards",
+          label: "Cards",
+          icon: <LayoutGrid className="size-3.5" aria-hidden="true" />,
+        },
       ]}
     />
   );
@@ -33,7 +66,10 @@ export function WorkModeToggle({ value, onChange }: { value: WorkMode; onChange:
 function NotFound({ section, go }: { section: "work" | "ideas"; go: Go }) {
   return (
     <>
-      <PageHeader title="Not found" description="That page doesn't exist in this shell yet." />
+      <PageHeader
+        title="Not found"
+        description="That page doesn't exist in this shell yet."
+      />
     </>
   );
 }
@@ -51,8 +87,13 @@ function Home({ go }: { go: Go }) {
 
       {/* On wide screens the intro is exactly as wide as the first two
           panels above it: two thirds of the row, less half a gap. */}
-      <section aria-label="About" className="mt-10 lg:w-[calc((200%-1rem)/3)] lg:max-w-full">
-        <p className="text-pretty text-[15px] leading-7 text-foreground/80">{profile.intro}</p>
+      <section
+        aria-label="About"
+        className="mt-10 lg:w-[calc((200%-1rem)/3)] lg:max-w-full"
+      >
+        <p className="text-pretty text-[15px] leading-7 text-foreground/80">
+          {profile.intro}
+        </p>
         <button
           type="button"
           onClick={() => go({ section: "profile" })}
@@ -71,7 +112,11 @@ function Home({ go }: { go: Go }) {
           <h2 id="home-writing" className="text-sm font-medium">
             Recent writing
           </h2>
-          <button type="button" onClick={() => go({ section: "ideas" })} className="text-[13px] text-foreground/55 hover:text-foreground">
+          <button
+            type="button"
+            onClick={() => go({ section: "ideas" })}
+            className="text-[13px] text-foreground/55 hover:text-foreground"
+          >
             View all
           </button>
         </div>
@@ -89,17 +134,38 @@ const DASH = <span className="text-foreground/30">—</span>;
 // then Role, Market, and finally Details and Company.
 const COLS = [
   { key: "project", label: "Project", cls: "w-[16%]", show: "" },
-  { key: "details", label: "Details", cls: "w-[21%]", show: "hidden xl:table-cell" },
-  { key: "market", label: "Market", cls: "w-[11%]", show: "hidden lg:table-cell" },
+  {
+    key: "details",
+    label: "Details",
+    cls: "w-[21%]",
+    show: "hidden xl:table-cell",
+  },
+  {
+    key: "market",
+    label: "Market",
+    cls: "w-[11%]",
+    show: "hidden lg:table-cell",
+  },
   { key: "type", label: "Type", cls: "w-[10%]", show: "hidden sm:table-cell" },
   { key: "role", label: "Role", cls: "w-[17%]", show: "hidden md:table-cell" },
-  { key: "company", label: "Company", cls: "w-[13%]", show: "hidden xl:table-cell" },
+  {
+    key: "company",
+    label: "Company",
+    cls: "w-[13%]",
+    show: "hidden xl:table-cell",
+  },
   { key: "year", label: "Year", cls: "w-[12%] text-right", show: "" },
 ] as const;
 
 function WorkTable({ items, go }: { items: WorkItem[]; go: Go }) {
   const { open: openWeb } = useWebTabs();
-  const web = (w: WorkItem) => openWeb({ id: w.slug, url: w.href!, title: w.name, embed: w.embed ?? false });
+  const web = (w: WorkItem) =>
+    openWeb({
+      id: w.slug,
+      url: w.href!,
+      title: w.name,
+      embed: w.embed ?? false,
+    });
   const cell = (key: string) => COLS.find((c) => c.key === key)!.show;
   const text = "truncate py-3 pr-4 text-foreground/60";
   return (
@@ -124,15 +190,28 @@ function WorkTable({ items, go }: { items: WorkItem[]; go: Go }) {
       <tbody>
         {items.map((w) => {
           const open = w.kind === "case-study";
-          const dot = <span aria-hidden="true" className="size-2.5 shrink-0 rounded-[3px]" style={{ background: w.tone }} />;
+          const dot = (
+            <span
+              aria-hidden="true"
+              className="size-2.5 shrink-0 rounded-[3px]"
+              style={{ background: w.tone }}
+            />
+          );
           return (
             <tr
               key={w.slug}
-              onClick={open ? () => go({ section: "work", slug: w.slug }) : w.href ? () => web(w) : undefined}
+              onClick={
+                open
+                  ? () => go({ section: "work", slug: w.slug })
+                  : w.href
+                    ? () => web(w)
+                    : undefined
+              }
               className={cn(
                 "[&>*]:border-b [&>*]:border-[var(--line)] [&>*:first-child]:border-l [&>*:last-child]:border-r",
                 "last:[&>*:first-child]:rounded-bl-[4px] last:[&>*:last-child]:rounded-br-[4px]",
-                (open || w.href) && "cursor-pointer hover:[&>*]:bg-foreground/[0.03]",
+                (open || w.href) &&
+                  "cursor-pointer hover:[&>*]:bg-foreground/[0.03]",
               )}
             >
               <th scope="row" className="py-3 pl-3 pr-4 font-medium">
@@ -163,7 +242,10 @@ function WorkTable({ items, go }: { items: WorkItem[]; go: Go }) {
                   >
                     {dot}
                     <span className="truncate">{w.name}</span>
-                    <ArrowUpRight className="size-3.5 shrink-0 text-foreground/40 transition-[transform,color] group-hover/ext:-translate-y-px group-hover/ext:translate-x-px group-hover/ext:text-foreground" aria-label="Opens in a tab" />
+                    <ArrowUpRight
+                      className="size-3.5 shrink-0 text-foreground/40 transition-[transform,color] group-hover/ext:-translate-y-px group-hover/ext:translate-x-px group-hover/ext:text-foreground"
+                      aria-label="Opens in a tab"
+                    />
                   </a>
                 ) : (
                   <span className="flex items-center gap-2.5">
@@ -177,13 +259,17 @@ function WorkTable({ items, go }: { items: WorkItem[]; go: Go }) {
               </td>
               <td className={cn(text, cell("market"))}>{w.market ?? DASH}</td>
               <td className={cn("py-3 pr-4", cell("type"))}>
-                <Tag tone={open ? "blue" : "amber"}>{open ? "Case study" : "Experience"}</Tag>
+                <Tag tone={open ? "blue" : "amber"}>
+                  {open ? "Case study" : "Experience"}
+                </Tag>
               </td>
               <td className={cn(text, cell("role"))} title={w.role}>
                 {w.role ?? DASH}
               </td>
               <td className={cn(text, cell("company"))}>{w.company ?? DASH}</td>
-              <td className="whitespace-nowrap py-3 pl-2 pr-3 text-right tabular-nums text-foreground/60">{w.year ?? DASH}</td>
+              <td className="whitespace-nowrap py-3 pl-2 pr-3 text-right tabular-nums text-foreground/60">
+                {w.year ?? DASH}
+              </td>
             </tr>
           );
         })}
@@ -197,9 +283,17 @@ function WorkCard({ w, go }: { w: WorkItem; go: Go }) {
   const open = w.kind === "case-study";
   const inner = (
     <>
-      <Cover src={w.cover} alt={`${w.name} preview`} tone={w.tone} className="transition-shadow group-hover:ring-foreground/20">
+      <Cover
+        src={w.cover}
+        alt={`${w.name} preview`}
+        tone={w.tone}
+        className="transition-shadow group-hover:ring-foreground/20"
+      >
         {!w.cover && (
-          <span className="absolute inset-0 grid place-items-center text-2xl font-semibold tracking-tight text-foreground/25" aria-hidden="true">
+          <span
+            className="absolute inset-0 grid place-items-center text-2xl font-semibold tracking-tight text-foreground/25"
+            aria-hidden="true"
+          >
             {w.name}
           </span>
         )}
@@ -208,17 +302,35 @@ function WorkCard({ w, go }: { w: WorkItem; go: Go }) {
         <div className="min-w-0">
           <h3 className="flex items-center gap-1.5 text-sm font-medium">
             {w.name}
-            {w.locked && <Lock className="size-3 text-foreground/40" aria-label="Password protected" />}
-            {!open && w.href && <ArrowUpRight className="size-3.5 text-foreground/40 transition-[transform,color] group-hover:-translate-y-px group-hover:translate-x-px group-hover:text-foreground" aria-label="Opens in a tab" />}
+            {w.locked && (
+              <Lock
+                className="size-3 text-foreground/40"
+                aria-label="Password protected"
+              />
+            )}
+            {!open && w.href && (
+              <ArrowUpRight
+                className="size-3.5 text-foreground/40 transition-[transform,color] group-hover:-translate-y-px group-hover:translate-x-px group-hover:text-foreground"
+                aria-label="Opens in a tab"
+              />
+            )}
           </h3>
           <p className="mt-1 line-clamp-2 text-[13px] text-foreground/55">
-            {w.description ?? ([w.company, w.market].filter(Boolean).join(" · ") || "Details to come")}
+            {w.description ??
+              ([w.company, w.market].filter(Boolean).join(" · ") ||
+                "Details to come")}
           </p>
         </div>
-        {w.year && <span className="shrink-0 pt-0.5 text-xs tabular-nums text-foreground/45">{w.year}</span>}
+        {w.year && (
+          <span className="shrink-0 pt-0.5 text-xs tabular-nums text-foreground/45">
+            {w.year}
+          </span>
+        )}
       </div>
       <div className="mt-2.5">
-        <Tag tone={open ? "blue" : "amber"}>{open ? "Case study" : "Experience"}</Tag>
+        <Tag tone={open ? "blue" : "amber"}>
+          {open ? "Case study" : "Experience"}
+        </Tag>
       </div>
     </>
   );
@@ -238,7 +350,12 @@ function WorkCard({ w, go }: { w: WorkItem; go: Go }) {
       onClick={(e) => {
         if (wantsBrowserTab(e)) return;
         e.preventDefault();
-        openWeb({ id: w.slug, url: w.href!, title: w.name, embed: w.embed ?? false });
+        openWeb({
+          id: w.slug,
+          url: w.href!,
+          title: w.name,
+          embed: w.embed ?? false,
+        });
       }}
       className="group block rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-4 focus-visible:ring-offset-[var(--panel)]"
     >
@@ -249,10 +366,22 @@ function WorkCard({ w, go }: { w: WorkItem; go: Go }) {
   );
 }
 
-function WorkIndex({ go, mode, onMode }: { go: Go; mode: WorkMode; onMode: (m: WorkMode) => void }) {
+function WorkIndex({
+  go,
+  mode,
+  onMode,
+}: {
+  go: Go;
+  mode: WorkMode;
+  onMode: (m: WorkMode) => void;
+}) {
   return (
     <>
-      <PageHeader title="Work" description="Everything I've designed, including full case studies." actions={<WorkModeToggle value={mode} onChange={onMode} />} />
+      <PageHeader
+        title="Work"
+        description="Everything I've designed, including full case studies."
+        actions={<WorkModeToggle value={mode} onChange={onMode} />}
+      />
       {mode === "list" ? (
         <WorkTable items={work} go={go} />
       ) : (
@@ -280,9 +409,14 @@ function IdeaList({ items, go }: { items: typeof ideas; go: Go }) {
           >
             <span className="min-w-0">
               <span className="block text-sm font-medium">{p.title}</span>
-              <span className="mt-1 block text-[13px] text-foreground/55">{p.excerpt}</span>
+              <span className="mt-1 block text-[13px] text-foreground/55">
+                {p.excerpt}
+              </span>
             </span>
-            <time dateTime={p.date} className="shrink-0 pt-0.5 text-xs tabular-nums text-foreground/45">
+            <time
+              dateTime={p.date}
+              className="shrink-0 pt-0.5 text-xs tabular-nums text-foreground/45"
+            >
               {formatDate(p.date)}
             </time>
           </button>
@@ -295,7 +429,10 @@ function IdeaList({ items, go }: { items: typeof ideas; go: Go }) {
 function IdeasIndex({ go }: { go: Go }) {
   return (
     <>
-      <PageHeader title="Ideas" description="Notes on design, product, and building." />
+      <PageHeader
+        title="Ideas"
+        description="Notes on design, product, and building."
+      />
       <IdeaList items={ideas} go={go} />
     </>
   );
@@ -316,8 +453,12 @@ function IdeaPost({ slug, go }: { slug: string; go: Go }) {
           <time dateTime={post.date} className="text-[13px] text-foreground/50">
             {formatDate(post.date)}
           </time>
-          <h1 className="mt-2 text-balance text-3xl font-semibold leading-tight tracking-tight">{post.title}</h1>
-          <p className="mt-3 text-pretty text-base leading-7 text-foreground/60">{post.excerpt}</p>
+          <h1 className="mt-2 text-balance text-3xl font-semibold leading-tight tracking-tight">
+            {post.title}
+          </h1>
+          <p className="mt-3 text-pretty text-base leading-7 text-foreground/60">
+            {post.excerpt}
+          </p>
         </header>
         <div className="mt-8 space-y-5 border-t border-foreground/[0.08] pt-8 text-[15px] leading-7 text-foreground/85">
           {post.body.map((para) => (
@@ -326,7 +467,10 @@ function IdeaPost({ slug, go }: { slug: string; go: Go }) {
             </p>
           ))}
         </div>
-        <nav aria-label="More ideas" className="mt-12 grid gap-3 border-t border-foreground/[0.08] pt-6 sm:grid-cols-2">
+        <nav
+          aria-label="More ideas"
+          className="mt-12 grid gap-3 border-t border-foreground/[0.08] pt-6 sm:grid-cols-2"
+        >
           {newer ? (
             <button
               type="button"
@@ -336,7 +480,9 @@ function IdeaPost({ slug, go }: { slug: string; go: Go }) {
               <span className="flex items-center gap-1 text-xs text-foreground/50">
                 <ArrowLeft className="size-3" aria-hidden="true" /> Newer
               </span>
-              <span className="mt-1 block text-[13px] font-medium">{newer.title}</span>
+              <span className="mt-1 block text-[13px] font-medium">
+                {newer.title}
+              </span>
             </button>
           ) : (
             <span />
@@ -350,7 +496,9 @@ function IdeaPost({ slug, go }: { slug: string; go: Go }) {
               <span className="flex items-center gap-1 text-xs text-foreground/50 sm:justify-end">
                 Older <ArrowRight className="size-3" aria-hidden="true" />
               </span>
-              <span className="mt-1 block text-[13px] font-medium">{older.title}</span>
+              <span className="mt-1 block text-[13px] font-medium">
+                {older.title}
+              </span>
             </button>
           )}
         </nav>
@@ -364,7 +512,10 @@ function IdeaPost({ slug, go }: { slug: string; go: Go }) {
 function Apps() {
   return (
     <>
-      <PageHeader title="Apps" description="Standalone tools and apps, designed and built as experiments." />
+      <PageHeader
+        title="Apps"
+        description="Standalone tools and apps, designed and built as experiments."
+      />
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
         {apps.map((a) => (
           <a
@@ -372,17 +523,30 @@ function Apps() {
             href={a.href}
             className="group block rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-4 focus-visible:ring-offset-[var(--panel)]"
           >
-            <Cover tone={a.tone} alt={`${a.name} preview`} ratio="2 / 1" className="transition-shadow group-hover:ring-foreground/20">
-              <span className="absolute inset-0 grid place-items-center text-3xl font-semibold tracking-tight text-foreground/30" aria-hidden="true">
+            <Cover
+              tone={a.tone}
+              alt={`${a.name} preview`}
+              ratio="2 / 1"
+              className="transition-shadow group-hover:ring-foreground/20"
+            >
+              <span
+                className="absolute inset-0 grid place-items-center text-3xl font-semibold tracking-tight text-foreground/30"
+                aria-hidden="true"
+              >
                 {a.name}
               </span>
             </Cover>
             <div className="mt-3 flex items-start justify-between gap-3">
               <div>
                 <h3 className="text-sm font-medium">{a.name}</h3>
-                <p className="mt-1 text-[13px] text-foreground/55">{a.description}</p>
+                <p className="mt-1 text-[13px] text-foreground/55">
+                  {a.description}
+                </p>
               </div>
-              <ArrowUpRight className="mt-0.5 size-4 shrink-0 text-foreground/40 transition-colors group-hover:text-foreground" aria-hidden="true" />
+              <ArrowUpRight
+                className="mt-0.5 size-4 shrink-0 text-foreground/40 transition-colors group-hover:text-foreground"
+                aria-hidden="true"
+              />
             </div>
           </a>
         ))}
@@ -410,11 +574,18 @@ function Principles() {
                 <Visual />
               </div>
               <div className="p-5">
-                <p className="text-[13px] tabular-nums text-foreground/40" aria-hidden="true">
+                <p
+                  className="text-[13px] tabular-nums text-foreground/40"
+                  aria-hidden="true"
+                >
                   {p.num}
                 </p>
-                <h2 className="mt-1 text-[15px] font-medium leading-snug">{p.title}</h2>
-                <p className="mt-2 text-sm leading-6 text-foreground/60">{p.body}</p>
+                <h2 className="mt-1 text-[15px] font-medium leading-snug">
+                  {p.title}
+                </h2>
+                <p className="mt-2 text-sm leading-6 text-foreground/60">
+                  {p.body}
+                </p>
               </div>
             </li>
           );
@@ -430,7 +601,10 @@ function PhotoTile({ p }: { p: (typeof photos)[number] }) {
   return (
     <Cover src={p.src} alt={p.alt} tone={p.tone} ratio={p.ratio}>
       {!p.src && (
-        <span className="absolute inset-0 grid place-items-center text-foreground/25" aria-hidden="true">
+        <span
+          className="absolute inset-0 grid place-items-center text-foreground/25"
+          aria-hidden="true"
+        >
           <ImageIcon className="size-6" strokeWidth={1.5} />
         </span>
       )}
@@ -451,8 +625,16 @@ function Inspiration() {
             value={mode}
             onChange={setMode}
             options={[
-              { value: "grid", label: "Grid", icon: <Grid2x2 className="size-3.5" aria-hidden="true" /> },
-              { value: "feed", label: "Feed", icon: <Rows3 className="size-3.5" aria-hidden="true" /> },
+              {
+                value: "grid",
+                label: "Grid",
+                icon: <Grid2x2 className="size-3.5" aria-hidden="true" />,
+              },
+              {
+                value: "feed",
+                label: "Feed",
+                icon: <Rows3 className="size-3.5" aria-hidden="true" />,
+              },
             ]}
           />
         }
@@ -473,7 +655,9 @@ function Inspiration() {
           {photos.map((p, i) => (
             <li key={p.id}>
               <PhotoTile p={p} />
-              <p className="mt-2 text-xs text-foreground/45">Photo {String(i + 1).padStart(2, "0")}</p>
+              <p className="mt-2 text-xs text-foreground/45">
+                Photo {String(i + 1).padStart(2, "0")}
+              </p>
             </li>
           ))}
         </ul>
@@ -482,50 +666,41 @@ function Inspiration() {
   );
 }
 
-/* ------------------------------ Profile --------------------------- */
-
-function Profile() {
-  return (
-    <>
-      <PageHeader title="Profile" description="Who is behind the work." />
-      <div className="max-w-2xl">
-        <div className="flex items-center gap-4">
-          <span className="grid size-14 place-items-center rounded-full bg-foreground/[0.08] text-lg font-medium" aria-hidden="true">
-            HR
-          </span>
-          <div>
-            <p className="text-base font-medium">{profile.name}</p>
-            <p className="text-sm text-foreground/55">{profile.tagline}</p>
-          </div>
-        </div>
-        <div className="mt-8 space-y-5 border-t border-foreground/[0.08] pt-8 text-[15px] leading-7 text-foreground/85">
-          {profile.bio.map((p) => (
-            <p key={p} className="text-pretty">
-              {p}
-            </p>
-          ))}
-        </div>
-      </div>
-    </>
-  );
-}
-
 /* ------------------------------ Router ---------------------------- */
 
-export function View({ route, go, workMode, onWorkMode }: { route: Route; go: Go; workMode: WorkMode; onWorkMode: (m: WorkMode) => void }) {
+export function View({
+  route,
+  go,
+  workMode,
+  onWorkMode,
+}: {
+  route: Route;
+  go: Go;
+  workMode: WorkMode;
+  onWorkMode: (m: WorkMode) => void;
+}) {
   switch (route.section) {
     case "home":
       return <Home go={go} />;
     case "work":
-      if (!route.slug) return <WorkIndex go={go} mode={workMode} onMode={onWorkMode} />;
+      if (!route.slug)
+        return <WorkIndex go={go} mode={workMode} onMode={onWorkMode} />;
       // Pack, PPVP and Inveterate have been redesigned natively for the shell; the others still
       // open their original pages in a frame.
       if (route.slug === "pack") return <PackCaseStudy go={go} />;
       if (route.slug === "ppvp") return <PpvpCaseStudy go={go} />;
       if (route.slug === "inveterate") return <InveterateCaseStudy go={go} />;
-      return caseStudyFor(route) ? <CaseStudyFrame work={caseStudyFor(route)!} go={go} /> : <NotFound section="work" go={go} />;
+      return caseStudyFor(route) ? (
+        <CaseStudyFrame work={caseStudyFor(route)!} go={go} />
+      ) : (
+        <NotFound section="work" go={go} />
+      );
     case "ideas":
-      return route.slug ? <IdeaPost slug={route.slug} go={go} /> : <IdeasIndex go={go} />;
+      return route.slug ? (
+        <IdeaPost slug={route.slug} go={go} />
+      ) : (
+        <IdeasIndex go={go} />
+      );
     case "apps":
       return <Apps />;
     case "principles":
@@ -533,6 +708,6 @@ export function View({ route, go, workMode, onWorkMode }: { route: Route; go: Go
     case "inspiration":
       return <Inspiration />;
     case "profile":
-      return <Profile />;
+      return <ProfilePage />;
   }
 }
