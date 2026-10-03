@@ -21,6 +21,8 @@ export interface Exif {
 export interface Frame {
   src: string;
   exif: Exif;
+  // A line or two written on the back of the print. Optional.
+  note?: string;
 }
 
 export interface Print {
@@ -66,11 +68,24 @@ function sampleExif(): Exif {
   };
 }
 
-const make = (id: string, label: string, orientation: Orientation, ids: string[]): Print => ({
+// `notes` lines up with `ids`: the handwritten caption for each photo,
+// or nothing for the ones that have none. Sample captions until the real
+// photos arrive.
+const make = (
+  id: string,
+  label: string,
+  orientation: Orientation,
+  ids: string[],
+  notes: (string | undefined)[] = [],
+): Print => ({
   id,
   label,
   orientation,
-  frames: ids.map((i) => ({ src: photo(i, orientation), exif: sampleExif() })),
+  frames: ids.map((i, n) => ({
+    src: photo(i, orientation),
+    exif: sampleExif(),
+    note: notes[n],
+  })),
 });
 
 export const prints: Print[] = [
@@ -80,9 +95,13 @@ export const prints: Print[] = [
     "1518495973542-4542c06a5843",
     "1482192596544-9eb780fc7f66",
     "1510797215324-95aa89f43c33",
+  ], ["Hiked in before sunrise. The whole forest was still dripping."]),
+  make("braies", "Braies lake", "landscape", ["1476514525535-07fb3b4ae5f1"], [
+    "Rented a wooden boat and drifted until the water went flat. Worth the 6am alarm.",
   ]),
-  make("braies", "Braies lake", "landscape", ["1476514525535-07fb3b4ae5f1"]),
-  make("kingfisher", "Kingfisher", "portrait", ["1444464666168-49d633b86797"]),
+  make("kingfisher", "Kingfisher", "portrait", ["1444464666168-49d633b86797"], [
+    "Waited forty minutes on the bank for this one. It stayed for about four seconds.",
+  ]),
   make("poppies", "Poppies", "landscape", ["1465146344425-f00d5f5c8f07"]),
   make("highcountry", "High country", "portrait", [
     "1454496522488-7a8e488e8606",
@@ -100,16 +119,24 @@ export const prints: Print[] = [
     "1490730141103-6cac27aaab94",
     "1494548162494-384bba4ab999",
   ]),
-  make("falls", "Waterfall", "portrait", ["1433086966358-54859d0ed716"]),
-  make("valley", "Valley sunset", "landscape", ["1472214103451-9374bd1c798e"]),
+  make("falls", "Waterfall", "portrait", ["1433086966358-54859d0ed716"], [
+    "You hear it long before you see it. Got soaked and didn't mind.",
+  ]),
+  make("valley", "Valley sunset", "landscape", ["1472214103451-9374bd1c798e"], [
+    "The light lasted maybe ten minutes. We stopped the car and just stood there.",
+  ]),
   make("desert", "Desert road", "landscape", [
     "1500530855697-b586d89ba3ee",
     "1509316785289-025f5b846b35",
     "1470252649378-9c29740c9fa8",
   ]),
   make("oak", "The old oak", "portrait", ["1502082553048-f009c37129b9"]),
-  make("lowtide", "Low tide", "landscape", ["1475924156734-496f6cac6ec1"]),
+  make("lowtide", "Low tide", "landscape", ["1475924156734-496f6cac6ec1"], [
+    "The sea pulled out so far you could walk to the rocks.",
+  ]),
   make("path", "Forest path", "portrait", ["1441974231531-c6227db76b6e"]),
   make("turquoise", "Turquoise", "landscape", ["1501785888041-af3ef285b470"]),
-  make("fog", "Morning fog", "portrait", ["1418065460487-3e41a6c84dc5"]),
+  make("fog", "Morning fog", "portrait", ["1418065460487-3e41a6c84dc5"], [
+    "Everything past the first row of trees was gone. It felt like a held breath.",
+  ]),
 ];

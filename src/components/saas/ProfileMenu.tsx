@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Popover, Tooltip } from "radix-ui";
-import { ArrowUpRight, Mail } from "lucide-react";
+import { ArrowUpRight, Keyboard, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { profile, type Route } from "./data";
 import { ProfileIcon } from "./icons";
+import { Kbd, OPEN_SHORTCUTS_EVENT } from "./shortcuts";
 
-// The profile card at the bottom of the sidebar opens a small menu: the
+// The profile card at the top of the sidebar opens a small menu: the
 // profile page, then links out to my accounts.
 // Brand marks are the same paths the site footer uses.
 
@@ -46,11 +47,11 @@ export function ProfileMenu({ onGo, compact = false }: { onGo: (r: Route) => voi
         aria-label="Open profile menu"
         className={cn(
           "flex items-center gap-2.5 rounded-md p-1 text-left outline-none transition-colors hover:bg-foreground/[0.05] focus-visible:ring-2 focus-visible:ring-ring/60",
-          compact ? "size-10 justify-center" : "min-w-0 flex-1",
+          compact ? "size-10 justify-center" : "min-w-0 flex-1 p-1.5",
           open && "bg-foreground/[0.05]",
         )}
       >
-        <img src="/about/avatar.jpg" alt="" width="28" height="28" className="size-7 shrink-0 rounded-full bg-foreground/[0.08] object-cover" />
+        <img src="/about/avatar.jpg" alt="" width="32" height="32" className="size-8 shrink-0 rounded-full bg-foreground/[0.08] object-cover" />
         <span className={cn("min-w-0 leading-tight", compact && "sr-only")}>
           <span className="block truncate text-[13px] font-medium">{profile.name}</span>
           <span className="block truncate text-xs text-foreground/65">Designer &amp; founder</span>
@@ -81,8 +82,8 @@ export function ProfileMenu({ onGo, compact = false }: { onGo: (r: Route) => voi
       )}
       <Popover.Portal>
         <Popover.Content
-          side={compact ? "right" : "top"}
-          align={compact ? "end" : "start"}
+          side={compact ? "right" : "bottom"}
+          align="start"
           sideOffset={8}
           collisionPadding={12}
           className="saas z-50 w-64 max-w-[calc(100vw-1.5rem)] rounded-lg bg-[var(--panel)] p-1.5 text-foreground shadow-[0_8px_30px_rgb(0_0_0/0.16)] ring-1 ring-foreground/[0.1] outline-none data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95"
@@ -97,6 +98,19 @@ export function ProfileMenu({ onGo, compact = false }: { onGo: (r: Route) => voi
           >
             <ProfileIcon className="size-4 shrink-0" />
             <span>Profile</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setOpen(false);
+              window.dispatchEvent(new Event(OPEN_SHORTCUTS_EVENT));
+            }}
+            className={row}
+          >
+            <Keyboard className="size-4 shrink-0" strokeWidth={1.75} aria-hidden="true" />
+            <span>Keyboard shortcuts</span>
+            <Kbd className="ml-auto">?</Kbd>
           </button>
 
           <div className="mt-1.5 border-t border-[var(--line)] pt-1.5">

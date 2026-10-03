@@ -104,8 +104,10 @@ function PrintFace({
         </div>
         <div
           className={cn(
-            "absolute inset-0 flex flex-col px-8 py-9 text-[#2a2d3a] transition-shadow duration-300 [backface-visibility:hidden]",
+            "absolute inset-0 flex flex-col text-[#2a2d3a] transition-shadow duration-300 [backface-visibility:hidden]",
             PRINT_FRAME,
+            // After the frame, so these win over its thin mat padding.
+            "px-9 pb-9 pt-9",
             active && REST,
             active && FLOAT,
           )}
@@ -123,6 +125,11 @@ function PrintFace({
           <p className="mt-2 text-[26px] leading-none opacity-75">
             {shortDate(e.date)}
           </p>
+          {frame.note && (
+            <p className="mt-6 max-w-[30ch] -rotate-[0.6deg] text-[28px] leading-[1.2] opacity-90">
+              {frame.note}
+            </p>
+          )}
           <div className="mt-auto space-y-1 text-[26px] leading-[1.2] opacity-90">
             <p>
               {e.camera} · {e.lens}

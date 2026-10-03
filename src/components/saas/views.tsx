@@ -111,7 +111,9 @@ function Home({ go }: { go: Go }) {
       </section>
 
       {/* Latest work and recent writing side by side, the same height:
-          the image takes whatever height the writing list leaves. */}
+          the image takes whatever height the writing list leaves. The
+          screenshot is scaled and shifted so the dashboard sits centered
+          on the green, bleeding off the bottom. */}
       <div className="mt-8 grid gap-x-12 gap-y-10 border-t border-foreground/[0.08] pb-2 pt-7 lg:grid-cols-2">
         <section aria-labelledby="home-latest" className="flex flex-col">
           <div className="mb-2.5 flex h-6 items-center">
@@ -124,12 +126,12 @@ function Home({ go }: { go: Go }) {
             onClick={() => go({ section: "work", slug: latest.slug })}
             className="group flex flex-1 flex-col rounded-lg text-left outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-8 focus-visible:ring-offset-[var(--panel)]"
           >
-            <span className="relative block aspect-[16/10] w-full flex-1 overflow-hidden rounded-lg ring-1 ring-foreground/[0.1] lg:aspect-auto lg:min-h-[220px]">
+            <span className="relative block aspect-[16/10] w-full flex-1 overflow-hidden rounded-lg bg-[#e4f6f0] ring-1 ring-foreground/[0.1] lg:aspect-auto lg:min-h-[220px]">
               <img
                 src={latest.cover}
                 alt=""
                 loading="lazy"
-                className="absolute inset-0 size-full object-cover object-left-top transition-transform duration-500 ease-out group-hover:scale-[1.02] motion-reduce:transition-none"
+                className="absolute left-[-1.6%] top-[4.5%] h-auto w-[90%] max-w-none transition-transform duration-500 ease-out group-hover:scale-[1.02] motion-reduce:transition-none"
               />
             </span>
             <span className="mt-3.5 block text-sm font-medium leading-snug tracking-[-0.011em]">
@@ -159,30 +161,24 @@ function Home({ go }: { go: Go }) {
 const DASH = <span className="text-foreground/30">—</span>;
 
 // Columns reveal as the panel widens: Project, Type, and Year always,
-// then Role, Market, and finally Details and Company.
+// then Role, Market, and finally Company.
 const COLS = [
-  { key: "project", label: "Project", cls: "w-[16%]", show: "" },
-  {
-    key: "details",
-    label: "Details",
-    cls: "w-[21%]",
-    show: "hidden xl:table-cell",
-  },
+  { key: "project", label: "Project", cls: "w-[24%]", show: "" },
   {
     key: "market",
     label: "Market",
-    cls: "w-[11%]",
+    cls: "w-[17%]",
     show: "hidden lg:table-cell",
   },
-  { key: "type", label: "Type", cls: "w-[10%]", show: "hidden sm:table-cell" },
-  { key: "role", label: "Role", cls: "w-[17%]", show: "hidden md:table-cell" },
+  { key: "type", label: "Type", cls: "w-[14%]", show: "hidden sm:table-cell" },
+  { key: "role", label: "Role", cls: "w-[20%]", show: "hidden md:table-cell" },
   {
     key: "company",
     label: "Company",
-    cls: "w-[13%]",
+    cls: "w-[15%]",
     show: "hidden xl:table-cell",
   },
-  { key: "year", label: "Year", cls: "w-[12%] text-right", show: "" },
+  { key: "year", label: "Year", cls: "w-[10%] text-right", show: "" },
 ] as const;
 
 function WorkTable({ items, go }: { items: WorkItem[]; go: Go }) {
@@ -282,12 +278,9 @@ function WorkTable({ items, go }: { items: WorkItem[]; go: Go }) {
                   </span>
                 )}
               </th>
-              <td className={cn(text, cell("details"))} title={w.description}>
-                {w.description ?? DASH}
-              </td>
               <td className={cn(text, cell("market"))}>{w.market ?? DASH}</td>
               <td className={cn("py-3 pr-4", cell("type"))}>
-                <Tag tone={open ? "blue" : "amber"}>
+                <Tag tone={open ? "indigo" : "green"}>
                   {open ? "Case study" : "Experience"}
                 </Tag>
               </td>
@@ -356,7 +349,7 @@ function WorkCard({ w, go }: { w: WorkItem; go: Go }) {
         )}
       </div>
       <div className="mt-2.5">
-        <Tag tone={open ? "blue" : "amber"}>
+        <Tag tone={open ? "indigo" : "green"}>
           {open ? "Case study" : "Experience"}
         </Tag>
       </div>

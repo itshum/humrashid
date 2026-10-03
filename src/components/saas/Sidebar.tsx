@@ -1,23 +1,64 @@
 import { useEffect, useState } from "react";
-import { ChevronRight, Moon, Sun } from "lucide-react";
+import { ChevronRight, PanelLeft } from "lucide-react";
 import { Tooltip } from "radix-ui";
 import { cn } from "@/lib/utils";
 import { ProfileMenu } from "./ProfileMenu";
+import { MoonIcon, SunIcon } from "./FooterIcons";
+import { Kbd, NAV_KEYS } from "./shortcuts";
 import { caseStudies, primaryNav, type NavItem, type Route, type SectionId, type WorkItem } from "./data";
 
-// The mark: a chunky H and R that share one stem. The H's crossbar and
-// the R's middle bar sit on the same rows, so they read as one horizontal
-// line. Drawn on a 28x24 grid and shown at 28x24 px, so every edge lands
-// on a whole pixel. Charcoal rather than black (a soft off-white in dark
-// mode). The same drawing is public/hr-mark.svg.
-function LogoMark() {
+// New York time. The colon blinks
+// once a second, kept in step with the real second. Rendered after mount
+// so the server and the first client render agree.
+function NycTime() {
+  const [t, setT] = useState<{ h: string; m: string; p: string } | null>(null);
+  const [phase] = useState(() => -(Date.now() % 1000));
+  useEffect(() => {
+    const fmt = new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit", timeZone: "America/New_York" });
+    const tick = () => {
+      const parts = fmt.formatToParts(new Date());
+      const get = (type: string) => parts.find((x) => x.type === type)?.value ?? "";
+      setT({ h: get("hour"), m: get("minute"), p: get("dayPeriod") });
+    };
+    tick();
+    const id = window.setInterval(tick, 5_000);
+    return () => window.clearInterval(id);
+  }, []);
   return (
-    <svg viewBox="0 0 28 24" width="28" height="24" className="shrink-0 text-[#2b2b2e] dark:text-[#ececee]" fill="currentColor" aria-hidden="true">
-      <path d="M1 2h5v8h6V2h5v20h-5v-7H6v7H1Z" />
-      <path fillRule="evenodd" d="M15 2h5a6.5 6.5 0 0 1 0 13h-5ZM17 6v4h3a2 2 0 0 0 0-4Z" />
-      <path d="M18 14h5.4L27 22h-5.6Z" />
-    </svg>
+    <p className="flex min-w-0 items-center gap-1.5 pl-2 text-xs text-foreground/65" aria-label="Current time in New York">
+      <span className="tabular-nums text-foreground/80" aria-hidden="true">
+        {t ? (
+          <>
+            {t.h}
+            <span className="saas-colon" style={{ animationDelay: `${phase}ms` }}>:</span>
+            {t.m} {t.p}
+          </>
+        ) : (
+          "\u00a0"
+        )}
+      </span>
+      <span aria-hidden="true">NYC</span>
+    </p>
   );
+}
+
+// Collapses or expands the sidebar. It lives in the footer so it is always
+// within reach, whichever page is open.
+function SidebarToggle({ open, onToggle, tip = false }: { open: boolean; onToggle: () => void; tip?: boolean }) {
+  const label = open ? "Collapse sidebar" : "Expand sidebar";
+  const button = (
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-label={label}
+      aria-pressed={!open}
+      title={tip ? undefined : `${label} (Ctrl or Cmd + B)`}
+      className="grid size-8 shrink-0 place-items-center rounded-md text-foreground/65 outline-none transition-colors hover:bg-foreground/[0.07] hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/60"
+    >
+      <PanelLeft className="size-[15px]" strokeWidth={1.5} />
+    </button>
+  );
+  return tip ? <RailTip label={label}>{button}</RailTip> : button;
 }
 
 const rowBase =
@@ -84,7 +125,6 @@ function ThemeToggle({ tip = false }: { tip?: boolean }) {
     } catch {}
   };
 
-  const Icon = dark ? Sun : Moon;
   const label = dark ? "Light mode" : "Dark mode";
   const button = (
     <button
@@ -92,9 +132,13 @@ function ThemeToggle({ tip = false }: { tip?: boolean }) {
       onClick={toggle}
       aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
       title={tip ? undefined : label}
-      className="ml-auto grid size-8 shrink-0 place-items-center rounded-md text-foreground/65 outline-none transition-colors hover:bg-foreground/[0.07] hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/60"
+      className="grid size-8 shrink-0 place-items-center rounded-md text-foreground/65 outline-none transition-colors hover:bg-foreground/[0.07] hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/60"
     >
-      <Icon className="size-[15px]" strokeWidth={1.75} />
+      {/* Both icons stay in place and trade with a turn and a fade. */}
+      <span className="relative block size-4" aria-hidden="true">
+        <MoonIcon className={cn("absolute inset-0 size-4 transition-[opacity,transform] duration-300 ease-out motion-reduce:transition-none", dark ? "rotate-90 scale-50 opacity-0" : "opacity-100")} />
+        <SunIcon className={cn("absolute inset-0 size-4 transition-[opacity,transform] duration-300 ease-out motion-reduce:transition-none", dark ? "opacity-100" : "-rotate-90 scale-50 opacity-0")} />
+      </span>
     </button>
   );
   return tip ? <RailTip label={label}>{button}</RailTip> : button;
@@ -102,6 +146,13 @@ function ThemeToggle({ tip = false }: { tip?: boolean }) {
 
 function ActiveMarker() {
   return <span aria-hidden="true" className="absolute -left-2 top-1.5 h-5 w-0.5 rounded-full bg-foreground" />;
+}
+
+// The row's shortcut letter, shown on hover or keyboard focus.
+function HotKey({ id }: { id: NavItem["id"] }) {
+  const key = NAV_KEYS[id];
+  if (!key) return null;
+  return <Kbd className="ml-auto opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100">{key}</Kbd>;
 }
 
 function NavButton({ item, active, onGo }: { item: NavItem; active: boolean; onGo: (r: Route) => void }) {
@@ -116,6 +167,7 @@ function NavButton({ item, active, onGo }: { item: NavItem; active: boolean; onG
       {active && <ActiveMarker />}
       <Icon className={cn("size-[17px] shrink-0", active ? "text-foreground" : "text-foreground/65 group-hover:text-foreground/80")} />
       <span className="truncate">{item.label}</span>
+      <HotKey id={item.id} />
     </button>
   );
 }
@@ -145,6 +197,7 @@ function WorkGroup({ item, route, onGo }: { item: NavItem; route: Route; onGo: (
           {onIndex && <ActiveMarker />}
           <Icon className={cn("size-[17px] shrink-0", onIndex ? "text-foreground" : "text-foreground/65 group-hover:text-foreground/80")} />
           <span className="truncate">{item.label}</span>
+          <HotKey id={item.id} />
         </button>
         <button
           type="button"
@@ -185,7 +238,7 @@ function WorkGroup({ item, route, onGo }: { item: NavItem; route: Route; onGo: (
 // The collapsed sidebar: the same marks and icons in a narrow rail, with
 // each label in a tooltip. Case studies stay out of it; Work opens the
 // index.
-function RailTip({ label, children }: { label: string; children: React.ReactNode }) {
+function RailTip({ label, kbd, children }: { label: string; kbd?: string; children: React.ReactNode }) {
   return (
     <Tooltip.Root>
       <Tooltip.Trigger asChild>{children}</Tooltip.Trigger>
@@ -195,35 +248,29 @@ function RailTip({ label, children }: { label: string; children: React.ReactNode
           sideOffset={10}
           className="saas z-50 rounded-md bg-[var(--panel)] px-2.5 py-1.5 text-xs font-medium text-foreground shadow-[0_8px_30px_rgb(0_0_0/0.16)] ring-1 ring-foreground/[0.1] data-[state=delayed-open]:animate-in data-[state=delayed-open]:fade-in-0 data-[state=instant-open]:animate-in data-[state=instant-open]:fade-in-0"
         >
-          {label}
+          <span className="flex items-center gap-2">
+            {label}
+            {kbd && <Kbd>{kbd}</Kbd>}
+          </span>
         </Tooltip.Content>
       </Tooltip.Portal>
     </Tooltip.Root>
   );
 }
 
-function Rail({ route, onGo }: { route: Route; onGo: (r: Route) => void }) {
+function Rail({ route, onGo, onToggle }: { route: Route; onGo: (r: Route) => void; onToggle?: () => void }) {
   return (
     <div className="flex h-full min-h-0 flex-col items-center">
       <div className="pt-3">
-        <RailTip label="Humayun Rashid">
-          <button
-            type="button"
-            onClick={() => onGo({ section: "home" })}
-            aria-label="Humayun Rashid, home"
-            className="grid size-10 place-items-center rounded-md outline-none transition-colors hover:bg-foreground/[0.05] focus-visible:ring-2 focus-visible:ring-ring/60"
-          >
-            <LogoMark />
-          </button>
-        </RailTip>
+        <ProfileMenu onGo={onGo} compact />
       </div>
 
-      <nav aria-label="Primary" className="flex flex-1 flex-col items-center gap-0.5 overflow-y-auto pt-5">
+      <nav aria-label="Primary" className="flex flex-1 flex-col items-center gap-0.5 overflow-y-auto pt-6">
         {primaryNav.map((item) => {
           const Icon = item.icon;
           const on = route.section === item.id;
           return (
-            <RailTip key={item.id} label={item.label}>
+            <RailTip key={item.id} label={item.label} kbd={NAV_KEYS[item.id]}>
               <button
                 type="button"
                 onClick={() => onGo({ section: item.id })}
@@ -240,35 +287,28 @@ function Rail({ route, onGo }: { route: Route; onGo: (r: Route) => void }) {
       </nav>
 
       <div className="flex flex-col items-center gap-1 border-t border-foreground/[0.07] px-2 py-3">
-        <ProfileMenu onGo={onGo} compact />
+        {onToggle && <SidebarToggle open={false} onToggle={onToggle} tip />}
         <ThemeToggle tip />
       </div>
     </div>
   );
 }
 
-export function Sidebar({ route, onGo, collapsed = false }: { route: Route; onGo: (r: Route) => void; collapsed?: boolean }) {
+export function Sidebar({ route, onGo, collapsed = false, onToggle }: { route: Route; onGo: (r: Route) => void; collapsed?: boolean; onToggle?: () => void }) {
   const active = (id: SectionId) => route.section === id;
   if (collapsed)
     return (
       <Tooltip.Provider delayDuration={150} skipDelayDuration={300}>
-        <Rail route={route} onGo={onGo} />
+        <Rail route={route} onGo={onGo} onToggle={onToggle} />
       </Tooltip.Provider>
     );
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <div className="p-3 pb-2">
-        <button
-          type="button"
-          onClick={() => onGo({ section: "home" })}
-          className="flex w-full items-center gap-2.5 rounded-md p-1 text-left outline-none transition-colors hover:bg-foreground/[0.05] focus-visible:ring-2 focus-visible:ring-ring/60"
-        >
-          <LogoMark />
-          <span className="min-w-0 truncate text-[13px] font-medium">Humayun Rashid</span>
-        </button>
+      <div className="flex p-3 pb-2">
+        <ProfileMenu onGo={onGo} />
       </div>
 
-      <nav aria-label="Primary" className="flex-1 overflow-y-auto px-3 pb-3 pt-5">
+      <nav aria-label="Primary" className="flex-1 overflow-y-auto px-3 pb-3 pt-7">
         <div className="space-y-0.5">
           {primaryNav.map((item) =>
             item.id === "work" ? (
@@ -282,8 +322,16 @@ export function Sidebar({ route, onGo, collapsed = false }: { route: Route; onGo
 
       <div className="border-t border-foreground/[0.07] p-3">
         <div className="flex items-center gap-1">
-          <ProfileMenu onGo={onGo} />
-          <ThemeToggle />
+          <NycTime />
+          <div className="ml-auto flex items-center">
+            <ThemeToggle />
+            {onToggle && (
+              <>
+                <span aria-hidden="true" className="mx-1 h-4 w-px bg-foreground/[0.12]" />
+                <SidebarToggle open onToggle={onToggle} />
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>

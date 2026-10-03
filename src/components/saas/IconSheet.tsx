@@ -12,7 +12,7 @@ const ICONS: Array<{ name: string; Icon: NavIcon; idea: string }> = [
   { name: "Apps", Icon: AppsIcon, idea: "The logo mark, quartered, with one tile filled." },
   { name: "Principles", Icon: PrinciplesIcon, idea: "A ruler: what the work is measured against." },
   { name: "Inspiration", Icon: InspirationIcon, idea: "A photograph. The pixel is the sun." },
-  { name: "Profile", Icon: ProfileIcon, idea: "A person. The head is the pixel." },
+  { name: "Profile", Icon: ProfileIcon, idea: "A person, head and shoulders." },
 ];
 
 // The 20-unit construction grid, drawn behind the large glyph.

@@ -247,3 +247,17 @@ html.theme-fade *::after {
     transition: none !important;
   }
 }
+
+/* The blinking colon in the sidebar clock: on for half a second, dim for
+   half, once a second. */
+.saas-colon {
+  animation: saas-colon 1s steps(1, end) infinite;
+}
+@keyframes saas-colon {
+  0% { opacity: 1; }
+  50% { opacity: 0.25; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .saas-colon { animation: none; }
+}
+html.motion-skip .saas .saas-colon { animation: none; }

@@ -114,10 +114,10 @@ export const InspirationIcon: NavIcon = ({ className }) => (
   </Glyph>
 );
 
-// A person; the head is the pixel.
+// A person: an outlined head and shoulders.
 export const ProfileIcon: NavIcon = ({ className }) => (
   <Glyph className={className}>
-    <path d="M3.8 16.8c.7-3.1 3.2-4.8 6.2-4.8s5.5 1.7 6.2 4.8" />
-    <Pixel x={7.6} y={3.2} size={4.8} radius={1.6} pop={1.2} />
+    <circle cx="10" cy="6.6" r="3.2" />
+    <path d="M3.6 17c.6-3.3 3.1-5.2 6.4-5.2s5.8 1.9 6.4 5.2" />
   </Glyph>
 );

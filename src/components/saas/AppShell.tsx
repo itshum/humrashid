@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Dialog } from "radix-ui";
-import { Menu, PanelLeft } from "lucide-react";
+import { Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   allNav,
@@ -14,6 +14,7 @@ import { ideas } from "./content";
 import { prints } from "./inspirationData";
 import { skipMotionWhenHidden } from "../../scripts/reveal";
 import { Sidebar } from "./Sidebar";
+import { KeyboardShortcuts } from "./shortcuts";
 import { Loader } from "./Loader";
 import { View, type WorkMode } from "./views";
 import { TabStrip, WebTabsContext, WebView, type WebTab } from "./webTabs";
@@ -78,6 +79,11 @@ export default function AppShell() {
   }, []);
 
   // Cmd/Ctrl+B toggles the sidebar, as in Cursor.
+  const toggleNav = () => {
+    if (window.matchMedia("(min-width: 1024px)").matches)
+      setSidebarOpen((o) => !o);
+    else setDrawerOpen((o) => !o);
+  };
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "b") {
@@ -157,6 +163,7 @@ export default function AppShell() {
   return (
     <WebTabsContext.Provider value={{ open: openWeb }}>
       <div className="saas fixed inset-0 flex bg-[var(--shell)] text-foreground antialiased">
+        <KeyboardShortcuts go={go} onToggleSidebar={toggleNav} />
         {/* Desktop sidebar */}
         {/* The width glides between the full sidebar and the icon rail while
           the two layouts trade places with a quick crossfade, each at its
@@ -178,7 +185,7 @@ export default function AppShell() {
                 : "pointer-events-none opacity-0 duration-100",
             )}
           >
-            <Sidebar route={route} onGo={go} />
+            <Sidebar route={route} onGo={go} onToggle={() => setSidebarOpen((o) => !o)} />
           </div>
           <div
             inert={sidebarOpen}
@@ -189,7 +196,7 @@ export default function AppShell() {
                 : "opacity-100 duration-200 delay-75",
             )}
           >
-            <Sidebar route={route} onGo={go} collapsed />
+            <Sidebar route={route} onGo={go} collapsed onToggle={() => setSidebarOpen((o) => !o)} />
           </div>
         </aside>
 
@@ -228,7 +235,7 @@ export default function AppShell() {
                 }
               />
             )}
-            <header className="flex h-12 shrink-0 items-center gap-2 border-b border-foreground/[0.07] px-3">
+            <header className="flex h-12 shrink-0 items-center gap-2 border-b border-foreground/[0.07] px-3 lg:px-5">
               <button
                 ref={menuButton}
                 type="button"
@@ -237,16 +244,6 @@ export default function AppShell() {
                 className="grid size-8 place-items-center rounded-md text-foreground/65 outline-none transition-colors hover:bg-foreground/[0.06] hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/60 lg:hidden"
               >
                 <Menu className="size-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => setSidebarOpen((o) => !o)}
-                aria-label={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
-                aria-pressed={!sidebarOpen}
-                title="Toggle sidebar (Ctrl or Cmd + B)"
-                className="hidden size-8 place-items-center rounded-md text-foreground/65 outline-none transition-colors hover:bg-foreground/[0.06] hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/60 lg:grid"
-              >
-                <PanelLeft className="size-4" strokeWidth={1.75} />
               </button>
               <nav
                 aria-label="Breadcrumb"
