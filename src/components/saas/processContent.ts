@@ -6,7 +6,7 @@
 import type { DocKind } from "./DeliverableIcon";
 
 // Who is involved, grouped the way the page colors them.
-export type Role = "designer" | "pm" | "stakeholder";
+export type Role = "designer" | "pm" | "stakeholder" | "user" | "leadership";
 
 export interface Deliverable {
   title: string;
@@ -34,7 +34,7 @@ export interface Phase {
 }
 
 export const sprintIntro = [
-  "Most projects I run start the same way: a dedicated design sprint. One or two weeks, one problem, and a prototype that real users have reacted to by the end. I run it from start to finish as the designer, and bring product and engineering in at the moments that matter.",
+  "Most projects I run start the same way: a dedicated design sprint. One or two weeks, one problem, and a prototype that real users have reacted to by the end. I run it from start to finish as the lead designer, and bring product and engineering in at the moments that matter.",
   "I’ve refined it over more than a decade of shipping products, mostly in B2B SaaS and eCommerce. Here is how a sprint runs, what I make at each phase, and who I work with along the way.",
 ];
 
@@ -42,6 +42,8 @@ export const roles: Record<Role, { label: string }> = {
   designer: { label: "Designer" },
   pm: { label: "Product manager" },
   stakeholder: { label: "Stakeholders" },
+  user: { label: "Users" },
+  leadership: { label: "Leadership" },
 };
 
 export const phases: Phase[] = [
@@ -52,21 +54,21 @@ export const phases: Phase[] = [
     ink: "oklch(0.33 0.08 150)",
     weight: 2,
     when: "Days 1–2",
-    goal: "Get the problem and the goal in writing.",
+    goal: "Get the problem and the goal in writing",
     activities: [
-      "Pressure-test the brief with product and engineering",
-      "Read support tickets and analytics, and talk to whoever is closest to customers",
-      "Audit the current flow and a few competitors",
+      "Pressure-test the brief with product and engineering.",
+      "Read support tickets and analytics, and talk to whoever is closest to customers.",
+      "Audit the current flow and a few competitors.",
     ],
     deliverables: [
       {
         title: "One-page design brief",
-        text: "The problem, the user, and how we’ll measure success.",
+        text: "The problem, the user, and how we’ll measure success",
         icon: "lines",
       },
       {
         title: "Assumptions to test",
-        text: "What we’re betting on, riskiest first.",
+        text: "What we’re betting on, riskiest first",
         icon: "question",
       },
     ],
@@ -83,21 +85,21 @@ export const phases: Phase[] = [
     ink: "oklch(0.39 0.08 85)",
     weight: 2,
     when: "Days 3–4",
-    goal: "Find the moment worth solving, then sketch my way through it.",
+    goal: "Find the moment worth solving, then sketch my way through it",
     activities: [
-      "Map the current flow and mark where people get stuck",
-      "Choose the one moment the sprint will solve",
-      "Sketch a handful of directions on my own, fast",
+      "Map the current flow and mark where people get stuck.",
+      "Choose the one moment the sprint will solve.",
+      "Sketch a handful of directions on my own, fast.",
     ],
     deliverables: [
       {
         title: "User flow map",
-        text: "The path today, with the pain points marked.",
+        text: "The path today, with the pain points marked",
         icon: "flow",
       },
       {
         title: "Sketches",
-        text: "A range of directions, rough on purpose.",
+        text: "A range of directions, rough on purpose",
         icon: "sketch",
       },
     ],
@@ -113,21 +115,21 @@ export const phases: Phase[] = [
     ink: "oklch(0.37 0.12 38)",
     weight: 1.3,
     when: "Day 5",
-    goal: "Pick one direction with product and engineering.",
+    goal: "Pick one direction with product and engineering",
     activities: [
-      "Walk product and engineering through the sketches",
-      "Critique together, then weigh the trade-offs and scope",
-      "Agree on one flow to prototype, and what’s out",
+      "Walk product and engineering through the sketches.",
+      "Critique together, then weigh the trade-offs and scope.",
+      "Agree on one flow to prototype, and what’s out.",
     ],
     deliverables: [
       {
         title: "Decision notes",
-        text: "What we chose, what we didn’t, and why.",
+        text: "What we chose, what we didn’t, and why",
         icon: "check",
       },
       {
         title: "Flow to prototype",
-        text: "The exact steps the prototype will cover.",
+        text: "The exact steps the prototype will cover",
         icon: "frames",
       },
     ],
@@ -135,7 +137,7 @@ export const phases: Phase[] = [
       { label: "Designer", role: "designer" },
       { label: "Product manager", role: "pm" },
       { label: "Engineering", role: "stakeholder" },
-      { label: "Leadership", role: "stakeholder" },
+      { label: "Leadership", role: "leadership" },
     ],
   },
   {
@@ -145,26 +147,26 @@ export const phases: Phase[] = [
     ink: "oklch(0.31 0.12 300)",
     weight: 3,
     when: "Days 6–8",
-    goal: "Make it real enough to react to.",
+    goal: "Make it real enough to react to",
     activities: [
-      "Use AI to prototype fast, from low-fidelity wireframes that test the strategy to the product’s real UI",
-      "Use AI to link the screens into a clickable prototype, again as quickly as possible",
-      "Write the test tasks as I go",
+      "Use AI to prototype fast, from low-fidelity wireframes that test the strategy to the product’s real UI.",
+      "Use AI to link the screens into a clickable prototype, again as quickly as possible.",
+      "Write the test tasks as I go.",
     ],
     deliverables: [
       {
         title: "High-fidelity screens",
-        text: "The flow, in the product’s own design system.",
+        text: "The flow, in the product’s own design system",
         icon: "screen",
       },
       {
         title: "Clickable prototype",
-        text: "Believable enough that users forget it isn’t real.",
+        text: "Believable enough that users forget it isn’t real",
         icon: "click",
       },
       {
         title: "Test script",
-        text: "The tasks and questions for the sessions.",
+        text: "The tasks and questions for the sessions",
         icon: "code",
       },
     ],
@@ -180,26 +182,26 @@ export const phases: Phase[] = [
     ink: "oklch(0.31 0.1 255)",
     weight: 2,
     when: "Days 9–10",
-    goal: "Test it with users, then hand it off.",
+    goal: "Test it with users, then hand it off",
     activities: [
-      "Run short sessions with users, recruited through product, support, or sales",
-      "Note what worked, what confused, and what surprised",
-      "Share the findings and hand off the flow with specs and tickets",
+      "Run short sessions with users, recruited through product, support, or sales.",
+      "Note what worked, what confused, and what surprised.",
+      "Share the findings and hand off the flow with specs and tickets.",
     ],
     deliverables: [
       {
         title: "Findings summary",
-        text: "What worked, what didn’t, and what to change.",
+        text: "What worked, what didn’t, and what to change",
         icon: "lines",
       },
       {
         title: "Recommendation",
-        text: "What to build next, in what order.",
+        text: "What to build next, in what order",
         icon: "lines",
       },
       {
         title: "Handoff specs and tickets",
-        text: "The validated flow, ready for engineering.",
+        text: "The validated flow, ready for engineering",
         icon: "tickets",
       },
     ],
@@ -207,7 +209,7 @@ export const phases: Phase[] = [
       { label: "Designer", role: "designer" },
       { label: "Product manager", role: "pm" },
       { label: "Engineering", role: "stakeholder" },
-      { label: "Customers", role: "stakeholder" },
+      { label: "Users", role: "user" },
     ],
   },
 ];

@@ -10,7 +10,7 @@ const ICONS: Array<{ name: string; Icon: NavIcon; idea: string }> = [
   { name: "Work", Icon: WorkIcon, idea: "Stacked cards: this project, and the ones before it." },
   { name: "Ideas", Icon: IdeasIcon, idea: "A bulb. The pixel is the spark." },
   { name: "Apps", Icon: AppsIcon, idea: "The logo mark, quartered, with one tile filled." },
-  { name: "Process", Icon: ProcessIcon, idea: "An endless loop. The pixel travels it on hover." },
+  { name: "Process", Icon: ProcessIcon, idea: "An endless loop, with the pixel at the crossing." },
   { name: "Inspiration", Icon: InspirationIcon, idea: "A photograph. The pixel is the sun." },
   { name: "Profile", Icon: ProfileIcon, idea: "A person, head and shoulders." },
 ];

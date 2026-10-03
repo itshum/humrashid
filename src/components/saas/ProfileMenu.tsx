@@ -54,7 +54,7 @@ export function ProfileMenu({ onGo, compact = false }: { onGo: (r: Route) => voi
         <img src="/about/avatar.jpg" alt="" width="32" height="32" className="size-8 shrink-0 rounded-full bg-foreground/[0.08] object-cover" />
         <span className={cn("min-w-0 leading-tight", compact && "sr-only")}>
           <span className="block truncate text-[13px] font-medium">{profile.name}</span>
-          <span className="block truncate text-xs text-foreground/65">Designer &amp; founder</span>
+          <span className="block truncate text-xs text-foreground/65">Design &amp; Founder</span>
         </span>
       </button>
   );

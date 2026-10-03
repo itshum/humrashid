@@ -97,7 +97,7 @@ export const AppsIcon: NavIcon = ({ className }) => (
 );
 
 // An endless loop: a process runs round again, one problem at a time. The
-// pixel rests at the crossing and, on hover, travels the whole loop.
+// pixel sits at the crossing.
 export const ProcessIcon: NavIcon = ({ className }) => (
   <Glyph className={className}>
     <path d="M10 10C8.2 7.4 6.6 6.6 5.6 6.6a3.4 3.4 0 0 0 0 6.8C6.6 13.4 8.2 12.6 10 10C11.8 7.4 13.4 6.6 14.4 6.6a3.4 3.4 0 0 1 0 6.8C13.4 13.4 11.8 12.6 10 10Z" />
@@ -109,7 +109,6 @@ export const ProcessIcon: NavIcon = ({ className }) => (
       rx="1"
       fill="currentColor"
       stroke="none"
-      className="saas-loop-pixel"
     />
   </Glyph>
 );
