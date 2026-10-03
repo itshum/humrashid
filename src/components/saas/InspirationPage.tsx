@@ -146,7 +146,7 @@ function PrintCard({ print, onOpen }: { print: Print; onOpen: () => void }) {
       </div>
       <span className="mt-3.5 block text-center">
         <span className="block text-[13px] font-medium">{print.label}</span>
-        <span className="mt-1 block text-xs text-foreground/60">
+        <span className="mt-1 block text-xs text-foreground/65">
           {monthYear(print.frames[0].exif.date)}
         </span>
       </span>

@@ -54,7 +54,7 @@ export default function PpvpCaseStudy({ go }: { go: Go }) {
           <dl className="mt-9 grid grid-cols-2 gap-x-10 gap-y-5 sm:grid-cols-4">
             {ppvp.meta.map((m) => (
               <div key={m.label}>
-                <dt className="text-xs text-foreground/60">{m.label}</dt>
+                <dt className="text-xs text-foreground/65">{m.label}</dt>
                 <dd className="mt-1 text-sm font-medium">{m.value}</dd>
               </div>
             ))}
@@ -232,7 +232,7 @@ export default function PpvpCaseStudy({ go }: { go: Go }) {
                   <dd className="text-[32px] font-semibold leading-none tracking-tight tabular-nums">
                     {s.value}
                   </dd>
-                  <dt className="mt-2 text-[13px] text-foreground/60">
+                  <dt className="mt-2 text-[13px] text-foreground/65">
                     {s.label}
                   </dt>
                 </div>
@@ -252,7 +252,7 @@ export default function PpvpCaseStudy({ go }: { go: Go }) {
               <p className="text-pretty text-[22px] font-medium leading-[1.5] tracking-tight">
                 “{ppvp.quote.text}”
               </p>
-              <footer className="mt-5 text-sm text-foreground/60">
+              <footer className="mt-5 text-sm text-foreground/65">
                 {ppvp.quote.attribution}
               </footer>
             </blockquote>

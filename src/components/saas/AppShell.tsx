@@ -234,7 +234,7 @@ export default function AppShell() {
                 type="button"
                 onClick={() => setDrawerOpen(true)}
                 aria-label="Open navigation"
-                className="grid size-8 place-items-center rounded-md text-foreground/60 outline-none transition-colors hover:bg-foreground/[0.06] hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/60 lg:hidden"
+                className="grid size-8 place-items-center rounded-md text-foreground/65 outline-none transition-colors hover:bg-foreground/[0.06] hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/60 lg:hidden"
               >
                 <Menu className="size-4" />
               </button>
@@ -244,7 +244,7 @@ export default function AppShell() {
                 aria-label={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
                 aria-pressed={!sidebarOpen}
                 title="Toggle sidebar (Ctrl or Cmd + B)"
-                className="hidden size-8 place-items-center rounded-md text-foreground/60 outline-none transition-colors hover:bg-foreground/[0.06] hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/60 lg:grid"
+                className="hidden size-8 place-items-center rounded-md text-foreground/65 outline-none transition-colors hover:bg-foreground/[0.06] hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/60 lg:grid"
               >
                 <PanelLeft className="size-4" strokeWidth={1.75} />
               </button>
@@ -271,7 +271,7 @@ export default function AppShell() {
                         <button
                           type="button"
                           onClick={() => go(c.to!)}
-                          className="-mx-1 rounded px-1 text-foreground/60 outline-none transition-colors hover:bg-foreground/[0.06] hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/60"
+                          className="-mx-1 rounded px-1 text-foreground/65 outline-none transition-colors hover:bg-foreground/[0.06] hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/60"
                         >
                           {c.label}
                         </button>
@@ -279,7 +279,7 @@ export default function AppShell() {
                         <span
                           className={cn(
                             "truncate",
-                            last ? "font-medium" : "text-foreground/60",
+                            last ? "font-medium" : "text-foreground/65",
                           )}
                           aria-current={last ? "page" : undefined}
                         >

@@ -58,6 +58,8 @@ function ProjectMark({ w }: { w: WorkItem }) {
 // choose; the choice is stored under "site-theme" (the framed case
 // studies read the same key) and the root class is the source of truth,
 // so the button also tracks the clock's own changes.
+let fadeTimer = 0;
+
 function ThemeToggle({ tip = false }: { tip?: boolean }) {
   const [dark, setDark] = useState(false);
   useEffect(() => {
@@ -70,8 +72,13 @@ function ThemeToggle({ tip = false }: { tip?: boolean }) {
   }, []);
 
   const toggle = () => {
-    const next = !document.documentElement.classList.contains("dark");
-    document.documentElement.classList.toggle("dark", next);
+    const root = document.documentElement;
+    const next = !root.classList.contains("dark");
+    // Ease the colors across instead of snapping (see .theme-fade).
+    root.classList.add("theme-fade");
+    window.clearTimeout(fadeTimer);
+    fadeTimer = window.setTimeout(() => root.classList.remove("theme-fade"), 500);
+    root.classList.toggle("dark", next);
     try {
       localStorage.setItem("site-theme", next ? "dark" : "light");
     } catch {}
@@ -85,7 +92,7 @@ function ThemeToggle({ tip = false }: { tip?: boolean }) {
       onClick={toggle}
       aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
       title={tip ? undefined : label}
-      className="ml-auto grid size-8 shrink-0 place-items-center rounded-md text-foreground/60 outline-none transition-colors hover:bg-foreground/[0.07] hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/60"
+      className="ml-auto grid size-8 shrink-0 place-items-center rounded-md text-foreground/65 outline-none transition-colors hover:bg-foreground/[0.07] hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/60"
     >
       <Icon className="size-[15px]" strokeWidth={1.75} />
     </button>
@@ -107,7 +114,7 @@ function NavButton({ item, active, onGo }: { item: NavItem; active: boolean; onG
       className={cn(rowBase, active ? rowActive : rowIdle)}
     >
       {active && <ActiveMarker />}
-      <Icon className={cn("size-[17px] shrink-0", active ? "text-foreground" : "text-foreground/60 group-hover:text-foreground/80")} />
+      <Icon className={cn("size-[17px] shrink-0", active ? "text-foreground" : "text-foreground/65 group-hover:text-foreground/80")} />
       <span className="truncate">{item.label}</span>
     </button>
   );
@@ -136,7 +143,7 @@ function WorkGroup({ item, route, onGo }: { item: NavItem; route: Route; onGo: (
           className={cn(rowBase, "pr-8", onIndex ? rowActive : rowIdle)}
         >
           {onIndex && <ActiveMarker />}
-          <Icon className={cn("size-[17px] shrink-0", onIndex ? "text-foreground" : "text-foreground/60 group-hover:text-foreground/80")} />
+          <Icon className={cn("size-[17px] shrink-0", onIndex ? "text-foreground" : "text-foreground/65 group-hover:text-foreground/80")} />
           <span className="truncate">{item.label}</span>
         </button>
         <button
@@ -145,7 +152,7 @@ function WorkGroup({ item, route, onGo }: { item: NavItem; route: Route; onGo: (
           aria-expanded={open}
           aria-controls="sidebar-case-studies"
           aria-label={open ? "Collapse case studies" : "Expand case studies"}
-          className="absolute right-1 grid size-6 place-items-center rounded text-foreground/60 outline-none transition-colors hover:bg-foreground/[0.07] hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/60"
+          className="absolute right-1 grid size-6 place-items-center rounded text-foreground/65 outline-none transition-colors hover:bg-foreground/[0.07] hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/60"
         >
           <ChevronRight className={cn("size-3.5 transition-transform duration-150", open && "rotate-90")} strokeWidth={2} />
         </button>
@@ -225,7 +232,7 @@ function Rail({ route, onGo }: { route: Route; onGo: (r: Route) => void }) {
                 className={cn("group relative grid size-10 place-items-center rounded-md outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring/60", on ? rowActive : rowIdle)}
               >
                 {on && <span aria-hidden="true" className="absolute -left-2 top-2.5 h-5 w-0.5 rounded-full bg-foreground" />}
-                <Icon className={cn("size-[18px]", on ? "text-foreground" : "text-foreground/60 group-hover:text-foreground/80")} />
+                <Icon className={cn("size-[18px]", on ? "text-foreground" : "text-foreground/65 group-hover:text-foreground/80")} />
               </button>
             </RailTip>
           );

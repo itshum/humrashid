@@ -50,7 +50,7 @@ export default function PackCaseStudy({ go }: { go: Go }) {
           <dl className="mt-9 grid grid-cols-2 gap-x-10 gap-y-5 sm:grid-cols-4">
             {pack.meta.map((m) => (
               <div key={m.label}>
-                <dt className="text-xs text-foreground/60">{m.label}</dt>
+                <dt className="text-xs text-foreground/65">{m.label}</dt>
                 <dd className="mt-1 text-sm font-medium">{m.value}</dd>
               </div>
             ))}
@@ -123,7 +123,7 @@ export default function PackCaseStudy({ go }: { go: Go }) {
                       className="aspect-[4/3] w-full rounded-[4px] object-cover object-top"
                     />
                   </Expandable>
-                  <figcaption className="mt-2.5 text-[13px] leading-[1.45] text-foreground/60">
+                  <figcaption className="mt-2.5 text-[13px] leading-[1.45] text-foreground/65">
                     {s.caption}
                   </figcaption>
                 </figure>
@@ -154,7 +154,7 @@ export default function PackCaseStudy({ go }: { go: Go }) {
                   style={{ transitionDelay: `${i * 130}ms` }}
                   className="rounded-[4px] border border-[var(--line)] bg-[var(--surface)] p-3.5 transition-[opacity,transform] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-data-[state=armed]/stagger:-translate-x-3 group-data-[state=armed]/stagger:opacity-0 motion-reduce:transition-none"
                 >
-                  <span className="text-[13px] font-semibold tabular-nums text-foreground/60">
+                  <span className="text-[13px] font-semibold tabular-nums text-foreground/65">
                     {p.n}
                   </span>
                   <p className="mt-2 text-balance text-[15px] font-medium leading-6">
@@ -272,7 +272,7 @@ export default function PackCaseStudy({ go }: { go: Go }) {
               <p className="text-pretty text-[22px] font-medium leading-[1.5] tracking-tight">
                 “{pack.quote.text}”
               </p>
-              <footer className="mt-5 text-sm text-foreground/60">
+              <footer className="mt-5 text-sm text-foreground/65">
                 {pack.quote.attribution}
               </footer>
             </blockquote>

@@ -13,6 +13,8 @@
   font-family: Inter, ui-sans-serif, system-ui, sans-serif;
   font-feature-settings: "cv11", "ss01";
   -webkit-font-smoothing: antialiased;
+  /* Inter is set a touch loose for UI sizes; pull it in slightly. */
+  letter-spacing: -0.006em;
 }
 
 .dark .saas,
@@ -218,5 +220,30 @@ html.motion-skip .profile-signature path {
   }
   .profile-signature path {
     stroke-dashoffset: 0;
+  }
+}
+
+/* Theme switch: while the root carries .theme-fade, colors ease between
+   light and dark instead of snapping. Added by the toggle for the length
+   of the fade, then removed so normal transitions are untouched. */
+html.theme-fade,
+html.theme-fade *,
+html.theme-fade *::before,
+html.theme-fade *::after {
+  transition:
+    background-color 450ms cubic-bezier(0.4, 0, 0.2, 1),
+    color 450ms cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 450ms cubic-bezier(0.4, 0, 0.2, 1),
+    fill 450ms cubic-bezier(0.4, 0, 0.2, 1),
+    stroke 450ms cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 450ms cubic-bezier(0.4, 0, 0.2, 1),
+    --tw-ring-color 450ms cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  html.theme-fade,
+  html.theme-fade *,
+  html.theme-fade *::before,
+  html.theme-fade *::after {
+    transition: none !important;
   }
 }

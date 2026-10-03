@@ -79,51 +79,77 @@ function NotFound({ section, go }: { section: "work" | "ideas"; go: Go }) {
 /* ------------------------------ Home ------------------------------ */
 
 function Home({ go }: { go: Go }) {
+  const latest = work.find((w) => w.slug === "sublime-security")!;
   return (
     <>
-      <h1 className="mt-4 text-balance text-xl font-semibold tracking-tight sm:mt-12 sm:text-2xl">
+      <h1 className="mt-2 text-balance text-xl font-semibold leading-[1.2] tracking-[-0.022em] sm:mt-4 sm:text-[22px]">
         Humayun Rashid is a product designer and founder in NYC
       </h1>
 
-      <HomePanels className="mt-8" />
+      <HomePanels className="mt-6" />
 
       {/* On wide screens the intro is exactly as wide as the first two
           panels above it: two thirds of the row, less half a gap. */}
       <section
         aria-label="About"
-        className="mt-10 lg:w-[calc((200%-1rem)/3)] lg:max-w-full"
+        className="mt-7 lg:w-[calc((200%-1.5rem)/3)] lg:max-w-full"
       >
-        <p className="text-pretty text-[15px] leading-7 text-foreground/80">
+        <p className="text-pretty text-[15px] leading-[1.6] text-foreground/80">
           {profile.intro}
         </p>
         <button
           type="button"
           onClick={() => go({ section: "profile" })}
-          className="group mt-5 inline-flex h-8 items-center gap-1.5 rounded-[5px] px-3 text-[13px] font-medium text-foreground outline-none ring-1 ring-foreground/20 transition-[background-color,box-shadow] hover:bg-foreground/[0.04] hover:ring-foreground/40 focus-visible:ring-2 focus-visible:ring-ring/70"
+          className="group mt-3 inline-flex items-center gap-1 rounded text-[13px] text-foreground/65 outline-none transition-colors hover:text-foreground focus-visible:text-foreground focus-visible:ring-2 focus-visible:ring-ring/60"
         >
           Profile
           <ArrowRight
-            className="size-3.5 text-foreground/60 transition-[transform,color] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-[3px] group-hover:text-foreground group-focus-visible:translate-x-[3px] group-focus-visible:text-foreground group-active:translate-x-1 motion-reduce:transition-none"
+            className="size-3.5 transition-transform duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-[3px] group-focus-visible:translate-x-[3px] motion-reduce:transition-none"
             aria-hidden="true"
           />
         </button>
       </section>
 
-      <section aria-labelledby="home-writing" className="mt-14">
-        <div className="mb-3 flex items-center justify-between">
-          <h2 id="home-writing" className="text-sm font-medium">
-            Recent writing
-          </h2>
+      {/* Latest work and recent writing side by side, the same height:
+          the image takes whatever height the writing list leaves. */}
+      <div className="mt-8 grid gap-x-12 gap-y-10 border-t border-foreground/[0.08] pb-2 pt-7 lg:grid-cols-2">
+        <section aria-labelledby="home-latest" className="flex flex-col">
+          <div className="mb-2.5 flex h-6 items-center">
+            <h2 id="home-latest" className="text-sm font-medium">
+              Latest work
+            </h2>
+          </div>
           <button
             type="button"
-            onClick={() => go({ section: "ideas" })}
-            className="text-[13px] text-foreground/60 hover:text-foreground"
+            onClick={() => go({ section: "work", slug: latest.slug })}
+            className="group flex flex-1 flex-col rounded-lg text-left outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-8 focus-visible:ring-offset-[var(--panel)]"
           >
-            View all
+            <span className="relative block aspect-[16/10] w-full flex-1 overflow-hidden rounded-lg ring-1 ring-foreground/[0.1] lg:aspect-auto lg:min-h-[220px]">
+              <img
+                src={latest.cover}
+                alt=""
+                loading="lazy"
+                className="absolute inset-0 size-full object-cover object-left-top transition-transform duration-500 ease-out group-hover:scale-[1.02] motion-reduce:transition-none"
+              />
+            </span>
+            <span className="mt-3.5 block text-sm font-medium leading-snug tracking-[-0.011em]">
+              {latest.name}
+            </span>
+            <span className="mt-1 block text-[13px] leading-[1.5] text-foreground/65">
+              {latest.description}
+            </span>
           </button>
-        </div>
-        <IdeaList items={ideas.slice(0, 3)} go={go} />
-      </section>
+        </section>
+
+        <section aria-labelledby="home-writing">
+          <div className="mb-2.5 flex h-6 items-center">
+            <h2 id="home-writing" className="text-sm font-medium">
+              Recent writing
+            </h2>
+          </div>
+          <IdeaList items={ideas.slice(0, 3)} go={go} compact />
+        </section>
+      </div>
     </>
   );
 }
@@ -169,11 +195,11 @@ function WorkTable({ items, go }: { items: WorkItem[]; go: Go }) {
       embed: w.embed ?? false,
     });
   const cell = (key: string) => COLS.find((c) => c.key === key)!.show;
-  const text = "truncate py-3 pr-4 text-foreground/60";
+  const text = "truncate py-3 pr-4 text-foreground/65";
   return (
     <table className="w-full table-fixed border-separate border-spacing-0 text-left text-sm">
       <thead className="sticky top-0 z-10">
-        <tr className="text-xs font-medium text-foreground/60">
+        <tr className="text-xs font-medium text-foreground/65">
           {COLS.map((c) => (
             <th
               key={c.key}
@@ -245,7 +271,7 @@ function WorkTable({ items, go }: { items: WorkItem[]; go: Go }) {
                     {dot}
                     <span className="truncate">{w.name}</span>
                     <ArrowUpRight
-                      className="size-3.5 shrink-0 text-foreground/60 transition-[transform,color] group-hover/ext:-translate-y-px group-hover/ext:translate-x-px group-hover/ext:text-foreground"
+                      className="size-3.5 shrink-0 text-foreground/65 transition-[transform,color] group-hover/ext:-translate-y-px group-hover/ext:translate-x-px group-hover/ext:text-foreground"
                       aria-label="Opens in a tab"
                     />
                   </a>
@@ -269,7 +295,7 @@ function WorkTable({ items, go }: { items: WorkItem[]; go: Go }) {
                 {w.role ?? DASH}
               </td>
               <td className={cn(text, cell("company"))}>{w.company ?? DASH}</td>
-              <td className="whitespace-nowrap py-3 pl-2 pr-3 text-right tabular-nums text-foreground/60">
+              <td className="whitespace-nowrap py-3 pl-2 pr-3 text-right tabular-nums text-foreground/65">
                 {w.year ?? DASH}
               </td>
             </tr>
@@ -306,25 +332,25 @@ function WorkCard({ w, go }: { w: WorkItem; go: Go }) {
             {w.name}
             {w.locked && (
               <Lock
-                className="size-3 text-foreground/60"
+                className="size-3 text-foreground/65"
                 aria-label="Password protected"
               />
             )}
             {!open && w.href && (
               <ArrowUpRight
-                className="size-3.5 text-foreground/60 transition-[transform,color] group-hover:-translate-y-px group-hover:translate-x-px group-hover:text-foreground"
+                className="size-3.5 text-foreground/65 transition-[transform,color] group-hover:-translate-y-px group-hover:translate-x-px group-hover:text-foreground"
                 aria-label="Opens in a tab"
               />
             )}
           </h3>
-          <p className="mt-1 line-clamp-2 text-[13px] text-foreground/60">
+          <p className="mt-1 line-clamp-2 text-[13px] text-foreground/65">
             {w.description ??
               ([w.company, w.market].filter(Boolean).join(" · ") ||
                 "Details to come")}
           </p>
         </div>
         {w.year && (
-          <span className="shrink-0 pt-0.5 text-xs tabular-nums text-foreground/60">
+          <span className="shrink-0 pt-0.5 text-xs tabular-nums text-foreground/65">
             {w.year}
           </span>
         )}
@@ -399,33 +425,57 @@ function WorkIndex({
 
 /* ------------------------------ Ideas ----------------------------- */
 
-function IdeaList({ items, go }: { items: typeof ideas; go: Go }) {
+function IdeaList({
+  items,
+  go,
+  compact = false,
+}: {
+  items: typeof ideas;
+  go: Go;
+  compact?: boolean;
+}) {
   return (
-    <ul className="-mx-4 space-y-2">
+    <ul className={cn("-mx-4", compact ? "space-y-1" : "space-y-2")}>
       {items.map((p) => (
         <li key={p.slug}>
           <button
             type="button"
             onClick={() => go({ section: "ideas", slug: p.slug })}
-            className="group flex w-full items-start gap-6 rounded-lg px-4 py-6 text-left outline-none transition-colors hover:bg-foreground/[0.04] focus-visible:bg-foreground/[0.04] focus-visible:ring-2 focus-visible:ring-ring/60"
+            className={cn("group flex w-full items-start gap-6 rounded-lg px-4 text-left outline-none transition-colors hover:bg-foreground/[0.04] focus-visible:bg-foreground/[0.04] focus-visible:ring-2 focus-visible:ring-ring/60",
+              compact ? "py-3.5" : "py-6",
+            )}
           >
             <span className="min-w-0 flex-1">
-              <span className="block text-[15px] font-medium leading-snug">
+              <span
+                className={cn(
+                  "block font-medium leading-snug",
+                  compact ? "text-sm tracking-[-0.011em]" : "text-[15px]",
+                )}
+              >
                 {p.title}
               </span>
-              <span className="mt-1.5 block text-sm text-foreground/60">
+              <span
+                className={cn(
+                  "block text-foreground/65",
+                  compact
+                    ? "mt-1 text-[13px] leading-[1.5]"
+                    : "mt-1.5 text-sm",
+                )}
+              >
                 {p.excerpt}
               </span>
             </span>
-            <time
-              dateTime={p.date}
-              className="shrink-0 pt-0.5 text-xs tabular-nums text-foreground/60"
-            >
-              {formatDate(p.date)}
-            </time>
+            {!compact && (
+              <time
+                dateTime={p.date}
+                className="shrink-0 pt-0.5 text-xs tabular-nums text-foreground/65"
+              >
+                {formatDate(p.date)}
+              </time>
+            )}
             {/* The arrow only appears when the row is hovered or focused. */}
             <ArrowRight
-              className="mt-0.5 size-4 shrink-0 -translate-x-1 text-foreground/60 opacity-0 transition-[opacity,transform] duration-200 group-hover:translate-x-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:opacity-100 motion-reduce:transition-none [@media(hover:none)]:translate-x-0 [@media(hover:none)]:opacity-100"
+              className="mt-0.5 size-4 shrink-0 -translate-x-1 text-foreground/65 opacity-0 transition-[opacity,transform] duration-200 group-hover:translate-x-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:opacity-100 motion-reduce:transition-none [@media(hover:none)]:translate-x-0 [@media(hover:none)]:opacity-100"
               aria-hidden="true"
             />
           </button>

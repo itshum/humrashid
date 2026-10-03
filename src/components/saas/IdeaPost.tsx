@@ -64,7 +64,7 @@ function BlockView({ block }: { block: Block }) {
               “{block.text}”
             </p>
             {block.cite && (
-              <footer className="mt-4 text-sm not-italic text-foreground/60">
+              <footer className="mt-4 text-sm not-italic text-foreground/65">
                 {block.cite}
               </footer>
             )}
@@ -99,7 +99,7 @@ function BlockView({ block }: { block: Block }) {
               className="block w-full rounded-[4px] bg-[var(--surface-2)]"
             />
             {block.caption && (
-              <figcaption className="mt-3 text-center text-[13px] leading-[1.45] text-foreground/60">
+              <figcaption className="mt-3 text-center text-[13px] leading-[1.45] text-foreground/65">
                 {block.caption}
               </figcaption>
             )}
@@ -147,7 +147,7 @@ export function IdeaArticle({
       <button
         type="button"
         onClick={() => go({ section: "ideas" })}
-        className="group -ml-2 mb-10 inline-flex h-8 items-center gap-1.5 rounded-md px-2 text-[13px] text-foreground/60 outline-none transition-colors hover:bg-foreground/[0.06] hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/60"
+        className="group -ml-2 mb-10 inline-flex h-8 items-center gap-1.5 rounded-md px-2 text-[13px] text-foreground/65 outline-none transition-colors hover:bg-foreground/[0.06] hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/60"
       >
         <ArrowLeft
           className="size-3.5 transition-transform duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-x-[3px] group-focus-visible:-translate-x-[3px] motion-reduce:transition-none"
@@ -166,14 +166,14 @@ export function IdeaArticle({
           <header className={MEASURE}>
             <time
               dateTime={post.date}
-              className="text-[13px] text-foreground/60"
+              className="text-[13px] text-foreground/65"
             >
               {formatDate(post.date)}
             </time>
             <h1 className="mt-3 text-balance text-[34px] font-semibold leading-[1.15] tracking-tight">
               {post.title}
             </h1>
-            <p className="mt-4 text-pretty text-[17px] leading-[1.6] text-foreground/60">
+            <p className="mt-4 text-pretty text-[17px] leading-[1.6] text-foreground/65">
               {post.excerpt}
             </p>
           </header>

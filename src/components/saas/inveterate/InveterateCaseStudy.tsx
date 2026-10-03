@@ -53,7 +53,7 @@ export default function InveterateCaseStudy({ go }: { go: Go }) {
           <dl className="mt-9 grid grid-cols-2 gap-x-10 gap-y-5 sm:grid-cols-4">
             {inveterate.meta.map((m) => (
               <div key={m.label}>
-                <dt className="text-xs text-foreground/60">{m.label}</dt>
+                <dt className="text-xs text-foreground/65">{m.label}</dt>
                 <dd className="mt-1 text-sm font-medium">{m.value}</dd>
               </div>
             ))}
@@ -141,7 +141,7 @@ export default function InveterateCaseStudy({ go }: { go: Go }) {
                       className="aspect-[9/8] w-full rounded-[4px] object-cover object-top"
                     />
                   </Expandable>
-                  <figcaption className="mt-2.5 text-[13px] leading-[1.45] text-foreground/60">
+                  <figcaption className="mt-2.5 text-[13px] leading-[1.45] text-foreground/65">
                     {sh.caption}
                   </figcaption>
                 </figure>
@@ -260,7 +260,7 @@ export default function InveterateCaseStudy({ go }: { go: Go }) {
                   <dd className="text-[32px] font-semibold leading-none tracking-tight tabular-nums">
                     {s.value}
                   </dd>
-                  <dt className="mt-2 text-[13px] text-foreground/60">
+                  <dt className="mt-2 text-[13px] text-foreground/65">
                     {s.label}
                   </dt>
                 </div>
@@ -280,7 +280,7 @@ export default function InveterateCaseStudy({ go }: { go: Go }) {
               <p className="text-pretty text-[22px] font-medium leading-[1.5] tracking-tight">
                 “{inveterate.quote.text}”
               </p>
-              <footer className="mt-5 text-sm text-foreground/60">
+              <footer className="mt-5 text-sm text-foreground/65">
                 {inveterate.quote.attribution}
               </footer>
             </blockquote>

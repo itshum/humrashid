@@ -139,7 +139,7 @@ const SOURCES = {
 function SourceCredit({ source }: { source: keyof typeof SOURCES }) {
   const { name, href, Mark } = SOURCES[source];
   return (
-    <p className="mt-4 flex items-center gap-1.5 border-t border-foreground/[0.07] pt-3 text-[11px] text-foreground/60">
+    <p className="mt-4 flex items-center gap-1.5 border-t border-foreground/[0.07] pt-3 text-[11px] text-foreground/65">
       <Mark className="size-3 shrink-0" />
       <span>
         Sourced from{" "}
@@ -177,7 +177,7 @@ function Panel({
   return (
     <section
       aria-label={title}
-      className="flex min-h-[250px] flex-col rounded-xl bg-[var(--panel)] p-5 ring-1 ring-foreground/[0.1] transition-shadow hover:ring-foreground/[0.16]"
+      className="flex min-h-[236px] flex-col rounded-xl bg-white p-4 dark:bg-[var(--surface)] ring-1 ring-foreground/[0.1] transition-shadow hover:ring-foreground/[0.16]"
     >
       <header className="flex items-center justify-between gap-3">
         <h2 className="text-[13px] font-medium text-foreground/70">{title}</h2>
@@ -191,7 +191,7 @@ function Panel({
               {badge}
             </span>
           ) : (
-            <span className="rounded-full bg-foreground/[0.06] px-2 py-0.5 text-[11px] text-foreground/60">
+            <span className="rounded-full bg-foreground/[0.06] px-2 py-0.5 text-[11px] text-foreground/65">
               {badge}
             </span>
           ))}
@@ -200,7 +200,7 @@ function Panel({
         {value}
       </p>
       <p
-        className="mt-1.5 h-4 truncate text-xs text-foreground/60"
+        className="mt-1.5 h-4 truncate text-xs text-foreground/65"
         aria-live="polite"
       >
         {caption}
@@ -243,7 +243,7 @@ function RangeSwitch({
             "relative z-10 h-6 w-11 rounded-md text-[12px] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring/60",
             value === r
               ? "font-medium text-foreground"
-              : "text-foreground/60 hover:text-foreground/80",
+              : "text-foreground/65 hover:text-foreground/80",
           )}
         >
           {r}d
@@ -297,7 +297,7 @@ function RunningPanel({ range }: { range: Range }) {
       value={
         <>
           {shown.toFixed(1)}{" "}
-          <span className="text-base font-medium text-foreground/60">mi</span>
+          <span className="text-base font-medium text-foreground/65">mi</span>
         </>
       }
       caption={readout}
@@ -751,11 +751,11 @@ export function HomePanels({ className }: { className?: string }) {
   const [range, setRange] = useState<Range>(7);
   return (
     <div className={className}>
-      <div className="mb-3 flex items-center justify-between">
-        <p className="text-[13px] text-foreground/60">Activity</p>
+      <div className="mb-2.5 flex items-center justify-between">
+        <p className="text-[13px] font-medium">Activity</p>
         <RangeSwitch value={range} onChange={setRange} />
       </div>
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
         <CommitsPanel range={range} />
         <RunningPanel range={range} />
         <NycPanel />

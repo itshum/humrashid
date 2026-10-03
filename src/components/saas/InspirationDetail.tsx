@@ -260,14 +260,14 @@ export function InspirationDetail({
   const frame = print.frames[slot];
   const max = MAX[print.orientation];
   const ghost =
-    "inline-flex h-8 items-center gap-1.5 rounded-md px-2.5 text-[13px] text-foreground/60 outline-none transition-colors hover:bg-foreground/[0.06] hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/60";
+    "inline-flex h-8 items-center gap-1.5 rounded-md px-2.5 text-[13px] text-foreground/65 outline-none transition-colors hover:bg-foreground/[0.06] hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/60";
 
   return (
     <div className="relative mx-auto flex min-h-0 w-full flex-1 flex-col items-center justify-center overflow-hidden pb-6 pt-14">
       <button
         type="button"
         onClick={() => go({ section: "inspiration" })}
-        className="group absolute left-4 top-3 z-10 inline-flex h-8 items-center gap-1.5 rounded-md px-2 text-[13px] text-foreground/60 outline-none transition-colors hover:bg-foreground/[0.06] hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/60 sm:left-6"
+        className="group absolute left-4 top-3 z-10 inline-flex h-8 items-center gap-1.5 rounded-md px-2 text-[13px] text-foreground/65 outline-none transition-colors hover:bg-foreground/[0.06] hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/60 sm:left-6"
       >
         <ArrowLeft
           className="size-3.5 transition-transform duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-x-[3px] group-focus-visible:-translate-x-[3px] motion-reduce:transition-none"
@@ -370,7 +370,7 @@ export function InspirationDetail({
         <div className="flex shrink-0 items-center gap-1">
           {count > 1 && (
             <span
-              className="mr-1 text-xs tabular-nums text-foreground/60"
+              className="mr-1 text-xs tabular-nums text-foreground/65"
               aria-live="polite"
             >
               {slot + 1} / {count}
@@ -395,7 +395,7 @@ export function InspirationDetail({
         <dl className="grid grid-cols-2 gap-x-10 gap-y-3">
           {specs(frame.exif).map((s) => (
             <div key={s.label} className="flex items-baseline gap-3">
-              <dt className="w-[72px] shrink-0 text-[11px] text-foreground/60">
+              <dt className="w-[72px] shrink-0 text-[11px] text-foreground/65">
                 {s.label}
               </dt>
               <dd className="min-w-0 truncate text-xs tabular-nums text-foreground/65">

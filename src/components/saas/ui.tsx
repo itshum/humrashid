@@ -8,7 +8,7 @@ export function PageHeader({ title, description, actions }: { title: string; des
     <div className="mb-8 flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
       <div className="min-w-0">
         <h1 className="text-xl font-semibold tracking-tight">{title}</h1>
-        {description && <p className="mt-1 text-sm text-foreground/60">{description}</p>}
+        {description && <p className="mt-1 text-sm text-foreground/65">{description}</p>}
       </div>
       {actions}
     </div>
@@ -40,7 +40,7 @@ export function Segmented<T extends string>({
             "inline-flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[13px] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring/60",
             value === o.value
               ? "bg-[var(--panel)] font-medium text-foreground shadow-[0_1px_2px_rgb(0_0_0/0.08)] ring-1 ring-foreground/[0.06]"
-              : "text-foreground/60 hover:text-foreground",
+              : "text-foreground/65 hover:text-foreground",
           )}
         >
           {o.icon}

@@ -99,7 +99,7 @@ export function Figure({
           className="h-auto w-full rounded-[4px]"
         />
       </Expandable>
-      <figcaption className="mt-2.5 max-w-[44rem] text-[13px] leading-[1.45] text-foreground/60">
+      <figcaption className="mt-2.5 max-w-[44rem] text-[13px] leading-[1.45] text-foreground/65">
         {caption}
       </figcaption>
     </figure>
@@ -156,7 +156,7 @@ export function ShotTabs({
               "h-8 rounded-[4px] px-3 text-[13px] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring/60",
               i === active
                 ? "bg-[var(--surface-2)] font-medium text-foreground"
-                : "text-foreground/60 hover:bg-[var(--surface)] hover:text-foreground",
+                : "text-foreground/65 hover:bg-[var(--surface)] hover:text-foreground",
             )}
           >
             {s.label}
@@ -186,7 +186,7 @@ export function ShotTabs({
         </Expandable>
       </div>
       <figcaption
-        className="mt-2.5 max-w-[44rem] text-[13px] leading-[1.45] text-foreground/60"
+        className="mt-2.5 max-w-[44rem] text-[13px] leading-[1.45] text-foreground/65"
         aria-live="polite"
       >
         {shot.caption}
@@ -231,7 +231,7 @@ export function ShotGrid({
         ))}
       </div>
       {caption && (
-        <figcaption className="mt-2.5 max-w-[44rem] text-[13px] leading-[1.45] text-foreground/60">
+        <figcaption className="mt-2.5 max-w-[44rem] text-[13px] leading-[1.45] text-foreground/65">
           {caption}
         </figcaption>
       )}
@@ -359,7 +359,7 @@ export function Compare({
           className="sr-only"
         />
       </div>
-      <figcaption className="mt-2.5 max-w-[44rem] text-[13px] leading-[1.45] text-foreground/60">
+      <figcaption className="mt-2.5 max-w-[44rem] text-[13px] leading-[1.45] text-foreground/65">
         {caption}
       </figcaption>
     </figure>
