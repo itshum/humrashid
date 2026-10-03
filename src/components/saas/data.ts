@@ -91,7 +91,7 @@ export const work: WorkItem[] = [
     description: "Led product design for email security teams to stop malicious threats.",
     market: "Cybersecurity",
     company: "Sublime Security",
-    year: "2026",
+    year: "2025 – 2026",
     role: "Lead Product Designer",
     kind: "case-study",
     cover: "/case-studies/sublime-security/home-preview.webp",
@@ -113,6 +113,7 @@ export const work: WorkItem[] = [
     embed: false,
     tone: "#4fae82",
   },
+  { slug: "mockingbird", name: "Mockingbird", description: "CPG", market: "eCommerce", role: "Design & Product Strategy", year: "2024", kind: "experience", tone: "#d6a24f" },
   {
     slug: "pack",
     name: "Pack Platform",
@@ -142,6 +143,7 @@ export const work: WorkItem[] = [
     href: "/work/ppvp",
     tone: "#4f9fd6",
   },
+  { slug: "stantt", name: "Stantt", description: "Menswear Retailer", market: "eCommerce", role: "Design & Product Strategy", year: "2023", kind: "experience", tone: "#6f8fd6" },
   {
     slug: "inveterate",
     name: "Inveterate",

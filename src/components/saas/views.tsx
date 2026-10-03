@@ -177,7 +177,7 @@ function WorkTable({ items, go }: { items: WorkItem[]; go: Go }) {
               </td>
               <td className={cn(text, cell("market"))}>{w.market ?? DASH}</td>
               <td className={cn("py-3 pr-4", cell("type"))}>
-                <Tag>{open ? "Case study" : "Experience"}</Tag>
+                <Tag tone={open ? "blue" : "amber"}>{open ? "Case study" : "Experience"}</Tag>
               </td>
               <td className={cn(text, cell("role"))} title={w.role}>
                 {w.role ?? DASH}
@@ -218,7 +218,7 @@ function WorkCard({ w, go }: { w: WorkItem; go: Go }) {
         {w.year && <span className="shrink-0 pt-0.5 text-xs tabular-nums text-foreground/45">{w.year}</span>}
       </div>
       <div className="mt-2.5">
-        <Tag>{open ? "Case study" : "Experience"}</Tag>
+        <Tag tone={open ? "blue" : "amber"}>{open ? "Case study" : "Experience"}</Tag>
       </div>
     </>
   );

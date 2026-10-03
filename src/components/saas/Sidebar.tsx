@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { ChevronRight, Moon, Sun } from "lucide-react";
+import { Tooltip } from "radix-ui";
 import { cn } from "@/lib/utils";
-import { caseStudies, primaryNav, secondaryNav, type NavItem, type Route, type SectionId, type WorkItem } from "./data";
+import { ProfileMenu } from "./ProfileMenu";
+import { caseStudies, primaryNav, type NavItem, type Route, type SectionId, type WorkItem } from "./data";
 
 // Four-by-four pixel grid, the same mark as the site's logo, in the
 // site's pastel palette.
@@ -69,7 +71,7 @@ function ProjectMark({ w }: { w: WorkItem }) {
 // choose; the choice is stored under "site-theme" (the framed case
 // studies read the same key) and the root class is the source of truth,
 // so the button also tracks the clock's own changes.
-function ThemeToggle() {
+function ThemeToggle({ tip = false }: { tip?: boolean }) {
   const [dark, setDark] = useState(false);
   useEffect(() => {
     const root = document.documentElement;
@@ -89,17 +91,19 @@ function ThemeToggle() {
   };
 
   const Icon = dark ? Sun : Moon;
-  return (
+  const label = dark ? "Light mode" : "Dark mode";
+  const button = (
     <button
       type="button"
       onClick={toggle}
       aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
-      title={dark ? "Light mode" : "Dark mode"}
-      className="ml-auto grid size-7 shrink-0 place-items-center rounded-md text-foreground/55 outline-none transition-colors hover:bg-foreground/[0.07] hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/60"
+      title={tip ? undefined : label}
+      className="ml-auto grid size-8 shrink-0 place-items-center rounded-md text-foreground/55 outline-none transition-colors hover:bg-foreground/[0.07] hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/60"
     >
       <Icon className="size-[15px]" strokeWidth={1.75} />
     </button>
   );
+  return tip ? <RailTip label={label}>{button}</RailTip> : button;
 }
 
 function ActiveMarker() {
@@ -184,8 +188,79 @@ function WorkGroup({ item, route, onGo }: { item: NavItem; route: Route; onGo: (
   );
 }
 
-export function Sidebar({ route, onGo }: { route: Route; onGo: (r: Route) => void }) {
+// The collapsed sidebar: the same marks and icons in a narrow rail, with
+// each label in a tooltip. Case studies stay out of it; Work opens the
+// index.
+function RailTip({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <Tooltip.Root>
+      <Tooltip.Trigger asChild>{children}</Tooltip.Trigger>
+      <Tooltip.Portal>
+        <Tooltip.Content
+          side="right"
+          sideOffset={10}
+          className="saas z-50 rounded-md bg-[var(--panel)] px-2.5 py-1.5 text-xs font-medium text-foreground shadow-[0_8px_30px_rgb(0_0_0/0.16)] ring-1 ring-foreground/[0.1] data-[state=delayed-open]:animate-in data-[state=delayed-open]:fade-in-0 data-[state=instant-open]:animate-in data-[state=instant-open]:fade-in-0"
+        >
+          {label}
+        </Tooltip.Content>
+      </Tooltip.Portal>
+    </Tooltip.Root>
+  );
+}
+
+function Rail({ route, onGo }: { route: Route; onGo: (r: Route) => void }) {
+  return (
+    <div className="flex h-full min-h-0 flex-col items-center">
+      <div className="pt-3">
+        <RailTip label="Humayun Rashid">
+          <button
+            type="button"
+            onClick={() => onGo({ section: "home" })}
+            aria-label="Humayun Rashid, home"
+            className="grid size-10 place-items-center rounded-md outline-none transition-colors hover:bg-foreground/[0.05] focus-visible:ring-2 focus-visible:ring-ring/60"
+          >
+            <LogoMark />
+          </button>
+        </RailTip>
+      </div>
+
+      <nav aria-label="Primary" className="flex flex-1 flex-col items-center gap-0.5 overflow-y-auto pt-5">
+        {primaryNav.map((item) => {
+          const Icon = item.icon;
+          const on = route.section === item.id;
+          return (
+            <RailTip key={item.id} label={item.label}>
+              <button
+                type="button"
+                onClick={() => onGo({ section: item.id })}
+                aria-current={on ? "page" : undefined}
+                aria-label={item.label}
+                className={cn("group relative grid size-10 place-items-center rounded-md outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring/60", on ? rowActive : rowIdle)}
+              >
+                {on && <span aria-hidden="true" className="absolute -left-2 top-2.5 h-5 w-0.5 rounded-full bg-foreground" />}
+                <Icon className={cn("size-[18px]", on ? "text-foreground" : "text-foreground/55 group-hover:text-foreground/80")} />
+              </button>
+            </RailTip>
+          );
+        })}
+      </nav>
+
+      <div className="flex flex-col items-center gap-1 border-t border-foreground/[0.07] px-2 py-3">
+        <ProfileMenu onGo={onGo} compact />
+        <ThemeToggle tip />
+      </div>
+    </div>
+  );
+}
+
+export function Sidebar({ route, onGo, collapsed = false }: { route: Route; onGo: (r: Route) => void; collapsed?: boolean }) {
   const active = (id: SectionId) => route.section === id;
+  if (collapsed)
+    return (
+      <Tooltip.Provider delayDuration={150} skipDelayDuration={300}>
+        <Rail route={route} onGo={onGo} />
+      </Tooltip.Provider>
+    );
   return (
     <div className="flex h-full min-h-0 flex-col">
       <div className="p-3 pb-2">
@@ -212,17 +287,8 @@ export function Sidebar({ route, onGo }: { route: Route; onGo: (r: Route) => voi
       </nav>
 
       <div className="border-t border-foreground/[0.07] p-3">
-        <nav aria-label="Secondary" className="space-y-0.5">
-          {secondaryNav.map((item) => (
-            <NavButton key={item.id} item={item} active={active(item.id)} onGo={onGo} />
-          ))}
-        </nav>
-        <div className="mt-2 flex items-center gap-2.5 rounded-md p-1">
-          <img src="/about/avatar.jpg" alt="" width="28" height="28" className="size-7 shrink-0 rounded-full bg-foreground/[0.08] object-cover" />
-          <span className="min-w-0 leading-tight">
-            <span className="block truncate text-[13px] font-medium">Humayun Rashid</span>
-            <span className="block truncate text-xs text-foreground/50">Designer &amp; founder</span>
-          </span>
+        <div className="flex items-center gap-1">
+          <ProfileMenu onGo={onGo} />
           <ThemeToggle />
         </div>
       </div>

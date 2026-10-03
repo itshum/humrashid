@@ -82,12 +82,16 @@ export function Cover({
   );
 }
 
-export function Tag({ children }: { children: ReactNode }) {
-  return (
-    <span className="inline-flex h-5 items-center rounded-full bg-foreground/[0.06] px-2 text-xs text-foreground/65">
-      {children}
-    </span>
-  );
+// A small pill. The tone is a soft tint of one hue, readable in both
+// themes: blue for case studies, amber for experience.
+const TAG_TONES = {
+  neutral: "bg-foreground/[0.06] text-foreground/65",
+  blue: "bg-sky-500/[0.12] text-sky-700 dark:text-sky-300",
+  amber: "bg-amber-500/[0.14] text-amber-800 dark:text-amber-300",
+} as const;
+
+export function Tag({ children, tone = "neutral" }: { children: ReactNode; tone?: keyof typeof TAG_TONES }) {
+  return <span className={`inline-flex h-5 items-center rounded-full px-2 text-xs font-medium ${TAG_TONES[tone]}`}>{children}</span>;
 }
 
 export function formatDate(iso: string) {

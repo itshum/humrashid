@@ -115,8 +115,8 @@ export default function AppShell() {
     <WebTabsContext.Provider value={{ open: openWeb }}>
     <div className="saas fixed inset-0 flex bg-[var(--shell)] text-foreground antialiased">
       {/* Desktop sidebar */}
-      <aside className={cn("hidden w-64 shrink-0 lg:block", !sidebarOpen && "lg:hidden")} aria-label="Sidebar">
-        <Sidebar route={route} onGo={go} />
+      <aside className={cn("hidden shrink-0 lg:block", sidebarOpen ? "w-64" : "w-14")} aria-label="Sidebar">
+        <Sidebar route={route} onGo={go} collapsed={!sidebarOpen} />
       </aside>
 
       {/* Mobile drawer */}
@@ -153,7 +153,7 @@ export default function AppShell() {
             <button
               type="button"
               onClick={() => setSidebarOpen((o) => !o)}
-              aria-label={sidebarOpen ? "Hide sidebar" : "Show sidebar"}
+              aria-label={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
               aria-pressed={!sidebarOpen}
               title="Toggle sidebar (Ctrl or Cmd + B)"
               className="hidden size-8 place-items-center rounded-md text-foreground/60 outline-none transition-colors hover:bg-foreground/[0.06] hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/60 lg:grid"
