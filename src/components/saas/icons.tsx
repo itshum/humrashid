@@ -96,12 +96,21 @@ export const AppsIcon: NavIcon = ({ className }) => (
   </Glyph>
 );
 
-// A ruler: principles are the measure you hold the work to.
-export const PrinciplesIcon: NavIcon = ({ className }) => (
+// An endless loop: a process runs round again, one problem at a time. The
+// pixel rests at the crossing and, on hover, travels the whole loop.
+export const ProcessIcon: NavIcon = ({ className }) => (
   <Glyph className={className}>
-    <rect x="2.4" y="6.4" width="15.2" height="7.2" rx="1.8" />
-    <path d="M5.8 6.4v2.2M8.9 6.4v3.2M12 6.4v2.2M15.1 6.4v3.2" />
-    <Pixel x={4.4} y={10} size={2.8} />
+    <path d="M10 10C8.2 7.4 6.6 6.6 5.6 6.6a3.4 3.4 0 0 0 0 6.8C6.6 13.4 8.2 12.6 10 10C11.8 7.4 13.4 6.6 14.4 6.6a3.4 3.4 0 0 1 0 6.8C13.4 13.4 11.8 12.6 10 10Z" />
+    <rect
+      x="8.4"
+      y="8.4"
+      width="3.2"
+      height="3.2"
+      rx="1"
+      fill="currentColor"
+      stroke="none"
+      className="saas-loop-pixel"
+    />
   </Glyph>
 );
 

@@ -152,12 +152,15 @@ export default function PackCaseStudy({ go }: { go: Go }) {
                 <li
                   key={p.n}
                   style={{ transitionDelay: `${i * 130}ms` }}
-                  className="rounded-[4px] border border-[var(--line)] bg-[var(--surface)] p-3.5 transition-[opacity,transform] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-data-[state=armed]/stagger:-translate-x-3 group-data-[state=armed]/stagger:opacity-0 motion-reduce:transition-none"
+                  className="flex items-start gap-2.5 rounded-[4px] bg-[var(--surface)] p-5 transition-[opacity,transform] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-data-[state=armed]/stagger:-translate-x-3 group-data-[state=armed]/stagger:opacity-0 motion-reduce:transition-none"
                 >
-                  <span className="text-[13px] font-semibold tabular-nums text-foreground/65">
+                  <span
+                    aria-hidden="true"
+                    className="mt-px grid size-[18px] shrink-0 place-items-center rounded-[4px] bg-foreground/[0.09] text-[11px] tabular-nums text-foreground/80"
+                  >
                     {p.n}
                   </span>
-                  <p className="mt-2 text-balance text-[15px] font-medium leading-6">
+                  <p className="text-pretty text-[15px] font-medium leading-snug">
                     {p.text}
                   </p>
                 </li>

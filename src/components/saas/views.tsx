@@ -29,8 +29,8 @@ import { ProfilePage } from "./ProfilePage";
 import { InspirationPage } from "./InspirationPage";
 import { IdeaArticle } from "./IdeaPost";
 import { InspirationDetail } from "./InspirationDetail";
-import { ideas, principles, principlesIntro } from "./content";
-import { EmptyPanel, principleVisuals } from "./principleVisuals";
+import { ideas } from "./content";
+import { ProcessPage } from "./ProcessPage";
 import { useWebTabs, wantsBrowserTab } from "./webTabs";
 import { Cover, PageHeader, Segmented, Tag, formatDate } from "./ui";
 
@@ -488,7 +488,7 @@ function IdeaPost({ slug, go }: { slug: string; go: Go }) {
   return <IdeaArticle post={post} go={go} />;
 }
 
-/* ------------------------- Apps / Principles ---------------------- */
+/* ------------------------------- Apps ----------------------------- */
 
 function Apps() {
   return (
@@ -536,47 +536,6 @@ function Apps() {
   );
 }
 
-// Each principle is a panel card: an abstract animation on a dark
-// ground, then the numeral, title, and body, in a two-column grid. The
-// fifth sits alone in the left column of the last row.
-function Principles() {
-  return (
-    <>
-      <PageHeader title="Principles" description={principlesIntro} />
-      <ol className="grid grid-cols-1 gap-5 md:grid-cols-2">
-        {principles.map((p, i) => {
-          const Visual = principleVisuals[i] ?? EmptyPanel;
-          return (
-            <li
-              key={p.num}
-              className="overflow-hidden rounded-xl bg-[var(--panel)] ring-1 ring-foreground/[0.1] transition-shadow hover:ring-foreground/[0.2]"
-            >
-              <div className="aspect-[16/10] w-full">
-                <Visual />
-              </div>
-              <div className="p-5">
-                <p
-                  className="text-[13px] tabular-nums text-foreground/65"
-                  aria-hidden="true"
-                >
-                  {p.num}
-                </p>
-                <h2 className="mt-1 text-[15px] font-medium leading-snug">
-                  {p.title}
-                </h2>
-                <p className="mt-2 text-sm leading-6 text-foreground/65">
-                  {p.body}
-                </p>
-              </div>
-            </li>
-          );
-        })}
-      </ol>
-    </>
-  );
-}
-
-
 /* ------------------------------ Router ---------------------------- */
 
 export function View({
@@ -615,8 +574,8 @@ export function View({
       );
     case "apps":
       return <Apps />;
-    case "principles":
-      return <Principles />;
+    case "process":
+      return <ProcessPage />;
     case "inspiration":
       return route.slug ? (
         <InspirationDetail key={route.slug} id={route.slug} go={go} />

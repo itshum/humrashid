@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { AppsIcon, HomeIcon, IdeasIcon, InspirationIcon, PrinciplesIcon, ProfileIcon, WorkIcon, type NavIcon } from "./icons";
+import { AppsIcon, HomeIcon, IdeasIcon, InspirationIcon, ProcessIcon, ProfileIcon, WorkIcon, type NavIcon } from "./icons";
 import "./saas.css";
 
 // A reference sheet for the navigation icon family: how each glyph is
@@ -10,7 +10,7 @@ const ICONS: Array<{ name: string; Icon: NavIcon; idea: string }> = [
   { name: "Work", Icon: WorkIcon, idea: "Stacked cards: this project, and the ones before it." },
   { name: "Ideas", Icon: IdeasIcon, idea: "A bulb. The pixel is the spark." },
   { name: "Apps", Icon: AppsIcon, idea: "The logo mark, quartered, with one tile filled." },
-  { name: "Principles", Icon: PrinciplesIcon, idea: "A ruler: what the work is measured against." },
+  { name: "Process", Icon: ProcessIcon, idea: "An endless loop. The pixel travels it on hover." },
   { name: "Inspiration", Icon: InspirationIcon, idea: "A photograph. The pixel is the sun." },
   { name: "Profile", Icon: ProfileIcon, idea: "A person, head and shoulders." },
 ];

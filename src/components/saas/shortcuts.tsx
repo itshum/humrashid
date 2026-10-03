@@ -12,7 +12,7 @@ export const NAV_KEYS: Partial<Record<SectionId, string>> = {
   work: "W",
   ideas: "I",
   apps: "A",
-  principles: "P",
+  process: "P",
   inspiration: "N",
 };
 

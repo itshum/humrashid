@@ -32,13 +32,14 @@ export interface Idea {
 }
 
 export interface Principle {
-  num: string;
   title: string;
   body: string;
+  // The sprint phase it belongs to.
+  phase: string;
 }
 
-export const principlesIntro =
-  "My design process, refined over more than ten years of shipping, repeatable, because it delivers.";
+export const processIntro =
+  "How I take a product from an ambiguous problem to a tested direction, refined over more than ten years of shipping.";
 
 export const ideas: Idea[] = [
   {
@@ -219,30 +220,36 @@ export const ideas: Idea[] = [
   },
 ];
 
+// In the order they come up in a sprint.
 export const principles: Principle[] = [
   {
-    num: "I.",
-    title: "Show, don't tell",
-    body: "Ten years of shipping taught me decks convince nobody. A working prototype argues my case better than I ever could, so I build the real thing first and explain it second.",
-  },
-  {
-    num: "II.",
-    title: "Simple is hard",
-    body: "Cutting a feature takes more conviction than adding one, and the constraints behind it, time, headcount, scope, never hold still for long. What survives isn't just what mattered on day one, it's what still holds up.",
-  },
-  {
-    num: "III.",
-    title: "Prototype from day one",
-    body: "Specs go stale the moment they're written. I've built this way for a decade: a rough, clickable version in week one beats a polished document in month three, every time.",
-  },
-  {
-    num: "IV.",
+    phase: "Frame",
     title: "Bring every stakeholder along",
     body: "Every product I've shipped had a narrative, and every person touching it needed to hear the same one. I retell it until engineering, sales, and leadership are solving the same problem.",
   },
   {
-    num: "V.",
+    phase: "Map & Sketch",
     title: "Talk to users as early and as often as possible",
     body: "I've never regretted a user conversation. I've regretted plenty of assumptions. This is the one step I don't skip, no matter how confident the room feels.",
+  },
+  {
+    phase: "Decide",
+    title: "Simple is hard",
+    body: "Cutting a feature takes more conviction than adding one, and the constraints behind it, time, headcount, scope, never hold still for long. What survives isn't just what mattered on day one, it's what still holds up.",
+  },
+  {
+    phase: "Prototype",
+    title: "Prototype from day one",
+    body: "Specs go stale the moment they're written. I've built this way for a decade: a rough, clickable version in week one beats a polished document in month three, every time.",
+  },
+  {
+    phase: "Test",
+    title: "Show, don't tell",
+    body: "Ten years of shipping taught me decks convince nobody. A working prototype argues my case better than I ever could, so I build the real thing first and explain it second.",
+  },
+  {
+    phase: "Hand Off",
+    title: "Stay through the build",
+    body: "A handed-off flow is the start of the work, not the end. I stay close through the build, answer the questions a spec can't, and check what ships against the measure we set on day one.",
   },
 ];

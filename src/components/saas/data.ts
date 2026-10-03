@@ -3,7 +3,7 @@ import {
   HomeIcon,
   IdeasIcon,
   InspirationIcon,
-  PrinciplesIcon,
+  ProcessIcon,
   ProfileIcon,
   WorkIcon,
   type NavIcon,
@@ -13,7 +13,7 @@ import {
 // shell. Work, apps, and profile text are facts already on the live
 // site; ideas and principles live in content.ts.
 
-export type SectionId = "home" | "work" | "ideas" | "apps" | "principles" | "inspiration" | "profile";
+export type SectionId = "home" | "work" | "ideas" | "apps" | "process" | "inspiration" | "profile";
 
 // A route is a section plus an optional record slug (#work/pack).
 export interface Route {
@@ -33,7 +33,7 @@ export const primaryNav: NavItem[] = [
   { id: "work", label: "Work", icon: WorkIcon, description: "Everything I've designed, including full case studies." },
   { id: "ideas", label: "Ideas", icon: IdeasIcon, description: "Notes on design, product, and building." },
   { id: "apps", label: "Apps", icon: AppsIcon, description: "Standalone tools and apps, designed and built as experiments." },
-  { id: "principles", label: "Principles", icon: PrinciplesIcon, description: "My design process, refined over more than ten years of shipping." },
+  { id: "process", label: "Process", icon: ProcessIcon, description: "How I take a product from an ambiguous problem to a tested direction." },
   { id: "inspiration", label: "Inspiration", icon: InspirationIcon, description: "Images from recent trips." },
 ];
 
@@ -46,7 +46,9 @@ export const allNav = [...primaryNav, ...secondaryNav];
 const SECTIONS = new Set<string>(allNav.map((n) => n.id));
 
 export function parseHash(hash: string): Route {
-  const [section, slug] = hash.replace("#", "").split("/");
+  const [raw, slug] = hash.replace("#", "").split("/");
+  // Process used to be called Principles; old links still land here.
+  const section = raw === "principles" ? "process" : raw;
   return SECTIONS.has(section) ? { section: section as SectionId, slug: slug || undefined } : { section: "home" };
 }
 
