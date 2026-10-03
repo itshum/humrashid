@@ -6,6 +6,7 @@ import { allNav, caseStudies, caseStudyFor, parseHash, routeToHash, type Route }
 import { ideas } from "./content";
 import { skipMotionWhenHidden } from "../../scripts/reveal";
 import { Sidebar } from "./Sidebar";
+import { Loader } from "./Loader";
 import { View, type WorkMode } from "./views";
 import { TabStrip, WebTabsContext, WebView, type WebTab } from "./webTabs";
 import "./saas.css";
@@ -21,6 +22,10 @@ export default function AppShell() {
   // External sites open as tabs inside the panel; null means the page.
   const [tabs, setTabs] = useState<WebTab[]>([]);
   const [activeTab, setActiveTab] = useState<string | null>(null);
+  // First visit: the panel shows only the loader for a couple of seconds,
+  // then the content fades in. index.astro puts `saas-intro` on <html>
+  // before first paint when this browser hasn't seen it yet.
+  const [intro, setIntro] = useState<"off" | "loading" | "leaving">("off");
   const menuButton = useRef<HTMLButtonElement>(null);
   const scroller = useRef<HTMLDivElement>(null);
 
@@ -28,6 +33,23 @@ export default function AppShell() {
   // advance; flag it so the drawings land in their finished state.
   useEffect(() => {
     skipMotionWhenHidden();
+  }, []);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (!root.classList.contains("saas-intro")) return;
+    const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    setIntro("loading");
+    const finish = () => {
+      root.classList.remove("saas-intro");
+      try {
+        localStorage.setItem("site3-intro-seen", "1");
+      } catch {}
+      setIntro("leaving");
+      window.setTimeout(() => setIntro("off"), 600);
+    };
+    const t = window.setTimeout(finish, still ? 1000 : 2600);
+    return () => window.clearTimeout(t);
   }, []);
 
   // Views are deep-linkable (#work), and back/forward work.
@@ -115,8 +137,35 @@ export default function AppShell() {
     <WebTabsContext.Provider value={{ open: openWeb }}>
     <div className="saas fixed inset-0 flex bg-[var(--shell)] text-foreground antialiased">
       {/* Desktop sidebar */}
-      <aside className={cn("hidden shrink-0 lg:block", sidebarOpen ? "w-64" : "w-14")} aria-label="Sidebar">
-        <Sidebar route={route} onGo={go} collapsed={!sidebarOpen} />
+      {/* The width glides between the full sidebar and the icon rail while
+          the two layouts trade places with a quick crossfade, each at its
+          own fixed width so nothing reflows mid-slide. The hidden one is
+          inert, so it can't be tabbed to or read out. */}
+      <aside
+        className={cn(
+          "relative hidden shrink-0 overflow-hidden transition-[width] duration-[240ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none lg:block",
+          sidebarOpen ? "w-64" : "w-14",
+        )}
+        aria-label="Sidebar"
+      >
+        <div
+          inert={!sidebarOpen}
+          className={cn(
+            "absolute inset-y-0 left-0 w-64 transition-opacity motion-reduce:transition-none",
+            sidebarOpen ? "opacity-100 duration-200 delay-75" : "pointer-events-none opacity-0 duration-100",
+          )}
+        >
+          <Sidebar route={route} onGo={go} />
+        </div>
+        <div
+          inert={sidebarOpen}
+          className={cn(
+            "absolute inset-y-0 left-0 w-14 transition-opacity motion-reduce:transition-none",
+            sidebarOpen ? "pointer-events-none opacity-0 duration-100" : "opacity-100 duration-200 delay-75",
+          )}
+        >
+          <Sidebar route={route} onGo={go} collapsed />
+        </div>
       </aside>
 
       {/* Mobile drawer */}
@@ -139,7 +188,8 @@ export default function AppShell() {
 
       {/* Right panel */}
       <main className="flex min-w-0 flex-1 flex-col lg:py-2 lg:pr-2" aria-label={section.label}>
-        <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-[var(--panel)] lg:rounded-xl lg:shadow-[0_1px_2px_rgb(0_0_0/0.04)] lg:ring-1 lg:ring-foreground/[0.08]">
+        <div className="saas-panel relative flex min-h-0 flex-1 flex-col overflow-hidden bg-[var(--panel)] [&>*:not(.saas-loader)]:transition-opacity [&>*:not(.saas-loader)]:duration-500 lg:rounded-xl lg:shadow-[0_1px_2px_rgb(0_0_0/0.04)] lg:ring-1 lg:ring-foreground/[0.08]">
+          {intro !== "off" && <Loader leaving={intro === "leaving"} still={window.matchMedia("(prefers-reduced-motion: reduce)").matches} />}
           <header className="flex h-12 shrink-0 items-center gap-2 border-b border-foreground/[0.07] px-3">
             <button
               ref={menuButton}

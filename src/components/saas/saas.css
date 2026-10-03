@@ -120,3 +120,53 @@ html.motion-skip .saas * {
     animation: none;
   }
 }
+
+/* First-visit loader (Loader.tsx). Each lit pixel is a wide gradient
+   drifting past, so its color is always shifting; delays are set per
+   cell so they never move in step. */
+.saas-pixel {
+  background-image: repeating-linear-gradient(
+    120deg,
+    rgb(150, 130, 210) 0%,
+    rgb(120, 190, 200) 12%,
+    rgb(200, 190, 130) 24%,
+    rgb(210, 140, 180) 36%,
+    rgb(130, 170, 220) 48%,
+    rgb(150, 130, 210) 60%
+  );
+  background-size: 500% 500%;
+  animation: saas-shimmer 5s linear infinite;
+}
+
+@keyframes saas-shimmer {
+  from {
+    background-position: 0% 50%;
+  }
+  to {
+    background-position: 100% 50%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .saas-pixel {
+    animation: none;
+    background-position: 30% 50%;
+  }
+}
+
+/* While the intro plays, everything in the panel but the loader waits
+   (the class is put on <html> before first paint, so there is no flash
+   of content). The animation is a failsafe: if the script never clears
+   the class, the content shows after six seconds anyway. */
+html.saas-intro .saas-panel > :not(.saas-loader) {
+  visibility: hidden;
+  opacity: 0;
+  animation: saas-intro-failsafe 0.01s 6s forwards;
+}
+
+@keyframes saas-intro-failsafe {
+  to {
+    visibility: visible;
+    opacity: 1;
+  }
+}

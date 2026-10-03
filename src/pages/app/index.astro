@@ -42,6 +42,16 @@ import "../../styles/global.css";
         }
         apply();
         setInterval(apply, 60000);
+
+        // First visit, or any visit with ?intro: hold the panel's content
+        // back for the loader. A first visit in a hidden tab skips it,
+        // since nothing could play there.
+        try {
+          var forced = /[?&]intro\b/.test(location.search);
+          if (forced || (!document.hidden && !localStorage.getItem("site3-intro-seen"))) {
+            document.documentElement.classList.add("saas-intro");
+          }
+        } catch (e) {}
       })();
     </script>
   </head>

@@ -5,30 +5,17 @@ import { cn } from "@/lib/utils";
 import { ProfileMenu } from "./ProfileMenu";
 import { caseStudies, primaryNav, type NavItem, type Route, type SectionId, type WorkItem } from "./data";
 
-// Four-by-four pixel grid, the same mark as the site's logo, in the
-// site's pastel palette.
-const MARK_CELLS: Array<string | null> = [
-  "#c9a0dc", null, "#d9cf8a", null,
-  "#8fb4e8", "#c9a0dc", "#8fb4e8", "#a9d8de",
-  "#8fb4e8", null, "#8fb4e8", null,
-  "#c9a0dc", null, "#d9cf8a", "#8fb4e8",
-];
-
+// The mark: a chunky H and R that share one stem. The H's crossbar and
+// the R's middle bar sit on the same rows, so they read as one horizontal
+// line. Drawn on a 28x24 grid and shown at 28x24 px, so every edge lands
+// on a whole pixel. Charcoal rather than black (a soft off-white in dark
+// mode). The same drawing is public/hr-mark.svg.
 function LogoMark() {
   return (
-    <svg viewBox="0 0 26 26" className="size-7 shrink-0" aria-hidden="true">
-      {MARK_CELLS.map((fill, i) => (
-        <rect
-          key={i}
-          x={3 + (i % 4) * 5}
-          y={3 + Math.floor(i / 4) * 5}
-          width="3.5"
-          height="3.5"
-          rx="0.8"
-          fill={fill ?? "currentColor"}
-          opacity={fill ? 1 : 0.18}
-        />
-      ))}
+    <svg viewBox="0 0 28 24" width="28" height="24" className="shrink-0 text-[#2b2b2e] dark:text-[#ececee]" fill="currentColor" aria-hidden="true">
+      <path d="M1 2h5v8h6V2h5v20h-5v-7H6v7H1Z" />
+      <path fillRule="evenodd" d="M15 2h5a6.5 6.5 0 0 1 0 13h-5ZM17 6v4h3a2 2 0 0 0 0-4Z" />
+      <path d="M18 14h5.4L27 22h-5.6Z" />
     </svg>
   );
 }
