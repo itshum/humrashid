@@ -53,7 +53,7 @@ export function ProfileMenu({ onGo, compact = false }: { onGo: (r: Route) => voi
         <img src="/about/avatar.jpg" alt="" width="28" height="28" className="size-7 shrink-0 rounded-full bg-foreground/[0.08] object-cover" />
         <span className={cn("min-w-0 leading-tight", compact && "sr-only")}>
           <span className="block truncate text-[13px] font-medium">{profile.name}</span>
-          <span className="block truncate text-xs text-foreground/50">Designer &amp; founder</span>
+          <span className="block truncate text-xs text-foreground/60">Designer &amp; founder</span>
         </span>
       </button>
   );
@@ -106,8 +106,8 @@ export function ProfileMenu({ onGo, compact = false }: { onGo: (r: Route) => voi
                   <a href={l.href} target="_blank" rel="noreferrer noopener" className={row}>
                     {l.icon}
                     <span>{l.label}</span>
-                    <span className="ml-auto truncate text-xs text-foreground/40">{l.handle}</span>
-                    <ArrowUpRight className="size-3.5 shrink-0 text-foreground/35 transition-colors group-hover:text-foreground" aria-hidden="true" />
+                    <span className="ml-auto truncate text-xs text-foreground/60">{l.handle}</span>
+                    <ArrowUpRight className="size-3.5 shrink-0 text-foreground/45 transition-colors group-hover:text-foreground" aria-hidden="true" />
                   </a>
                 </li>
               ))}
@@ -115,7 +115,7 @@ export function ProfileMenu({ onGo, compact = false }: { onGo: (r: Route) => voi
                 <button type="button" onClick={composeMail} className={row}>
                   <Mail className="size-4 shrink-0" strokeWidth={1.75} aria-hidden="true" />
                   <span>Email</span>
-                  <ArrowUpRight className="ml-auto size-3.5 shrink-0 text-foreground/35 transition-colors group-hover:text-foreground" aria-hidden="true" />
+                  <ArrowUpRight className="ml-auto size-3.5 shrink-0 text-foreground/45 transition-colors group-hover:text-foreground" aria-hidden="true" />
                 </button>
               </li>
             </ul>

@@ -40,13 +40,13 @@ function BlurredPreview({ work }: { work: WorkItem }) {
     <div className="relative size-full overflow-hidden" aria-hidden="true">
       <div className="pointer-events-none select-none px-8 py-16 blur-[7px] saturate-75" inert>
         <div className="mx-auto max-w-3xl text-center">
-          <p className="text-xs uppercase tracking-widest text-foreground/50">Case study</p>
+          <p className="text-xs uppercase tracking-widest text-foreground/60">Case study</p>
           <h2 className="mt-3 text-4xl font-semibold tracking-tight">{work.name}</h2>
           <p className="mx-auto mt-4 max-w-md text-base text-foreground/60">{work.description}</p>
           <div className="mt-8 flex justify-center gap-10 text-left text-sm">
             {["Company", "Role", "Year"].map((k) => (
               <div key={k}>
-                <p className="text-xs text-foreground/45">{k}</p>
+                <p className="text-xs text-foreground/60">{k}</p>
                 <div className="mt-1.5 h-3 w-20 rounded bg-foreground/20" />
               </div>
             ))}
@@ -112,7 +112,7 @@ function PasswordModal({ onUnlock, onCancel }: { onUnlock: () => void; onCancel:
             <Lock className="size-4 text-foreground/70" aria-hidden="true" />
           </div>
           <Dialog.Title className="text-[15px] font-medium">Password required</Dialog.Title>
-          <Dialog.Description id="gate-sub" className="mt-1 text-sm text-foreground/55">
+          <Dialog.Description id="gate-sub" className="mt-1 text-sm text-foreground/60">
             This project is confidential.
           </Dialog.Description>
 
@@ -135,7 +135,7 @@ function PasswordModal({ onUnlock, onCancel }: { onUnlock: () => void; onCancel:
                 aria-invalid={error}
                 aria-describedby={error ? "gate-error" : undefined}
                 className={cn(
-                  "h-10 w-full rounded-lg bg-foreground/[0.04] pl-3 pr-10 text-sm outline-none ring-1 transition-shadow placeholder:text-foreground/35 focus-visible:ring-2",
+                  "h-10 w-full rounded-lg bg-foreground/[0.04] pl-3 pr-10 text-sm outline-none ring-1 transition-shadow placeholder:text-foreground/60 focus-visible:ring-2",
                   error ? "ring-red-500/60 focus-visible:ring-red-500/70" : "ring-foreground/[0.12] focus-visible:ring-ring",
                 )}
               />
@@ -143,7 +143,7 @@ function PasswordModal({ onUnlock, onCancel }: { onUnlock: () => void; onCancel:
                 type="button"
                 onClick={() => setShow((s) => !s)}
                 aria-label={show ? "Hide password" : "Show password"}
-                className="absolute right-1.5 top-1.5 grid size-7 place-items-center rounded-md text-foreground/50 outline-none transition-colors hover:bg-foreground/[0.07] hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/60"
+                className="absolute right-1.5 top-1.5 grid size-7 place-items-center rounded-md text-foreground/60 outline-none transition-colors hover:bg-foreground/[0.07] hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/60"
               >
                 {show ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
               </button>

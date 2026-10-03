@@ -49,13 +49,13 @@ export function TabStrip({
         role="tab"
         aria-selected={active === null}
         onClick={() => onSelect(null)}
-        className={cn(tab, "shrink-0 outline-none", active === null ? "bg-foreground/[0.07] font-medium text-foreground" : "text-foreground/55 hover:bg-foreground/[0.04] hover:text-foreground")}
+        className={cn(tab, "shrink-0 outline-none", active === null ? "bg-foreground/[0.07] font-medium text-foreground" : "text-foreground/60 hover:bg-foreground/[0.04] hover:text-foreground")}
       >
         <FileText className="size-3.5 shrink-0" aria-hidden="true" />
         <span className="truncate">{pageLabel}</span>
       </button>
       {tabs.map((t) => (
-        <div key={t.id} className={cn(tab, "pr-1", active === t.id ? "bg-foreground/[0.07] text-foreground" : "text-foreground/55 hover:bg-foreground/[0.04] hover:text-foreground")}>
+        <div key={t.id} className={cn(tab, "pr-1", active === t.id ? "bg-foreground/[0.07] text-foreground" : "text-foreground/60 hover:bg-foreground/[0.04] hover:text-foreground")}>
           <button
             type="button"
             role="tab"
@@ -70,7 +70,7 @@ export function TabStrip({
             type="button"
             onClick={() => onClose(t.id)}
             aria-label={`Close ${t.title}`}
-            className="grid size-5 shrink-0 place-items-center rounded text-foreground/45 outline-none transition-colors hover:bg-foreground/[0.08] hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/60"
+            className="grid size-5 shrink-0 place-items-center rounded text-foreground/60 outline-none transition-colors hover:bg-foreground/[0.08] hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/60"
           >
             <X className="size-3" aria-hidden="true" />
           </button>
@@ -91,7 +91,7 @@ export function WebView({ tab, visible }: { tab: WebTab; visible: boolean }) {
             onClick={() => setReloads((n) => n + 1)}
             aria-label="Reload"
             title="Reload"
-            className="grid size-7 place-items-center rounded-md text-foreground/55 outline-none transition-colors hover:bg-foreground/[0.06] hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/60"
+            className="grid size-7 place-items-center rounded-md text-foreground/60 outline-none transition-colors hover:bg-foreground/[0.06] hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/60"
           >
             <RotateCw className="size-3.5" aria-hidden="true" />
           </button>
@@ -119,7 +119,7 @@ export function WebView({ tab, visible }: { tab: WebTab; visible: boolean }) {
         <div className="grid flex-1 place-items-center p-6">
           <div className="max-w-sm text-center">
             <p className="text-sm font-medium">{tab.title} can’t be shown here</p>
-            <p className="mt-1.5 text-[13px] leading-relaxed text-foreground/55">
+            <p className="mt-1.5 text-[13px] leading-relaxed text-foreground/60">
               {host(tab.url)} doesn’t allow other sites to display it, so it has to open in your browser.
             </p>
             <a

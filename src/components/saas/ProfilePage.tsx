@@ -47,7 +47,7 @@ function Section({
       <div>
         {title && <h2 className="text-[13px] font-medium">{title}</h2>}
         {note && (
-          <p className="mt-1 text-xs leading-relaxed text-foreground/50">
+          <p className="mt-1 text-xs leading-relaxed text-foreground/60">
             {note}
           </p>
         )}
@@ -64,7 +64,7 @@ const ROW =
 // (always on touch screens, which have no hover).
 const Arrow = () => (
   <ArrowUpRight
-    className="size-3.5 shrink-0 -translate-x-1 translate-y-px text-foreground/50 opacity-0 transition-[opacity,transform] duration-200 group-hover:translate-x-0 group-hover:translate-y-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:translate-y-0 group-focus-visible:opacity-100 motion-reduce:transition-none [@media(hover:none)]:translate-x-0 [@media(hover:none)]:opacity-100"
+    className="size-3.5 shrink-0 -translate-x-1 translate-y-px text-foreground/60 opacity-0 transition-[opacity,transform] duration-200 group-hover:translate-x-0 group-hover:translate-y-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:translate-y-0 group-focus-visible:opacity-100 motion-reduce:transition-none [@media(hover:none)]:translate-x-0 [@media(hover:none)]:opacity-100"
     aria-hidden="true"
   />
 );
@@ -108,7 +108,7 @@ export function ProfilePage() {
           <h1 className="text-xl font-semibold tracking-tight">
             Humayun Rashid
           </h1>
-          <p className="mt-0.5 text-sm text-foreground/55">
+          <p className="mt-0.5 text-sm text-foreground/60">
             Designer &amp; founder · New York, NY
           </p>
         </div>
@@ -145,7 +145,7 @@ export function ProfilePage() {
               >
                 <span className="text-foreground/60">{l.icon}</span>
                 <span className="font-medium">{l.label}</span>
-                <span className="min-w-0 truncate text-foreground/50">
+                <span className="min-w-0 truncate text-foreground/60">
                   {l.handle}
                 </span>
                 <Arrow />
@@ -164,7 +164,7 @@ export function ProfilePage() {
                 aria-hidden="true"
               />
               <span className="font-medium">Email</span>
-              <span className="min-w-0 truncate text-foreground/50">
+              <span className="min-w-0 truncate text-foreground/60">
                 Say hello
               </span>
               <Arrow />

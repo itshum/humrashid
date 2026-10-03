@@ -50,7 +50,7 @@ export default function PackCaseStudy({ go }: { go: Go }) {
           <dl className="mt-9 grid grid-cols-2 gap-x-10 gap-y-5 sm:grid-cols-4">
             {pack.meta.map((m) => (
               <div key={m.label}>
-                <dt className="text-xs text-foreground/50">{m.label}</dt>
+                <dt className="text-xs text-foreground/60">{m.label}</dt>
                 <dd className="mt-1 text-sm font-medium">{m.value}</dd>
               </div>
             ))}
@@ -123,7 +123,7 @@ export default function PackCaseStudy({ go }: { go: Go }) {
                       className="aspect-[4/3] w-full rounded-[4px] object-cover object-top"
                     />
                   </Expandable>
-                  <figcaption className="mt-2.5 text-[13px] leading-[1.45] text-foreground/55">
+                  <figcaption className="mt-2.5 text-[13px] leading-[1.45] text-foreground/60">
                     {s.caption}
                   </figcaption>
                 </figure>

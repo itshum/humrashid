@@ -29,7 +29,7 @@ export function Eyebrow({
   logoMask?: boolean;
 }) {
   return (
-    <p className="flex items-center gap-2 text-[13px] font-medium text-foreground/55">
+    <p className="flex items-center gap-2 text-[13px] font-medium text-foreground/60">
       {n && (
         <span className="grid size-[18px] place-items-center rounded-[4px] bg-[var(--surface-2)] text-[11px] tabular-nums text-foreground/70">
           {n}

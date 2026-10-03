@@ -29,7 +29,7 @@ function Row({ Icon, name, state }: { Icon: NavIcon; name: string; state: "idle"
         active ? "bg-foreground/[0.07] font-medium text-foreground" : "text-foreground/70 hover:bg-foreground/[0.05] hover:text-foreground",
       )}
     >
-      <Icon className={cn("size-[17px] shrink-0", active ? "text-foreground" : "text-foreground/55 group-hover:text-foreground/80")} />
+      <Icon className={cn("size-[17px] shrink-0", active ? "text-foreground" : "text-foreground/60 group-hover:text-foreground/80")} />
       {name}
     </div>
   );
@@ -40,7 +40,7 @@ export default function IconSheet() {
     <div className="saas min-h-dvh bg-[var(--panel)] px-6 py-12 text-foreground antialiased sm:px-10">
       <div className="mx-auto max-w-5xl">
         <h1 className="text-xl font-semibold tracking-tight">Navigation icons</h1>
-        <p className="mt-1 max-w-2xl text-sm text-foreground/55">
+        <p className="mt-1 max-w-2xl text-sm text-foreground/60">
           One family, drawn on a 20 × 20 grid with a 1.6 stroke and round caps. Every glyph is a line drawing with one filled pixel,
           borrowed from the 4 × 4 logo mark. Line and fill both follow the text color.
         </p>
@@ -53,7 +53,7 @@ export default function IconSheet() {
             ["Sidebar size", "17px"],
           ].map(([k, v]) => (
             <div key={k}>
-              <dt className="text-xs text-foreground/50">{k}</dt>
+              <dt className="text-xs text-foreground/60">{k}</dt>
               <dd className="mt-0.5">{v}</dd>
             </div>
           ))}
@@ -68,13 +68,13 @@ export default function IconSheet() {
                   style={{ backgroundImage: GRID, backgroundSize: "6.4px 6.4px" }}
                 >
                   <Icon className="group size-32 [&_path]:[vector-effect:non-scaling-stroke] [&_rect]:[vector-effect:non-scaling-stroke] [stroke-width:2px]" />
-                  <span aria-hidden="true" className="absolute bottom-1.5 right-2 text-[10px] text-foreground/35">
+                  <span aria-hidden="true" className="absolute bottom-1.5 right-2 text-[10px] text-foreground/45">
                     20 grid
                   </span>
                 </div>
                 <div className="min-w-0 flex-1">
                   <h2 className="text-sm font-medium">{name}</h2>
-                  <p className="mt-1 text-[13px] text-foreground/55">{idea}</p>
+                  <p className="mt-1 text-[13px] text-foreground/60">{idea}</p>
                   <div className="mt-3 flex items-center gap-3 text-foreground/70">
                     {[
                       ["size-4", "16"],
@@ -83,7 +83,7 @@ export default function IconSheet() {
                     ].map(([cls, label]) => (
                       <span key={label} className="group flex flex-col items-center gap-1">
                         <Icon className={cls} />
-                        <span className="text-[10px] text-foreground/35">{label}</span>
+                        <span className="text-[10px] text-foreground/45">{label}</span>
                       </span>
                     ))}
                   </div>
@@ -96,7 +96,7 @@ export default function IconSheet() {
             </li>
           ))}
         </ul>
-        <p className="mt-6 text-xs text-foreground/45">Hover an idle row to see the pixel pop. The right-hand row is the active state.</p>
+        <p className="mt-6 text-xs text-foreground/60">Hover an idle row to see the pixel pop. The right-hand row is the active state.</p>
       </div>
     </div>
   );
