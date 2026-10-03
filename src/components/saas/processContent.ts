@@ -34,8 +34,7 @@ export interface Phase {
 }
 
 export const sprintIntro = [
-  "Most projects I run start the same way: a dedicated design sprint. One or two weeks, one problem, and a prototype that real users have reacted to by the end. I run it from start to finish as the lead designer, and bring product and engineering in at the moments that matter.",
-  "I’ve refined it over more than a decade of shipping products, mostly in B2B SaaS and eCommerce. Here is how a sprint runs, what I make at each phase, and who I work with along the way.",
+  "Most projects start with a design sprint that I run as the lead designer: one or two weeks, one problem, and a prototype real users have reacted to. Product and engineering join at the moments that matter.",
 ];
 
 export const roles: Record<Role, { label: string }> = {
@@ -216,5 +215,5 @@ export const phases: Phase[] = [
 
 export const biggerProblems = {
   heading: "When the problem is bigger",
-  text: "Bigger problems get the same loop more than once. If the flow crosses several teams, I bring them into a mapping session first. If the area is new to me, I add a research week up front. The loop doesn’t change. I\u00a0just run it again, one problem at a time.",
+  text: "Bigger problems get the same loop more than once. If the flow crosses teams, I run a mapping session first. If the area is new to me, I add a research week up front.",
 };

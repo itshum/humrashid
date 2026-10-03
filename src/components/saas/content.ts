@@ -39,7 +39,7 @@ export interface Principle {
 }
 
 export const processIntro =
-  "How I take a product from an ambiguous problem to a tested direction, refined over more than ten years of shipping.";
+  "From ambiguous problem to tested direction.";
 
 export const ideas: Idea[] = [
   {

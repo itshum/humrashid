@@ -335,11 +335,11 @@ export function ProcessPage() {
         ))}
       </div>
 
-      <div className="mt-7">
+      <div className="mt-10">
         <SprintGraphic />
       </div>
 
-      <Reveal className="mt-6">
+      <Reveal className="mt-12">
         <h2 className="text-sm font-medium">{biggerProblems.heading}</h2>
         <p className="mt-1.5 max-w-[44rem] text-pretty text-[14px] leading-[1.6] text-foreground/65">
           {biggerProblems.text}
@@ -348,7 +348,7 @@ export function ProcessPage() {
 
       <section
         aria-labelledby="principles-title"
-        className="mt-10 border-t border-foreground/[0.08] pt-6"
+        className="mt-14 border-t border-foreground/[0.08] pt-10"
       >
         <h2 id="principles-title" className="text-sm font-medium">
           What guides my design thinking
