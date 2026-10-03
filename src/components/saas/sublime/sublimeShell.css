@@ -1,0 +1,69 @@
+/* Scopes for the Sublime case study's product demos and diagrams, which
+   were written for the standalone page and read that page's own colour
+   tokens. Demos stay light, like the product, in both themes; diagrams
+   follow the shell's theme. */
+
+.sv-demo {
+  --bg: #fafaf9;
+  --text: #262626;
+  --text-secondary: #2b2b2b;
+  --label: #7a7a7a;
+  --hover-bg: #efefed;
+  --title: #262626;
+  --year: #8a8a86;
+  --icon: #cacac6;
+  --icon-hover: #6b6b6b;
+  --border: #e6e6e3;
+  --selection-bg: #1f3d2e;
+  --selection-text: #f8f8f6;
+  color-scheme: light;
+}
+
+.sv-theme {
+  --bg: var(--panel);
+  --text: var(--foreground);
+  --text-secondary: var(--foreground);
+  --label: color-mix(in oklch, var(--foreground) 65%, transparent);
+  --hover-bg: var(--surface-2);
+  --title: var(--foreground);
+  --border: var(--line);
+  --selection-bg: #1f3d2e;
+  --selection-text: #f8f8f6;
+}
+
+.dark .sv-theme {
+  --selection-bg: #4fae82;
+  --selection-text: #171715;
+}
+
+/* The diagrams have no fill: just a hairline outline on the panel. */
+.sv-theme .feg,
+.sv-theme .ttp {
+  border: 1px solid var(--line);
+  background: transparent;
+}
+
+/* The phase filter matches the screen tabs: plain words, with a ghost pill
+   only on the selected one. */
+.sv-theme .feg-filter {
+  border-radius: 999px;
+  padding: 0.5rem 0.95rem;
+}
+
+.sv-theme .feg-filter:hover {
+  background: transparent;
+  color: var(--title);
+}
+
+.sv-theme .feg-filter[aria-pressed="true"] {
+  background: color-mix(in oklch, var(--foreground) 3.5%, transparent);
+  border-color: transparent;
+  font-weight: 500;
+}
+
+/* Row labels take the panel's own color, so there is no box behind them
+   (they stay opaque so the cells scroll underneath on a phone). */
+.sv-theme .feg-area {
+  background: var(--panel);
+  box-shadow: -0.5rem 0 0 var(--panel), 0.5rem 0 0 var(--panel);
+}

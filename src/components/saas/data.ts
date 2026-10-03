@@ -78,8 +78,6 @@ export interface WorkItem {
   href?: string;
   // For an external href: whether the site allows being shown in a frame.
   embed?: boolean;
-  // Password-protected, so there is no public link from here.
-  locked?: boolean;
   // Dot and placeholder color, from the site's pastel palette.
   tone: string;
 }
@@ -96,7 +94,6 @@ export const work: WorkItem[] = [
     kind: "case-study",
     cover: "/case-studies/sublime-security/home-preview.webp",
     icon: "/case-studies/sublime-security/sublime-eye.svg",
-    locked: true,
     tone: "#7c6fd6",
   },
   {

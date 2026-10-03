@@ -153,10 +153,10 @@ export function ShotTabs({
             tabIndex={i === active ? 0 : -1}
             onClick={() => setActive(i)}
             className={cn(
-              "h-8 rounded-[4px] px-3 text-[13px] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring/60",
+              "h-8 rounded-full px-3.5 text-[13px] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring/60",
               i === active
-                ? "bg-[var(--surface-2)] font-medium text-foreground"
-                : "text-foreground/65 hover:bg-[var(--surface)] hover:text-foreground",
+                ? "bg-foreground/[0.035] font-medium text-foreground"
+                : "text-foreground/65 hover:text-foreground",
             )}
           >
             {s.label}

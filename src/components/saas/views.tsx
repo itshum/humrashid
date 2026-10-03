@@ -6,7 +6,6 @@ import {
   ImageIcon,
   LayoutGrid,
   LayoutList,
-  Lock,
   Rows3,
   Grid2x2,
 } from "lucide-react";
@@ -21,9 +20,11 @@ import {
 } from "./data";
 import { CaseStudyFrame } from "./CaseStudyFrame";
 import { HomePanels } from "./HomePanels";
+import { LatestWorkDemo } from "./LatestWorkDemo";
 import PackCaseStudy from "./pack/PackCaseStudy";
 import PpvpCaseStudy from "./ppvp/PpvpCaseStudy";
 import InveterateCaseStudy from "./inveterate/InveterateCaseStudy";
+import SublimeCaseStudy from "./sublime/SublimeCaseStudy";
 import { ProfilePage } from "./ProfilePage";
 import { InspirationPage } from "./InspirationPage";
 import { IdeaArticle } from "./IdeaPost";
@@ -126,13 +127,8 @@ function Home({ go }: { go: Go }) {
             onClick={() => go({ section: "work", slug: latest.slug })}
             className="group flex flex-1 flex-col rounded-lg text-left outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-8 focus-visible:ring-offset-[var(--panel)]"
           >
-            <span className="relative block aspect-[16/10] w-full flex-1 overflow-hidden rounded-lg bg-[#e4f6f0] ring-1 ring-foreground/[0.1] lg:aspect-auto lg:min-h-[220px]">
-              <img
-                src={latest.cover}
-                alt=""
-                loading="lazy"
-                className="absolute left-[-1.6%] top-[4.5%] h-auto w-[90%] max-w-none transition-transform duration-500 ease-out group-hover:scale-[1.02] motion-reduce:transition-none"
-              />
+            <span className="relative block aspect-[16/10] w-full flex-1 overflow-hidden rounded-lg bg-[#e4f4ef] ring-1 ring-foreground/[0.1] lg:aspect-auto lg:min-h-[220px]">
+              <LatestWorkDemo />
             </span>
             <span className="mt-3.5 block text-sm font-medium leading-snug tracking-[-0.011em]">
               {latest.name}
@@ -323,12 +319,6 @@ function WorkCard({ w, go }: { w: WorkItem; go: Go }) {
         <div className="min-w-0">
           <h3 className="flex items-center gap-1.5 text-sm font-medium">
             {w.name}
-            {w.locked && (
-              <Lock
-                className="size-3 text-foreground/65"
-                aria-label="Password protected"
-              />
-            )}
             {!open && w.href && (
               <ArrowUpRight
                 className="size-3.5 text-foreground/65 transition-[transform,color] group-hover:-translate-y-px group-hover:translate-x-px group-hover:text-foreground"
@@ -498,6 +488,95 @@ function IdeaPost({ slug, go }: { slug: string; go: Go }) {
   return <IdeaArticle post={post} go={go} />;
 }
 
+/* ------------------------- Apps / Principles ---------------------- */
+
+function Apps() {
+  return (
+    <>
+      <PageHeader
+        title="Apps"
+        description="Standalone tools and apps, designed and built as experiments."
+      />
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        {apps.map((a) => (
+          <a
+            key={a.slug}
+            href={a.href}
+            className="group block rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-4 focus-visible:ring-offset-[var(--panel)]"
+          >
+            <Cover
+              tone={a.tone}
+              alt={`${a.name} preview`}
+              ratio="2 / 1"
+              className="transition-shadow group-hover:ring-foreground/20"
+            >
+              <span
+                className="absolute inset-0 grid place-items-center text-3xl font-semibold tracking-tight text-foreground/30"
+                aria-hidden="true"
+              >
+                {a.name}
+              </span>
+            </Cover>
+            <div className="mt-3 flex items-start justify-between gap-3">
+              <div>
+                <h3 className="text-sm font-medium">{a.name}</h3>
+                <p className="mt-1 text-[13px] text-foreground/65">
+                  {a.description}
+                </p>
+              </div>
+              <ArrowUpRight
+                className="mt-0.5 size-4 shrink-0 text-foreground/65 transition-colors group-hover:text-foreground"
+                aria-hidden="true"
+              />
+            </div>
+          </a>
+        ))}
+      </div>
+    </>
+  );
+}
+
+// Each principle is a panel card: an abstract animation on a dark
+// ground, then the numeral, title, and body, in a two-column grid. The
+// fifth sits alone in the left column of the last row.
+function Principles() {
+  return (
+    <>
+      <PageHeader title="Principles" description={principlesIntro} />
+      <ol className="grid grid-cols-1 gap-5 md:grid-cols-2">
+        {principles.map((p, i) => {
+          const Visual = principleVisuals[i] ?? EmptyPanel;
+          return (
+            <li
+              key={p.num}
+              className="overflow-hidden rounded-xl bg-[var(--panel)] ring-1 ring-foreground/[0.1] transition-shadow hover:ring-foreground/[0.2]"
+            >
+              <div className="aspect-[16/10] w-full">
+                <Visual />
+              </div>
+              <div className="p-5">
+                <p
+                  className="text-[13px] tabular-nums text-foreground/65"
+                  aria-hidden="true"
+                >
+                  {p.num}
+                </p>
+                <h2 className="mt-1 text-[15px] font-medium leading-snug">
+                  {p.title}
+                </h2>
+                <p className="mt-2 text-sm leading-6 text-foreground/65">
+                  {p.body}
+                </p>
+              </div>
+            </li>
+          );
+        })}
+      </ol>
+    </>
+  );
+}
+
+
 /* ------------------------------ Router ---------------------------- */
 
 export function View({
@@ -517,8 +596,9 @@ export function View({
     case "work":
       if (!route.slug)
         return <WorkIndex go={go} mode={workMode} onMode={onWorkMode} />;
-      // Pack, PPVP and Inveterate have been redesigned natively for the shell; the others still
+      // Sublime, Pack, PPVP and Inveterate have been redesigned natively for the shell; the others still
       // open their original pages in a frame.
+      if (route.slug === "sublime-security") return <SublimeCaseStudy go={go} />;
       if (route.slug === "pack") return <PackCaseStudy go={go} />;
       if (route.slug === "ppvp") return <PpvpCaseStudy go={go} />;
       if (route.slug === "inveterate") return <InveterateCaseStudy go={go} />;

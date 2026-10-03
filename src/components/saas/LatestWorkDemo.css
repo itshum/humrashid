@@ -1,0 +1,142 @@
+/* The Latest work card's live dashboard. It reuses the Sublime case study's
+   product styles (sublimeUi, SimulationOverview, ResultsLeaderboard); these
+   few rules restyle the controls, which here are spans because the whole
+   card is one button. */
+
+.lwd .so-range > span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 48px;
+  height: 34px;
+  padding: 0 0.8rem;
+  border-left: 1px solid #dcdcdc;
+  font-size: 0.875rem;
+  color: var(--su-text-strong);
+  transition: background-color 120ms ease, box-shadow 120ms ease;
+}
+
+.lwd .so-range > span:first-child {
+  border-left: 0;
+}
+
+.lwd .so-range > span[data-on="true"] {
+  background: var(--so-selected-bg);
+  box-shadow: inset 0 0 0 1px var(--so-selected-border);
+}
+
+.lwd .so-download {
+  display: inline-flex;
+}
+
+.lwd .rl-more-btn[data-open="true"] {
+  border-color: var(--su-muted);
+}
+
+.lwd .rl-table tbody tr {
+  transition: background-color 160ms ease;
+}
+
+.lwd .rl-table tbody tr[data-hot="true"] {
+  background: #f6f6f6;
+}
+
+.lw-cursor {
+  transition:
+    transform 600ms cubic-bezier(0.45, 0, 0.2, 1),
+    opacity 220ms ease;
+}
+
+@keyframes lw-ripple {
+  from { transform: translate(-50%, -50%) scale(0.3); opacity: 0.55; }
+  to { transform: translate(-50%, -50%) scale(1.7); opacity: 0; }
+}
+
+.lw-ripple {
+  animation: lw-ripple 520ms ease-out forwards;
+}
+
+@keyframes lw-rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+.lwd [data-rise] {
+  opacity: 0;
+}
+
+.lwd[data-live="true"] [data-rise] {
+  animation: lw-rise 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(var(--i, 0) * 70ms);
+}
+
+.lwd[data-static="true"] [data-rise] {
+  opacity: 1;
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lw-cursor,
+  .lw-ripple,
+  .lwd .so-range > span {
+    transition: none;
+    animation: none;
+  }
+  .lwd [data-rise] {
+    opacity: 1;
+    animation: none !important;
+  }
+}
+
+/* Tables sized down so every column fits in the half-width cards. */
+.lwd .rl-table thead th {
+  padding: 0.65rem 0.5rem;
+  font-size: 0.625rem;
+}
+
+.lwd .rl-table tbody th,
+.lwd .rl-table tbody td {
+  padding: 0.7rem 0.5rem;
+  font-size: 0.8125rem;
+}
+
+.lwd .su-card-title {
+  font-size: 0.9375rem;
+}
+
+.lwd .su-pill {
+  height: 22px;
+  padding: 0 0.55rem;
+  font-size: 0.6875rem;
+}
+
+.lwd .rl-name {
+  gap: 0.45rem;
+}
+
+.lwd .rl-pop {
+  min-width: 170px;
+}
+
+/* A row with its list open sits above the rows after it (each row is its
+   own stacking context while it animates in). */
+.lwd .rl-table tbody tr[data-open="true"] {
+  position: relative;
+  z-index: 10;
+}
+
+/* The summary line and the range buttons keep their size and place while
+   the figures change: the buttons never shrink, and digits are the same
+   width, so only the numbers themselves move. */
+.lwd .so-actions {
+  flex: none;
+}
+
+.lwd .so-summary {
+  min-width: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.lwd .so-range > span {
+  flex: none;
+}

@@ -1,10 +1,10 @@
-/* Shell tokens. Light: a quiet grey frame around an off-white panel.
+/* Shell tokens. Light: a quiet grey frame around a near-white panel.
    Dark: a graphite frame around a slightly lifted panel. Text,
    borders and rings come from the project's shadcn tokens. */
 
 .saas {
   --shell: oklch(0.965 0.002 270);
-  --panel: oklch(0.985 0.001 270);
+  --panel: oklch(0.99 0.001 270);
   /* Greys for content: a surface for cards, a deeper one for wells and
      controls, and the hairline that draws their edges. */
   --surface: oklch(0.968 0.002 270);
@@ -80,6 +80,26 @@
   animation: saas-ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
 }
 
+/* The sun or moon in the clock panel: a ring swells off it and fades,
+   like the live dot, over and over. */
+@keyframes saas-orb-ping {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  80%,
+  100% {
+    transform: scale(3.1);
+    opacity: 0;
+  }
+}
+
+.saas-orb-ping {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: saas-orb-ping 2.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
 .saas-pop {
   transform-box: fill-box;
   transform-origin: center;
@@ -95,6 +115,7 @@
 @media (prefers-reduced-motion: reduce) {
   .saas-pop,
   .saas-ping,
+  .saas-orb-ping,
   .saas-breathe {
     animation: none;
   }

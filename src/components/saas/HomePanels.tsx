@@ -183,11 +183,8 @@ function Panel({
         <h2 className="text-[13px] font-medium text-foreground/70">{title}</h2>
         {badge &&
           (live ? (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:text-emerald-300">
-              <span aria-hidden="true" className="relative flex size-1.5">
-                <span className="saas-ping absolute inset-0 rounded-full bg-emerald-500" />
-                <span className="relative size-1.5 rounded-full bg-emerald-500" />
-              </span>
+            <span className="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-medium text-emerald-700 ring-1 ring-inset ring-emerald-500/50 dark:text-emerald-300">
+              <span aria-hidden="true" className="size-1.5 rounded-full bg-emerald-500" />
               {badge}
             </span>
           ) : (
@@ -694,6 +691,7 @@ function NycPanel() {
                   fillOpacity="0.18"
                   className="saas-breathe"
                 />
+                <circle r="5.2" fill="#d6a24f" fillOpacity="0.55" className="saas-orb-ping" />
                 <circle r="5.2" fill="#d6a24f" />
               </>
             ) : (
@@ -704,6 +702,7 @@ function NycPanel() {
                   fillOpacity="0.07"
                   className="saas-breathe"
                 />
+                <circle r="6" fill="currentColor" fillOpacity="0.3" className="saas-orb-ping" />
                 <path
                   d="M2.4-5.6A6 6 0 1 0 5.6 2.6 4.8 4.8 0 0 1 2.4-5.6z"
                   fill="currentColor"
