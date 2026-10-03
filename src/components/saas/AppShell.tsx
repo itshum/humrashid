@@ -6,7 +6,8 @@ import { allNav, caseStudies, caseStudyFor, parseHash, routeToHash, type Route }
 import { ideas } from "./content";
 import { skipMotionWhenHidden } from "../../scripts/reveal";
 import { Sidebar } from "./Sidebar";
-import { View, WorkModeToggle, type WorkMode } from "./views";
+import { View, type WorkMode } from "./views";
+import { TabStrip, WebTabsContext, WebView, type WebTab } from "./webTabs";
 import "./saas.css";
 
 // The portfolio as a product: a sidebar on the left, a single inset
@@ -17,6 +18,9 @@ export default function AppShell() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [workMode, setWorkMode] = useState<WorkMode>("list");
+  // External sites open as tabs inside the panel; null means the page.
+  const [tabs, setTabs] = useState<WebTab[]>([]);
+  const [activeTab, setActiveTab] = useState<string | null>(null);
   const menuButton = useRef<HTMLButtonElement>(null);
   const scroller = useRef<HTMLDivElement>(null);
 
@@ -29,7 +33,10 @@ export default function AppShell() {
   // Views are deep-linkable (#work), and back/forward work.
   useEffect(() => {
     setRoute(parseHash(window.location.hash));
-    const onHash = () => setRoute(parseHash(window.location.hash));
+    const onHash = () => {
+      setActiveTab(null);
+      setRoute(parseHash(window.location.hash));
+    };
     // pushState navigation fires popstate on back/forward; typing a
     // new #hash by hand fires hashchange.
     window.addEventListener("popstate", onHash);
@@ -66,7 +73,18 @@ export default function AppShell() {
     return () => window.removeEventListener("message", onMessage);
   }, []);
 
+  const openWeb = (t: WebTab) => {
+    setTabs((cur) => (cur.some((c) => c.id === t.id) ? cur : [...cur, t]));
+    setActiveTab(t.id);
+    setDrawerOpen(false);
+  };
+  const closeTab = (id: string) => {
+    setTabs((cur) => cur.filter((c) => c.id !== id));
+    setActiveTab((cur) => (cur === id ? null : cur));
+  };
+
   const go = (next: Route) => {
+    setActiveTab(null);
     setRoute(next);
     setDrawerOpen(false);
     window.history.pushState(null, "", routeToHash(next) || window.location.pathname);
@@ -84,12 +102,17 @@ export default function AppShell() {
   // Starts at the page itself (the sidebar already says whose site this
   // is). Every crumb but the last is a link back to the section index.
   const deep = !!(route.slug && record);
-  const crumbs: Array<{ label: string; to?: Route }> = [
-    { label: section.label, to: deep ? { section: route.section } : undefined },
-    ...(deep ? [{ label: record as string }] : []),
-  ];
+  const openTab = tabs.find((t) => t.id === activeTab);
+  const crumbs: Array<{ label: string; to?: Route }> = openTab
+    ? [{ label: "Work", to: { section: "work" } }, { label: openTab.title }]
+    : [
+        { label: section.label, to: deep ? { section: route.section } : undefined },
+        ...(deep ? [{ label: record as string }] : []),
+      ];
+  const pageLabel = record ?? section.label;
 
   return (
+    <WebTabsContext.Provider value={{ open: openWeb }}>
     <div className="saas fixed inset-0 flex bg-[var(--shell)] text-foreground antialiased">
       {/* Desktop sidebar */}
       <aside className={cn("hidden w-64 shrink-0 lg:block", !sidebarOpen && "lg:hidden")} aria-label="Sidebar">
@@ -164,33 +187,38 @@ export default function AppShell() {
                 );
               })}
             </nav>
-            {route.section === "work" && !route.slug && (
-              <div className="ml-auto shrink-0">
-                <WorkModeToggle value={workMode} onChange={setWorkMode} />
-              </div>
-            )}
           </header>
 
-          {study ? (
-            // A case study fills the panel edge to edge and scrolls itself.
-            <div className="min-h-0 flex-1">
-              <View route={route} go={go} workMode={workMode} />
-            </div>
-          ) : (
-            <div ref={scroller} className="min-h-0 flex-1 overflow-y-auto">
-              <div
-                className={cn(
-                  "mx-auto w-full px-5 py-8 sm:px-8 sm:py-10",
-                  // The Work index is a wide table, so it gets the room.
-                  route.section === "work" ? "max-w-7xl" : "max-w-5xl",
-                )}
-              >
-                <View route={route} go={go} workMode={workMode} />
+          {tabs.length > 0 && <TabStrip pageLabel={pageLabel} tabs={tabs} active={activeTab} onSelect={setActiveTab} onClose={closeTab} />}
+
+          {/* The page stays mounted behind a web tab, so its scroll position
+              and any open case study are right where they were left. */}
+          <div className={cn("min-h-0 flex-1 flex-col", activeTab ? "hidden" : "flex")}>
+            {study ? (
+              // A case study fills the panel edge to edge and scrolls itself.
+              <div className="min-h-0 flex-1">
+                <View route={route} go={go} workMode={workMode} onWorkMode={setWorkMode} />
               </div>
-            </div>
-          )}
+            ) : (
+              <div ref={scroller} className="min-h-0 flex-1 overflow-y-auto">
+                <div
+                  className={cn(
+                    "mx-auto w-full px-5 py-8 sm:px-8 sm:py-10",
+                    // The Work index is a wide table, so it gets the room.
+                    route.section === "work" ? "max-w-7xl" : "max-w-5xl",
+                  )}
+                >
+                  <View route={route} go={go} workMode={workMode} onWorkMode={setWorkMode} />
+                </div>
+              </div>
+            )}
+          </div>
+          {tabs.map((t) => (
+            <WebView key={t.id} tab={t} visible={activeTab === t.id} />
+          ))}
         </div>
       </main>
     </div>
+    </WebTabsContext.Provider>
   );
 }

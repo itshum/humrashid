@@ -57,7 +57,7 @@ export function routeToHash(route: Route) {
 
 // Optional fields are left blank (shown as an em dash) rather than
 // guessed. Market comes from each project's own description; Company is
-// who the work was done for or at (Nessa Labs for the case studies whose
+// who the work was done for or at (Nessa Lab for the case studies whose
 // team was Nessa, DBNY for the agency projects).
 export interface WorkItem {
   slug: string;
@@ -76,6 +76,8 @@ export interface WorkItem {
   iconMask?: boolean;
   // Link to the full case study on the live site.
   href?: string;
+  // For an external href: whether the site allows being shown in a frame.
+  embed?: boolean;
   // Password-protected, so there is no public link from here.
   locked?: boolean;
   // Dot and placeholder color, from the site's pastel palette.
@@ -99,21 +101,24 @@ export const work: WorkItem[] = [
   },
   {
     slug: "nessa-labs",
-    name: "Nessa Labs",
+    name: "Nessa Lab",
     description: "Founder & Design Director of a product design studio for early-stage startups.",
     market: "Design services",
-    company: "Nessa Labs",
+    company: "Nessa Lab",
     year: "2020 – 2025",
     role: "Founder & Design Director",
     kind: "experience",
+    href: "https://nessalab.com",
+    // The site fails its TLS handshake right now, so it can't be framed.
+    embed: false,
     tone: "#4fae82",
   },
   {
     slug: "pack",
     name: "Pack Platform",
     description: "Platform redesign for headless commerce software.",
-    market: "eCommerce",
-    company: "Nessa Labs",
+    market: "B2B SaaS",
+    company: "Nessa Lab",
     year: "2023",
     role: "Design Director",
     kind: "case-study",
@@ -127,7 +132,7 @@ export const work: WorkItem[] = [
     name: "PPVP",
     description: "Mobile app design for an investment platform for early-stage funding.",
     market: "Fintech",
-    company: "Nessa Labs",
+    company: "Nessa Lab",
     year: "2023",
     role: "Design Director",
     kind: "case-study",
@@ -142,7 +147,7 @@ export const work: WorkItem[] = [
     name: "Inveterate",
     description: "Zero to one design and launch for a loyalty and membership platform.",
     market: "Loyalty",
-    company: "Nessa Labs",
+    company: "Nessa Lab",
     year: "2022",
     role: "Design Director",
     kind: "case-study",
@@ -158,14 +163,16 @@ export const work: WorkItem[] = [
     market: "Nonprofit tech",
     year: "2021",
     kind: "experience",
+    href: "https://www.shoppinggives.com/",
+    embed: false,
     tone: "#6fb7c4",
   },
-  // From the DBNY days. Only the names are known so far; the rest is
-  // filled in as each project is written up.
-  { slug: "sonder-living", name: "Sonder Living", company: "DBNY", kind: "experience", tone: "#c98fd6" },
-  { slug: "aloha", name: "ALOHA", company: "DBNY", kind: "experience", tone: "#e0a458" },
-  { slug: "lilgadgets", name: "LilGadgets", company: "DBNY", kind: "experience", tone: "#5fc0a8" },
-  { slug: "stayboutique", name: "StayBoutique", company: "DBNY", kind: "experience", tone: "#8c9be0" },
+  // From the DBNY days. A project only gets a link while its site is
+  // still up (Sonder Living, LilGadgets, and StayBoutique are offline).
+  { slug: "sonder-living", name: "Sonder Living", description: "Luxury Retail", market: "eCommerce", company: "DBNY", role: "Design Lead", year: "2019", kind: "experience", tone: "#c98fd6" },
+  { slug: "aloha", name: "ALOHA", description: "CPG", market: "eCommerce", company: "DBNY", role: "Design Lead", year: "2019", kind: "experience", tone: "#e0a458", href: "https://aloha.com", embed: false },
+  { slug: "lilgadgets", name: "LilGadgets", description: "Electronics", market: "eCommerce", company: "DBNY", role: "Design Lead", year: "2018", kind: "experience", tone: "#5fc0a8" },
+  { slug: "stayboutique", name: "StayBoutique", description: "Editorial", market: "eCommerce", company: "DBNY", role: "Design Lead", year: "2018", kind: "experience", tone: "#8c9be0" },
 ];
 
 export const caseStudies = work.filter((w) => w.kind === "case-study");
@@ -213,9 +220,9 @@ export const profile = {
   tagline: "Designer and founder in NYC",
   // The short version for Home: who I am and what I do, in a few lines.
   intro:
-    "I design and build products for B2B SaaS and eCommerce teams, with over a decade of experience. Most recently I led design on launches like dynamic phishing simulations at Sublime Security, and before that I founded Nessa Labs, a studio for early-stage startups. Alongside client work, I build my own apps and write about design and product.",
+    "I design and build products for B2B SaaS and eCommerce teams, with over a decade of experience. Most recently I led design on launches like dynamic phishing simulations at Sublime Security, and before that I founded Nessa Lab, a studio for early-stage startups. Alongside client work, I build my own apps and write about design and product.",
   bio: [
-    "I've spent over a decade designing and building products across B2B SaaS and eCommerce. Most recently, I was on the early design team at Sublime Security, the fastest-growing cybersecurity email startup in the US. I led design on crucial launches like quarantine digests and dynamic phishing simulations. Before that, I founded and led Nessa Labs, a studio where I advised founders and designed digital products for early-stage startups.",
+    "I've spent over a decade designing and building products across B2B SaaS and eCommerce. Most recently, I was on the early design team at Sublime Security, the fastest-growing cybersecurity email startup in the US. I led design on crucial launches like quarantine digests and dynamic phishing simulations. Before that, I founded and led Nessa Lab, a studio where I advised founders and designed digital products for early-stage startups.",
     "I care about what never makes it onto the screen: the onboarding flow nobody notices, the empty state that quietly loses the user, the setting that should've been the default all along. Getting those subtle details right starts with talking to users first, understanding where they get stuck before assuming you know the fix. That's where the real work happens, and where most teams give up.",
     "Great design is deciding what to leave out.",
   ],

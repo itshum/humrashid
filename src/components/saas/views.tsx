@@ -9,13 +9,13 @@ import PpvpCaseStudy from "./ppvp/PpvpCaseStudy";
 import InveterateCaseStudy from "./inveterate/InveterateCaseStudy";
 import { ideas, principles, principlesIntro } from "./content";
 import { EmptyPanel, principleVisuals } from "./principleVisuals";
+import { useWebTabs, wantsBrowserTab } from "./webTabs";
 import { Cover, PageHeader, Segmented, Tag, formatDate } from "./ui";
 
 type Go = (r: Route) => void;
 export type WorkMode = "list" | "cards";
 
-// List | Cards switch for the Work page. It lives in the shell's top
-// bar, so it stays put whichever view is showing.
+// List | Cards switch for the Work page, on the right of its heading.
 export function WorkModeToggle({ value, onChange }: { value: WorkMode; onChange: (m: WorkMode) => void }) {
   return (
     <Segmented
@@ -58,7 +58,7 @@ function Home({ go }: { go: Go }) {
           onClick={() => go({ section: "profile" })}
           className="group mt-5 inline-flex h-8 items-center gap-1.5 rounded-[5px] px-3 text-[13px] font-medium text-foreground outline-none ring-1 ring-foreground/20 transition-[background-color,box-shadow] hover:bg-foreground/[0.04] hover:ring-foreground/40 focus-visible:ring-2 focus-visible:ring-ring/70"
         >
-          About me
+          Profile
           <ArrowRight
             className="size-3.5 text-foreground/60 transition-[transform,color] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-[3px] group-hover:text-foreground group-focus-visible:translate-x-[3px] group-focus-visible:text-foreground group-active:translate-x-1 motion-reduce:transition-none"
             aria-hidden="true"
@@ -98,10 +98,12 @@ const COLS = [
 ] as const;
 
 function WorkTable({ items, go }: { items: WorkItem[]; go: Go }) {
+  const { open: openWeb } = useWebTabs();
+  const web = (w: WorkItem) => openWeb({ id: w.slug, url: w.href!, title: w.name, embed: w.embed ?? false });
   const cell = (key: string) => COLS.find((c) => c.key === key)!.show;
   const text = "truncate py-3 pr-4 text-foreground/60";
   return (
-    <table className="w-full table-fixed border-collapse text-left text-sm">
+    <table className="w-full table-fixed border-separate border-spacing-0 text-left text-sm">
       <thead className="sticky top-0 z-10">
         <tr className="text-xs font-medium text-foreground/50">
           {COLS.map((c) => (
@@ -109,7 +111,7 @@ function WorkTable({ items, go }: { items: WorkItem[]; go: Go }) {
               key={c.key}
               scope="col"
               className={cn(
-                "bg-[color-mix(in_oklab,var(--panel)_96%,var(--foreground))] py-2 pr-4 first:rounded-l-md first:pl-3 last:rounded-r-md last:pr-3",
+                "border-y border-[var(--line)] bg-[color-mix(in_oklab,var(--panel)_96%,var(--foreground))] py-2 pr-4 first:rounded-tl-[4px] first:border-l first:pl-3 last:rounded-tr-[4px] last:border-r last:pr-3",
                 c.cls,
                 c.show,
               )}
@@ -126,10 +128,11 @@ function WorkTable({ items, go }: { items: WorkItem[]; go: Go }) {
           return (
             <tr
               key={w.slug}
-              onClick={open ? () => go({ section: "work", slug: w.slug }) : undefined}
+              onClick={open ? () => go({ section: "work", slug: w.slug }) : w.href ? () => web(w) : undefined}
               className={cn(
-                "border-b border-foreground/[0.06] last:border-0",
-                open && "cursor-pointer hover:bg-foreground/[0.03]",
+                "[&>*]:border-b [&>*]:border-[var(--line)] [&>*:first-child]:border-l [&>*:last-child]:border-r",
+                "last:[&>*:first-child]:rounded-bl-[4px] last:[&>*:last-child]:rounded-br-[4px]",
+                (open || w.href) && "cursor-pointer hover:[&>*]:bg-foreground/[0.03]",
               )}
             >
               <th scope="row" className="py-3 pl-3 pr-4 font-medium">
@@ -145,6 +148,23 @@ function WorkTable({ items, go }: { items: WorkItem[]; go: Go }) {
                     {dot}
                     <span className="truncate">{w.name}</span>
                   </button>
+                ) : w.href ? (
+                  <a
+                    href={w.href}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (wantsBrowserTab(e)) return;
+                      e.preventDefault();
+                      web(w);
+                    }}
+                    className="group/ext flex max-w-full items-center gap-2.5 rounded outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
+                  >
+                    {dot}
+                    <span className="truncate">{w.name}</span>
+                    <ArrowUpRight className="size-3.5 shrink-0 text-foreground/40 transition-[transform,color] group-hover/ext:-translate-y-px group-hover/ext:translate-x-px group-hover/ext:text-foreground" aria-label="Opens in a tab" />
+                  </a>
                 ) : (
                   <span className="flex items-center gap-2.5">
                     {dot}
@@ -173,6 +193,7 @@ function WorkTable({ items, go }: { items: WorkItem[]; go: Go }) {
 }
 
 function WorkCard({ w, go }: { w: WorkItem; go: Go }) {
+  const { open: openWeb } = useWebTabs();
   const open = w.kind === "case-study";
   const inner = (
     <>
@@ -188,6 +209,7 @@ function WorkCard({ w, go }: { w: WorkItem; go: Go }) {
           <h3 className="flex items-center gap-1.5 text-sm font-medium">
             {w.name}
             {w.locked && <Lock className="size-3 text-foreground/40" aria-label="Password protected" />}
+            {!open && w.href && <ArrowUpRight className="size-3.5 text-foreground/40 transition-[transform,color] group-hover:-translate-y-px group-hover:translate-x-px group-hover:text-foreground" aria-label="Opens in a tab" />}
           </h3>
           <p className="mt-1 line-clamp-2 text-[13px] text-foreground/55">
             {w.description ?? ([w.company, w.market].filter(Boolean).join(" · ") || "Details to come")}
@@ -204,19 +226,33 @@ function WorkCard({ w, go }: { w: WorkItem; go: Go }) {
     <button
       type="button"
       onClick={() => go({ section: "work", slug: w.slug })}
-      className="group block rounded-lg text-left outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-4 focus-visible:ring-offset-[var(--panel)]"
+      className="group flex flex-col items-stretch justify-start rounded-lg text-left outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-4 focus-visible:ring-offset-[var(--panel)]"
     >
       {inner}
     </button>
+  ) : w.href ? (
+    <a
+      href={w.href}
+      target="_blank"
+      rel="noreferrer noopener"
+      onClick={(e) => {
+        if (wantsBrowserTab(e)) return;
+        e.preventDefault();
+        openWeb({ id: w.slug, url: w.href!, title: w.name, embed: w.embed ?? false });
+      }}
+      className="group block rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-4 focus-visible:ring-offset-[var(--panel)]"
+    >
+      {inner}
+    </a>
   ) : (
     <div className="group block">{inner}</div>
   );
 }
 
-function WorkIndex({ go, mode }: { go: Go; mode: WorkMode }) {
+function WorkIndex({ go, mode, onMode }: { go: Go; mode: WorkMode; onMode: (m: WorkMode) => void }) {
   return (
     <>
-      <PageHeader title="Work" description="Everything I've designed, including full case studies." />
+      <PageHeader title="Work" description="Everything I've designed, including full case studies." actions={<WorkModeToggle value={mode} onChange={onMode} />} />
       {mode === "list" ? (
         <WorkTable items={work} go={go} />
       ) : (
@@ -476,12 +512,12 @@ function Profile() {
 
 /* ------------------------------ Router ---------------------------- */
 
-export function View({ route, go, workMode }: { route: Route; go: Go; workMode: WorkMode }) {
+export function View({ route, go, workMode, onWorkMode }: { route: Route; go: Go; workMode: WorkMode; onWorkMode: (m: WorkMode) => void }) {
   switch (route.section) {
     case "home":
       return <Home go={go} />;
     case "work":
-      if (!route.slug) return <WorkIndex go={go} mode={workMode} />;
+      if (!route.slug) return <WorkIndex go={go} mode={workMode} onMode={onWorkMode} />;
       // Pack, PPVP and Inveterate have been redesigned natively for the shell; the others still
       // open their original pages in a frame.
       if (route.slug === "pack") return <PackCaseStudy go={go} />;

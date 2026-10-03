@@ -405,7 +405,7 @@ function CommitsPanel({ range }: { range: Range }) {
   );
 }
 
-/* --------------------------- New York, now ------------------------- */
+/* --------------------------- New York City, now ------------------------- */
 
 // The site's own clock. It flips to dark from 7pm to 6am New York time
 // (the rule Topbar.astro uses for the theme). This draws the whole day
@@ -487,7 +487,7 @@ function NycPanel() {
           : `Dark until ${clock(DAY_START)}`;
 
   return (
-    <Panel title="New York, now" source="weather" badge={scrub !== null ? "Scrubbing" : "Live"} live={scrub === null} value={h === null ? "—" : clock(h)} caption={caption}>
+    <Panel title="New York City, now" source="weather" badge={scrub !== null ? "Scrubbing" : "Live"} live={scrub === null} value={h === null ? "—" : clock(h)} caption={caption}>
       <svg
         viewBox={`0 0 ${W} 84`}
         className="w-full touch-none rounded outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--panel)]"
